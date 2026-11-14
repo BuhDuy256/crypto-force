@@ -1,0 +1,56 @@
+# Lessons Learned
+
+Đọc file này để biết những lỗi đã gặp trong project Crypto Force và quy tắc cụ thể để tránh lặp lại các lỗi đó.
+
+File này là nguồn dữ liệu chính (single source of truth) cho Lesson Learned. Chỉ thêm hoặc sửa bài học khi người dùng đã chấp thuận, thông qua Skill `lesson-manager` (`.claude/skills/lesson-manager/SKILL.md`).
+
+## Quy ước
+
+- **ID** có dạng `LL-XXX`, tăng dần, không đổi và không tái sử dụng, kể cả khi bài học bị loại bỏ.
+- Bài học không có dòng `Status` là còn hiệu lực. Khi bài học không còn áp dụng, thêm dòng `- **Status:** Deprecated — <lý do>`, không xóa khỏi file.
+- **Scope** dùng một trong các giá trị: `Documentation`, `Code`, `Testing`, `General`.
+
+Mỗi bài học theo mẫu:
+
+```markdown
+### LL-XXX: <Title>
+
+- **Scope:** <Documentation | Code | Testing | General>
+- **Status:** Deprecated — <lý do> (tùy chọn, chỉ thêm khi bài học không còn áp dụng)
+- **Problem:** <Lỗi đã gặp và vì sao lỗi đó gây ra vấn đề>
+- **Rule:** <Quy tắc cụ thể, có thể kiểm tra được>
+- **Examples:** (khi phù hợp)
+  - Before: ...
+  - After: ...
+```
+
+## Lessons
+
+### LL-001: Ambiguous References
+
+- **Scope:** Documentation
+- **Problem:** Tài liệu dùng các cụm như "đề xuất của nhóm", "cách tiếp cận này", "cơ chế trên", "phương án đã chọn" hoặc "hệ thống xử lý phù hợp" mà không xác định chúng chỉ đến điều gì. Người đọc phải tự đoán đối tượng, dễ hiểu sai quyết định hoặc hành vi đang được mô tả, và không thể kiểm tra nội dung.
+- **Rule:** Mọi câu phải xác định rõ đối tượng, hành động hoặc quyết định được đề cập. Khi nhắc đến một quyết định, giải pháp hoặc hành vi, nêu nội dung cụ thể hoặc tham chiếu đến nơi đã định nghĩa. Áp dụng cho toàn bộ tài liệu, kể cả heading, bảng, bullet và chú thích hình. Được phép dùng cụm như "cơ chế này" hoặc "phương án trên" khi đối tượng đã được xác định rõ trong ngữ cảnh gần nhất; chỉ viết lại khi người đọc phải suy đoán.
+- **Examples:** (chỉ minh họa cách viết, không phải quyết định kiến trúc của Crypto Force)
+  - Tham chiếu đến phương án chưa xác định
+    - Before: "Hệ thống sử dụng phương án được nhóm đề xuất."
+    - After: "Hệ thống sử dụng Weighted Voting để kết hợp tín hiệu từ các Strategy."
+  - Mô tả hành vi thiếu cụ thể
+    - Before: "Khi xảy ra lỗi, hệ thống sẽ xử lý phù hợp."
+    - After: "Khi kết nối Binance bị gián đoạn, hệ thống đánh dấu kết nối là `DISCONNECTED` và thử kết nối lại theo chính sách retry đã cấu hình."
+  - Không xác định được cơ chế
+    - Before: "Cơ chế này giúp cải thiện hiệu năng."
+    - After: "Việc chạy nhiều Backtest Worker cho phép xử lý đồng thời các Backtest Job, thay vì thực hiện tuần tự."
+
+### LL-002: Process Notes in Document Content
+
+- **Scope:** Documentation
+- **Problem:** Agent chèn vào tài liệu các ghi chú về quá trình chỉnh sửa, chẳng hạn nội dung được chuyển từ đâu, vì sao được sắp xếp lại, hoặc trạng thái "chưa chuẩn hoá". Những ghi chú này giống log thay đổi, không giúp người đọc hiểu chủ đề của tài liệu, và sẽ lỗi thời ngay sau khi task kết thúc.
+- **Rule:** Tài liệu chỉ chứa nội dung về chủ đề của nó. Không ghi vào file nguồn gốc, lịch sử chỉnh sửa, lý do sắp xếp hoặc trạng thái hoàn thiện của nội dung. Những thông tin này chỉ báo cáo trong câu trả lời gửi người dùng. Không thêm câu dẫn hoặc disclaimer mà người dùng không yêu cầu, trừ khi câu đó cung cấp thông tin người đọc cần để hiểu đúng nội dung.
+- **Examples:**
+  - Ghi chú nguồn gốc nội dung
+    - Before: "> **Ghi chú tạm:** Các mục dưới đây được chuyển từ `system-description.md`… Nội dung chưa được chuẩn hoá thành từng requirement có ID."
+    - After: Không có ghi chú. Thông tin này được báo cáo trong câu trả lời gửi người dùng.
+  - Câu dẫn không mang giá trị
+    - Before: "Tình huống và số liệu trong file chỉ để minh họa… Yêu cầu chi tiết nằm ở [Functional Requirements](functional-requirements.md)."
+    - After: Không có câu này; nội dung chính bắt đầu ngay sau dòng mô tả mục đích file.
