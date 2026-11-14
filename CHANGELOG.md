@@ -12,6 +12,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 - Design board `docs/design/UI.html` (Crypto Force – Workspace Review) gồm 11 board, tự chứa CSS, JavaScript và font nên mở trực tiếp bằng trình duyệt.
 
 ### Changed
+- Tách authoring conventions khỏi reader-facing content: tạo `docs/CONTRIBUTING.md` làm Single Source of Truth cho quy tắc viết và maintain tài liệu; `docs/README.md` và `docs/architecture/README.md` còn lại phục vụ người đọc.
 - `docs/design/README.md` mô tả design board `UI.html`, cách mở file và danh sách 11 board thay cho danh sách ảnh mockup cũ.
 - Cập nhật design board `docs/design/UI.html` sang bản task-oriented workspace; tiêu đề trang đổi thành "Crypto Force – Task-Oriented Workspace", danh sách 11 board và kích thước giữ nguyên.
 

@@ -19,11 +19,3 @@
 | [22-api-endpoints.md](22-api-endpoints.md) | API & Realtime Communication Contracts |
 | [23-security.md](23-security.md) | Security |
 | [30-decisions.md](30-decisions.md) | Architectural Decisions |
-
-## Documentation Conventions
-
-* Mỗi file mô tả các quyết định thuộc phạm vi của mình, tránh lặp lại chi tiết đã có trong file khác.
-* Các quyết định chưa được thống nhất phải được đánh dấu là `Proposed` hoặc `Open`.
-* Phân biệt yêu cầu từ đề bài với phương án kiến trúc do nhóm đề xuất.
-* Sử dụng liên kết đến tài liệu liên quan thay vì sao chép nội dung.
-* Không xem cấu trúc tài liệu là cấu trúc bắt buộc của source code.

@@ -8,6 +8,10 @@
 
 ## Coding Conventions
 
+## Documentation
+
+Tuân thủ [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) khi tạo hoặc chỉnh sửa tài liệu trong `docs/`.
+
 ## Testing & Quality
 
 ## Safety Rules
