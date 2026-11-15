@@ -7,7 +7,22 @@ Thư mục chứa các tài liệu tham khảo UI/UX của Crypto Force, giúp �
 | File | Subject |
 | --- | --- |
 | [Crypto Force UI.html](Crypto%20Force%20UI.html) | Design board "Crypto Force – Workspace Review" gồm 11 màn hình, được export từ Claude Web UI Design |
+| [Landing.png](Landing.png) | Màn hình landing page |
+| [Sign in.png](Sign%20in.png) | Màn hình đăng nhập / tạo tài khoản |
+| [404.png](404.png) | Màn hình lỗi 404 |
+| [Realtime.png](Realtime.png) | Màn hình Realtime |
+| [Strategy Engine.png](Strategy%20Engine.png) | Màn hình Strategy Engine |
+| [Strategy library.png](Strategy%20library.png) | Màn hình thư viện strategy và composite |
+| [Discovery.png](Discovery.png) | Màn hình Discovery |
+| [Backtest.png](Backtest.png) | Màn hình Backtest |
+| [News.png](News.png) | Màn hình News |
+| [Settings.png](Settings.png) | Màn hình Settings |
+| [Empty & loading states.png](Empty%20%26%20loading%20states.png) | Trạng thái rỗng và trạng thái đang tải |
 | [reqs-from-ui/](reqs-from-ui/README.md) | Hành vi sản phẩm theo UI: tác vụ, chuyển màn hình, thay đổi dữ liệu và các **điểm UI chưa xác định** (rút ra từ Claude Web vì `Code Force UI.html` được export ra từ Claude Web UI Design chỉ rút ra được UI, không rút ra được hành vi sản phẩm) |
+
+## Ảnh màn hình (PNG)
+
+Các file PNG trong thư mục này là ảnh mỗi màn hình của design board, dùng để xem nhanh một màn hình cụ thể mà không cần mở file HTML. Nội dung ảnh tương ứng với các board trong [Crypto Force UI.html](Crypto%20Force%20UI.html).
 
 ## Crypto Force UI.html
 

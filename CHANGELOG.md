@@ -24,6 +24,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 - `docs/design/README.md` ghi rõ nguồn gốc board "Crypto Force UI.html" (export từ Claude Web UI Design) và giải thích vì sao `reqs-from-ui/` là nguồn mô tả hành vi sản phẩm thay vì trích trực tiếp từ file HTML.
 - Đổi tên mục **Cần chốt** thành **Điểm UI chưa xác định** trong toàn bộ `docs/design/reqs-from-ui/` và các tham chiếu kèm theo.
+- Thêm ảnh PNG từng màn hình vào `docs/design/` (Landing, Sign in, 404, Realtime, Strategy Engine, Strategy library, Discovery, Backtest, News, Settings, Empty & loading states); cập nhật Table of Contents trong `docs/design/README.md`.
 
 ### Removed
 - Hai file requirements `docs/requirements/functional-requirements.md` và `docs/requirements/non-functional-requirements.md`; yêu cầu chi tiết quy tụ về `project-brief.md`.
