@@ -2,7 +2,7 @@
 
 Đọc file này để biết cách chạy prototype giao diện Crypto Force, tìm source của từng màn hình và chỉnh sửa chúng.
 
-Prototype có cùng giao diện, dữ liệu mẫu và tương tác mô phỏng với design board [Crypto Force UI.html](../Crypto%20Force%20UI.html). Điểm khác là mỗi màn hình là một file đọc và sửa trực tiếp được, và các màn hình liên kết với nhau như một ứng dụng. Prototype là design reference, không phải production frontend: production frontend dùng stack trong `AGENTS.md` [[1, Tech Stack]](#ref-1) và không import code từ thư mục này.
+Prototype chứa giao diện, dữ liệu mẫu và tương tác mô phỏng của 12 design board. Mỗi màn hình là một file đọc và sửa trực tiếp được, và các màn hình liên kết với nhau như một ứng dụng. Prototype là design reference, không phải production frontend: production frontend dùng stack trong `AGENTS.md` [[1, Tech Stack]](#ref-1) và không import code từ thư mục này.
 
 ## Chạy prototype
 
@@ -150,7 +150,6 @@ Prototype không gọi backend. Dữ liệu mẫu là literal trong logic của 
 ## Vấn đề đã biết
 
 - Ô chọn ngày From/To trong Backtest là `<input type="date">` của trình duyệt, nên định dạng hiển thị theo locale của trình duyệt (ví dụ `05/01/2025` trên Chrome en-US). Dòng "Period" ngay dưới form nhắc lại khoảng thời gian theo định dạng của ứng dụng.
-- `Crypto Force UI.html` vẫn giữ hành vi cũ: focus không chuyển vào overlay và bản nháp không được lưu, vì file này là bản export gốc và không được chỉnh sửa.
 
 ## References
 

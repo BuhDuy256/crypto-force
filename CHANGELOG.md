@@ -41,3 +41,4 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 - Mục **Điểm UI chưa xác định** trong `docs/design/reqs-from-ui/*.md`; nội dung chuyển vào `docs/open-questions.md`.
 - Hai file requirements `docs/requirements/functional-requirements.md` và `docs/requirements/non-functional-requirements.md`; yêu cầu chi tiết quy tụ về `project-brief.md`.
 - Năm ảnh mockup JPG trong `docs/design/` (`01-realtime`, `02-strategy-engine`, `03-discovery`, `04-backtest`, `05-new-crawler`), được thay bằng `UI.html`.
+- Design board `docs/design/Crypto Force UI.html` và 11 ảnh PNG từng màn hình trong `docs/design/`; `docs/design/prototype/` là design reference duy nhất. Cập nhật `docs/design/README.md` (bảng board, How to Use chuyển sang prototype) và bỏ tham chiếu tới file đã xóa trong `prototype/README.md`.
