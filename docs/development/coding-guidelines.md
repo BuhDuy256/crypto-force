@@ -41,6 +41,8 @@
 - React Hook Form + Zod resolver cho forms; tránh định nghĩa validation trùng giữa form và shared contract.
 - Local UI state dùng React state; Context chỉ cho state thực sự cần chia sẻ rộng, không thay thế TanStack Query.
 - Sử dụng Tailwind CSS và shadcn/ui; ưu tiên design tokens và reusable primitives. Không hardcode styling lặp lại khi đã có component dùng chung.
+- Đặt UI primitives (chủ yếu shadcn/ui) tại `components/ui/`; component thực sự dùng chung giữa các page tại `components/`; component đặc thù của một page tại `pages/<Page>/components/`. Không tạo `components/common/` [[2, Web: layer-based và page colocation]](#ref-2).
+- Không đưa component lên `components/` chỉ vì *có thể* tái sử dụng sau này; chỉ di chuyển khi có nhu cầu chia sẻ thực tế và trách nhiệm của component vẫn phù hợp.
 - Route modules có thể render UI đơn giản; tách `pages/` cho màn hình phức tạp. Không bắt buộc mỗi route có page riêng [[2, Web: layer-based và page colocation]](#ref-2).
 
 ## Backend: responsibilities
