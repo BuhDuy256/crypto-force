@@ -29,6 +29,16 @@
 
 ## Commands
 
+Chạy từ thư mục gốc; yêu cầu Node.js `>=22.22` (React Router 8) và `pnpm` 9.
+
+01. `pnpm install`: cài dependencies cho toàn bộ workspaces.
+02. `pnpm db:up` / `pnpm db:down`: bật / tắt PostgreSQL qua Docker Compose (cần file `.env`, tạo từ `.env.example`).
+03. `pnpm dev`: chạy song song `apps/web` (Vite, cổng 5173, proxy `/api` sang API), `apps/api` (cổng 3000) và `apps/worker`.
+04. `pnpm typecheck`, `pnpm lint`, `pnpm format:check`: kiểm tra trước khi commit. `pnpm lint` cũng kiểm tra dependency boundaries trong `eslint.config.js`.
+05. `pnpm build`: build mọi app (`tsup` cho API/Worker, `react-router build` cho Web).
+06. `pnpm db:generate` / `pnpm db:migrate`: sinh và áp dụng migration Drizzle (`apps/api/drizzle/`).
+07. Thêm dependency: `pnpm --filter @crypto-force/<web|api|worker|shared|engine> add <package>`.
+
 ## Architecture
 
 01. Tuân thủ [Project Structure](docs/development/project-structure.md) về folder organization, layer responsibilities và dependency boundaries.
