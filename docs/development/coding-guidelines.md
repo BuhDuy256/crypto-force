@@ -8,16 +8,35 @@
 2. Strict boundaries, flexible implementation: bảo vệ trách nhiệm từng layer nhưng không tạo class, interface, mapper, hook hay folder chỉ để đủ template.
 3. Không đưa workflow thực thi Agent vào file này. Ví dụ code chỉ minh họa conventions, không phải implementation bắt buộc.
 
-## Naming và TypeScript
+## Naming conventions
+
+Các quy tắc sau kết hợp framework conventions với lựa chọn riêng của Crypto Force; role suffix không phải yêu cầu của TypeScript hay Express.
 
 | Đối tượng | Convention | Ví dụ |
 | --- | --- | --- |
-| Backend file | `kebab-case` + role suffix | `backtest.service.ts`, `backtest.repository.ts` |
-| React component và page file | `PascalCase.tsx` | `BacktestPage.tsx`, `ResultChart.tsx` |
-| Custom hook | `useXxx.ts` | `useBacktest.ts` |
-| Function, variable, property | `camelCase` | `createBacktest`, `runId` |
-| Component, class, type, interface | `PascalCase` | `BacktestResult` |
-| Constants | `UPPER_SNAKE_CASE` khi là hằng số module-level thực sự | `MAX_CANDIDATES` |
+| Backend Route / Controller / Service / Repository / Mapper | `kebab-case` + role suffix | `backtest.route.ts`, `backtest.service.ts` |
+| Web API access | Tên resource bằng `kebab-case.ts`, không dùng `.service.ts` | `api/backtest.ts`, `api/client.ts` |
+| Worker job handler | `kebab-case.handler.ts` | `backtest.handler.ts` |
+| React component và Page | `PascalCase.tsx` nếu chứa JSX | `BacktestPage.tsx`, `ResultChart.tsx` |
+| React custom hook | `useXxx.ts` hoặc `useXxx.tsx` nếu có JSX | `useBacktest.ts` |
+| React Router route module | Theo `app/routes.ts` và quy ước của React Router | `routes/backtest.tsx` |
+| shadcn/ui primitive file | Giữ naming do CLI/config sinh ra, thường `kebab-case.tsx` | `components/ui/button.tsx` |
+| Shared Zod schema file | `kebab-case.schema.ts` | `backtest.schema.ts` |
+| Engine pure function file | `kebab-case.ts`, tên theo operation/domain | `simulate-trades.ts` |
+| Test file | `.test.ts` hoặc `.test.tsx` theo nội dung | `backtest.test.ts` |
+| Function, variable, property, schema symbol | `camelCase` | `createBacktest`, `runId`, `createBacktestSchema` |
+| Class, component, type, interface | `PascalCase` | `BacktestResult`, `MarketDataProvider` |
+| Constants | `camelCase` mặc định; `UPPER_SNAKE_CASE` cho giới hạn/hằng số bất biến có ý nghĩa đặc biệt | `defaultOptions`, `MAX_CANDIDATES` |
+| PostgreSQL tables / columns | `snake_case` | `backtest_runs`, `created_at` |
+| TypeScript / API JSON fields | `camelCase` | `createdAt`, `runId` |
+
+- Không thêm prefix `I` cho interface; dùng `MarketDataProvider` thay vì `IMarketDataProvider`.
+- Không áp dụng role suffix cho engine pure functions, React components hoặc HTTP API access ở Web.
+- `.ts` cho code không chứa JSX, `.tsx` cho code có JSX, `.d.ts` cho ambient declarations. Ưu tiên tên và cấu trúc framework/tool tạo ra đối với framework-owned files.
+- Không đổi tên các file generated của shadcn/ui trái với cấu hình CLI.
+- Route config tường minh tại `app/routes.ts`; route module filename tuân theo route config, không ép suffix `.route.tsx`.
+
+## TypeScript
 
 - TypeScript `strict`; không sử dụng `any` để né type checking. Với dữ liệu chưa tin cậy, dùng `unknown` rồi narrow/parse.
 - Ưu tiên type inference khi rõ ràng; khai báo explicit types tại public API, boundaries và những chỗ inference khó hiểu.
@@ -29,14 +48,14 @@
 
 - Validate untrusted input ở boundaries: HTTP request, WebSocket event, job payload, external provider response và environment variables bằng Zod khi phù hợp [[1, Tech Stack]](#ref-1).
 - REST/WebSocket/job contracts dùng chung thuộc `packages/shared`; không định nghĩa các bản schema độc lập giữa Web, API và Worker [[3, Contract]](#ref-3).
-- API và TypeScript properties dùng `camelCase`; PostgreSQL column names có thể dùng `snake_case`. Drizzle có thể map hai representation này, không bắt buộc Mapper chỉ để đổi case.
+- API JSON và TypeScript properties dùng `camelCase`; PostgreSQL table/column identifiers dùng `snake_case`. Drizzle map hai representation này, không bắt buộc Mapper chỉ để đổi case.
 - Chỉ tạo Mapper riêng khi có transformation đáng kể (ví dụ flatten/nesting, serialize timestamp, format domain output). Mapper phải thuần, không I/O và không business logic.
 - Không trả raw database entities nếu làm lộ trường nội bộ hoặc không khớp API contract. Không coi TypeScript cast là runtime validation.
 
 ## Frontend: React, Router và server state
 
 - UI components tập trung render và user interactions; không gọi HTTP client hoặc Binance trực tiếp.
-- API access tập trung trong `services/`; custom hooks hoặc React Router data APIs điều phối data loading. Không bắt buộc tạo custom hook chỉ để wrap một lệnh đơn giản.
+- HTTP API access tập trung trong `app/api/` với resource modules như `backtest.ts`; custom hooks hoặc React Router data APIs điều phối data loading. Không bắt buộc tạo custom hook chỉ để wrap một lệnh đơn giản.
 - TanStack Query quản lý server state, cache, invalidation và mutation khi phù hợp; không tự xây cache server state riêng [[1, Tech Stack]](#ref-1).
 - React Hook Form + Zod resolver cho forms; tránh định nghĩa validation trùng giữa form và shared contract.
 - Local UI state dùng React state; Context chỉ cho state thực sự cần chia sẻ rộng, không thay thế TanStack Query.
@@ -57,7 +76,7 @@
 
 ## Worker, concurrency và engine
 
-- Job handler validate payload, quản lý job lifecycle và gọi logic thực thi; tránh đưa toàn bộ thuật toán vào handler.
+- Job handler (`*.handler.ts`) validate payload, quản lý job lifecycle và gọi logic thực thi; tránh đưa toàn bộ thuật toán vào handler. Job payload schemas/contracts nằm trong `packages/shared`, không gộp lẫn với handler.
 - Thiết kế các side effects có khả năng retry an toàn; cân nhắc idempotency khi job có thể chạy lại [[3, Rủi ro chất lượng]](#ref-3).
 - Không dùng fire-and-forget Promise cho công việc cần bảo đảm hoàn tất; đưa công việc nền quan trọng vào job queue.
 - Engine phải deterministic và không I/O; dependencies như time, randomness hoặc external data phải được đưa vào qua input/seed. Không đọc `process.env` trong engine [[1, Tech Stack]](#ref-1).
