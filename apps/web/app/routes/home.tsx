@@ -9,7 +9,11 @@ export function meta(): Route.MetaDescriptors {
 
 export default function Home() {
   return (
-    <main className="mx-auto flex min-h-svh max-w-3xl flex-col justify-center gap-4 p-6">
+    <main
+      id="main"
+      tabIndex={-1}
+      className="mx-auto flex min-h-svh max-w-3xl flex-col justify-center gap-4 p-6"
+    >
       <h1 className="text-4xl font-semibold tracking-tight">Crypto Force</h1>
     </main>
   );

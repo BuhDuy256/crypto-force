@@ -5,6 +5,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 ## [Unreleased]
 
 ### Added
+- `apps/web` Foundation: design tokens lấy từ prototype trong `app/app.css`, gồm theme tối mặc định và theme sáng Proposed, cùng token `success`/`warning`/`info`. Font Onest và JetBrains Mono được self-host trong `app/assets/fonts/` (SIL OFL 1.1). Base styles gồm focus ring, link, selection và `prefers-reduced-motion`; thêm skip link "Skip to main content". Token `input` được nâng contrast lên ≥ 3:1. Thêm OQ-076 về cách chọn theme.
 - Monorepo `pnpm` gồm `apps/web` (React Router 8 SPA + prerender `/`, Tailwind CSS 4, cấu hình shadcn/ui, TanStack Query), `apps/api` (Express 5, pino, Drizzle + `pg`, `GET /api/health`, error middleware), `apps/worker` (pg-boss 12), `packages/shared` (Zod env schemas) và `packages/engine`. Kèm TypeScript strict dùng chung, ESLint `strictTypeChecked` có rule chặn vi phạm dependency boundaries, Prettier, Docker Compose cho PostgreSQL 17 và `.env.example`. Toàn bộ folder trong cây tham chiếu của `docs/development/project-structure.md` đã được tạo; folder chưa có code được giữ bằng `.gitkeep`.
 - `README.md` hướng dẫn cài đặt và chạy local; `AGENTS.md` có mục Commands.
 - Khung tài liệu dự án: `README.md`, `AGENTS.md`, `CLAUDE.md` và `LESSONS.md` (Lesson Learned LL-001, LL-002).

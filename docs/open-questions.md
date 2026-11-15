@@ -111,6 +111,7 @@
 | <a id="oq-064"></a>OQ-064 | Khách chưa đăng nhập vào URL không tồn tại thì thấy 404 hay được đưa về Landing? | Trang 404 có link vào workspace | — | Low | [[11]](#ref-11) |
 | <a id="oq-065"></a>OQ-065 | "Try again" trên 404 có nên tải lại URL vừa lỗi thay vì mở Realtime không? | Nút này mở Realtime | — | Low | [[11]](#ref-11) |
 | <a id="oq-075"></a>OQ-075 | Khi tải hoặc làm mới dữ liệu thất bại (Library, Runs, News feed), màn hình nào giữ dữ liệu cũ và giữ trong bao lâu? Retry chỉ do người dùng bấm, hay hệ thống tự thử lại? | Prototype có pattern hiển thị cho lỗi tải, dữ liệu cũ được giữ lại và offline, kèm nút Retry; chưa có quy tắc retry | Xử lý lỗi API ở frontend | Low | [[14]](#ref-14) |
+| <a id="oq-076"></a>OQ-076 | Người dùng chọn theme sáng/tối thế nào: theo cài đặt hệ thống, tự chọn trong Settings, hay cả hai? Lựa chọn lưu theo tài khoản hay theo trình duyệt? | Prototype chỉ có theme tối và Settings không có tùy chọn theme. `apps/web` có token cho cả hai theme, mặc định là theme tối | UI chọn theme, lưu lựa chọn theme | Low | [[10]](#ref-10) |
 
 ## Testing
 
