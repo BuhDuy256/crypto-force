@@ -1,0 +1,117 @@
+# Project Structure
+
+Đọc file này để biết cách tổ chức source code của Crypto Force, trách nhiệm của từng folder và các ranh giới phụ thuộc bắt buộc.
+
+## Nguyên tắc
+
+1. Monorepo dùng `pnpm` workspaces với `apps/web`, `apps/api`, `apps/worker`, `packages/shared` và `packages/engine` [[1, Tech Stack]](#ref-1).
+2. `apps/web` và `apps/api` tổ chức theo layer; frontend cho phép colocate component đặc thù trong từng page. `packages/engine` tổ chức theo domain.
+3. Strict boundaries, flexible implementation: trách nhiệm và dependency là constraints; không bắt buộc tạo mọi folder, layer hoặc file trước khi có nhu cầu.
+4. Không import source nội bộ của app khác. Cross-package imports phải đi qua public exports của package; không import sâu vào private internals.
+5. Cấu trúc source không bắt buộc trùng với cấu trúc tài liệu `docs/architecture/` [[2, Architecture Documentation]](#ref-2).
+
+## Cấu trúc tham chiếu
+
+Cây dưới đây là nơi đặt code khi phát sinh nhu cầu, không phải danh sách folder bắt buộc phải tạo ngay.
+
+```text
+apps/
+  web/
+    app/
+      routes/           # React Router route modules
+      pages/            # UI màn hình phức tạp, khi cần
+      components/
+        ui/             # shadcn/ui primitives
+        common/         # Reusable app components
+      hooks/            # UI logic và query hooks
+      services/         # Typed API access
+      layouts/
+      contexts/
+      types/            # UI-only types
+      utils/
+  api/
+    src/
+      api/
+        routes/
+        controllers/
+        middlewares/
+      services/
+      repositories/
+      mappers/
+      database/
+      configs/
+      errors/
+  worker/
+    src/
+      jobs/
+      services/
+      configs/
+packages/
+  shared/
+    src/
+      schemas/
+      types/
+      constants/
+  engine/
+    src/
+      indicators/
+      strategies/
+      combinations/
+      backtesting/
+      evaluation/
+```
+
+## Web: layer-based và page colocation
+
+| Vị trí | Trách nhiệm |
+| --- | --- |
+| `routes/` | Route modules, route-level data APIs và composition; không gom toàn bộ business logic vào route. |
+| `pages/` | Màn hình phức tạp; có thể có `components/` riêng bên trong từng page. Không bắt buộc mỗi route có page riêng. |
+| `components/ui/` | UI primitives theo shadcn/ui. |
+| `components/common/` | Component dùng lại giữa nhiều màn hình. |
+| `hooks/` | Custom hooks cho UI state, interactions và TanStack Query. |
+| `services/` | Gọi backend qua API client; không chứa React rendering. |
+| `types/` | Types đặc thù UI; contract chia sẻ với backend đặt tại `packages/shared`. |
+
+Dùng React Router framework mode theo Tech Stack đã chọn [[1, Tech Stack]](#ref-1). Không bắt buộc một route module chỉ được render một page; có thể viết UI đơn giản ngay trong route module. Component đặc thù của một page nên colocate trong page; chỉ chuyển vào `components/common/` khi thực sự được dùng chung.
+
+## API: layer-based
+
+| Layer | Trách nhiệm | Không được |
+| --- | --- | --- |
+| Route | Đăng ký endpoint, kết nối middleware và controller. | Chứa business logic. |
+| Middleware | Xử lý cross-cutting HTTP concerns, authentication, validation và errors. | Thực hiện nghiệp vụ thay service. |
+| Controller | Nhận request đã được kiểm tra, gọi application service, trả HTTP response. | Truy vấn DB trực tiếp hoặc chạy thuật toán engine. |
+| Service | Business rules và orchestration; trả về kết quả không gắn với Express. | Phụ thuộc vào `Request`/`Response` của Express hoặc truy vấn DB trực tiếp. |
+| Repository | Data access qua Drizzle; quản lý queries và persistence. | Chứa HTTP handling hoặc business rules. |
+| Mapper | Chuyển đổi representation khi thực sự cần. | Gọi DB, thực hiện I/O hoặc chứa business rules. |
+
+Luồng thường gặp: Route → Middleware → Controller → Service → Repository → PostgreSQL. Đây không phải yêu cầu mọi endpoint phải có đủ các layer. API contracts dùng chung lấy từ `packages/shared`, tránh khai báo DTO trùng lặp.
+
+## Worker
+
+- `jobs/`: job handlers, nhận và validate job payload, điều phối execution và reporting.
+- `services/`: logic ứng dụng chỉ thuộc Worker.
+- `configs/`: cấu hình riêng của Worker.
+- Worker có thể gọi public API của `packages/engine` và `packages/shared`; không import trực tiếp `apps/api/src/**`.
+- Khi API và Worker thực sự cần chung một business operation, trích xuất sang package có public API phù hợp; không mặc định tạo `packages/application` từ đầu.
+
+## Shared và Engine
+
+- `packages/shared`: Zod schemas, contracts, shared types và constants; không biến thành nơi chứa mọi business logic.
+- `packages/engine`: pure TypeScript computations theo domain (indicator, strategy, combination, backtest, evaluation), không I/O, không Express/React/DB/Binance SDK, không đọc environment variables trực tiếp; cùng input và version phải cho kết quả deterministic (bao gồm seed nếu có randomness) [[1, Tech Stack]](#ref-1) [[3, Rủi ro chất lượng]](#ref-3).
+- Backend tích hợp Binance qua `MarketDataProvider` adapter; frontend không gọi Binance trực tiếp [[1, Tech Stack]](#ref-1).
+
+## Dependency rules
+
+1. `apps/web` → backend qua HTTP/WebSocket contracts, không import backend source.
+2. `apps/api` và `apps/worker` → shared/engine qua package public exports, không import source nội bộ của nhau.
+3. `packages/engine` không phụ thuộc vào `apps/*` hoặc hạ tầng I/O.
+4. `packages/shared` không phụ thuộc vào `apps/*`; không import `packages/engine` chỉ để phục vụ UI contracts.
+5. Chỉ tạo abstraction, layer hoặc folder khi có trách nhiệm thực tế; không tạo pass-through layers chỉ để đủ sơ đồ.
+
+## References
+
+1. <a id="ref-1"></a>[Project: Crypto Force](../../AGENTS.md)
+2. <a id="ref-2"></a>[Contributing to Documentation](../CONTRIBUTING.md)
+3. <a id="ref-3"></a>[Test Strategy](../testing/test-strategy.md)
