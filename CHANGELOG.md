@@ -18,5 +18,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 - Cập nhật `docs/design/README.md` định vị `UI.html` là design reference chứ không phải implementation specification: thêm hướng dẫn trích xuất ý đồ thiết kế (information architecture, user flows, visual language), các giả định cần tránh và implementation principles.
 
+- Đổi tên design board thành `docs/design/Crypto Force UI.html` kèm bundle mới dung lượng nhẹ hơn (~6.5 MB → ~2.95 MB); cập nhật link và tên file trong `docs/design/README.md`.
+
 ### Removed
 - Năm ảnh mockup JPG trong `docs/design/` (`01-realtime`, `02-strategy-engine`, `03-discovery`, `04-backtest`, `05-new-crawler`), được thay bằng `UI.html`.

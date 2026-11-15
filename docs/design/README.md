@@ -6,11 +6,11 @@ Thư mục chứa các tài liệu tham khảo UI/UX của Crypto Force, giúp �
 
 | File | Subject |
 | --- | --- |
-| [UI.html](UI.html) | Design board "Crypto Force – Workspace Review" gồm 11 màn hình |
+| [Crypto Force UI.html](Crypto%20Force%20UI.html) | Design board "Crypto Force – Workspace Review" gồm 11 màn hình |
 
-## UI.html
+## Crypto Force UI.html
 
-`UI.html` là file HTML tự chứa (self-contained), nhúng sẵn CSS, JavaScript, font Onest và nội dung của 11 boards. Có thể mở trực tiếp bằng trình duyệt, không cần web server hoặc kết nối mạng.
+`Crypto Force UI.html` là file HTML tự chứa (self-contained), nhúng sẵn CSS, JavaScript, font Onest và nội dung của 11 boards. Có thể mở trực tiếp bằng trình duyệt, không cần web server hoặc kết nối mạng.
 
 ### How to Use
 
@@ -58,4 +58,4 @@ Thư mục chứa các tài liệu tham khảo UI/UX của Crypto Force, giúp �
 
 *Kích thước chỉ mang tính tham khảo, không phải yêu cầu cố định khi triển khai.*
 
-**Guiding principle:** UI.html is a design reference, not a source of truth for product requirements or implementation details.
+**Guiding principle:** Crypto Force UI.html is a design reference, not a source of truth for product requirements or implementation details.
