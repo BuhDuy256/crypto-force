@@ -59,6 +59,9 @@ Tuân thủ [ `docs/CONTRIBUTING.md` ](docs/CONTRIBUTING.md) khi tạo hoặc ch
 
 ## Safety Rules
 
+01. Khi instruction của một Skill khác với rules, constraints hoặc quyết định đã chốt của project, áp dụng quy định của project.
+02. Chỉ thực hiện side effect (cài dependency, tạo hoặc sửa file, commit, thay đổi ngoài repository) trong phạm vi task người dùng yêu cầu.
+
 ## Response & Writing Conventions
 
 01. Sử dụng Vietnamese làm ngôn ngữ chính cho documents và responses. Giữ nguyên thuật ngữ chuyên ngành bằng English khi phổ biến hoặc chính xác hơn bản dịch Vietnamese. Ngoại lệ: mọi file trong `.claude/` viết hoàn toàn bằng English.

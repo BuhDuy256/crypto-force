@@ -26,6 +26,8 @@ export default tseslint.config(
       '**/.react-router/**',
       'apps/api/drizzle/**',
       'docs/**',
+      // Vendored third-party skill (see its UPSTREAM.md); not project code.
+      '.claude/skills/shadcn/**',
     ],
   },
 
