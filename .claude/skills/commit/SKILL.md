@@ -21,14 +21,16 @@ When committing changes, follow these steps:
    - `git diff` to see unstaged changes
    - `git log --oneline -5` to see recent commit style
 
-2. **Stage changes if needed** - If there are unstaged changes the user wants to commit, stage them with `git add`
+2. **Use the current branch** - Commit on the branch you are on, including `main` or `master`. **Do not create, switch, or suggest a new branch**, and do not ask for confirmation because the branch is the primary one. Only use a different branch when the user explicitly asks for one.
 
-3. **Analyze the changes** - Review what's being committed:
+3. **Stage changes if needed** - If there are unstaged changes the user wants to commit, stage them with `git add`
+
+4. **Analyze the changes** - Review what's being committed:
    - What files are affected?
    - What's the nature of the change (fix, feature, refactor, docs, etc.)?
    - What's the primary purpose?
 
-4. **Update CHANGELOG.md** - Add a description of the changes under the `## [Unreleased]` section:
+5. **Update CHANGELOG.md** - Add a description of the changes under the `## [Unreleased]` section:
    - Read the top of `CHANGELOG.md` to see the current format
    - If there's no `## [Unreleased]` section, create one at the top (after the header)
    - Add entries under the appropriate category header:
@@ -49,7 +51,7 @@ When committing changes, follow these steps:
      ```
    - Stage the CHANGELOG.md changes with `git add CHANGELOG.md`
 
-5. **Generate a commit message** following this format:
+6. **Generate a commit message** following this format:
    ```
    <type>: <short description>
 
@@ -63,7 +65,7 @@ When committing changes, follow these steps:
    - `style`: Formatting, whitespace
    - `test`: Adding or updating tests
    - `chore`: Maintenance tasks, dependencies
-6. **Create the commit** using a HEREDOC for proper formatting:
+7. **Create the commit** using a HEREDOC for proper formatting:
    ```bash
    git commit -m "$(cat <<'EOF'
    type: short description
@@ -72,7 +74,7 @@ When committing changes, follow these steps:
    )"
    ```
 
-7. **Verify success** - Run `git status` to confirm the commit was created
+8. **Verify success** - Run `git status` to confirm the commit was created
 
 ## Guidelines
 

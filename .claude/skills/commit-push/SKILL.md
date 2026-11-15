@@ -24,10 +24,11 @@ Run these commands in parallel:
 
 If **no remote is configured**, **stop and tell the user** — there's nowhere to push.
 
-### 2. Check the branch
+### 2. Use the current branch
 
-- **Note the current branch name**.
-- If the branch is `main` or `master`, **warn the user** that they're about to **push directly to the primary branch** and **ask whether to continue**.
+- **Note the current branch name** and commit and push to **that branch**, including `main` or `master`.
+- **Do not create, switch, or suggest a new branch**, and do not ask for confirmation before pushing to the primary branch. Only use a different branch when the user explicitly asks for one.
+- If `HEAD` is detached, **stop and tell the user**, since there is no branch to push.
 
 ### 3. Stage changes if needed
 
@@ -88,8 +89,8 @@ EOF
 
 ### 8. Push to the remote
 
-- If the branch already tracks an upstream, run `git push`.
-- If no upstream is set, run `git push -u origin <branch>` to set tracking.
+- If the current branch already tracks an upstream, run `git push`.
+- If no upstream is set, run `git push -u origin <current-branch>` to set tracking.
 
 If the push is **rejected** (e.g. the remote has newer commits), **report the error** to the user. **Do not force-push or rebase automatically**.
 
@@ -111,6 +112,7 @@ Run `git status` and confirm:
 
 ## Safety
 
+- **Never create or switch branches** unless the user explicitly asks
 - **Never use `--force` or `--force-with-lease`** on push
 - **Never skip hooks** with `--no-verify` unless explicitly asked
 - **Never amend commits that have been pushed**
