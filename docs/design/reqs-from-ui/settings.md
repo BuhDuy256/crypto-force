@@ -67,7 +67,7 @@ Thay đổi có hiệu lực ngay, không cần nút lưu. Xem các sự kiện 
    - kết thúc phiên đăng nhập;
    - mở Landing với thông báo tài khoản đã bị xóa ([public-pages.md](public-pages.md#thông-báo-sau-khi-xóa-tài-khoản)).
 
-## Cần chốt
+## Điểm UI chưa xác định
 
 | Vấn đề | Điều đã biết | Cần quyết định |
 | --- | --- | --- |

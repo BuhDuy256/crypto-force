@@ -96,7 +96,7 @@ Toast hiện ở góc dưới phải trong 5 giây, hoặc 8 giây nếu có Und
 
 Mọi màn hình workspace có dòng ghi chú rằng dữ liệu giá, backtest, tin tức và trạng thái tài khoản là minh họa.
 
-## Cần chốt
+## Điểm UI chưa xác định
 
 | Vấn đề | Điều đã biết | Cần quyết định |
 | --- | --- | --- |

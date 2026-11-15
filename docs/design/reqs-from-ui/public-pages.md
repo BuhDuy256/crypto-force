@@ -43,7 +43,7 @@ Khi người dùng xóa tài khoản trong Settings, Landing hiện một thông
 
 Trang 404 có **Go to Realtime**, **Back to home**, **Try again** (mở Realtime) và danh sách link nhanh tới các tab workspace. Nếu chưa đăng nhập, các link vào workspace sẽ gặp màn chặn đăng nhập.
 
-## Cần chốt
+## Điểm UI chưa xác định
 
 | Vấn đề | Điều đã biết | Cần quyết định |
 | --- | --- | --- |

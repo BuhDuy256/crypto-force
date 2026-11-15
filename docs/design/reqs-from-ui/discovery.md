@@ -90,7 +90,7 @@ Mỗi candidate hiện return, win rate, max drawdown, score, số trades, cùng
 
 **Re-test** mở Backtest với candidate đó được chọn sẵn; nếu Library có item cùng tên thì liên kết với item đó ([backtest.md](backtest.md#chọn-strategy-để-backtest)).
 
-## Cần chốt
+## Điểm UI chưa xác định
 
 | Vấn đề | Điều đã biết | Cần quyết định |
 | --- | --- | --- |

@@ -68,7 +68,7 @@ Panel **Sources & extraction** mặc định thu gọn; **Show details** mở ra
 - **How articles are extracted**: các bước trích xuất và lịch sử phiên bản template. **Restore** chuyển template đang dùng sang phiên bản đã chọn, có Undo.
 - **Self-healing**: switch bật/tắt, đề xuất template mới kèm tỷ lệ lỗi và **Apply now**. Phần này được gắn nhãn "Under review · not in current scope" và **View diff** bị vô hiệu. Chức năng self-healing chưa được xác nhận nằm trong phạm vi (**Confirmed**: ghi riêng để xem xét sau, không mở rộng).
 
-## Cần chốt
+## Điểm UI chưa xác định
 
 | Vấn đề | Điều đã biết | Cần quyết định |
 | --- | --- | --- |

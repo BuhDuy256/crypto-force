@@ -50,7 +50,7 @@ Checklist "Get started: run the loop once" gồm ba bước: Create a strategy, 
 
 Một bước được đánh dấu Done khi người dùng lưu strategy hoặc composite, chạy một backtest, hoặc bắt đầu một phiên Search. **Hide** ẩn checklist vĩnh viễn trên trình duyệt đó.
 
-## Cần chốt
+## Điểm UI chưa xác định
 
 | Vấn đề | Điều đã biết | Cần quyết định |
 | --- | --- | --- |

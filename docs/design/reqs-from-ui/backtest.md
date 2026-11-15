@@ -131,7 +131,7 @@ Bảng Trades có phân trang: chọn 10, 25 hoặc 50 dòng mỗi trang; Previo
 
 Ở tab Set up & run, nếu người dùng đổi cấu hình sau run gần nhất, banner "Inputs changed since this run" xuất hiện và kết quả bị làm mờ. Banner có **Run again** và **Revert inputs** (đưa form về cấu hình của run đang hiển thị).
 
-## Cần chốt
+## Điểm UI chưa xác định
 
 | Vấn đề | Điều đã biết | Cần quyết định |
 | --- | --- | --- |

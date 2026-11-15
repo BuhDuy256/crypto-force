@@ -160,7 +160,7 @@ Composite builder nằm trên màn Discovery, cạnh leaderboard.
 
 Khi đang có phiên Search chạy, Composite builder vẫn dùng được; chỉ phần Search configuration bị khóa.
 
-## Cần chốt
+## Điểm UI chưa xác định
 
 | Vấn đề | Điều đã biết | Cần quyết định |
 | --- | --- | --- |
