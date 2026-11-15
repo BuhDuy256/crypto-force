@@ -16,7 +16,7 @@
 
 * Mỗi file mô tả các quyết định thuộc phạm vi của mình, tránh lặp lại chi tiết đã có trong file khác.
 * Các quyết định chưa được thống nhất phải được đánh dấu là `Proposed` hoặc `Open`.
-* Phân biệt yêu cầu từ đề bài với phương án kiến trúc do nhóm đề xuất.
+* Phân biệt yêu cầu trong [Project Brief](requirements/project-brief.md) với phương án kiến trúc do nhóm đề xuất.
 * Sử dụng liên kết đến tài liệu liên quan thay vì sao chép nội dung.
 * Không xem cấu trúc tài liệu là cấu trúc bắt buộc của source code.
 

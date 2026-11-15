@@ -10,6 +10,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 - Tài liệu architecture (system, market data, strategy, backtesting, evaluation, search, news sentiment, database, API, security, decisions), design mockup và development/CI-CD.
 - Các skill trong `.claude/`: `commit`, `commit-push`, `lesson-manager`.
 - Design board `docs/design/UI.html` (Crypto Force – Workspace Review) gồm 11 board, tự chứa CSS, JavaScript và font nên mở trực tiếp bằng trình duyệt.
+- Tài liệu `docs/requirements/project-brief.md` ghi bài toán gốc, mục tiêu, các module và yêu cầu kiến trúc của Crypto Force; tham chiếu trong `docs/requirements/README.md` và `docs/CONTRIBUTING.md`.
 
 ### Changed
 - Tách authoring conventions khỏi reader-facing content: tạo `docs/CONTRIBUTING.md` làm Single Source of Truth cho quy tắc viết và maintain tài liệu; `docs/README.md` và `docs/architecture/README.md` còn lại phục vụ người đọc.
