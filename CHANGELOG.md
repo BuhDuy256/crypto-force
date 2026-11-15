@@ -22,6 +22,8 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 
 - Đổi tên design board thành `docs/design/Crypto Force UI.html` kèm bundle mới dung lượng nhẹ hơn (~6.5 MB → ~2.95 MB); cập nhật link và tên file trong `docs/design/README.md`.
 
+- `docs/design/README.md` ghi rõ nguồn gốc board "Crypto Force UI.html" (export từ Claude Web UI Design) và giải thích vì sao `reqs-from-ui/` là nguồn mô tả hành vi sản phẩm thay vì trích trực tiếp từ file HTML.
+
 ### Removed
 - Hai file requirements `docs/requirements/functional-requirements.md` và `docs/requirements/non-functional-requirements.md`; yêu cầu chi tiết quy tụ về `project-brief.md`.
 - Năm ảnh mockup JPG trong `docs/design/` (`01-realtime`, `02-strategy-engine`, `03-discovery`, `04-backtest`, `05-new-crawler`), được thay bằng `UI.html`.
