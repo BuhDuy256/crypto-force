@@ -4,7 +4,7 @@
 
 Crypto Force là công cụ nghiên cứu giao dịch crypto: người dùng mô tả hoặc import strategy, chạy backtest, tìm biến thể tốt hơn bằng Discovery và xem tin tức kèm sentiment. Sản phẩm không kết nối tài khoản sàn và không đặt lệnh thật.
 
-Mỗi file mô tả tác vụ, chuyển màn hình và thay đổi dữ liệu. Các điểm UI chưa xác định được quản lý trong [Open Questions](../../open-questions.md). Nhãn dùng trong tài liệu:
+Mỗi file mô tả tác vụ, chuyển màn hình và thay đổi dữ liệu. Các điểm UI chưa xác định được quản lý trong [Open Questions](../../../../open-questions.md). Nhãn dùng trong tài liệu:
 
 - **Confirmed**: đã được chủ sản phẩm xác nhận.
 - **Inferred**: suy ra từ thiết kế, chưa được xác nhận.

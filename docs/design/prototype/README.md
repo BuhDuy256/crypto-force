@@ -32,6 +32,7 @@ prototype/
 ├── styles/
 │   ├── base.css          # Base styles dùng chung: nền, link, focus, skip link, button states, skeleton, toast, tooltip, scroll region, state panel
 │   └── layout-audit.css  # Quy tắc responsive dùng chung cho mọi màn hình, kể cả breakpoint của header
+├── docs/requirements/    # Hành vi sản phẩm theo từng nhóm màn hình (tài liệu, không phải code)
 ├── assets/fonts/         # Onest, JetBrains Mono (woff2), fonts.css, OFL.txt
 ├── tools/
 │   ├── dc-source.js      # Đưa template của màn hình cho runtime; cuộn tới #fragment sau khi render
@@ -59,6 +60,8 @@ prototype/
 | `Settings.dc.html` | App · Settings | Có anchor `#profile`, `#security`, `#notifications`, `#connected`, `#data` |
 | `States.dc.html` | App · Empty & loading states | Chỉ để minh họa, không có link nào dẫn tới. Gồm cả trạng thái lỗi tải dữ liệu, dữ liệu cũ sau khi refresh lỗi, và offline |
 | `AppHeader.dc.html` | Component · App header | `?active=rt\|st\|di\|bt\|nw\|settings` chọn mục đang active khi mở riêng |
+
+Prototype chỉ thể hiện giao diện và tương tác mô phỏng. Hành vi sản phẩm của từng màn hình (tác vụ, chuyển màn hình, thay đổi dữ liệu) được mô tả trong `docs/requirements/` [[2]](#ref-2).
 
 Tên file khớp với link trong source, ví dụ `<a href="Realtime.dc.html">`. Nhờ vậy, điều hướng giữa các màn hình là link HTML thông thường, không cần router. Không có link nào trỏ tới `NotFound` và `States`, nên tên hai file này được đặt theo nội dung màn hình.
 
@@ -154,3 +157,4 @@ Prototype không gọi backend. Dữ liệu mẫu là literal trong logic của 
 ## References
 
 1. <a id="ref-1"></a>[Project: Crypto Force](../../../AGENTS.md)
+2. <a id="ref-2"></a>[Crypto Force: hành vi sản phẩm theo UI](docs/requirements/README.md)

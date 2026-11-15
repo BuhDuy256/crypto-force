@@ -129,11 +129,11 @@ Tất cả là **Proposed**. Một loại test chỉ được thêm công cụ k
 ## References
 
 1. <a id="ref-1"></a>[Project Brief](../requirements/project-brief.md)
-2. <a id="ref-2"></a>[Crypto Force: hành vi sản phẩm theo UI](../design/reqs-from-ui/README.md)
-3. <a id="ref-3"></a>[Backtest](../design/reqs-from-ui/backtest.md)
-4. <a id="ref-4"></a>[Strategy Engine và Strategy library](../design/reqs-from-ui/strategy-engine.md)
-5. <a id="ref-5"></a>[Realtime](../design/reqs-from-ui/realtime.md)
-6. <a id="ref-6"></a>[Discovery](../design/reqs-from-ui/discovery.md)
-7. <a id="ref-7"></a>[Authentication](../design/reqs-from-ui/authentication.md)
+2. <a id="ref-2"></a>[Crypto Force: hành vi sản phẩm theo UI](../design/prototype/docs/requirements/README.md)
+3. <a id="ref-3"></a>[Backtest](../design/prototype/docs/requirements/backtest.md)
+4. <a id="ref-4"></a>[Strategy Engine và Strategy library](../design/prototype/docs/requirements/strategy-engine.md)
+5. <a id="ref-5"></a>[Realtime](../design/prototype/docs/requirements/realtime.md)
+6. <a id="ref-6"></a>[Discovery](../design/prototype/docs/requirements/discovery.md)
+7. <a id="ref-7"></a>[Authentication](../design/prototype/docs/requirements/authentication.md)
 8. <a id="ref-8"></a>[Design](../design/README.md)
 9. <a id="ref-9"></a>[Project: Crypto Force](../../AGENTS.md)

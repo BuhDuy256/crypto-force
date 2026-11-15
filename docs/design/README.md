@@ -7,7 +7,7 @@ Thư mục chứa các tài liệu tham khảo UI/UX của Crypto Force, giúp �
 | File | Subject |
 | --- | --- |
 | [prototype/](prototype/README.md) | Prototype dạng source của 12 board (11 màn hình và component App header); mỗi màn hình là một file sửa được và các màn hình liên kết với nhau |
-| [reqs-from-ui/](reqs-from-ui/README.md) | Hành vi sản phẩm theo UI: tác vụ, chuyển màn hình và thay đổi dữ liệu. Prototype chỉ thể hiện giao diện và tương tác mô phỏng, không thể hiện hành vi sản phẩm, nên hành vi được mô tả riêng ở đây |
+| [prototype/docs/requirements/](prototype/docs/requirements/README.md) | Hành vi sản phẩm theo UI: tác vụ, chuyển màn hình và thay đổi dữ liệu. Prototype chỉ thể hiện giao diện và tương tác mô phỏng, không thể hiện hành vi sản phẩm, nên hành vi được mô tả riêng ở đây |
 
 ## Prototype
 

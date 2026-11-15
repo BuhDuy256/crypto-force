@@ -17,11 +17,11 @@
      ## References
 
      1. <a id="ref-1"></a>[Project Brief](../requirements/project-brief.md)
-     2. <a id="ref-2"></a>[Realtime](../design/reqs-from-ui/realtime.md)
+     2. <a id="ref-2"></a>[Realtime](../design/prototype/docs/requirements/realtime.md)
      ```
 
    * Ví dụ:
-     * Before: `Mất kết nối Binance phải tự kết nối lại (Brief §17, [realtime.md](../design/reqs-from-ui/realtime.md)).`
+     * Before: `Mất kết nối Binance phải tự kết nối lại (Brief §17, [realtime.md](../design/prototype/docs/requirements/realtime.md)).`
      * After: `Mất kết nối Binance phải tự kết nối lại [[1, §17]](#ref-1) [[2, Mất kết nối]](#ref-2).`
 5. Câu hỏi mở (vấn đề chưa được quyết) chỉ được ghi trong [`open-questions.md`](open-questions.md), theo quy ước ở đầu file đó. File khác muốn nhắc tới một câu hỏi thì link theo ID (`open-questions.md#oq-xxx`), không chép nội dung câu hỏi.
    * Khi một câu được quyết, ghi nội dung đã chốt vào tài liệu chính, hoặc vào ADR trong [`architecture/30-decisions.md`](architecture/30-decisions.md) nếu là quyết định kiến trúc có trade-off. Sau đó chuyển câu xuống bảng Resolved & Dropped, kèm trích dẫn tới nơi đã ghi.
