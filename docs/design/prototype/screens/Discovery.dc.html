@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discovery – Crypto Force</title>
+<link rel="preload" href="../assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<script src="../vendor/react/react.production.min.js"></script>
+<script src="../vendor/react/react-dom.production.min.js"></script>
+<script src="../tools/dc-source.js"></script>
+<script src="../vendor/dc-runtime/support.js"></script>
+
+</head>
+<body>
+<script type="text/x-template" data-dc-template>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="../styles/layout-audit.css">
+<style id="cf-audit-layout-fixes">
+/* Discovery: task-oriented experiment workspace, no page-level stepper. */
+/* Discovery, regrouped by the run loop: configure → watch the run → rank results → combine.
+   Config and activity are full-width rows (each can grow; nothing sits beside them to invert).
+   Leaderboard + composite builder travel together: composite consumes leaderboard candidates.
+   Both align to start; the builder is sticky so it follows the table instead of being stretched. */
+.cf-discovery-flow{display:flex !important;flex-direction:column !important;gap:18px !important;align-items:stretch !important;}
+.cf-discovery-flow > .cf-results{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(340px,1fr);gap:18px;align-items:start;}
+.cf-discovery-flow > .cf-results > section[aria-labelledby="d-comp"]{position:sticky;top:16px;}
+.cf-discovery-flow section{min-width:0;width:100%;border-color:#354253 !important;}
+.cf-discovery-flow [style*="overflow-x: auto"]{max-width:100%;}
+.cf-discovery-flow .cf-config-title{margin:0;font-size:18px;font-weight:650;}
+.cf-discovery-flow .cf-muted-explainer{margin:0;color:#9AA6B4;font-size:13px;line-height:1.5;}
+.cf-discovery-flow .cf-pipeline-description{border:1px solid #334155;border-radius:8px;background:#111923;padding:10px 12px;font-size:13px;color:#AABBD0;line-height:1.55;}
+.cf-discovery-flow .cf-activity-empty{padding:20px;border:1px dashed #38485A;border-radius:9px;background:#0E141B;display:flex;flex-direction:column;gap:7px;}
+.cf-discovery-flow .cf-activity-empty strong{font-size:15px;}
+.cf-discovery-flow .cf-activity-empty span{font-size:13px;color:#9AA6B4;line-height:1.5;}
+@media(max-width:1080px){.cf-discovery-flow{gap:16px !important;}.cf-discovery-flow > .cf-results{grid-template-columns:minmax(0,1fr);gap:16px;}.cf-discovery-flow > .cf-results > section[aria-labelledby="d-comp"]{position:static;}}
+@media(max-width:600px){.cf-discovery-flow section{padding:16px !important;}}
+</style>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../styles/base.css">
+</helmet>
+<div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums">
+<div style="position: sticky; top: 0; z-index: 30"><dc-import name="AppHeader" active="di" hint-size="100%,61px"></dc-import></div>
+<main class="cf-audited-main cf-discovery-layout" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 24px">
+<div role="note" style="border:1px solid #334155;border-radius:7px;padding:8px 12px;background:#111923;color:#AFC2D6;font-size:12px;line-height:1.4;max-width:100%;box-sizing:border-box">UI prototype: prices, backtests, news, account state and workflow feedback are illustrative. No live market, AI or account service is connected in this HTML file.</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.03em">Discovery</h1>
+<p style="margin: 0; font-size: 15px; color: #9AA6B4">Combine strategy signals, configure a search, and compare candidate results using consistent metrics.</p>
+</div>
+
+<div class="cf-discovery-flow" style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">
+<section aria-labelledby="d-config" style="background:#12171E;border:1px solid #252D38;border-radius:12px;padding:16px 20px;display:flex;flex-direction:column;gap:14px">
+<h2 id="d-config" class="cf-config-title">Search configuration</h2>
+<p class="cf-muted-explainer">Set your search method and limits. You can update these between runs.</p>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding-top: 12px; border-top: 1px solid #232B35">
+<span style="flex: 1 1 260px; font-size: 14px; color: #C3CCD6">{{settingsSummary}}</span>
+<button type="button" onClick="{{toggleSettings}}" aria-expanded="{{settingsOpen}}" aria-controls="d-settings" class="cf-sec" style="display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Search settings<svg style="transform: {{settingsRot}}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+</div>
+<sc-if value="{{settingsOpen}}" hint-placeholder-val="{{false}}">
+<div id="d-settings">
+<sc-if value="{{locked}}" hint-placeholder-val="{{false}}"><p role="note" style="margin: 0 0 12px; font-size: 13px; line-height: 1.5; color: #F2D28B">Settings are locked while this search is in progress. Stop it to change them.</p></sc-if>
+<fieldset disabled="{{locked}}" style="margin: 0; padding: 0; border: 0; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: flex-end">
+<fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px">
+<legend style="padding: 0; margin-bottom: 8px; font-size: 13px; font-weight: 700">Search method</legend>
+<div style="display: flex; flex-wrap: wrap; gap: 4px 16px">
+<sc-for list="{{methods}}" as="m" hint-placeholder-count="3"><label title="{{m.desc}}" style="display: flex; align-items: center; gap: 8px; min-height: 36px; font-size: 14px; cursor: pointer"><input type="radio" name="method" checked="{{m.on}}" onChange="{{m.pick}}" style="width: 17px; height: 17px; margin: 0">{{m.name}}</label></sc-for>
+</div>
+<span style="font-size: 13px; color: #9AA6B4">{{methodDesc}}</span>
+</fieldset>
+<fieldset style="margin: 0; padding: 0; border: 0; min-width: 0; flex: 1 1 100%; display: flex; flex-direction: column; gap: 6px">
+<legend style="padding: 0; margin-bottom: 6px; font-size: 13px; font-weight: 700">Stop when any of these is reached</legend>
+<sc-for list="{{limits}}" as="l" hint-placeholder-count="3">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px">
+<label style="display: flex; align-items: center; gap: 8px; min-height: 40px; flex: 0 1 280px; font-size: 14px; cursor: pointer"><input type="checkbox" checked="{{l.on}}" onChange="{{l.toggle}}" style="width: 17px; height: 17px; margin: 0">{{l.label}}</label>
+<input type="number" aria-label="{{l.aria}}" min="{{l.min}}" max="{{l.max}}" step="{{l.step}}" value="{{l.val}}" onChange="{{l.set}}" disabled="{{l.off}}" aria-invalid="{{l.inv}}" style="width: 110px; height: 40px; padding: 0 12px; border: 1px solid {{l.bd}}; border-radius: 8px; background: #0F141A; font-size: 14px">
+<span style="font-size: 13px; color: #9AA6B4">{{l.unit}}</span>
+<sc-if value="{{l.err}}" hint-placeholder-val="{{false}}"><span style="flex-basis: 100%; font-size: 13px; color: #FF6B5E">{{l.err}}</span></sc-if>
+</div>
+</sc-for>
+<sc-if value="{{limitsErr}}" hint-placeholder-val="{{false}}"><span role="alert" style="font-size: 13px; color: #FF6B5E">{{limitsErr}}</span></sc-if>
+</fieldset>
+</div>
+</fieldset>
+</div>
+</sc-if>
+</section>
+<section aria-labelledby="d-search" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px">
+<h2 id="d-search" style="margin:0;font-size:18px;font-weight:650">Search activity</h2>
+<span role="status" style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border: 1.5px solid {{statusColor}}; color: {{statusColor}}; font-size: 13px; font-weight: 700"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{statusColor}}"></span>{{statusLabel}}</span>
+<div style="margin-left: auto; display: flex; gap: 8px">
+<sc-if value="{{canStart}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{start}}" class="cf-pri" style="min-height: 40px; padding: 0 16px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 14px; font-weight: 700; cursor: pointer">{{startLabel}}</button></sc-if>
+<sc-if value="{{canPause}}" hint-placeholder-val="{{true}}"><button type="button" onClick="{{pause}}" class="cf-sec" style="min-height: 40px; padding: 0 16px; border: 1px solid #3A4553; border-radius: 8px; background: none; font-size: 14px; font-weight: 700; cursor: pointer">Pause</button></sc-if>
+<sc-if value="{{canStop}}" hint-placeholder-val="{{true}}"><button type="button" onClick="{{stop}}" class="cf-sec" style="min-height: 40px; padding: 0 16px; border: 1px solid #333D4A; border-radius: 8px; background: none; font-size: 14px; font-weight: 600; cursor: pointer">Stop</button></sc-if>
+</div>
+</div>
+<div class="cf-pipeline-description"><strong style="color:#DEE6F2">Search process</strong> · Generate candidates → Backtest → Evaluate → Rank. This repeats during a run; it is not a set of tasks you must complete manually.</div>
+<sc-if value="{{showActivitySample}}" hint-placeholder-val="{{false}}">
+<sc-if value="{{endBanner}}" hint-placeholder-val="{{false}}"><div role="status" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 16px; border: 1px solid {{endBd}}; border-radius: 10px; background: {{endBg}}; font-size: 14px; line-height: 1.5"><span style="flex: 1 1 300px"><strong style="font-weight: 650">{{endTitle}}</strong> {{endText}}</span><sc-if value="{{isFailed}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{retry}}" class="cf-pri" style="min-height: 40px; padding: 0 16px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 14px; font-weight: 700; cursor: pointer">Retry with the same settings</button></sc-if></div></sc-if>
+<p class="cf-muted-explainer">Simulated search: one second here stands for one minute of search time. Figures are illustrative; no optimizer is connected.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); border-top: 1px solid #232B35; border-left: 1px solid #232B35">
+<sc-for list="{{meters}}" as="m" hint-placeholder-count="4"><div style="min-width: 0; padding: 12px 16px; border-right: 1px solid #232B35; border-bottom: 1px solid #232B35"><div style="font-size: 13px; color: #9AA6B4">{{m.label}}</div><div style="font-size: 24px; font-weight: 600">{{m.value}} <span style="font-size: 15px; font-weight: 400; color: #9AA6B4">{{m.of}}</span></div><div style="font-size: 13px; color: #9AA6B4">{{m.sub}}</div><sc-if value="{{m.hasBar}}" hint-placeholder-val="{{true}}"><div role="progressbar" aria-label="{{m.label}}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{m.pct}}" style="height: 6px; background: #232B35; margin-top: 8px"><div style="width: {{m.pctW}}; height: 100%; background: {{m.barC}}"></div></div></sc-if></div></sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 16px; border: 1px solid #232B35; border-radius: 10px"><div style="font-size: 13px; color: #9AA6B4">Best so far</div><div style="font-size: 17px; font-weight: 600; overflow-wrap: anywhere">{{best.name}}</div><div style="font-size: 14px">Score <strong>{{best.score}}</strong> · <span style="color: #3DD68C; font-weight: 700">{{best.ret}}</span> · <span style="color: #FF6B5E">MDD {{best.mdd}}</span></div><div style="font-size: 12px; line-height: 1.4; color: #F2B544">Re-test on independent data before drawing conclusions.</div></div>
+</sc-if><sc-if value="{{showActivityEmpty}}" hint-placeholder-val="{{true}}"><div class="cf-activity-empty" role="status"><strong>No search started</strong><span>Check the stop conditions above, then select Start search. The search ends on its own at the first condition it reaches; you can pause, resume or stop it at any time.</span></div></sc-if>
+
+</section>
+<div class="cf-results">
+<section aria-labelledby="d-lb" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px"><h2 id="d-lb" style="margin:0;font-size:18px;font-weight:650">Leaderboard</h2><span style="font-size: 13px; color: #9AA6B4">Illustrative candidate results · BTCUSDT 15m · 01/05–15/05/2025 · not produced by this demo search</span>
+<label style="margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700">Keep top <select style="height: 36px; padding: 0 8px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; font-size: 13px"><option>3</option><option>5</option><option>10</option></select></label></div>
+<div style="overflow-x: auto">
+<table style="width: 100%; min-width: 640px; border-collapse: collapse; font-size: 15px; margin-top: 8px">
+<thead><tr style="border-bottom: 1px solid #2F3945; font-size: 13px; color: #9AA6B4; text-align: right">
+<th style="text-align: left; font-weight: 600; padding: 8px 0; width: 44px">#</th><th style="text-align: left; font-weight: 600">Strategy</th>
+<sc-for list="{{sorts}}" as="s" hint-placeholder-count="4"><th aria-sort="{{s.aria}}" style="font-weight: 600"><button type="button" onClick="{{s.pick}}" class="cf-ghost" style="display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 0; border: 0; background: none; cursor: pointer; font-size: 13px; font-weight: {{s.w}}; color: {{s.c}}">{{s.label}}<sc-if value="{{s.on}}" hint-placeholder-val="{{false}}"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 9L.5 2h9z" fill="currentColor"></path></svg></sc-if></button></th></sc-for>
+<th style="font-weight: 600; text-align: right">Trades</th><th style="font-weight: 600; text-align: center; width: 24%">Return vs. max drawdown</th><th style="width: 140px"><span style="position: absolute; left: -9999px">Actions</span></th></tr></thead>
+<tbody>
+<sc-for list="{{board}}" as="r" hint-placeholder-count="3">
+<tr style="border-bottom: 1px solid #232B35">
+<td style="padding: 12px 0; font-weight: 600">{{r.rank}}</td>
+<td style="font-weight: 700">{{r.name}}</td>
+<td style="text-align: right; color: #3DD68C; font-weight: 700">{{r.retTxt}}</td>
+<td style="text-align: right">{{r.winTxt}}</td>
+<td style="text-align: right; color: #FF6B5E">{{r.mddTxt}}</td>
+<td style="text-align: right">{{r.scoreTxt}}</td>
+<td style="text-align: right; color: {{r.tradesC}}">{{r.trades}}</td>
+<td style="padding-left: 20px"><div role="img" aria-label="{{r.aria}}" style="position: relative; height: 16px"><span style="position: absolute; left: 0; right: 0; top: 7px; border-top: 1px solid #333D4A"></span><span style="position: absolute; left: {{r.zero}}; top: 0; height: 16px; border-left: 1px solid #2F3945"></span><span style="position: absolute; top: 5px; height: 5px; left: {{r.negL}}; width: {{r.negW}}; background: #FF6B5E"></span><span style="position: absolute; top: 5px; height: 5px; left: {{r.posL}}; width: {{r.posW}}; background: #3DD68C"></span></div></td>
+<td style="text-align: right; white-space: nowrap"><a href="Backtest.dc.html" onClick="{{r.open}}" class="cf-ghost" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 8px; font-size: 13px; font-weight: 600">Re-test</a></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<p style="margin: 8px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; font-size: 13px; color: #9AA6B4"><span>Click a column to rank by it. The example score combines return, max drawdown and win rate. Final calculation and weights must be verified against the search engine.</span><span class="cf-tip">Max DD<button type="button" class="cf-tipbtn" aria-label="What is Max DD?" aria-describedby="tip7"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5"></path></svg></button><span role="tooltip" id="tip7" class="cf-tipbox">Max drawdown: the largest drop from a peak to a later low during the test, as a percent of the account.</span></span><span class="cf-tip">Score<button type="button" class="cf-tipbtn" aria-label="What is Score?" aria-describedby="tip8"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5"></path></svg></button><span role="tooltip" id="tip8" class="cf-tipbox">Combined rank from return, win rate and max drawdown. Higher is better.</span></span></p>
+</section>
+<section aria-labelledby="d-comp" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 16px">
+<h2 id="d-comp" style="margin:0;font-size:18px;font-weight:650">Composite builder</h2><p class="cf-muted-explainer">Combine signal sources and adjust how they contribute to a candidate strategy.</p>
+<sc-if value="{{draftNote}}" hint-placeholder-val="{{false}}"><div role="status" style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid #5A4520; border-radius: 10px; background: #1F1A10; font-size: 14px; line-height: 1.5; color: #F2D28B"><span>{{draftNote}} Drafts are kept in this browser until you save or discard them.</span><div style="display: flex; flex-wrap: wrap; gap: 8px"><button type="button" onClick="{{discardDraft}}" class="cf-sec" style="min-height: 40px; padding: 0 14px; border: 1px solid #5A4520; border-radius: 8px; background: none; color: #F2D28B; font-size: 14px; font-weight: 600; cursor: pointer">Discard draft</button><button type="button" onClick="{{keepDraft}}" class="cf-ghost" style="min-height: 40px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Keep</button></div></div></sc-if>
+<sc-if value="{{editing}}" hint-placeholder-val="{{false}}"><div role="status" style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid #2F4A7A; border-radius: 10px; background: #121C2E; font-size: 14px; line-height: 1.5"><span><strong style="font-weight: 650">Editing {{editName}}</strong> · v{{editVer}}. Saving updates this composite in your library. Past backtest runs keep the configuration they ran with.</span><sc-if value="{{editClean}}" hint-placeholder-val="{{true}}"><a href="Library.dc.html" onClick="{{cancelEdit}}" style="align-self: flex-start; display: inline-flex; align-items: center; min-height: 36px; font-size: 14px; font-weight: 600">Stop editing</a></sc-if><sc-if value="{{editDirty}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{askStopEdit}}" class="cf-ghost" style="align-self: flex-start; min-height: 36px; padding: 0; border: 0; background: none; color: #7AA2FF; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Stop editing</button></sc-if></div></sc-if>
+<fieldset style="margin: 0; padding: 0; border: 0">
+<legend style="padding: 0; margin-bottom: 8px; font-size: 13px; font-weight: 700">Building blocks</legend>
+<div style="display: flex; flex-direction: column; border-top: 1px solid #232B35">
+<sc-for list="{{singles}}" as="s" hint-placeholder-count="6">
+<label style="display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; border-bottom: 1px solid #232B35; cursor: pointer"><input type="checkbox" checked="{{s.on}}" onChange="{{s.toggle}}" style="width: 17px; height: 17px; margin: 2px 0 0"><span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 14px; font-weight: 700">{{s.name}}</strong><span style="font-size: 13px; color: #9AA6B4; line-height: 1.4">{{s.desc}}</span></span></label>
+</sc-for>
+</div>
+</fieldset>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px"><span style="font-size: 13px; font-weight: 700">Quick picks</span>
+<sc-for list="{{combos}}" as="c" hint-placeholder-count="3"><button type="button" onClick="{{c.pick}}" class="cf-sec" style="min-height: 36px; padding: 0 12px; border: 1px solid #333D4A; border-radius: 999px; background: #151A21; font-size: 13px; cursor: pointer">{{c.label}}</button></sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><span id="lbl-vote" style="font-size: 13px; font-weight: 700">Combine signals by</span>
+<div role="group" aria-labelledby="lbl-vote" style="display: flex; border: 1px solid #3A4553; border-radius: 8px; overflow: hidden; align-self: flex-start">
+<sc-for list="{{votes}}" as="v" hint-placeholder-count="2"><button type="button" onClick="{{v.pick}}" aria-pressed="{{v.on}}" class="cf-ghost" style="min-height: 38px; padding: 0 16px; border: 0; font-size: 14px; font-weight: 600; cursor: pointer; background: {{v.bg}}; color: {{v.fg}}">{{v.label}}</button></sc-for>
+</div></div>
+<sc-if value="{{isWeighted}}" hint-placeholder-val="{{true}}">
+<button type="button" onClick="{{toggleWeights}}" aria-expanded="{{weightsOpen}}" aria-controls="d-weights" class="cf-sec" style="align-self: flex-start; display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">{{weightsLabel}}<svg style="transform: {{weightsRot}}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+<sc-if value="{{weightsOpen}}" hint-placeholder-val="{{false}}">
+<table id="d-weights" style="width: 100%; border-collapse: collapse; font-size: 14px">
+<thead><tr style="border-bottom: 1px solid #2F3945; font-size: 13px; color: #9AA6B4; text-align: left"><th style="font-weight: 600; padding: 8px 0">Indicator</th><th style="font-weight: 600">Weight</th><th style="font-weight: 600; text-align: right">Signal</th></tr></thead>
+<tbody>
+<sc-for list="{{weights}}" as="w" hint-placeholder-count="3">
+<tr style="border-bottom: 1px solid #232B35"><td style="padding: 8px 0; font-weight: 600">{{w.label}}</td>
+<td><span style="display: flex; align-items: center; gap: 12px"><input type="range" min="0" max="1" step="0.05" value="{{w.val}}" onChange="{{w.change}}" aria-label="Weight for {{w.label}}" style="flex: 1; min-width: 80px"><span style="width: 36px; text-align: right; font-weight: 700">{{w.txt}}</span></span></td>
+<td style="text-align: right; font-weight: 700; color: {{w.sc}}">{{w.sig}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</sc-if>
+</sc-if>
+<div style="border: 1px solid #3A4553; border-radius: 10px; background: #151A21; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px"><h3 style="margin: 0; font-size: 14px; font-weight: 700">Illustrative signal snapshot</h3><span style="font-size: 13px; color: #9AA6B4">Example · BTCUSDT 15m</span></div>
+<div style="display: flex; align-items: center; gap: 16px">
+<span style="font-size: 32px; font-weight: 700">+0.62</span>
+<span style="display: flex; align-items: center; gap: 4px; padding: 4px 12px; border: 1.5px solid #3DD68C; border-radius: 8px; color: #3DD68C; font-size: 14px; font-weight: 700"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1l4.5 7h-9z" fill="currentColor"></path></svg>LONG</span>
+<span style="font-size: 13px; line-height: 1.4; color: #9AA6B4">In this example, the rule would enter long.</span>
+</div>
+<div role="img" aria-label="Score +0.62 on a scale from −1 to +1. Short below −0.30, hold between −0.30 and +0.30, long above +0.30." style="position: relative; height: 28px">
+<div style="position: absolute; left: 0; right: 0; top: 8px; height: 8px; display: flex; border-radius: 4px; overflow: hidden"><span style="flex: 35; background: #3A1C1A"></span><span style="flex: 30; background: #232B35"></span><span style="flex: 35; background: #12301F"></span></div>
+<span style="position: absolute; left: 81%; top: 2px; height: 20px; border-left: 2px solid #E7ECF2"></span>
+<div style="position: absolute; left: 0; right: 0; top: 18px; display: flex; justify-content: space-between; font-size: 12px; color: #9AA6B4"><span>−1 Short</span><span style="padding-left: 4%">Hold</span><span>Long +1</span></div>
+</div>
+<span style="font-size: 12px; color: #9AA6B4">Illustrative score only. Changing selections in this HTML demo does not recalculate this signal.</span>
+</div>
+<div style="display: flex; gap: 12px">
+<button type="button" onClick="{{act.save.run}}" disabled="{{act.save.busy}}" aria-busy="{{act.save.busy}}" class="cf-pri" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 15px; font-weight: 700; cursor: pointer"><sc-if value="{{act.save.busy}}" hint-placeholder-val="{{false}}"><svg class="cf-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"></path></svg></sc-if>{{act.save.label}}</button>
+<a href="Backtest.dc.html" onClick="{{handoff}}" class="cf-sec" style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 46px; border: 1px solid #3A4553; border-radius: 8px; color: #E7ECF2; font-size: 15px; font-weight: 700; text-decoration: none">Backtest now</a>
+</div>
+</section>
+</div>
+</div></main>
+<sc-if value="{{stopEditOpen}}" hint-placeholder-val="{{false}}">
+<div style="position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box">
+<button type="button" tabindex="-1" aria-hidden="true" onClick="{{closeStopEdit}}" class="cf-ghost" style="position: absolute; inset: 0; width: 100%; border: 0; padding: 0; margin: 0; background: rgba(5,7,10,0.7); cursor: default"></button>
+<div role="alertdialog" aria-modal="true" aria-labelledby="d-se-title" aria-describedby="d-se-desc" onKeyDown="{{stopEditKey}}" style="position: relative; width: 460px; max-width: 100%; box-sizing: border-box; padding: 24px; background: #12171E; border: 1px solid #2F3945; border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,0.55); display: flex; flex-direction: column; gap: 14px">
+<h2 id="d-se-title" style="margin: 0; font-size: 20px; line-height: 1.3; font-weight: 650; overflow-wrap: anywhere">Discard changes to {{editName}}?</h2>
+<p id="d-se-desc" style="margin: 0; font-size: 14px; line-height: 1.55; color: #C3CCD6">Your building blocks, vote and weight changes since the last save will be lost. The saved composite in your library stays as it is.</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 4px">
+<button type="button" ref="{{setStopEditKeep}}" onClick="{{closeStopEdit}}" class="cf-sec" style="min-height: 44px; padding: 0 16px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 15px; font-weight: 600; cursor: pointer">Keep editing</button>
+<a href="Library.dc.html" onClick="{{cancelEdit}}" class="cf-pri" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 8px; background: #FF6B5E; color: #0B0E12; font-size: 15px; font-weight: 700; text-decoration: none">Discard changes</a>
+</div>
+</div>
+</div>
+</sc-if>
+<div aria-live="polite" style="position: fixed; right: 20px; bottom: 20px; z-index: 60; max-width: calc(100vw - 40px)">
+<sc-if value="{{toastShow}}" hint-placeholder-val="{{false}}">
+<div class="cf-toast" role="status" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
+<sc-if value="{{toastOk}}" hint-placeholder-val="{{true}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DD68C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></sc-if>
+<sc-if value="{{toastErr}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B5E" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.5"></path></svg></sc-if>
+<span style="flex: 1; font-size: 14px; line-height: 1.45">{{toastText}}</span>
+<sc-if value="{{toastHasUndo}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{toastUndo}}" class="cf-sec" style="min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 13px; font-weight: 600; cursor: pointer">Undo</button></sc-if>
+<sc-if value="{{toastHasLink}}" hint-placeholder-val="{{false}}"><a href="{{toastHref}}" onClick="{{toastGo}}" style="font-size: 13px; font-weight: 600">{{toastLink}}</a></sc-if>
+<button type="button" onClick="{{toastDismiss}}" aria-label="Dismiss" class="cf-ghost" style="width: 32px; height: 32px; border: 0; border-radius: 8px; background: none; color: #9AA6B4; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+</sc-if>
+</div>
+</div>
+</x-dc>
+</script>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:1200}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { cand: '500', settingsOpen: true, weightsOpen: false, status: 'idle', method: 0, sort: 'score', vote: 'weighted', picked: ['MA', 'RSI', 'Support / Resistance'], w: [0.4, 0.3, 0.3], lim: { cand: true, time: true, stale: true }, timeVal: '30', staleVal: '20', ses: null };
+    var saved = this.store('discovery');
+    if (saved && saved.status && saved.status !== 'idle') { this.state.ses = saved; this.state.method = saved.method || 0; this.state.cand = String(saved.limits.cand.val); this.state.timeVal = String(saved.limits.time.val); this.state.staleVal = String(saved.limits.stale.val); this.state.lim = { cand: saved.limits.cand.on, time: saved.limits.time.on, stale: saved.limits.stale.on }; this.state.settingsOpen = false; }
+    var ed = this.store('edit'), it = ed && ed.id ? this.lib().filter(function (x) { return x.id === ed.id && x.kind === 'composite'; })[0] : null;
+    if (it) { this.state.editId = it.id; this.state.picked = (it.blocks || []).slice(); this.state.vote = it.vote || 'weighted'; if (it.w) this.state.w = it.w.slice(); this.state.weightsOpen = it.vote === 'weighted'; }
+    this._base = JSON.stringify(this.csnap(this.state));
+    var dr = this.store('draftComposite');
+    if (dr && (dr.editId || null) === (this.state.editId || null)) {
+      if (dr.picked) this.state.picked = dr.picked.slice(); if (dr.vote) this.state.vote = dr.vote; if (dr.w) this.state.w = dr.w.slice();
+      if (JSON.stringify(this.csnap(this.state)) !== this._base) { this.state.draftNote = 'Restored your unsaved composite changes from ' + dr.at + '.'; if (this.state.vote === 'weighted') this.state.weightsOpen = true; }
+    }
+  }
+  csnap(s) { return { picked: (s.picked || []).slice(), vote: s.vote, w: (s.w || []).slice() }; }
+  componentDidUpdate(pp, ps) {
+    var cur = JSON.stringify(this.csnap(this.state)), self = this;
+    if (this.state.stopEdit && !ps.stopEdit) setTimeout(function () { var el = self._seKeep; if (el && el.focus) el.focus(); }, 0);
+    if (cur === JSON.stringify(this.csnap(ps))) return;
+    if (cur !== this._base) { var d = this.csnap(this.state), t = new Date(); d.editId = this.state.editId || null; d.at = (t.getHours() < 10 ? '0' : '') + t.getHours() + ':' + (t.getMinutes() < 10 ? '0' : '') + t.getMinutes(); this.store('draftComposite', d); }
+    else this.unstore('draftComposite');
+  }
+  dsImp() { return [0, 1, 2, 3, 5, 8, 12, 15]; }
+  dsBest() { return [['MA + RSI', 0.52, '+9.8%', '−6.2%'], ['RSI + S/R', 0.61, '+13.1%', '−5.9%'], ['MA + Bollinger', 0.66, '+15.4%', '−8.0%'], ['MA + RSI + Bollinger', 0.7, '+17.9%', '−7.6%'], ['RSI + S/R (RSI 12)', 0.74, '+19.6%', '−6.8%'], ['MA + RSI + S/R', 0.77, '+21.9%', '−7.4%'], ['MA + RSI + S/R (RSI 12)', 0.79, '+23.0%', '−7.2%'], ['MA + RSI + S/R (RSI 12, MA 18/45)', 0.81, '+24.2%', '−7.1%']]; }
+  dsElapsed(ses, now) { return (ses.elapsedBefore || 0) + (ses.status === 'running' ? now - ses.startedAt : 0); }
+  dsEnd(ses) {
+    var L = ses.limits, out = null, IMP = this.dsImp();
+    function at(n) { return n / 20 * 1000; }
+    function consider(ms, kind, reason) { if (!out || ms < out.ms) out = { ms: ms, kind: kind, reason: reason }; }
+    if (L.cand.on) consider(at(L.cand.val), 'completed', 'Reached ' + L.cand.val.toLocaleString('en-US') + ' candidates evaluated.');
+    if (L.time.on) consider(L.time.val * 1000, 'completed', 'Reached the ' + L.time.val + '-minute time limit.');
+    if (L.stale.on) { for (var r = 0; r < 200000; r++) { var last = 0; for (var i = 0; i < IMP.length; i++) if (IMP[i] <= r) last = IMP[i]; if (r - last >= L.stale.val) { consider(at(r * 25), 'completed', 'No better candidate in ' + L.stale.val + ' consecutive rounds.'); break; } } }
+    if (ses.method === 2 && L.cand.val < 100) consider(at(4 * 25), 'failed', 'A population of ' + L.cand.val + ' is too small for genetic search to keep producing new variants. Use at least 100 candidates, or another method.');
+    return out;
+  }
+  dsMetrics(ses, now) {
+    var end = this.dsEnd(ses), el = this.dsElapsed(ses, now); if (end) el = Math.min(el, end.ms);
+    var ev = Math.floor(el / 1000 * 20), rounds = Math.floor(ev / 25), IMP = this.dsImp(), bi = 0;
+    for (var i = 0; i < IMP.length; i++) if (IMP[i] <= rounds) bi = i;
+    return { el: el, ev: ev, rounds: rounds, noImp: rounds - IMP[bi], best: this.dsBest()[bi], minutes: Math.floor(el / 1000) };
+  }
+  _dsStart(resume) {
+    var self = this, cur = this.state.ses;
+    if (resume && cur && cur.status === 'paused') { var r = Object.assign({}, cur, { status: 'running', startedAt: Date.now() }); this.dsSave(r); this.setState({ ses: r }); this.toast('Search resumed.'); return; }
+    var errs = this.dsLimitErrors();
+    if (Object.keys(errs).length) { this.setState({ settingsOpen: true }); this.toast(errs.none || 'Fix the stop conditions before starting.', 'error'); return; }
+    var ses = { id: Date.now(), status: 'running', startedAt: Date.now(), elapsedBefore: 0, method: this.state.method, limits: this.dsLimitsFromState() };
+    this.store('done.discovery', true); this.dsSave(ses); this.setState({ ses: ses, settingsOpen: false });
+    this.toast('Search started. It ends on its own at the first stop condition it reaches.');
+  }
+  dsSave(ses) { if (ses) this.store('discovery', ses); else this.unstore('discovery'); }
+  dsTick() {
+    var ses = this.state.ses; if (!ses || ses.status !== 'running') return false;
+    var end = this.dsEnd(ses), now = Date.now(); if (!end || this.dsElapsed(ses, now) < end.ms) return false;
+    var m = this.dsMetrics(ses, now), done = Object.assign({}, ses, { status: end.kind, elapsedBefore: end.ms, endedAt: now, reason: end.reason, evaluated: m.ev });
+    this.dsSave(done); this.setState({ ses: done });
+    var notes = this.store('notes') || [];
+    notes.unshift({ id: 'n-D-' + ses.id, title: end.kind === 'failed' ? 'Discovery search failed' : 'Discovery search completed', body: end.reason + ' Best so far: ' + m.best[0] + ' (score ' + m.best[1].toFixed(2) + ').', time: 'Just now', href: 'Discovery.dc.html', unread: true });
+    this.store('notes', notes.slice(0, 20));
+    this.toast(end.kind === 'failed' ? 'Search failed. Results found before the failure are kept.' : 'Search completed. ' + end.reason, end.kind === 'failed' ? 'error' : 'ok');
+    return true;
+  }
+  componentDidMount() { var self = this; this.dsTick(); this._dsIv = setInterval(function () { if (!self.dsTick() && self.state.ses && self.state.ses.status === 'running') self.setState({ dsTick: Date.now() }); }, 1000); }
+  componentWillUnmount() { clearInterval(this._dsIv); }
+  dsLimitsFromState() {
+    var st = this.state;
+    return { cand: { on: !!st.lim.cand, val: parseInt(st.cand, 10) }, time: { on: !!st.lim.time, val: parseInt(st.timeVal, 10) }, stale: { on: !!st.lim.stale, val: parseInt(st.staleVal, 10) } };
+  }
+  dsLimitErrors() {
+    var L = this.dsLimitsFromState(), e = {};
+    function bad(x, lo, hi) { return !(x >= lo && x <= hi); }
+    if (L.cand.on && bad(L.cand.val, 10, 10000)) e.cand = 'Enter a number from 10 to 10,000.';
+    if (L.time.on && bad(L.time.val, 1, 1440)) e.time = 'Enter 1 to 1,440 minutes.';
+    if (L.stale.on && bad(L.stale.val, 1, 500)) e.stale = 'Enter 1 to 500 rounds.';
+    if (!L.cand.on && !L.time.on && !L.stale.on) e.none = 'Turn on at least one stop condition so the search can end on its own.';
+    return e;
+  }
+  libSeed() {
+    return [
+      { id: 'st-rsi-bb', kind: 'strategy', name: 'RSI_BB_LB_LONG_SL2_TP4', src: 'Written by you', input: 'prompt', prompt: 'When RSI is below 30 and price is under the lower Bollinger Band, go LONG. Stop loss 2%, take profit 4%.', tags: ['RSI', 'Bollinger', 'Mean Reversion', 'Long'], ver: '1.0.0', created: '20/05/2025 10:42', updated: '20/05/2025 10:42', rules: ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)', 'Stop loss 2% below entry', 'Take profit 4% above entry'] },
+      { id: 'st-macd', kind: 'strategy', name: 'MACD_Cross_TrendFollow', src: 'Imported from a link', input: 'url', url: 'https://www.tradingview.com/script/abc123-example/', tags: ['MACD', 'Trend', 'Swing'], ver: '1.2.1', created: '19/05/2025 16:30', updated: '19/05/2025 16:30', rules: ['LONG when the MACD line crosses above its signal line and the close is above EMA(200)', 'Exit when the MACD line crosses back below its signal line'] },
+      { id: 'cp-ma-rsi-sr', kind: 'composite', name: 'MA + RSI + S/R', src: 'Built in Discovery', blocks: ['MA', 'RSI', 'Support / Resistance'], vote: 'weighted', w: [0.4, 0.3, 0.3], tags: ['Composite', 'Weighted vote'], ver: '1.0.0', created: '18/05/2025 09:05', updated: '18/05/2025 09:05', rules: ['MA, RSI and Support / Resistance each vote BUY, SELL or HOLD on every candle', 'Weighted vote (0.40 / 0.30 / 0.30) decides the signal'] }
+    ];
+  }
+  lib() { try { var v = window.localStorage.getItem('cf.library'); return v ? JSON.parse(v) : this.libSeed(); } catch (e) { return this.libSeed(); } }
+  setLib(list) { try { window.localStorage.setItem('cf.library', JSON.stringify(list)); } catch (e) {} }
+  nowStamp() { var d = new Date(); function p(n) { return (n < 10 ? '0' : '') + n; } return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
+  bumpVer(v) { var p = String(v || '1.0.0').split('.').map(function (x) { return parseInt(x, 10) || 0; }); while (p.length < 3) p.push(0); p[2] += 1; return p.join('.'); }
+  shortBlock(b) { return b === 'Support / Resistance' ? 'S/R' : (b === 'Bollinger Bands' ? 'Bollinger' : b); }
+  compositeRules(blocks, vote, w) {
+    var names = blocks.join(', ').replace(/, ([^,]*)$/, ' and $1');
+    var how = vote === 'weighted' ? 'Weighted vote (' + (w || []).slice(0, blocks.length).map(function (x) { return Number(x).toFixed(2); }).join(' / ') + ') decides the signal' : 'Majority vote decides the signal; ties hold';
+    return [names + ' each vote BUY, SELL or HOLD on every candle', how];
+  }
+  editItem() { var id = this.state.editId; return id ? this.lib().filter(function (x) { return x.id === id; })[0] || null : null; }
+  actionsCfg() { var self = this; return { save: { idle: self.state.editId ? 'Save changes' : 'Save composite', busy: 'Saving\u2026',
+    check: function () { if (self.state.picked.length < 2) { self.toast('Pick at least two building blocks to save a composite.', 'error'); return false; } return true; },
+    done: function () {
+      self.store('done.strategy', true);
+      var st = self.state, list = self.lib(), now = self.nowStamp(), id = st.editId, ex = id ? list.filter(function (x) { return x.id === id; })[0] : null, msg;
+      var auto = st.picked.map(function (b) { return self.shortBlock(b); }).join(' + ');
+      var data = { blocks: st.picked.slice(), vote: st.vote, w: st.w.slice(), rules: self.compositeRules(st.picked, st.vote, st.w), tags: ['Composite', st.vote === 'weighted' ? 'Weighted vote' : 'Majority vote'], updated: now };
+      if (ex) { var nv = self.bumpVer(ex.ver); list = list.map(function (x) { return x.id === id ? Object.assign({}, x, data, { ver: nv }) : x; }); msg = 'Saved changes to ' + ex.name + ' (v' + nv + ').'; }
+      else { var name = auto, n = 2; while (list.some(function (x) { return x.name.toLowerCase() === name.toLowerCase(); })) { name = auto + ' ' + (n++); } id = 'cp-' + Date.now(); list.unshift(Object.assign({ id: id, kind: 'composite', name: name, src: 'Built in Discovery', ver: '1.0.0', created: now }, data)); msg = 'Composite ' + name + ' saved to your library.'; }
+      var nm = list.filter(function (x) { return x.id === id; })[0].name;
+      self.setLib(list); self.unstore('edit');
+      self._base = JSON.stringify(self.csnap(self.state)); self.unstore('draftComposite');
+      self.setState({ editId: id, draftNote: '' });
+      return { text: msg, link: 'Backtest it', href: 'Backtest.dc.html', go: function () { self.store('handoff', { strategy: nm, id: id, from: 'your library' }); } };
+    } } }; }
+  pageVals() {
+    var self = this, st = this.state;
+    var STATUS = { idle: ['Not started', '#9AA6B4'], running: ['Running', '#3DD68C'], paused: ['Paused', '#F2B544'], completed: ['Completed', '#7AA2FF'], stopped: ['Stopped by you', '#C3CCD6'], failed: ['Failed', '#FF6B5E'] };
+    var ses = st.ses, s = ses ? ses.status : 'idle', ended = s === 'completed' || s === 'stopped' || s === 'failed';
+    var lerr = self.dsLimitErrors(), nowMs = Date.now(), met = ses ? self.dsMetrics(ses, nowMs) : null;
+    function pctOf(x, of) { return Math.max(0, Math.min(100, Math.round(x / of * 100))); }
+    var meters = [];
+    if (ses) {
+      var L = ses.limits;
+      meters.push({ label: 'Candidates evaluated', value: met.ev.toLocaleString('en-US'), of: L.cand.on ? '/ ' + L.cand.val.toLocaleString('en-US') : '', sub: met.rounds + ' rounds · 25 candidates per round', hasBar: L.cand.on, pct: L.cand.on ? pctOf(met.ev, L.cand.val) : 0, pctW: (L.cand.on ? pctOf(met.ev, L.cand.val) : 0) + '%', barC: '#E7ECF2' });
+      meters.push({ label: 'Rounds without improvement', value: String(met.noImp), of: L.stale.on ? '/ ' + L.stale.val : '', sub: L.stale.on ? 'Ends after ' + L.stale.val + ' in a row' : 'Not used as a stop condition', hasBar: L.stale.on, pct: L.stale.on ? pctOf(met.noImp, L.stale.val) : 0, pctW: (L.stale.on ? pctOf(met.noImp, L.stale.val) : 0) + '%', barC: '#F2B544' });
+      meters.push({ label: 'Search time', value: met.minutes + ' min', of: L.time.on ? '/ ' + L.time.val + ' min' : '', sub: L.time.on ? 'Time limit on' : 'No time limit', hasBar: L.time.on, pct: L.time.on ? pctOf(met.minutes, L.time.val) : 0, pctW: (L.time.on ? pctOf(met.minutes, L.time.val) : 0) + '%', barC: '#7AA2FF' });
+    }
+    var steps = ['Generate', 'Backtest', 'Evaluate', 'Rank', 'Leaderboard'];
+    function pct(v) { return (v + 10) / 40 * 100; }
+    var rows = [
+      { name: 'MA + RSI + S/R', ret: 24.2, win: 62, mdd: -7.1, score: 0.81, trades: 142 },
+      { name: 'MA + Bollinger', ret: 21.7, win: 55, mdd: -8.4, score: 0.69, trades: 167 },
+      { name: 'RSI + S/R', ret: 18.4, win: 64, mdd: -6.7, score: 0.72, trades: 38 }
+    ];
+    var key = st.sort;
+    rows.sort(function (a, b) { return key === 'mdd' ? b.mdd - a.mdd : b[key] - a[key]; });
+    var board = rows.map(function (r, i) {
+      var z = pct(0), n = pct(r.mdd), p = pct(r.ret);
+      return { rank: i + 1, name: r.name, retTxt: '+' + r.ret.toFixed(1) + '%', winTxt: r.win + '%', mddTxt: '−' + Math.abs(r.mdd).toFixed(1) + '%', scoreTxt: r.score.toFixed(2),
+        zero: z + '%', negL: n + '%', negW: (z - n) + '%', posL: z + '%', posW: (p - z) + '%', aria: 'Worst drop ' + r.mdd + '%, return ' + r.ret + '%', trades: r.trades < 50 ? r.trades + ' · few' : r.trades, tradesC: r.trades < 50 ? '#F2B544' : '#E7ECF2', open: function () { var hit = self.lib().filter(function (x) { return x.name === r.name; })[0]; self.store('handoff', { strategy: r.name, id: hit ? hit.id : null, from: 'the Discovery leaderboard' }); } };
+    });
+    var methods = [
+      { name: 'Random', desc: 'Generates variants at random.' },
+      { name: 'Domain-guided', desc: 'Searches using trading knowledge and constraints.' },
+      { name: 'Genetic', desc: 'Evolves variants by selection and crossover.' }
+    ];
+    var singles = [
+      ['MA', 'Follows the trend with moving averages.'],
+      ['RSI', 'Measures momentum and overbought / oversold zones.'],
+      ['Bollinger Bands', 'Measures volatility and band breakouts.'],
+      ['Support / Resistance', 'Finds key support and resistance zones.'],
+      ['SMC', 'Reads market structure with Smart Money Concepts.'],
+      ['Wyckoff', 'Spots accumulation and distribution phases.']
+    ];
+    var combos = [['MA', 'RSI'], ['RSI', 'Bollinger Bands'], ['MA', 'RSI', 'Support / Resistance']];
+    var comboLabels = ['MA + RSI', 'RSI + Bollinger', 'MA + RSI + S/R'];
+    var wl = [['MA (20, 50)', 'Up', '#3DD68C'], ['RSI (14)', 'Up', '#3DD68C'], ['Support / Resistance', 'Neutral', '#9AA6B4']];
+    return {
+      editing: !!self.editItem(), editName: (self.editItem() || {}).name || '', editVer: (self.editItem() || {}).ver || '',
+      cancelEdit: function () { self.unstore('edit'); self.unstore('draftComposite'); self.setState({ editId: null, stopEdit: false }); },
+      editDirty: !!self.editItem() && JSON.stringify(self.csnap(st)) !== self._base, editClean: !(!!self.editItem() && JSON.stringify(self.csnap(st)) !== self._base),
+      askStopEdit: function () { self.setState({ stopEdit: true }); }, closeStopEdit: function () { self.setState({ stopEdit: false }); },
+      stopEditOpen: !!st.stopEdit, setStopEditKeep: function (el) { self._seKeep = el; },
+      stopEditKey: function (e) { if (e.key === 'Escape') { e.preventDefault(); self.setState({ stopEdit: false }); } },
+      draftNote: st.draftNote || '',
+      discardDraft: function () { var b = JSON.parse(self._base); self.setState(Object.assign(b, { draftNote: '' })); self.toast('Draft discarded.'); },
+      keepDraft: function () { self.setState({ draftNote: '' }); },
+      statusLabel: STATUS[s][0], statusColor: STATUS[s][1], showActivitySample: s !== 'idle', showActivityEmpty: s === 'idle',
+      canStart: s !== 'running', startLabel: s === 'paused' ? 'Resume' : (ended ? 'Start new search' : 'Start search'),
+      canPause: s === 'running', canStop: s === 'running' || s === 'paused',
+      locked: s === 'running' || s === 'paused',
+      meters: meters, best: met ? { name: met.best[0], score: met.best[1].toFixed(2), ret: met.best[2], mdd: met.best[3] } : { name: '', score: '', ret: '', mdd: '' },
+      endBanner: ended, isFailed: s === 'failed',
+      endTitle: s === 'completed' ? 'Completed.' : (s === 'stopped' ? 'Stopped by you.' : (s === 'failed' ? 'Search failed.' : '')),
+      endText: !ses ? '' : (s === 'completed' ? ses.reason + ' The leaderboard keeps the best candidates it found.' : (s === 'stopped' ? 'The ' + (ses.evaluated || 0).toLocaleString('en-US') + ' candidates evaluated before you stopped are kept in the leaderboard.' : (s === 'failed' ? ses.reason + ' Results found before the failure are kept.' : ''))),
+      endBd: s === 'failed' ? '#5A2A2A' : (s === 'completed' ? '#2F4A7A' : '#3A4553'), endBg: s === 'failed' ? '#1A1315' : (s === 'completed' ? '#121C2E' : '#151A21'),
+      retry: function () { self.setState({ ses: null }); setTimeout(function () { self._dsStart(false); }, 0); },
+      start: function () { self._dsStart(s === 'paused'); },
+      limits: [['cand', 'Candidates evaluated', 'Candidate limit', st.cand, 'candidates', 10, 10000, 10, 'cand'], ['time', 'Search time', 'Time limit in minutes', st.timeVal, 'minutes', 1, 1440, 1, 'timeVal'], ['stale', 'Rounds without a better candidate', 'Rounds without improvement', st.staleVal, 'rounds in a row', 1, 500, 1, 'staleVal']].map(function (x) {
+        var on = !!st.lim[x[0]], err = lerr[x[0]] || '';
+        return { label: x[1], aria: x[2], val: x[3], unit: x[4], min: x[5], max: x[6], step: x[7], on: on, off: !on, err: err, inv: err ? 'true' : 'false', bd: err ? '#FF6B5E' : '#3A4553',
+          toggle: function () { var l = Object.assign({}, self.state.lim); l[x[0]] = !l[x[0]]; self.setState({ lim: l }); },
+          set: function (e) { var o = {}; o[x[8]] = e.target.value; self.setState(o); } };
+      }),
+      limitsErr: lerr.none || '',
+      settingsOpen: st.settingsOpen, settingsRot: st.settingsOpen ? 'rotate(180deg)' : 'none',
+      toggleSettings: function () { self.setState({ settingsOpen: !self.state.settingsOpen }); },
+      settingsSummary: (function () { var parts = []; if (st.lim.cand) parts.push(st.cand + ' candidates'); if (st.lim.time) parts.push(st.timeVal + ' min'); if (st.lim.stale) parts.push(st.staleVal + ' rounds without improvement'); return ['Random', 'Domain-guided', 'Genetic'][st.method] + ' search · ' + (parts.length ? 'stops at ' + parts.join(', or ') : 'no stop condition set'); })(),
+      weightsOpen: st.weightsOpen, weightsRot: st.weightsOpen ? 'rotate(180deg)' : 'none', weightsLabel: st.weightsOpen ? 'Hide weights' : 'Adjust weights (' + st.w.map(function (x) { return x.toFixed(2); }).join(' / ') + ')',
+      toggleWeights: function () { self.setState({ weightsOpen: !self.state.weightsOpen }); },
+      handoff: function () {
+        var ex = self.editItem(), s2 = self.state, cfg = { kind: 'composite', blocks: s2.picked.slice(), vote: s2.vote, w: s2.w.slice(), rules: self.compositeRules(s2.picked, s2.vote, s2.w) };
+        if (ex) self.store('handoff', { strategy: ex.name, id: ex.id, from: 'the Composite builder (current settings)', config: cfg });
+        else self.store('handoff', { strategy: s2.picked.map(function (b) { return self.shortBlock(b); }).join(' + '), from: 'the Composite builder', config: cfg });
+      },
+      pause: function () { var cur = self.state.ses; if (!cur || cur.status !== 'running') return; var now = Date.now(), m = self.dsMetrics(cur, now), p = Object.assign({}, cur, { status: 'paused', elapsedBefore: self.dsElapsed(cur, now), startedAt: null }); self.dsSave(p); self.setState({ ses: p }); self.toast('Search paused at ' + m.ev.toLocaleString('en-US') + ' candidates. Resume continues the same session.'); },
+      stop: function () { var cur = self.state.ses; if (!cur) return; var now = Date.now(), m = self.dsMetrics(cur, now), p = Object.assign({}, cur, { status: 'stopped', elapsedBefore: m.el, startedAt: null, endedAt: now, evaluated: m.ev, reason: 'Stopped by you.' }); self.dsSave(p); self.setState({ ses: p }); self.toast('Search stopped. The ' + m.ev.toLocaleString('en-US') + ' candidates evaluated so far are kept.'); },
+      pipeline: steps.map(function (l, i) { var cur = s === 'running' && i === 1; return { label: l, cur: cur ? 'step' : 'false', arrow: i < steps.length - 1, bd: cur ? '#E7ECF2' : '#333D4A', bg: cur ? '#E7ECF2' : '#151A21', fg: cur ? '#0B0E12' : '#E7ECF2', w: cur ? '700' : '400' }; }),
+      methods: methods.map(function (m, i) { return { name: m.name, desc: m.desc, on: st.method === i, pick: function () { self.setState({ method: i }); } }; }),
+      methodDesc: methods[st.method].desc,
+      sorts: [['ret', 'Return'], ['win', 'Win rate'], ['mdd', 'Max DD'], ['score', 'Score']].map(function (x) { var on = key === x[0]; return { label: x[1], on: on, aria: on ? 'descending' : 'none', w: on ? '800' : '600', c: on ? '#E7ECF2' : '#9AA6B4', pick: function () { self.setState({ sort: x[0] }); } }; }),
+      board: board,
+      singles: singles.map(function (x) { var on = st.picked.indexOf(x[0]) >= 0; return { name: x[0], desc: x[1], on: on, toggle: function () { var p = self.state.picked.slice(), i = p.indexOf(x[0]); if (i >= 0) p.splice(i, 1); else p.push(x[0]); self.setState({ picked: p }); } }; }),
+      combos: combos.map(function (c, i) { return { label: comboLabels[i], pick: function () { self.setState({ picked: c.slice() }); } }; }),
+      votes: [['majority', 'Majority vote'], ['weighted', 'Weighted']].map(function (v) { var on = st.vote === v[0]; return { label: v[1], on: on, bg: on ? '#E7ECF2' : '#151A21', fg: on ? '#0B0E12' : '#E7ECF2', pick: function () { self.setState({ vote: v[0] }); } }; }),
+      isWeighted: st.vote === 'weighted',
+      weights: wl.map(function (x, i) { return { label: x[0], sig: x[1], sc: x[2], val: st.w[i], txt: st.w[i].toFixed(2), change: function (e) { var w = self.state.w.slice(); w[i] = parseFloat(e.target.value); self.setState({ w: w }); } }; })
+    };
+  }
+
+  toast(text, kind, opts) {
+    var self = this; opts = opts || {};
+    this._undoFn = opts.undo || null; this._goFn = opts.go || null;
+    this.setState({ toast: { text: text, kind: kind || 'ok', link: opts.link || '', href: opts.href || '', undo: !!opts.undo } });
+    clearTimeout(this._tt);
+    this._tt = setTimeout(function () { self.setState({ toast: null }); }, opts.undo ? 8000 : 5000);
+  }
+  store(key, val) { try { if (val === undefined) { var v = window.localStorage.getItem('cf.' + key); return v ? JSON.parse(v) : null; } window.localStorage.setItem('cf.' + key, JSON.stringify(val)); } catch (e) { return null; } return val; }
+  unstore(key) { try { window.localStorage.removeItem('cf.' + key); } catch (e) {} }
+  actionVals() {
+    var self = this, cfg = this.actionsCfg ? this.actionsCfg() : {}, st = this.state.act || {}, out = {};
+    Object.keys(cfg).forEach(function (k) {
+      var c = cfg[k], busy = st[k] === 'busy';
+      out[k] = { busy: busy, idle: !busy, label: busy ? c.busy : c.idle, run: function () {
+        if ((self.state.act || {})[k] === 'busy') return;
+        if (c.check && !c.check()) return;
+        var a = Object.assign({}, self.state.act); a[k] = 'busy'; self.setState({ act: a });
+        setTimeout(function () {
+          var b = Object.assign({}, self.state.act); b[k] = 'idle'; self.setState({ act: b });
+          var r = c.done ? c.done() : null; r = r || {};
+          self.toast(r.text || c.msg, r.kind || c.kind || 'ok', { link: r.link || c.link, href: r.href || c.href, go: r.go });
+        }, c.ms || 1300);
+      } };
+    });
+    var t = this.state.toast;
+    return { act: out, toastShow: !!t, toastText: t ? t.text : '', toastErr: !!(t && t.kind === 'error'), toastOk: !!(t && t.kind !== 'error'),
+      toastBd: t && t.kind === 'error' ? '#5A2A2A' : '#1F6B47', toastHasLink: !!(t && t.href), toastLink: t ? t.link : '', toastHref: t ? t.href : '#', toastGo: function () { var f = self._goFn; if (f) f(); },
+      toastHasUndo: !!(t && t.undo), toastUndo: function () { var f = self._undoFn; self._undoFn = null; self.setState({ toast: null }); if (f) f(); },
+      toastDismiss: function () { self.setState({ toast: null }); } };
+  }
+  renderVals() { return Object.assign({}, this.pageVals(), this.actionVals()); }
+
+}
+</script>
+
+
+</body></html>

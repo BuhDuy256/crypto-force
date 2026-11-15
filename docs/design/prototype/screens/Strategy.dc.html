@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strategy Engine – Crypto Force</title>
+<link rel="preload" href="../assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<script src="../vendor/react/react.production.min.js"></script>
+<script src="../vendor/react/react-dom.production.min.js"></script>
+<script src="../tools/dc-source.js"></script>
+<script src="../vendor/dc-runtime/support.js"></script>
+
+</head>
+<body>
+<script type="text/x-template" data-dc-template>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="../styles/layout-audit.css">
+<style id="cf-audit-layout-fixes">
+/* Strategy Engine: iterative editor workspace, not a numbered wizard. */
+/* Flow-based grouping: input + validation travel together on the left (short, action-oriented);
+   preview flows independently on the right and absorbs all height change (rules, JSON expand).
+   Row 2 takes the slack (auto 1fr) so validation always sits directly under input, never stretched. */
+.cf-engine-steps{display:grid !important;grid-template-columns:minmax(320px,.9fr) minmax(0,1.1fr);grid-template-rows:auto 1fr;grid-template-areas:"input preview" "save preview";align-items:start !important;gap:20px !important;}
+.cf-engine-steps > section{width:100%;min-width:0;}
+.cf-engine-steps > section:nth-of-type(1){grid-area:input;border-color:#334052 !important;}
+.cf-engine-steps > section:nth-of-type(2){grid-area:preview;border-color:#334052 !important;}
+.cf-engine-steps > section:nth-of-type(3){grid-area:save;border-color:#334052 !important;}
+.cf-engine-steps pre{overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere;}
+.cf-workspace-kicker{font-size:11px;font-weight:750;letter-spacing:.09em;text-transform:uppercase;color:#8394AB;}
+.cf-workspace-heading{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.cf-workspace-status{font-size:12px;color:#9AA6B4;border:1px solid #394655;background:#19212B;border-radius:999px;padding:5px 10px;white-space:nowrap;}
+.cf-workspace-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:40px 24px;border:1px dashed #374456;border-radius:10px;background:#0E141B;}
+.cf-workspace-empty svg{opacity:.9;}
+.cf-workspace-empty p{max-width:365px;font-size:14px;line-height:1.55;color:#A9B7C8;margin:0;}
+.cf-workspace-empty strong{font-size:16px;}
+.cf-review-note{background:#15202C;border:1px solid #334B66;border-radius:9px;padding:10px 14px;color:#B8CBE3;font-size:13px;line-height:1.55;}
+@media(max-width:1120px){.cf-engine-steps{grid-template-columns:minmax(0,1fr) !important;grid-template-rows:none !important;grid-template-areas:"input" "preview" "save" !important;gap:16px !important;}}
+@media(max-width:600px){.cf-workspace-empty{padding:28px 18px;}.cf-engine-steps section > [style*="grid-template-columns: minmax(0, 1fr) 110px"]{grid-template-columns:minmax(0,1fr) !important;}}
+</style>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../styles/base.css">
+</helmet>
+<div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums">
+<div style="position: sticky; top: 0; z-index: 30"><dc-import name="AppHeader" active="st" hint-size="100%,61px"></dc-import></div>
+<main class="cf-audited-main cf-strategy-layout" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 24px">
+<div role="note" style="border:1px solid #334155;border-radius:7px;padding:8px 12px;background:#111923;color:#AFC2D6;font-size:12px;line-height:1.4;max-width:100%;box-sizing:border-box">UI prototype: prices, backtests, news, account state and workflow feedback are illustrative. No live market, AI or account service is connected in this HTML file.</div>
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 28px">
+<div style="display: flex; flex-direction: column; gap: 4px; margin-right: auto">
+<h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.03em">Strategy Engine</h1>
+<p style="margin: 0; font-size: 15px; color: #9AA6B4">Describe a trading idea or add a public link. Review example rules, confirm assumptions, and refine your strategy.</p>
+</div>
+<a href="Library.dc.html" style="font-size: 15px; font-weight: 600">Strategy library ({{libCount}})</a>
+</div>
+
+<sc-if value="{{draftNote}}" hint-placeholder-val="{{false}}"><div role="status" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 16px; border: 1px solid #5A4520; border-radius: 10px; background: #1F1A10; font-size: 14px; line-height: 1.5; color: #F2D28B"><span style="flex: 1 1 320px">{{draftNote}} Drafts are kept in this browser until you save or discard them.</span><button type="button" onClick="{{discardDraft}}" class="cf-sec" style="min-height: 40px; padding: 0 14px; border: 1px solid #5A4520; border-radius: 8px; background: none; color: #F2D28B; font-size: 14px; font-weight: 600; cursor: pointer">Discard draft</button><button type="button" onClick="{{keepDraft}}" class="cf-ghost" style="min-height: 40px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Keep</button></div></sc-if>
+<sc-if value="{{editing}}" hint-placeholder-val="{{false}}"><div role="status" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 16px; border: 1px solid #2F4A7A; border-radius: 10px; background: #121C2E; font-size: 14px; line-height: 1.5"><span style="flex: 1 1 320px"><strong style="font-weight: 650">Editing {{editName}}</strong> · v{{editVer}}. Saving updates this strategy in your library. Past backtest runs keep the configuration they ran with.</span><sc-if value="{{editClean}}" hint-placeholder-val="{{true}}"><a href="Library.dc.html" onClick="{{cancelEdit}}" class="cf-sec" style="display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 1px solid #3A4553; border-radius: 8px; color: #E7ECF2; font-size: 14px; font-weight: 600; text-decoration: none">Stop editing</a></sc-if><sc-if value="{{editDirty}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{askStopEdit}}" class="cf-sec" style="min-height: 40px; padding: 0 14px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Stop editing</button></sc-if></div></sc-if>
+<div class="cf-engine-steps cf-strategy-workspace" style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">
+
+<section aria-labelledby="s-in" style="flex: 1.1 1 340px; min-width: 0; background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 16px">
+<div class="cf-workspace-heading"><h2 id="s-in" style="margin:0;font-size:18px;font-weight:650">Strategy input</h2><span class="cf-workspace-status">Editable</span></div><p style="margin:-8px 0 0;color:#9AA6B4;font-size:13px;line-height:1.5">Describe or import a strategy. You can return and revise it at any time.</p>
+<div role="tablist" aria-label="Input type" onKeyDown="{{tabKey}}" style="display: flex; border-bottom: 1px solid #2F3945">
+<sc-for list="{{inputs}}" as="t" hint-placeholder-count="2"><button type="button" role="tab" id="{{t.id}}" aria-selected="{{t.on}}" tabindex="{{t.tab}}" onClick="{{t.pick}}" class="cf-ghost" style="min-height: 42px; padding: 0 16px; border: 0; background: none; cursor: pointer; font-size: 14px; margin-bottom: -1px; font-weight: {{t.w}}; color: {{t.c}}; border-bottom: 2px solid {{t.b}}">{{t.label}}</button></sc-for>
+</div>
+<sc-if value="{{isPrompt}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-if value="{{fromLanding}}" hint-placeholder-val="{{false}}"><p role="status" style="margin: 0; padding: 12px 12px; border: 1px solid #2F4A7A; border-radius: 8px; background: #121C2E; font-size: 14px; line-height: 1.5">We kept the idea you wrote on the home page. Use <strong>Preview example rules</strong> to inspect the UI demo; this prototype does not generate rules from your text.</p></sc-if>
+<sc-if value="{{condNote}}" hint-placeholder-val="{{false}}"><p role="status" style="margin: 0; padding: 12px 12px; border: 1px solid #2F4A7A; border-radius: 8px; background: #121C2E; font-size: 14px; line-height: 1.5">{{condNote}}</p></sc-if>
+<label for="prompt" style="font-size: 14px; font-weight: 700">Describe your trading strategy</label>
+<textarea id="prompt" rows="7" maxlength="1000" value="{{prompt}}" onChange="{{setPrompt}}" style="resize: vertical; padding: 12px 16px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; font-size: 16px; line-height: 1.55"></textarea>
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: #9AA6B4"><span>Mention entry, exit, stop loss and take profit if you have them.</span><span>{{count}}/1000</span></div>
+<div style="display: flex; gap: 12px">
+<button type="button" onClick="{{act.analyze.run}}" disabled="{{act.analyze.busy}}" aria-busy="{{act.analyze.busy}}" class="cf-pri" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 15px; font-weight: 700; cursor: pointer"><sc-if value="{{act.analyze.busy}}" hint-placeholder-val="{{false}}"><svg class="cf-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"></path></svg></sc-if><sc-if value="{{act.analyze.idle}}" hint-placeholder-val="{{true}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg></sc-if>{{act.analyze.label}}</button>
+<button type="button" onClick="{{clear}}" class="cf-sec" style="min-height: 46px; padding: 0 20px; border: 1px solid #3A4553; border-radius: 8px; background: none; font-size: 15px; font-weight: 600; cursor: pointer">Clear</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{isUrl}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<label for="url" style="font-size: 14px; font-weight: 700">Link to a strategy write-up</label>
+<input id="url" type="url" value="{{url}}" onChange="{{setUrl}}" aria-invalid="{{urlInvalid}}" aria-describedby="url-err url-help" style="height: 46px; padding: 0 16px; border: 1px solid {{urlBd}}; border-radius: 8px; background: #0F141A; font-size: 15px">
+<sc-if value="{{urlError}}" hint-placeholder-val="{{false}}"><span id="url-err" style="font-size: 13px; color: #FF6B5E">{{urlError}}</span></sc-if>
+<span id="url-help" style="font-size: 13px; color: #9AA6B4">Paste a public strategy URL. Source compatibility depends on the importer.</span>
+<button type="button" onClick="{{act.extract.run}}" disabled="{{act.extract.busy}}" aria-busy="{{act.extract.busy}}" class="cf-pri" style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 15px; font-weight: 700; cursor: pointer"><sc-if value="{{act.extract.busy}}" hint-placeholder-val="{{false}}"><svg class="cf-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"></path></svg></sc-if>{{act.extract.label}}</button>
+</div>
+</sc-if>
+</section>
+
+<section aria-labelledby="s-out" style="flex: 1.5 1 420px; min-width: 0; background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 16px">
+<div class="cf-workspace-heading"><h2 id="s-out" style="margin:0;font-size:18px;font-weight:650">Strategy preview</h2><span class="cf-workspace-status">{{previewLabel}}</span></div><p style="margin:-8px 0 0;color:#9AA6B4;font-size:13px">Inspect rules, assumptions and the example definition.</p>
+<sc-if value="{{noPreview}}" hint-placeholder-val="{{true}}"><div class="cf-workspace-empty" role="status"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#77A7FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18v16H3zM7 9h10M7 13h6"></path></svg><strong>No preview yet</strong><p>Use <b>Preview example rules</b> to inspect an illustrative rule set. This prototype does not analyze the text you entered.</p></div></sc-if><sc-if value="{{hasPreview}}" hint-placeholder-val="{{false}}"><div class="cf-review-note"><strong>Illustrative example only.</strong> These sample rules are not generated from the current input. Confirm the rules and assumptions before applying them to any backtest.</div>
+<table style="width: 100%; border-collapse: collapse; font-size: 15px">
+<tbody>
+<tr style="border-bottom: 1px solid #232B35; vertical-align: top"><th scope="row" style="text-align: left; padding: 12px 16px 12px 0; width: 28%"><span style="display: inline-flex; align-items: center; gap: 8px; color: #3DD68C; font-weight: 600"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1l4.5 7h-9z" fill="currentColor"></path></svg>Go long</span></th><td style="padding: 12px 0; line-height: 1.5">RSI (14) below 30<br>and close below the lower Bollinger Band (20, 2)</td></tr>
+<sc-if value="{{hasShort}}" hint-placeholder-val="{{true}}"><tr style="border-bottom: 1px solid #232B35; vertical-align: top"><th scope="row" style="text-align: left; padding: 12px 16px 12px 0"><span style="display: inline-flex; align-items: center; gap: 8px; color: #FF6B5E; font-weight: 600"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 9L.5 2h9z" fill="currentColor"></path></svg>Short condition (example)</span></th><td style="padding: 12px 0; line-height: 1.5">RSI (14) above 70<br>and close above the upper Bollinger Band (20, 2)</td></tr></sc-if>
+<tr style="border-bottom: 1px solid #232B35"><th scope="row" style="text-align: left; padding: 12px 16px 12px 0; font-weight: 700">Risk</th><td style="padding: 12px 0">Stop loss 2% · Take profit 4%</td></tr>
+<tr style="border-bottom: 1px solid #232B35"><th scope="row" style="text-align: left; padding: 12px 16px 12px 0; font-weight: 700">Timeframe</th><td style="padding: 12px 0">1h <span style="color: #F2B544">(assumed)</span></td></tr>
+<tr style="border-bottom: 1px solid #232B35"><th scope="row" style="text-align: left; padding: 12px 16px 12px 0; font-weight: 700">Pairs</th><td style="padding: 12px 0">All USDT pairs, spot <span style="color: #F2B544">(assumed)</span></td></tr>
+</tbody>
+</table>
+<div style="padding: 12px 16px; border: 1px solid #5A4520; border-radius: 10px; background: #1F1A10; display: flex; flex-direction: column; gap: 8px">
+<h3 style="margin: 0; font-size: 14px; font-weight: 700; color: #F2B544">Review the assumptions</h3>
+<ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.55; color: #E7ECF2">
+<li>No timeframe given, so we used <strong>1h</strong>.</li>
+<li>No pairs specified. This demo assumes all USDT spot pairs; confirm the intended markets before testing.</li>
+<sc-if value="{{hasShort}}" hint-placeholder-val="{{true}}"><li>A mirrored SHORT rule is shown as an example. Confirm whether short positions belong in this strategy. <button type="button" onClick="{{dropShort}}" class="cf-ghost" style="padding: 0; border: 0; background: none; color: #7AA2FF; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Remove short example</button></li></sc-if>
+</ul>
+<span style="font-size: 13px; color: #9AA6B4">Confirm these assumptions before saving. Edit your description and analyze again to change them.</span>
+</div>
+<div style="border: 1px solid #333D4A; background: #151A21">
+<div style="display: flex; align-items: center; padding: 8px 8px 8px 12px; border-bottom: 1px solid #232B35"><h3 style="margin: 0; font-size: 14px; font-weight: 700">Strategy definition (JSON)</h3>
+<button type="button" onClick="{{toggleJson}}" aria-expanded="{{showJson}}" class="cf-ghost" style="margin-left: auto; min-height: 36px; padding: 0 12px; border: 0; background: none; font-size: 13px; font-weight: 600; cursor: pointer">{{jsonLabel}}</button>
+<button type="button" onClick="{{copy}}" class="cf-sec" style="min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; font-size: 13px; font-weight: 600; cursor: pointer">{{copyLabel}}</button></div>
+<sc-if value="{{showJson}}" hint-placeholder-val="{{true}}">
+<div style="overflow: auto; max-height: 300px"><pre style="margin: 0; padding: 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.6; color: #E7ECF2">{
+  "name": "RSI_BB_LB_LONG_SL2_TP4",
+  "version": "1.0.0",
+  "description": "LONG when RSI &lt; 30 and price below Bollinger Lower Band. SL 2%, TP 4%.",
+  "indicators": [
+    { "name": "RSI", "period": 14 },
+    { "name": "BollingerBands", "period": 20, "stdDev": 2 }
+  ],
+  "conditions": {
+    "long": [
+      { "indicator": "RSI", "operator": "&lt;", "value": 30 },
+      { "indicator": "Close", "position": "&lt;", "indicatorRef": "BB_Lower" }
+    ],
+    "short": [
+      { "indicator": "RSI", "operator": "&gt;", "value": 70 },
+      { "indicator": "Close", "position": "&gt;", "indicatorRef": "BB_Upper" }
+    ]
+  },
+  "riskManagement": {
+    "stopLoss": { "type": "percent", "value": 2 },
+    "takeProfit": { "type": "percent", "value": 4 }
+  },
+  "timeframe": "1h",
+  "applicability": { "pairs": "USDT_ALL", "market": "spot" }
+}</pre></div>
+</sc-if>
+</div>
+</sc-if>
+</section>
+
+<section aria-labelledby="s-save" style="flex: 1 1 320px; min-width: 0; background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 16px">
+<div class="cf-workspace-heading"><h2 id="s-save" style="margin:0;font-size:18px;font-weight:650">Validation &amp; actions</h2><span class="cf-workspace-status">{{validationLabel}}</span></div>
+<sc-if value="{{noPreview}}" hint-placeholder-val="{{true}}"><div class="cf-workspace-empty" style="padding:20px 18px" role="status"><strong>Awaiting a strategy preview</strong><p>Review the sample rules first. Validation and save controls will appear here afterward.</p></div></sc-if><sc-if value="{{hasPreview}}" hint-placeholder-val="{{false}}">
+<div role="status" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 16px; background: #11281D; border: 1px solid #1F6B47; border-radius: 10px; font-size: 14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DD68C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg><span style="flex: 1"><strong style="font-weight: 600">Example validation checks.</strong> These values illustrate the review UI; this prototype does not run rule validation.</span><button type="button" onClick="{{toggleChecks}}" aria-expanded="{{showChecks}}" class="cf-ghost" style="padding: 0; border: 0; background: none; color: #7AA2FF; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">{{checksLabel}}</button></div>
+<sc-if value="{{showChecks}}" hint-placeholder-val="{{false}}"><ul style="margin: 0; padding: 0; list-style: none">
+<sc-for list="{{checks}}" as="c" hint-placeholder-count="3">
+<li style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #232B35"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3DD68C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg><span style="flex: 1; font-size: 15px; font-weight: 600">{{c.title}}</span><span style="font-size: 14px; color: #9AA6B4">{{c.sub}}</span></li>
+</sc-for>
+</ul></sc-if>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 110px; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="sv-name" style="font-size: 13px; font-weight: 700">Name</label><input id="sv-name" type="text" maxlength="60" value="{{saveName}}" onChange="{{setSaveName}}" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; font-size: 14px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><span style="font-size: 13px; font-weight: 700">Version</span><output id="sv-ver" style="display: flex; align-items: center; height: 42px; font-size: 14px; color: #C3CCD6">{{saveVer}} <span style="margin-left: 6px; color: #9AA6B4">{{saveVerNote}}</span></output></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><span style="font-size: 13px; font-weight: 700">Tags</span>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-height: 42px; padding: 4px 8px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A">
+<sc-for list="{{tags}}" as="t" hint-placeholder-count="4"><span style="display: flex; align-items: center; gap: 2px; padding: 2px 2px 2px 8px; background: #1E2631; font-size: 13px">{{t.label}}<button type="button" onClick="{{t.remove}}" aria-label="Remove tag {{t.label}}" class="cf-ghost" style="width: 32px; height: 32px; border: 0; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="10" height="10" viewBox="0 0 10 10" stroke="#E7ECF2" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2 2l6 6M8 2L2 8"></path></svg></button></span></sc-for>
+<input type="text" aria-label="Add tag" placeholder="Add tag" style="flex: 1; min-width: 80px; height: 36px; border: 0; background: none; font-size: 13px">
+</div></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><span style="font-size: 13px; font-weight: 700">Source</span><span style="font-size: 14px; color: #C3CCD6">{{sourceLabel}}</span></div>
+<button type="button" onClick="{{act.save.run}}" disabled="{{saveDisabled}}" aria-busy="{{act.save.busy}}" class="cf-pri" style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 700; cursor: pointer"><sc-if value="{{act.save.busy}}" hint-placeholder-val="{{false}}"><svg class="cf-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"></path></svg></sc-if>{{act.save.label}}</button>
+</sc-if>
+</section>
+</div>
+
+<section id="library" aria-labelledby="s-lib" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px">
+<div style="display: flex; align-items: baseline"><h2 id="s-lib" style="margin: 0; font-size: 17px; font-weight: 600">Your library</h2><span style="margin-left: 12px; font-size: 13px; color: #9AA6B4">Most recently saved</span><a href="Library.dc.html" style="margin-left: auto; font-size: 14px; font-weight: 600">View all ({{libCount}})</a></div>
+<sc-if value="{{hasRows}}" hint-placeholder-val="{{true}}">
+<div style="overflow-x: auto">
+<table style="width: 100%; min-width: 860px; border-collapse: collapse; font-size: 14px; margin-top: 8px">
+<thead><tr style="border-bottom: 1px solid #2F3945; color: #9AA6B4; text-align: left"><th style="font-weight: 600; padding: 8px 0">Name</th><th style="font-weight: 600">Type</th><th style="font-weight: 600">Source</th><th style="font-weight: 600">Updated</th><th style="font-weight: 600">Version</th><th style="font-weight: 600">Tags</th><th style="font-weight: 600">Last backtest</th><th style="font-weight: 600; text-align: right">Actions</th></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="3">
+<tr style="border-bottom: 1px solid #232B35">
+<td style="padding: 12px 12px 12px 0; font-weight: 700">{{r.name}}</td>
+<td>{{r.type}}</td>
+<td><span style="padding: 2px 8px; border: 1px solid #3A4553; font-size: 12px; font-weight: 600">{{r.src}}</span></td>
+<td>{{r.date}}</td><td>{{r.ver}}</td>
+<td style="color: #9AA6B4">{{r.tags}}</td>
+<td style="color: {{r.btC}}">{{r.bt}}</td>
+<td style="text-align: right"><span style="display: inline-flex; gap: 8px"><a href="Backtest.dc.html" onClick="{{r.handoff}}" class="cf-sec" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; color: #E7ECF2; font-size: 13px; font-weight: 600; text-decoration: none">Backtest</a><a href="Library.dc.html" onClick="{{r.open}}" aria-label="Open {{r.name}} in the library" class="cf-sec" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; color: #E7ECF2; font-size: 13px; font-weight: 600; text-decoration: none">Open</a></span></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+<sc-if value="{{noRows}}" hint-placeholder-val="{{false}}"><p style="margin: 12px 0 0; font-size: 14px; color: #9AA6B4">Nothing saved yet. Preview the rules above, then save to add your first strategy.</p></sc-if>
+</section>
+</main>
+<sc-if value="{{stopEditOpen}}" hint-placeholder-val="{{false}}">
+<div style="position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box">
+<button type="button" tabindex="-1" aria-hidden="true" onClick="{{closeStopEdit}}" class="cf-ghost" style="position: absolute; inset: 0; width: 100%; border: 0; padding: 0; margin: 0; background: rgba(5,7,10,0.7); cursor: default"></button>
+<div role="alertdialog" aria-modal="true" aria-labelledby="s-se-title" aria-describedby="s-se-desc" onKeyDown="{{stopEditKey}}" style="position: relative; width: 460px; max-width: 100%; box-sizing: border-box; padding: 24px; background: #12171E; border: 1px solid #2F3945; border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,0.55); display: flex; flex-direction: column; gap: 14px">
+<h2 id="s-se-title" style="margin: 0; font-size: 20px; line-height: 1.3; font-weight: 650; overflow-wrap: anywhere">Discard changes to {{editName}}?</h2>
+<p id="s-se-desc" style="margin: 0; font-size: 14px; line-height: 1.55; color: #C3CCD6">Your edits since the last save will be lost. The saved version in your library stays as it is.</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 4px">
+<button type="button" ref="{{setStopEditKeep}}" onClick="{{closeStopEdit}}" class="cf-sec" style="min-height: 44px; padding: 0 16px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 15px; font-weight: 600; cursor: pointer">Keep editing</button>
+<a href="Library.dc.html" onClick="{{cancelEdit}}" class="cf-pri" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 8px; background: #FF6B5E; color: #0B0E12; font-size: 15px; font-weight: 700; text-decoration: none">Discard changes</a>
+</div>
+</div>
+</div>
+</sc-if>
+<div aria-live="polite" style="position: fixed; right: 20px; bottom: 20px; z-index: 60; max-width: calc(100vw - 40px)">
+<sc-if value="{{toastShow}}" hint-placeholder-val="{{false}}">
+<div class="cf-toast" role="status" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
+<sc-if value="{{toastOk}}" hint-placeholder-val="{{true}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DD68C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></sc-if>
+<sc-if value="{{toastErr}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B5E" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.5"></path></svg></sc-if>
+<span style="flex: 1; font-size: 14px; line-height: 1.45">{{toastText}}</span>
+<sc-if value="{{toastHasUndo}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{toastUndo}}" class="cf-sec" style="min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 13px; font-weight: 600; cursor: pointer">Undo</button></sc-if>
+<sc-if value="{{toastHasLink}}" hint-placeholder-val="{{false}}"><a href="{{toastHref}}" onClick="{{toastGo}}" style="font-size: 13px; font-weight: 600">{{toastLink}}</a></sc-if>
+<button type="button" onClick="{{toastDismiss}}" aria-label="Dismiss" class="cf-ghost" style="width: 32px; height: 32px; border: 0; border-radius: 8px; background: none; color: #9AA6B4; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+</sc-if>
+</div>
+</div>
+</x-dc>
+</script>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:1180}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { input: 'prompt', prompt: 'When RSI is below 30 and price is under the lower Bollinger Band, go LONG. Stop loss 2%, take profit 4%.', showJson: false, hasShort: true, showChecks: false, copied: false, tags: ['RSI', 'Bollinger', 'Mean Reversion', 'Long'], url: 'https://www.tradingview.com/script/abc123-example/', urlTried: false, analyzed: false, saved: false };
+    var idea = this.store('idea'); if (idea) { this.state.prompt = idea; this.state.fromLanding = true; }
+    var ed = this.store('edit'), it = ed && ed.id ? this.lib().filter(function (x) { return x.id === ed.id && x.kind === 'strategy'; })[0] : null;
+    if (it) { this.state.editId = it.id; this.state.input = it.input || 'prompt'; if (it.prompt) this.state.prompt = it.prompt; if (it.url) this.state.url = it.url; this.state.tags = (it.tags || []).slice(); this.state.saveName = it.name; this.state.analyzed = true; this.state.fromLanding = false; this.state.hasShort = (it.rules || []).some(function (r) { return /^SHORT/.test(r); }); }
+    var cond = this.store('condition');
+    if (cond && cond.text) {
+      var base = cond.mode === 'new' ? '' : (this.state.prompt || '').replace(/\s+$/, '');
+      this.state.input = 'prompt'; this.state.prompt = base ? base + ' ' + cond.text : cond.text; this.state.analyzed = false; this.state.fromLanding = false;
+      if (cond.mode === 'new') { this.state.editId = null; this.state.saveName = 'NewsSentiment_BTC_LONG'; this.state.tags = ['News', 'Sentiment', 'Long']; this.state.condNote = 'Started from the News sentiment sample. Preview the rules to review them before saving.'; }
+      else this.state.condNote = 'Added a News sentiment condition to the end of the description. Preview the rules again to include it.';
+      this.unstore('condition');
+    }
+    if (!this.state.saveName) this.state.saveName = 'RSI_BB_LB_LONG_SL2_TP4';
+    this._base = JSON.stringify(this.snap(this.state));
+    var dr = this.store('draftStrategy');
+    if (dr && !idea && !(cond && cond.text) && (dr.editId || null) === (this.state.editId || null)) {
+      var me = this; ['input', 'prompt', 'url', 'tags', 'saveName', 'hasShort'].forEach(function (k) { if (dr[k] !== undefined) me.state[k] = dr[k]; });
+      if (JSON.stringify(this.snap(this.state)) !== this._base) { this.state.draftNote = 'Restored your unsaved changes from ' + dr.at + '.'; if (!this.state.editId) this.state.analyzed = false; }
+    }
+  }
+  snap(s) { return { input: s.input, prompt: s.prompt, url: s.url, tags: (s.tags || []).slice(), saveName: s.saveName, hasShort: s.hasShort !== false }; }
+  componentDidUpdate(pp, ps) {
+    var cur = JSON.stringify(this.snap(this.state)), self = this;
+    if (this.state.stopEdit && !ps.stopEdit) setTimeout(function () { var el = self._seKeep; if (el && el.focus) el.focus(); }, 0);
+    if (cur === JSON.stringify(this.snap(ps))) return;
+    if (cur !== this._base) { var d = this.snap(this.state), t = new Date(); d.editId = this.state.editId || null; d.at = (t.getHours() < 10 ? '0' : '') + t.getHours() + ':' + (t.getMinutes() < 10 ? '0' : '') + t.getMinutes(); this.store('draftStrategy', d); }
+    else this.unstore('draftStrategy');
+  }
+  libSeed() {
+    return [
+      { id: 'st-rsi-bb', kind: 'strategy', name: 'RSI_BB_LB_LONG_SL2_TP4', src: 'Written by you', input: 'prompt', prompt: 'When RSI is below 30 and price is under the lower Bollinger Band, go LONG. Stop loss 2%, take profit 4%.', tags: ['RSI', 'Bollinger', 'Mean Reversion', 'Long'], ver: '1.0.0', created: '20/05/2025 10:42', updated: '20/05/2025 10:42', rules: ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)', 'Stop loss 2% below entry', 'Take profit 4% above entry'] },
+      { id: 'st-macd', kind: 'strategy', name: 'MACD_Cross_TrendFollow', src: 'Imported from a link', input: 'url', url: 'https://www.tradingview.com/script/abc123-example/', tags: ['MACD', 'Trend', 'Swing'], ver: '1.2.1', created: '19/05/2025 16:30', updated: '19/05/2025 16:30', rules: ['LONG when the MACD line crosses above its signal line and the close is above EMA(200)', 'Exit when the MACD line crosses back below its signal line'] },
+      { id: 'cp-ma-rsi-sr', kind: 'composite', name: 'MA + RSI + S/R', src: 'Built in Discovery', blocks: ['MA', 'RSI', 'Support / Resistance'], vote: 'weighted', w: [0.4, 0.3, 0.3], tags: ['Composite', 'Weighted vote'], ver: '1.0.0', created: '18/05/2025 09:05', updated: '18/05/2025 09:05', rules: ['MA, RSI and Support / Resistance each vote BUY, SELL or HOLD on every candle', 'Weighted vote (0.40 / 0.30 / 0.30) decides the signal'] }
+    ];
+  }
+  lib() { try { var v = window.localStorage.getItem('cf.library'); return v ? JSON.parse(v) : this.libSeed(); } catch (e) { return this.libSeed(); } }
+  setLib(list) { try { window.localStorage.setItem('cf.library', JSON.stringify(list)); } catch (e) {} }
+  nowStamp() { var d = new Date(); function p(n) { return (n < 10 ? '0' : '') + n; } return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
+  bumpVer(v) { var p = String(v || '1.0.0').split('.').map(function (x) { return parseInt(x, 10) || 0; }); while (p.length < 3) p.push(0); p[2] += 1; return p.join('.'); }
+  editItem() { var id = this.state.editId; return id ? this.lib().filter(function (x) { return x.id === id; })[0] || null : null; }
+  urlOk() { return /^https?:\/\/[^\s\/]+\.[^\s\/]+/.test(this.state.url); }
+  actionsCfg() {
+    var self = this;
+    return {
+      analyze: { idle: 'Preview example rules', busy: 'Preparing preview\u2026', ms: 1600, check: function () { if (!self.state.prompt.trim()) { self.toast('Describe the strategy first, for example an entry, an exit and a stop loss.', 'error'); return false; } return true; },
+        done: function () { self.unstore('idea'); self.setState({ fromLanding: false, analyzed: true, saved: false }); return { text: 'Demo: a fixed example rule set is now visible. It was not generated from your description.' }; } },
+      extract: { idle: 'Extract from page', busy: 'Reading page\u2026', ms: 1800, check: function () { self.setState({ urlTried: true }); return self.urlOk(); },
+        done: function () { if (/tradingview\.com|medium\.com|gist\.github\.com|blogspot\.com|docs\.google\.com/.test(self.state.url)) {self.setState({analyzed:true,saved:false});return {text:'Demo: a fixed example rule set is now visible. No page was fetched.'};} return {text:'We couldn\u2019t find a strategy on that page. Check the link points to the write-up itself, or paste the text into Describe it.',kind:'error'}; } },
+      save: { idle: self.state.editId ? 'Save changes' : 'Save strategy', busy: 'Saving\u2026',
+        check: function () {
+          if (!self.state.analyzed) { self.toast('Open a strategy preview before saving.', 'error'); return false; }
+          var nm = (self.state.saveName || '').trim();
+          if (!nm) { self.toast('Give the strategy a name before saving.', 'error'); return false; }
+          if (self.lib().some(function (x) { return x.id !== self.state.editId && x.name.toLowerCase() === nm.toLowerCase(); })) { self.toast('Your library already has “' + nm + '”. Choose another name.', 'error'); return false; }
+          return true;
+        },
+        done: function () {
+          self.store('done.strategy', true);
+          var st = self.state, list = self.lib(), name = st.saveName.trim(), now = self.nowStamp(), id = st.editId, msg;
+          var rules = ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)'];
+          if (st.hasShort !== false) rules.push('SHORT when RSI(14) is above 70 and the close is over the upper Bollinger Band (20, 2)');
+          rules.push('Stop loss 2% · take profit 4%');
+          var data = { input: st.input, prompt: st.prompt, url: st.url, tags: st.tags.slice(), src: st.input === 'url' ? 'Imported from a link' : 'Written by you', rules: rules, name: name, updated: now };
+          if (id && list.some(function (x) { return x.id === id; })) {
+            var nv = ''; list = list.map(function (x) { if (x.id !== id) return x; nv = self.bumpVer(x.ver); return Object.assign({}, x, data, { ver: nv }); });
+            msg = 'Saved changes to ' + name + ' (v' + nv + ').';
+          } else {
+            id = 'st-' + Date.now(); list.unshift(Object.assign({ id: id, kind: 'strategy', ver: '1.0.0', created: now }, data));
+            msg = name + ' saved to your library.';
+          }
+          self.setLib(list); self.unstore('edit');
+          self._base = JSON.stringify(self.snap(self.state)); self.unstore('draftStrategy');
+          self.setState({ saved: true, editId: id, draftNote: '' });
+          return { text: 'Demo: ' + msg, link: 'Backtest it', href: 'Backtest.dc.html', go: function () { self.store('handoff', { strategy: name, id: id, from: 'Strategy Engine' }); } };
+        } }
+    };
+  }
+  pageVals() {
+    var self = this, st = this.state;
+    return {
+      saveDisabled: !st.analyzed || !!(st.act && st.act.save === 'busy'), hasPreview: !!st.analyzed, noPreview: !st.analyzed, previewLabel: st.analyzed ? 'Example ready' : 'Not analyzed', validationLabel: st.saved ? 'Saved (demo)' : (st.analyzed ? 'Example available' : 'Waiting for preview'),
+      inputs: [['prompt', 'Describe it'], ['url', 'Import from a link']].map(function (t) {
+        var on = st.input === t[0];
+        return { id: 'tab-' + t[0], tab: on ? '0' : '-1', label: t[1], on: on, w: on ? '700' : '400', c: on ? '#E7ECF2' : '#9AA6B4', b: on ? '#7AA2FF' : 'transparent', pick: function () { self.setState({ input: t[0], analyzed: false, saved: false }); } };
+      }),
+      tabKey: function (e) { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') { e.preventDefault(); var next = self.state.input === 'prompt' ? 'url' : 'prompt'; if (e.key === 'Home') next = 'prompt'; if (e.key === 'End') next = 'url'; self.setState({ input: next, analyzed: false, saved: false }); setTimeout(function () { var b = document.getElementById('tab-' + next); if (b) b.focus(); }, 0); } },
+      fromLanding: !!st.fromLanding,
+      libCount: self.lib().length, condNote: st.condNote || '',
+      editing: !!self.editItem(), editName: (self.editItem() || {}).name || '', editVer: (self.editItem() || {}).ver || '',
+      cancelEdit: function () { self.unstore('edit'); self.unstore('draftStrategy'); self.setState({ editId: null, stopEdit: false }); },
+      editDirty: !!self.editItem() && JSON.stringify(self.snap(st)) !== self._base, editClean: !(!!self.editItem() && JSON.stringify(self.snap(st)) !== self._base),
+      askStopEdit: function () { self.setState({ stopEdit: true }); }, closeStopEdit: function () { self.setState({ stopEdit: false }); },
+      stopEditOpen: !!st.stopEdit, setStopEditKeep: function (el) { self._seKeep = el; },
+      stopEditKey: function (e) { if (e.key === 'Escape') { e.preventDefault(); self.setState({ stopEdit: false }); } },
+      draftNote: st.draftNote || '',
+      discardDraft: function () { var b = JSON.parse(self._base); self.setState(Object.assign(b, { draftNote: '' })); self.toast('Draft discarded.'); },
+      keepDraft: function () { self.setState({ draftNote: '' }); },
+      saveName: st.saveName || '', setSaveName: function (e) { self.setState({ saveName: e.target.value }); },
+      saveVer: self.editItem() ? self.bumpVer(self.editItem().ver) : '1.0.0', saveVerNote: self.editItem() ? 'on save' : 'auto',
+      hasShort: st.hasShort !== false,
+      dropShort: function () { self.setState({ hasShort: false }); self.toast('SHORT rule removed. This strategy now only goes long.', 'ok', { undo: function () { self.setState({ hasShort: true }); } }); },
+      showChecks: st.showChecks, checksLabel: st.showChecks ? 'Hide checks' : 'Show checks', toggleChecks: function () { self.setState({ showChecks: !self.state.showChecks }); },
+      sourceLabel: st.input === 'url' ? 'Imported from a link' : 'Written by you',
+      url: st.url, setUrl: function (e) { self.setState({ url: e.target.value, analyzed: false, saved: false }); },
+      urlError: st.urlTried && !this.urlOk() ? 'Enter a full link starting with https://' : '',
+      urlInvalid: st.urlTried && !this.urlOk() ? 'true' : 'false', urlBd: st.urlTried && !this.urlOk() ? '#FF6B5E' : '#3A4553',
+      isPrompt: st.input === 'prompt', isUrl: st.input === 'url',
+      prompt: st.prompt, count: st.prompt.length,
+      setPrompt: function (e) { self.setState({ prompt: e.target.value, analyzed: false, saved: false }); },
+      clear: function () { var old = self.state.prompt; if (!old) return; self.setState({ prompt: '', analyzed: false, saved: false }); self.toast('Description cleared.', 'ok', { undo: function () { self.setState({ prompt: old }); } }); },
+      showJson: st.showJson, jsonLabel: st.showJson ? 'Hide' : 'Show',
+      toggleJson: function () { self.setState({ showJson: !self.state.showJson }); },
+      copyLabel: st.copied ? 'Copied' : 'Copy',
+      copy: function () { try { navigator.clipboard.writeText(self._json || ''); } catch (e) {} self.setState({ copied: true }); self.toast('Strategy JSON copied to the clipboard.'); },
+      tags: st.tags.map(function (t, i) { return { label: t, remove: function () { var before = self.state.tags.slice(); self.setState({ tags: before.filter(function (x) { return x !== t; }) }); self.toast('Removed tag \u201c' + t + '\u201d.', 'ok', { undo: function () { self.setState({ tags: before }); } }); } }; }),
+      checks: [
+        { title: 'Required fields', sub: 'None missing' },
+        { title: 'Logic', sub: 'Consistent' },
+        { title: 'Indicators', sub: 'All supported' }
+      ],
+      hasRows: self.lib().length > 0, noRows: self.lib().length === 0,
+      rows: self.lib().slice(0, 3).map(function (r) {
+        var runs = (self.store('runs') || []).filter(function (x) { return x.strategyId === r.id; });
+        return { name: r.name, type: r.kind === 'composite' ? 'Composite' : 'Strategy', src: r.src, date: r.updated, ver: r.ver, tags: (r.tags || []).join(', '),
+          bt: runs.length ? runs[0].result : 'Not backtested yet', btC: runs.length ? '#C3CCD6' : '#F2B544',
+          handoff: function () { self.store('handoff', { strategy: r.name, id: r.id, from: 'your library' }); },
+          open: function () { self.store('libOpen', r.id); } };
+      })
+    };
+  }
+
+  toast(text, kind, opts) {
+    var self = this; opts = opts || {};
+    this._undoFn = opts.undo || null; this._goFn = opts.go || null;
+    this.setState({ toast: { text: text, kind: kind || 'ok', link: opts.link || '', href: opts.href || '', undo: !!opts.undo } });
+    clearTimeout(this._tt);
+    this._tt = setTimeout(function () { self.setState({ toast: null }); }, opts.undo ? 8000 : 5000);
+  }
+  store(key, val) { try { if (val === undefined) { var v = window.localStorage.getItem('cf.' + key); return v ? JSON.parse(v) : null; } window.localStorage.setItem('cf.' + key, JSON.stringify(val)); } catch (e) { return null; } return val; }
+  unstore(key) { try { window.localStorage.removeItem('cf.' + key); } catch (e) {} }
+  actionVals() {
+    var self = this, cfg = this.actionsCfg ? this.actionsCfg() : {}, st = this.state.act || {}, out = {};
+    Object.keys(cfg).forEach(function (k) {
+      var c = cfg[k], busy = st[k] === 'busy';
+      out[k] = { busy: busy, idle: !busy, label: busy ? c.busy : c.idle, run: function () {
+        if ((self.state.act || {})[k] === 'busy') return;
+        if (c.check && !c.check()) return;
+        var a = Object.assign({}, self.state.act); a[k] = 'busy'; self.setState({ act: a });
+        setTimeout(function () {
+          var b = Object.assign({}, self.state.act); b[k] = 'idle'; self.setState({ act: b });
+          var r = c.done ? c.done() : null; r = r || {};
+          self.toast(r.text || c.msg, r.kind || c.kind || 'ok', { link: r.link || c.link, href: r.href || c.href, go: r.go });
+        }, c.ms || 1300);
+      } };
+    });
+    var t = this.state.toast;
+    return { act: out, toastShow: !!t, toastText: t ? t.text : '', toastErr: !!(t && t.kind === 'error'), toastOk: !!(t && t.kind !== 'error'),
+      toastBd: t && t.kind === 'error' ? '#5A2A2A' : '#1F6B47', toastHasLink: !!(t && t.href), toastLink: t ? t.link : '', toastHref: t ? t.href : '#', toastGo: function () { var f = self._goFn; if (f) f(); },
+      toastHasUndo: !!(t && t.undo), toastUndo: function () { var f = self._undoFn; self._undoFn = null; self.setState({ toast: null }); if (f) f(); },
+      toastDismiss: function () { self.setState({ toast: null }); } };
+  }
+  renderVals() { return Object.assign({}, this.pageVals(), this.actionVals()); }
+
+}
+</script>
+
+
+</body></html>

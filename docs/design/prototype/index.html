@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crypto Force UI</title>
+<style>
+html{background:#f5f4ef;color:#1f1e1d;font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+body{margin:0;padding:48px;display:flex;flex-direction:column;align-items:flex-start;gap:48px}
+.board h2{margin:0 0 12px;font-size:13px;font-weight:500;color:#6b6a68}
+.board iframe{display:block;border:0;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+/* Review index: lives outside the boards and is not part of the design. */
+.index{position:sticky;top:0;z-index:1;margin:-48px -48px 0;padding:16px 48px;width:100%;box-sizing:content-box;background:#f5f4ef;border-bottom:1px solid #dedcd3}
+.index h1{margin:0 0 8px;font-size:15px;font-weight:600}
+.index ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px 18px}
+.index a{color:#1f1e1d}
+.board h2 a{margin-left:8px;color:#6b6a68}
+</style>
+</head>
+<body>
+<nav class="index" aria-label="Boards">
+<h1>Crypto Force UI · design boards</h1>
+<ul>
+<li><a href="#landing">Landing</a></li>
+<li><a href="#sign-in">Sign in</a></li>
+<li><a href="#not-found">404</a> (<a href="screens/NotFound.dc.html?variant=error">error variant</a>)</li>
+<li><a href="#strategy-library">Strategy library</a></li>
+<li><a href="#realtime">Realtime</a></li>
+<li><a href="#strategy-engine">Strategy Engine</a></li>
+<li><a href="#discovery">Discovery</a></li>
+<li><a href="#backtest">Backtest</a></li>
+<li><a href="#news">News</a></li>
+<li><a href="#settings">Settings</a></li>
+<li><a href="#states">Empty &amp; loading states</a></li>
+<li><a href="#app-header">App header (component)</a></li>
+</ul>
+</nav>
+<section class="board" id="landing"><h2>Landing<a href="screens/Main.dc.html">Open</a></h2><iframe src="screens/Main.dc.html" title="Landing" width="1440" height="3700" loading="eager" style="width:1440px;height:3700px"></iframe></section>
+<section class="board" id="sign-in"><h2>Sign in<a href="screens/Auth.dc.html">Open</a></h2><iframe src="screens/Auth.dc.html" title="Sign in" width="1280" height="900" loading="eager" style="width:1280px;height:900px"></iframe></section>
+<section class="board" id="not-found"><h2>404<a href="screens/NotFound.dc.html">Open</a></h2><iframe src="screens/NotFound.dc.html" title="404" width="1280" height="800" loading="eager" style="width:1280px;height:800px"></iframe></section>
+<section class="board" id="strategy-library"><h2>Strategy library<a href="screens/Library.dc.html">Open</a></h2><iframe src="screens/Library.dc.html" title="Strategy library" width="1440" height="1100" loading="eager" style="width:1440px;height:1100px"></iframe></section>
+<section class="board" id="realtime"><h2>Realtime<a href="screens/Realtime.dc.html">Open</a></h2><iframe src="screens/Realtime.dc.html" title="Realtime" width="1600" height="1100" loading="eager" style="width:1600px;height:1100px"></iframe></section>
+<section class="board" id="strategy-engine"><h2>Strategy Engine<a href="screens/Strategy.dc.html">Open</a></h2><iframe src="screens/Strategy.dc.html" title="Strategy Engine" width="1600" height="1180" loading="eager" style="width:1600px;height:1180px"></iframe></section>
+<section class="board" id="discovery"><h2>Discovery<a href="screens/Discovery.dc.html">Open</a></h2><iframe src="screens/Discovery.dc.html" title="Discovery" width="1600" height="1200" loading="eager" style="width:1600px;height:1200px"></iframe></section>
+<section class="board" id="backtest"><h2>Backtest<a href="screens/Backtest.dc.html">Open</a></h2><iframe src="screens/Backtest.dc.html" title="Backtest" width="1600" height="1500" loading="eager" style="width:1600px;height:1500px"></iframe></section>
+<section class="board" id="news"><h2>News<a href="screens/News.dc.html">Open</a></h2><iframe src="screens/News.dc.html" title="News" width="1600" height="1500" loading="eager" style="width:1600px;height:1500px"></iframe></section>
+<section class="board" id="settings"><h2>Settings<a href="screens/Settings.dc.html">Open</a></h2><iframe src="screens/Settings.dc.html" title="Settings" width="1440" height="2000" loading="eager" style="width:1440px;height:2000px"></iframe></section>
+<section class="board" id="states"><h2>Empty &amp; loading states<a href="screens/States.dc.html">Open</a></h2><iframe src="screens/States.dc.html" title="Empty &amp; loading states" width="1600" height="1300" loading="eager" style="width:1600px;height:1300px"></iframe></section>
+<section class="board" id="app-header"><h2>App header (component)<a href="screens/AppHeader.dc.html">Open</a></h2><iframe src="screens/AppHeader.dc.html" title="App header (component)" width="1440" height="61" loading="eager" style="width:1440px;height:61px"></iframe></section>
+</body>
+</html>

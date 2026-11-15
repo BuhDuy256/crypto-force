@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realtime – Crypto Force</title>
+<link rel="preload" href="../assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<script src="../vendor/react/react.production.min.js"></script>
+<script src="../vendor/react/react-dom.production.min.js"></script>
+<script src="../tools/dc-source.js"></script>
+<script src="../vendor/dc-runtime/support.js"></script>
+
+</head>
+<body>
+<script type="text/x-template" data-dc-template>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="../styles/layout-audit.css">
+<style id="cf-audit-layout-fixes">
+/* Realtime: explicit chart density and market context at phone widths. */
+.cf-realtime-workspace {min-width:0;}
+.cf-realtime-workspace > section {min-width:0;}
+.cf-realtime-workspace > aside {min-width:0;}
+@media(min-width:1300px){
+ .cf-realtime-workspace {display:grid !important;grid-template-columns:minmax(0,1fr) 306px;align-items:start !important;gap:20px !important;}
+ .cf-realtime-workspace > section {grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+}
+@media(min-width:760px) and (max-width:1299px){
+ .cf-realtime-workspace {display:flex !important;flex-direction:column !important;gap:18px !important;}
+ .cf-realtime-workspace > section {width:100%;grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+ .cf-realtime-workspace > aside {display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:16px !important;}
+}
+@media(max-width:759px){
+ .cf-realtime-workspace {display:flex !important;flex-direction:column !important;gap:16px !important;}
+ .cf-realtime-workspace > section {width:100%;display:grid !important;grid-template-columns:minmax(0,1fr) !important;}
+ .cf-realtime-workspace > aside {display:contents !important;}
+ .cf-realtime-workspace > aside > section:first-child {order:-1;width:100%;}
+ .cf-realtime-workspace > aside > section:nth-child(n+2){order:2;width:100%;}
+ .cf-realtime-workspace > section > article {border-right:0 !important;padding:14px !important;}
+}
+@media(max-width:540px){.cf-realtime-workspace > section > article{padding:12px !important;}}
+</style>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../styles/base.css">
+</helmet>
+<div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums">
+<div style="position: sticky; top: 0; z-index: 30"><dc-import name="AppHeader" active="rt" hint-size="100%,61px"></dc-import></div>
+<main class="cf-audited-main cf-realtime-layout" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 20px">
+<div role="note" style="border:1px solid #334155;border-radius:7px;padding:8px 12px;background:#111923;color:#AFC2D6;font-size:12px;line-height:1.4;max-width:100%;box-sizing:border-box">UI prototype: prices, backtests, news, account state and workflow feedback are illustrative. No live market, AI or account service is connected in this HTML file.</div>
+<sc-if value="{{showOnboard}}" hint-placeholder-val="{{false}}">
+<section aria-labelledby="ob-h" style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; padding: 16px 20px; background: #12171E; border: 1px solid #2F3945; border-radius: 12px">
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 4px"><h2 id="ob-h" style="margin: 0; font-size: 17px; font-weight: 600">Get started: run the loop once</h2><span style="font-size: 14px; color: #9AA6B4">{{obDone}} of 3 done</span>
+<div role="progressbar" aria-label="Getting started" aria-valuenow="{{obDone}}" aria-valuemin="0" aria-valuemax="3" style="height: 4px; max-width: 240px; border-radius: 999px; background: #232B35; overflow: hidden; margin-top: 4px"><div style="height: 100%; width: {{obPct}}; background: #3DD68C"></div></div></div>
+<ol style="flex: 3 1 560px; margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px">
+<sc-for list="{{obSteps}}" as="o" hint-placeholder-count="3"><li><a href="{{o.href}}" class="cf-sec" style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 12px; border: 1px solid #2F3945; border-radius: 8px; color: #E7ECF2; text-decoration: none; font-size: 14px"><span style="width: 20px; height: 20px; flex: none; border-radius: 50%; border: 1.5px solid {{o.ring}}; background: {{o.fill}}; display: flex; align-items: center; justify-content: center"><sc-if value="{{o.done}}" hint-placeholder-val="{{false}}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0B0E12" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></sc-if></span><span style="flex: 1">{{o.label}}</span><span style="font-size: 12px; color: #9AA6B4">{{o.state}}</span></a></li></sc-for>
+</ol>
+<button type="button" onClick="{{dismissOnboard}}" class="cf-ghost" style="min-height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: #9AA6B4; font-size: 13px; font-weight: 600; cursor: pointer">Hide</button>
+</section>
+</sc-if>
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 28px">
+<div style="display: flex; flex-direction: column; gap: 4px; margin-right: auto">
+<h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.03em">Realtime</h1>
+<p style="margin: 0; font-size: 15px; color: #9AA6B4">One pair, up to four charts, each on its own timeframe.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="pair" style="font-size: 13px; font-weight: 700">Pair</label>
+<select id="pair" style="height: 42px; min-width: 170px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; font-size: 15px; font-weight: 600"><option>BTCUSDT</option><option>ETHUSDT</option><option>SOLUSDT</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="sigsrc" style="font-size: 13px; font-weight: 700">Signals from</label>
+<select id="sigsrc" value="{{sigSrc}}" onChange="{{setSigSrc}}" style="height: 42px; min-width: 200px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; font-size: 15px"><sc-for list="{{sigOptions}}" as="o" hint-placeholder-count="3"><option value="{{o.value}}">{{o.label}}</option></sc-for></select>
+<sc-if value="{{sigMissing}}" hint-placeholder-val="{{false}}"><span role="status" style="max-width: 280px; font-size: 12px; line-height: 1.4; color: #F2B544">{{sigMissingText}}</span></sc-if>
+<a href="Library.dc.html" style="font-size: 12px; font-weight: 600">Manage in library</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span id="lbl-layout" style="font-size: 13px; font-weight: 700">Charts</span>
+<div role="group" aria-labelledby="lbl-layout" style="display: flex; border: 1px solid #3A4553; border-radius: 8px; overflow: hidden">
+<sc-for list="{{layouts}}" as="l" hint-placeholder-count="3"><button type="button" onClick="{{l.pick}}" aria-pressed="{{l.on}}" class="cf-ghost" style="min-width: 48px; height: 40px; border: 0; border-left: 1px solid #2F3945; font-size: 14px; font-weight: 600; cursor: pointer; background: {{l.bg}}; color: {{l.fg}}">{{l.label}}</button></sc-for>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 42px">
+<button type="button" role="switch" aria-checked="{{live}}" aria-labelledby="lbl-live" onClick="{{toggleLive}}" class="cf-sec" style="width: 52px; height: 36px; border-radius: 999px; border: 1px solid #3A4553; padding: 2px; cursor: pointer; display: flex; justify-content: {{knob}}; background: {{switchBg}}"><span style="width: 24px; height: 24px; border-radius: 50%; background: {{knobBg}}"></span></button>
+<span id="lbl-live" style="display: flex; flex-direction: column; line-height: 1.25"><strong style="font-size: 14px; font-weight: 700">Live updates (demo)</strong><span style="font-size: 13px; color: {{liveColor}}">{{liveText}}</span></span>
+<button type="button" onClick="{{simLoss}}" class="cf-ghost" style="min-height: 36px; padding: 0 8px; border: 0; border-radius: 8px; background: none; color: #9AA6B4; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Preview connection loss</button>
+</div>
+</div>
+
+<sc-if value="{{connLost}}" hint-placeholder-val="{{false}}"><div role="alert" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 16px; border: 1px solid #5A4520; border-radius: 10px; background: #1F1A10; font-size: 14px; line-height: 1.5; color: #F2D28B"><span style="flex: 1 1 320px">{{connText}}</span><button type="button" onClick="{{reconnect}}" disabled="{{connRetrying}}" class="cf-sec" style="min-height: 40px; padding: 0 14px; border: 1px solid #F2B544; border-radius: 8px; background: none; color: #F2D28B; font-size: 14px; font-weight: 600; cursor: pointer">{{reconnectLabel}}</button></div></sc-if>
+<div class="cf-realtime-workspace" style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<section aria-label="Charts" style="flex: 999 1 720px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); background: #12171E; border: 1px solid #252D38; border-radius: 12px; overflow: hidden">
+<sc-for list="{{charts}}" as="ch" hint-placeholder-count="4">
+<article style="border-right: 1px solid #232B35; border-bottom: 1px solid #232B35; padding: 16px 16px 12px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px">
+<h2 style="margin: 0; font-size: 16px; font-weight: 600">BTCUSDT</h2>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #9AA6B4">Timeframe
+<select value="{{ch.tf}}" onChange="{{ch.setTf}}" style="height: 36px; padding: 0 8px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; font-size: 13px; font-weight: 700; color: #E7ECF2"><option>1m</option><option>5m</option><option>15m</option><option>1h</option><option>4h</option></select></label>
+<span style="margin-left: auto; font-size: 17px; font-weight: 700">69,342.18</span>
+<span style="display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 700; color: {{ch.fg}}"><sc-if value="{{ch.up}}" hint-placeholder-val="{{true}}"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1l4.5 7h-9z" fill="currentColor"></path></svg></sc-if><sc-if value="{{ch.down}}" hint-placeholder-val="{{false}}"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 9L.5 2h9z" fill="currentColor"></path></svg></sc-if>{{ch.chg}}<span style="font-weight: 400; color: #9AA6B4">24h</span></span>
+<span style="padding: 4px 12px; border: 1.5px solid {{ch.fg}}; border-radius: 8px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; color: {{ch.fg}}; background: {{ch.bg}}">{{ch.sig}}</span>
+</div>
+<div style="font-size: 12px; color: #9AA6B4">Signal from <span style="color: #E7ECF2">{{sigSrc}}</span> · on candle close {{ch.at}} · not a trade instruction</div>
+<div style="display: flex; gap: 16px; font-size: 13px; color: #9AA6B4"><span>MA(20) <span style="color: #7AA2FF; font-weight: 600">{{ch.maVal}}</span></span><span>Vol <span style="color: #E7ECF2; font-weight: 600">{{ch.vol}}</span></span></div>
+<div style="display: flex; gap: 8px">
+<div role="img" aria-label="{{ch.aria}}" style="position: relative; flex: 1; height: 150px; background: #151A21; border: 1px solid #333D4A">
+<div style="position: absolute; left: 0; right: 0; top: {{ch.lastTop}}; border-top: 1px dashed {{ch.fg}}"></div>
+<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible"><polyline points="{{ch.ma}}" fill="none" stroke="#7AA2FF" stroke-width="1.5" vector-effect="non-scaling-stroke"></polyline></svg>
+<sc-for list="{{ch.candles}}" as="k" hint-placeholder-count="60">
+<div style="position: absolute; left: {{k.l}}; width: {{k.w}}; top: {{k.wt}}; height: {{k.wh}}; display: flex; justify-content: center"><div style="width: 1px; height: 100%; background: {{k.col}}"></div></div>
+<div style="position: absolute; left: {{k.l}}; width: {{k.w}}; top: {{k.bt}}; height: {{k.bh}}; background: {{k.col}}"></div>
+</sc-for>
+</div>
+<div style="position: relative; width: 74px; height: 150px; display: flex; flex-direction: column; justify-content: space-between; font-size: 12px; color: #9AA6B4">
+<sc-for list="{{ch.axis}}" as="a" hint-placeholder-count="4"><span>{{a}}</span></sc-for>
+<span style="position: absolute; left: 0; top: {{ch.lastTop}}; transform: translateY(-50%); padding: 2px 4px; background: {{ch.fg}}; color: #151A21; font-size: 12px; font-weight: 700">69,342.18</span>
+</div>
+</div>
+<div style="display: flex; gap: 8px">
+<div style="position: relative; flex: 1; height: 36px; border-bottom: 1px solid #333D4A">
+<sc-for list="{{ch.candles}}" as="k" hint-placeholder-count="60">
+<div style="position: absolute; bottom: 0; left: {{k.l}}; width: {{k.w}}; height: {{k.vh}}; background: {{k.vcol}}"></div>
+</sc-for>
+</div>
+<div style="width: 74px; display: flex; flex-direction: column; justify-content: space-between; font-size: 12px; color: #9AA6B4"><span>{{ch.vax}}</span><span>0</span></div>
+</div>
+<div style="display: flex; justify-content: space-between; padding-right: 82px; font-size: 12px; color: #9AA6B4">
+<sc-for list="{{ch.times}}" as="tm" hint-placeholder-count="5"><span>{{tm}}</span></sc-for>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; margin-top: 2px">
+<button type="button" onClick="{{act.load.run}}" disabled="{{act.load.busy}}" aria-busy="{{act.load.busy}}" class="cf-sec" style="display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; font-size: 13px; font-weight: 600; cursor: pointer"><sc-if value="{{act.load.busy}}" hint-placeholder-val="{{false}}"><svg class="cf-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"></path></svg></sc-if><sc-if value="{{act.load.idle}}" hint-placeholder-val="{{true}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg></sc-if>{{act.load.label}}</button>
+<a href="Backtest.dc.html" onClick="{{handoff}}" class="cf-ghost" style="display: flex; align-items: center; min-height: 36px; padding: 0 4px; font-size: 13px; font-weight: 600">Backtest this strategy</a>
+<span style="margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 13px; color: {{liveColor}}"><span style="width: 7px; height: 7px; border-radius: 50%; background: {{liveDot}}"></span>{{liveShort}}</span>
+</div>
+</article>
+</sc-for>
+</section>
+
+<aside style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<section aria-labelledby="snap" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px">
+<h2 id="snap" style="margin: 0 0 8px; font-size: 17px; font-weight: 600">BTCUSDT (example)</h2>
+<div style="display: flex; align-items: baseline; gap: 12px"><span style="font-size: 26px; font-weight: 700">69,342.18</span><span style="display: flex; align-items: center; gap: 4px; color: #3DD68C; font-weight: 700"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1l4.5 7h-9z" fill="currentColor"></path></svg>+0.28% <span style="font-weight: 400; color: #9AA6B4">24h</span></span></div>
+<dl style="margin: 8px 0 0; display: grid; grid-template-columns: auto 1fr; font-size: 14px">
+<dt style="padding: 8px 0; border-bottom: 1px solid #232B35; color: #9AA6B4">MA(20), 1m</dt><dd style="margin: 0; padding: 8px 0; border-bottom: 1px solid #232B35; text-align: right">69,315.45</dd>
+<dt style="padding: 8px 0; border-bottom: 1px solid #232B35; color: #9AA6B4">Volume, last 1m</dt><dd style="margin: 0; padding: 8px 0; border-bottom: 1px solid #232B35; text-align: right">198.42 BTC</dd>
+<dt style="padding: 8px 0; color: #9AA6B4">Data</dt><dd style="margin: 0; padding: 8px 0; text-align: right; color: {{liveColor}}">{{dataLine}}</dd>
+</dl>
+</section>
+<section aria-labelledby="key" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; font-size: 14px">
+<h2 id="key" style="margin: 0 0 4px; font-size: 17px; font-weight: 600">Key</h2>
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 10px; height: 14px; background: #3DD68C"></span>Up candle (close above open)</div>
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 10px; height: 14px; background: #FF6B5E"></span>Down candle (close below open)</div>
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 16px; border-top: 2px solid #7AA2FF"></span>MA(20), 20-period moving average</div>
+<p style="margin: 4px 0 0; line-height: 1.5; color: #C3CCD6">BUY / SELL labels indicate the selected rule's example signal on the last closed candle. They are not trade instructions.</p>
+</section>
+</aside>
+</div>
+</main>
+<div aria-live="polite" style="position: fixed; right: 20px; bottom: 20px; z-index: 60; max-width: calc(100vw - 40px)">
+<sc-if value="{{toastShow}}" hint-placeholder-val="{{false}}">
+<div class="cf-toast" role="status" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
+<sc-if value="{{toastOk}}" hint-placeholder-val="{{true}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DD68C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></sc-if>
+<sc-if value="{{toastErr}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B5E" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.5"></path></svg></sc-if>
+<span style="flex: 1; font-size: 14px; line-height: 1.45">{{toastText}}</span>
+<sc-if value="{{toastHasUndo}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{toastUndo}}" class="cf-sec" style="min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 13px; font-weight: 600; cursor: pointer">Undo</button></sc-if>
+<sc-if value="{{toastHasLink}}" hint-placeholder-val="{{false}}"><a href="{{toastHref}}" style="font-size: 13px; font-weight: 600">{{toastLink}}</a></sc-if>
+<button type="button" onClick="{{toastDismiss}}" aria-label="Dismiss" class="cf-ghost" style="width: 32px; height: 32px; border: 0; border-radius: 8px; background: none; color: #9AA6B4; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+</sc-if>
+</div>
+</div>
+</x-dc>
+</script>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:1100}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { live: true, layout: 4, tfs: ['1m', '5m', '15m', '1h'], sigSrc: 'MA Crossover', onboardHidden: !!this.store('onboardHidden') };
+    var sg = this.store('signal');
+    if (sg) { var hit = this.lib().filter(function (x) { return x.id === sg.id; })[0]; if (hit) this.state.sigSrc = hit.name; else { this.state.sigMissing = sg.name || 'Your signal source'; this.unstore('signal'); } }
+  }
+  libSeed() {
+    return [
+      { id: 'st-rsi-bb', kind: 'strategy', name: 'RSI_BB_LB_LONG_SL2_TP4' },
+      { id: 'st-macd', kind: 'strategy', name: 'MACD_Cross_TrendFollow' },
+      { id: 'cp-ma-rsi-sr', kind: 'composite', name: 'MA + RSI + S/R' }
+    ];
+  }
+  lib() { try { var v = window.localStorage.getItem('cf.library'); return v ? JSON.parse(v) : this.libSeed(); } catch (e) { return this.libSeed(); } }
+  actionsCfg() { return { load: { idle: 'Load 1,000 past candles', busy: 'Loading candles\u2026', msg: 'Demo: example candles shown; no market data was fetched.' } }; }
+  pageVals() {
+    var self = this, G = '#3DD68C', R = '#FF6B5E';
+    function rng(seed) { var s = (seed * 9973) % 2147483647 || 1; return function () { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
+    function makeChart(spec) {
+      var r = rng(spec.seed), n = 64, p = 100, ks = [], i, j;
+      for (i = 0; i < n; i++) {
+        var o = p, c = o + (r() - 0.5 + spec.drift) * 2;
+        var h = Math.max(o, c) + r() * 0.9, l = Math.min(o, c) - r() * 0.9;
+        ks.push({ o: o, c: c, h: h, l: l, v: (0.18 + r() * 0.45) * (r() > 0.86 ? 1.8 : 1) });
+        p = c;
+      }
+      var lo = Infinity, hi = -Infinity;
+      ks.forEach(function (k) { lo = Math.min(lo, k.l); hi = Math.max(hi, k.h); });
+      var pad = (hi - lo) * 0.06; lo -= pad; hi += pad;
+      function Y(v) { return (hi - v) / (hi - lo) * 100; }
+      var step = 100 / n;
+      var candles = ks.map(function (k, i) {
+        var up = k.c >= k.o, t = Y(Math.max(k.o, k.c)), b = Y(Math.min(k.o, k.c));
+        return { l: (i * step + step * 0.18).toFixed(3) + '%', w: (step * 0.64).toFixed(3) + '%', wt: Y(k.h).toFixed(2) + '%', wh: (Y(k.l) - Y(k.h)).toFixed(2) + '%', bt: t.toFixed(2) + '%', bh: Math.max(0.7, b - t).toFixed(2) + '%', col: up ? G : R, vh: Math.min(100, k.v * 100).toFixed(1) + '%', vcol: up ? '#1F6B47' : '#7A302A' };
+      });
+      var pts = [];
+      for (i = 0; i < n; i++) { var s0 = Math.max(0, i - 19), sum = 0; for (j = s0; j <= i; j++) sum += ks[j].c; pts.push((i * step + step / 2).toFixed(2) + ',' + Y(sum / (i - s0 + 1) - 0.4).toFixed(2)); }
+      var sell = spec.sig === 'SELL';
+      return Object.assign({}, spec, { candles: candles, ma: pts.join(' '), lastTop: Y(ks[n - 1].c).toFixed(2) + '%', fg: sell ? R : G, bg: sell ? '#2E1715' : '#11281D', up: !sell, down: sell });
+    }
+    var specs = [
+      { at: '10:45', seed: 11, drift: 0.1, maVal: '69,315.45', chg: '+0.28%', sig: 'BUY', axis: ['69,400.00', '69,200.00', '69,000.00', '68,800.00'], vol: '198.42', vax: '1K', times: ['09:45', '10:00', '10:15', '10:30', '10:45'] },
+      { at: '10:45', seed: 23, drift: 0.09, maVal: '69,182.73', chg: '+0.28%', sig: 'BUY', axis: ['69,600.00', '69,000.00', '68,400.00', '67,800.00'], vol: '1.24K', vax: '5K', times: ['06:00', '07:00', '08:00', '09:00', '10:00'] },
+      { at: '10:45', seed: 37, drift: 0.11, maVal: '68,912.35', chg: '+0.28%', sig: 'BUY', axis: ['70,000.00', '68,500.00', '67,000.00', '65,500.00'], vol: '3.21K', vax: '10K', times: ['18:00', '21:00', '00:00', '03:00', '06:00', '09:00'] },
+      { at: '10:00', seed: 51, drift: 0.1, maVal: '68,215.66', chg: '−0.15%', sig: 'SELL', axis: ['72,000.00', '68,000.00', '64,000.00', '60,000.00'], vol: '12.47K', vax: '40K', times: ['12/05', '13/05', '14/05', '15/05', '16/05'] }
+    ];
+    if (!this._charts) this._charts = specs.map(makeChart);
+    var live = this.state.live;
+    var charts = this._charts.slice(0, this.state.layout).map(function (c, i) {
+      return Object.assign({}, c, { tf: self.state.tfs[i], setTf: function (e) { var t = self.state.tfs.slice(); t[i] = e.target.value; self.setState({ tfs: t }); } });
+    });
+    function bars(list, ringIdx) { return list.map(function (b, i) { return { h: b[0] + 'px', c: b[1] ? G : R, ring: i === ringIdx ? '#7AA2FF' : 'transparent' }; }); }
+    return {
+      charts: charts.map(function (c) { return Object.assign({}, c, { at: c.at || '10:45', aria: 'BTCUSDT ' + c.tf + ' candlestick chart. Last price 69,342.18, ' + c.chg + ' in 24 hours, MA(20) ' + c.maVal + ', ' + self.state.sigSrc + ' signal ' + c.sig + '.' }); }),
+      showOnboard: !this.state.onboardHidden,
+      sigSrc: this.state.sigSrc,
+      setSigSrc: function (e) { var v = e.target.value, hit = self.lib().filter(function (x) { return x.name === v; })[0]; if (hit) self.store('signal', { id: hit.id, name: hit.name }); else self.unstore('signal'); self.setState({ sigSrc: v, sigMissing: false }); },
+      sigOptions: [{ value: 'MA Crossover', label: 'MA Crossover (built-in)' }].concat(self.lib().map(function (x) { return { value: x.name, label: x.name + (x.kind === 'composite' ? ' · composite' : '') }; })),
+      sigMissing: !!this.state.sigMissing, sigMissingText: (this.state.sigMissing || '') + ' was deleted from your library, so signals now come from MA Crossover.',
+      handoff: function () { var hit = self.lib().filter(function (x) { return x.name === self.state.sigSrc; })[0]; self.store('handoff', { strategy: self.state.sigSrc, id: hit ? hit.id : null, from: 'Realtime' }); },
+      dataLine: this.state.conn ? 'Disconnected at 10:45:38 · retrying' : (live ? 'Live · Binance, 102 ms' : 'Paused at 10:45:38'),
+      connLost: !!this.state.conn, connRetrying: this.state.conn === 'retrying',
+      connText: this.state.conn === 'retrying' ? 'Reconnecting to Binance…' : 'Connection to Binance was lost at 10:45:38. Charts show the last data received and signals are paused until data resumes. Retrying automatically.',
+      reconnectLabel: this.state.conn === 'retrying' ? 'Reconnecting…' : 'Reconnect now',
+      simLoss: function () { self.setState({ conn: 'lost' }); },
+      reconnect: function () { self.setState({ conn: 'retrying' }); setTimeout(function () { self.setState({ conn: null }); self.toast('Reconnected. Live data resumed.'); }, 1500); },
+      dismissOnboard: function () { self.store('onboardHidden', true); self.setState({ onboardHidden: true }); },
+      obSteps: [['strategy', 'Create a strategy', 'Strategy.dc.html'], ['backtest', 'Run a backtest', 'Backtest.dc.html'], ['discovery', 'Start a Discovery search', 'Discovery.dc.html']].map(function (x) { var d = !!self.store('done.' + x[0]); return { label: x[1], href: x[2], done: d, state: d ? 'Done' : 'To do', ring: d ? '#3DD68C' : '#56637A', fill: d ? '#3DD68C' : 'transparent' }; }),
+      obDone: ['strategy', 'backtest', 'discovery'].filter(function (k) { return !!self.store('done.' + k); }).length,
+      obPct: (['strategy', 'backtest', 'discovery'].filter(function (k) { return !!self.store('done.' + k); }).length / 3 * 100) + '%',
+      layouts: [1, 2, 4].map(function (n) { var on = self.state.layout === n; return { label: String(n), on: on, bg: on ? '#E7ECF2' : '#151A21', fg: on ? '#0B0E12' : '#E7ECF2', pick: function () { self.setState({ layout: n }); } }; }),
+      live: live, toggleLive: function () { self.setState({ live: !self.state.live }); },
+      switchBg: live ? '#E7ECF2' : '#151A21', knobBg: live ? '#0B0E12' : '#E7ECF2', knob: live ? 'flex-end' : 'flex-start',
+      liveText: live ? 'Receiving data' : 'Paused, charts frozen', liveColor: live ? '#3DD68C' : '#9AA6B4', liveShort: live ? 'Updating live' : 'Paused', liveDot: live ? '#3DD68C' : '#3A4553',
+      rules: [
+        { title: 'Same time as the last candle: update it', tag: 'UPDATE', bars: bars([[18, 1], [12, 0], [22, 1], [30, 1]], 3), text: 'An incoming candle with the same open time overwrites the last one, so a forming candle keeps moving.' },
+        { title: 'New time: append a candle', tag: 'APPEND', bars: bars([[18, 1], [12, 0], [16, 0], [24, 1], [20, 1]], 4), text: 'A candle with a new open time is added to the end; the previous one is now closed.' }
+      ],
+      ticks: [
+        { t: '10:45:38.123', p: '69,342.18', v: '0.012', side: 'Buy', col: G },
+        { t: '10:45:38.087', p: '69,342.17', v: '0.005', side: 'Buy', col: G },
+        { t: '10:45:38.051', p: '69,342.16', v: '0.010', side: 'Sell', col: R },
+        { t: '10:45:38.015', p: '69,342.15', v: '0.007', side: 'Buy', col: G },
+        { t: '10:45:37.979', p: '69,342.14', v: '0.020', side: 'Sell', col: R }
+      ]
+    };
+  }
+
+  toast(text, kind, opts) {
+    var self = this; opts = opts || {};
+    this._undoFn = opts.undo || null;
+    this.setState({ toast: { text: text, kind: kind || 'ok', link: opts.link || '', href: opts.href || '', undo: !!opts.undo } });
+    clearTimeout(this._tt);
+    this._tt = setTimeout(function () { self.setState({ toast: null }); }, opts.undo ? 8000 : 5000);
+  }
+  store(key, val) { try { if (val === undefined) { var v = window.localStorage.getItem('cf.' + key); return v ? JSON.parse(v) : null; } window.localStorage.setItem('cf.' + key, JSON.stringify(val)); } catch (e) { return null; } return val; }
+  unstore(key) { try { window.localStorage.removeItem('cf.' + key); } catch (e) {} }
+  actionVals() {
+    var self = this, cfg = this.actionsCfg ? this.actionsCfg() : {}, st = this.state.act || {}, out = {};
+    Object.keys(cfg).forEach(function (k) {
+      var c = cfg[k], busy = st[k] === 'busy';
+      out[k] = { busy: busy, idle: !busy, label: busy ? c.busy : c.idle, run: function () {
+        if ((self.state.act || {})[k] === 'busy') return;
+        if (c.check && !c.check()) return;
+        var a = Object.assign({}, self.state.act); a[k] = 'busy'; self.setState({ act: a });
+        setTimeout(function () {
+          var b = Object.assign({}, self.state.act); b[k] = 'idle'; self.setState({ act: b });
+          var r = c.done ? c.done() : null; r = r || {};
+          self.toast(r.text || c.msg, r.kind || c.kind || 'ok', { link: r.link || c.link, href: r.href || c.href });
+        }, c.ms || 1300);
+      } };
+    });
+    var t = this.state.toast;
+    return { act: out, toastShow: !!t, toastText: t ? t.text : '', toastErr: !!(t && t.kind === 'error'), toastOk: !!(t && t.kind !== 'error'),
+      toastBd: t && t.kind === 'error' ? '#5A2A2A' : '#1F6B47', toastHasLink: !!(t && t.href), toastLink: t ? t.link : '', toastHref: t ? t.href : '#',
+      toastHasUndo: !!(t && t.undo), toastUndo: function () { var f = self._undoFn; self._undoFn = null; self.setState({ toast: null }); if (f) f(); },
+      toastDismiss: function () { self.setState({ toast: null }); } };
+  }
+  renderVals() { return Object.assign({}, this.pageVals(), this.actionVals()); }
+
+}
+</script>
+
+
+</body></html>

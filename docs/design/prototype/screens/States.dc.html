@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Empty and loading states – Crypto Force</title>
+<link rel="preload" href="../assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<script src="../vendor/react/react.production.min.js"></script>
+<script src="../vendor/react/react-dom.production.min.js"></script>
+<script src="../tools/dc-source.js"></script>
+<script src="../vendor/dc-runtime/support.js"></script>
+
+</head>
+<body>
+<script type="text/x-template" data-dc-template>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="../styles/layout-audit.css">
+<style id="cf-audit-layout-fixes">
+/* Showcase states: balanced cards; no truncated content when preview shrinks. */
+.cf-states-layout > div[style*="display: grid"] {grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr)) !important;}
+@media(max-width:600px){.cf-states-layout > div[style*="display: grid"] {grid-template-columns:minmax(0,1fr) !important;}}
+</style>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../styles/base.css">
+</helmet>
+<div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums">
+<div style="position: sticky; top: 0; z-index: 30"><dc-import name="AppHeader" active="settings" hint-size="100%,61px"></dc-import></div>
+<main class="cf-audited-main cf-states-layout" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 48px; display: flex; flex-direction: column; gap: 20px">
+<div role="note" style="border:1px solid #334155;border-radius:7px;padding:8px 12px;background:#111923;color:#AFC2D6;font-size:12px;line-height:1.4;max-width:100%;box-sizing:border-box">UI prototype: prices, backtests, news, account state and workflow feedback are illustrative. No live market, AI or account service is connected in this HTML file.</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.03em">Empty and loading states</h1>
+<p style="margin: 0; font-size: 15px; color: #9AA6B4">What each tab shows before there's data, while data loads, and when the connection drops.</p>
+<p role="note" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 0; padding: 10px 12px; border: 1px solid #5A4520; border-radius: 8px; background: #1F1A10; font-size: 14px; line-height: 1.5; color: #F2D28B"><span style="padding: 1px 8px; border: 1px solid #F2B544; border-radius: 999px; font-size: 12px; font-weight: 700; color: #F2B544">Preview gallery</span><span style="flex: 1 1 320px">Static examples of each state. Buttons marked Preview don’t run anything here; the working versions are on each tab. Links open the real screen.</span></p>
+</div>
+
+<div role="alert" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 12px 16px; border: 1px solid #5A4520; border-radius: 10px; background: #1F1A10">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F2B544" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"></path><path d="M12 10v5M12 18v.5"></path></svg>
+<span style="flex: 1 1 300px; font-size: 14px; line-height: 1.5"><strong style="font-weight: 600">Realtime connection lost.</strong> Charts are paused at 10:45:38. Reconnecting to Binance WebSocket in 5 s.</span>
+<span style="display: inline-flex; align-items: center; gap: 8px"><button type="button" aria-disabled="true" aria-describedby="st-prev-reconnect" title="Preview only. The working button is on the Realtime tab." class="cf-sec" style="min-height: 36px; padding: 0 16px; border: 1px dashed #F2B544; border-radius: 8px; background: none; color: #F2B544; font-size: 14px; font-weight: 600; cursor: default">Reconnect now</button><span id="st-prev-reconnect" style="padding: 1px 8px; border: 1px solid #5A4520; border-radius: 999px; font-size: 12px; font-weight: 700; color: #F2D28B">Preview · works on Realtime</span></span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 20px">
+
+<section aria-labelledby="e-lib" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: baseline; gap: 12px"><h2 id="e-lib" style="margin: 0; font-size: 17px; font-weight: 600">Strategy library</h2><span style="font-size: 13px; color: #9AA6B4">Strategy Engine · first visit</span></div>
+<div style="padding: 28px 20px; border: 1px dashed #333D4A; border-radius: 10px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px">
+<strong style="font-size: 17px; font-weight: 600">No strategies yet</strong>
+<p style="margin: 0; font-size: 14px; line-height: 1.55; color: #C3CCD6; max-width: 48ch">Describe a trading rule or paste a public link. Review the resulting rules before saving. For example:</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px"><a href="Strategy.dc.html" class="cf-sec" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border: 1px solid #333D4A; border-radius: 999px; color: #E7ECF2; text-decoration: none; font-size: 13px">MA20 crosses above MA50</a><a href="Strategy.dc.html" class="cf-sec" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border: 1px solid #333D4A; border-radius: 999px; color: #E7ECF2; text-decoration: none; font-size: 13px">RSI below 30 and under lower band</a></div>
+<a href="Strategy.dc.html" class="cf-pri" style="display: inline-flex; align-items: center; min-height: 42px; padding: 0 16px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; text-decoration: none; font-size: 14px; font-weight: 600">Create your first strategy</a>
+</div>
+</section>
+
+<section aria-labelledby="e-lb" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: baseline; gap: 12px"><h2 id="e-lb" style="margin: 0; font-size: 17px; font-weight: 600">Leaderboard</h2><span style="font-size: 13px; color: #9AA6B4">Discovery · search not started</span></div>
+<div style="padding: 28px 20px; border: 1px dashed #333D4A; border-radius: 10px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px">
+<strong style="font-size: 17px; font-weight: 600">Nothing ranked yet</strong>
+<p style="margin: 0; font-size: 14px; line-height: 1.55; color: #C3CCD6; max-width: 48ch">Pick at least two building blocks, choose a search method and start a session. Candidates appear here as they finish their backtests.</p>
+<a href="Discovery.dc.html" class="cf-pri" style="display: inline-flex; align-items: center; min-height: 42px; padding: 0 16px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; text-decoration: none; font-size: 14px; font-weight: 600">Set up a search</a>
+</div>
+</section>
+
+<section aria-labelledby="e-bt" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: baseline; gap: 12px"><h2 id="e-bt" style="margin: 0; font-size: 17px; font-weight: 600">Backtest results</h2><span style="font-size: 13px; color: #9AA6B4">Backtest · before the first run</span></div>
+<div style="padding: 28px 20px; border: 1px dashed #333D4A; border-radius: 10px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px">
+<strong style="font-size: 17px; font-weight: 600">Run a backtest to see results</strong>
+<p style="margin: 0; font-size: 14px; line-height: 1.55; color: #C3CCD6; max-width: 48ch">Choose a strategy, pair and period above, then press Run backtest. The preview shows sample fee (0.08%) and slippage (5 bps) values. Check these inputs before running a backtest.</p>
+</div>
+</section>
+
+<section aria-labelledby="e-news" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: baseline; gap: 12px"><h2 id="e-news" style="margin: 0; font-size: 17px; font-weight: 600">Incoming news</h2><span style="font-size: 13px; color: #9AA6B4">News · filter with no matches</span></div>
+<div style="padding: 28px 20px; border: 1px dashed #333D4A; border-radius: 10px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px">
+<strong style="font-size: 17px; font-weight: 600">No SOL news in the last hour</strong>
+<p style="margin: 0; font-size: 14px; line-height: 1.55; color: #C3CCD6; max-width: 48ch">Try a broader asset filter or refresh the news feed later.</p>
+<a href="News.dc.html" class="cf-sec" style="display: inline-flex; align-items: center; min-height: 42px; padding: 0 16px; border: 1px solid #3A4553; border-radius: 8px; color: #E7ECF2; text-decoration: none; font-size: 14px; font-weight: 600">Show all assets</a>
+</div>
+</section>
+
+<section aria-labelledby="l-chart" aria-busy="true" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: baseline; gap: 12px"><h2 id="l-chart" style="margin: 0; font-size: 17px; font-weight: 600">Chart loading</h2><span style="font-size: 13px; color: #9AA6B4">Realtime · loading 1,000 candles</span></div>
+<div style="display: flex; gap: 12px; align-items: center"><span class="cf-skel" style="width: 120px; height: 16px"></span><span class="cf-skel" style="width: 70px; height: 16px; margin-left: auto"></span><span class="cf-skel" style="width: 46px; height: 22px"></span></div>
+<div style="display: flex; align-items: flex-end; gap: 4px; height: 150px; padding: 12px; border: 1px solid #232B35; border-radius: 8px; background: #151A21">
+<sc-for list="{{skelBars}}" as="b" hint-placeholder-count="30"><span class="cf-skel" style="flex: 1; height: {{b}}; border-radius: 2px"></span></sc-for>
+</div>
+<span style="font-size: 13px; color: #9AA6B4">Loading candles…</span>
+</section>
+
+<section aria-labelledby="l-table" aria-busy="true" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: baseline; gap: 12px"><h2 id="l-table" style="margin: 0; font-size: 17px; font-weight: 600">Table loading</h2><span style="font-size: 13px; color: #9AA6B4">Backtest trades · running</span></div>
+<div style="display: flex; flex-direction: column">
+<sc-for list="{{skelRows}}" as="r" hint-placeholder-count="6"><div style="display: grid; grid-template-columns: 1.2fr 0.6fr 1fr 1fr 0.7fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid #232B35"><span class="cf-skel" style="height: 12px; width: {{r.a}}"></span><span class="cf-skel" style="height: 12px; width: 70%"></span><span class="cf-skel" style="height: 12px; width: {{r.b}}"></span><span class="cf-skel" style="height: 12px; width: 80%"></span><span class="cf-skel" style="height: 12px; width: {{r.c}}"></span></div></sc-for>
+</div>
+<div role="progressbar" aria-label="Backtest progress" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" style="display: flex; align-items: center; gap: 12px; font-size: 13px; color: #9AA6B4"><span style="flex: 1; height: 6px; border-radius: 999px; background: #232B35; overflow: hidden"><span style="display: block; width: 62%; height: 100%; background: #7AA2FF"></span></span>Simulating 01/05 – 15/05… 62%</div>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+</script>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:1300}}">
+class Component extends DCLogic {
+  renderVals() {
+    var h = [40, 55, 48, 62, 70, 58, 66, 74, 69, 80, 72, 64, 60, 68, 77, 85, 79, 71, 76, 83, 88, 81, 75, 70, 78, 86, 90, 84, 80, 87];
+    return {
+      skelBars: h.map(function (v) { return v + '%'; }),
+      skelRows: [['80%', '60%', '40%'], ['70%', '75%', '55%'], ['85%', '50%', '45%'], ['65%', '70%', '60%'], ['75%', '55%', '35%'], ['80%', '65%', '50%']].map(function (r) { return { a: r[0], b: r[1], c: r[2] }; })
+    };
+  }
+}
+</script>
+
+
+</body></html>

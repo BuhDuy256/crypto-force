@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Describe a trading idea, review the strategy rules, and compare simulated return with maximum drawdown. Research only; no real orders.">
+<meta property="og:title" content="Crypto Force – Test the idea before you trade it">
+<meta property="og:description" content="Explore trading ideas, review rule sets, and compare simulated results without placing orders.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0B0E12">
+<title>Crypto Force – Test the idea before you trade it</title>
+<link rel="preload" href="../assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<script src="../vendor/react/react.production.min.js"></script>
+<script src="../vendor/react/react-dom.production.min.js"></script>
+<script src="../tools/dc-source.js"></script>
+<script src="../vendor/dc-runtime/support.js"></script>
+
+</head>
+<body>
+<script type="text/x-template" data-dc-template>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="../styles/layout-audit.css">
+<style id="cf-audit-layout-fixes">
+/* Landing: keep conversion action before the dashboard illustration. */
+@media(max-width:930px){
+ main > section:first-of-type {padding:36px 24px 40px !important;}
+ main > section:first-of-type > div {gap:28px !important;}
+ #product{flex:1 1 100% !important;min-width:0 !important;order:2 !important;}
+ main > section:first-of-type > div > div:first-child{flex:1 1 100% !important;order:1 !important;}
+}
+@media(max-width:600px){
+ main > section:first-of-type {padding:30px 16px 34px !important;}
+ main #evidence > div,main #limits > div{padding:32px 16px !important;gap:22px !important;}
+ main #loop{padding:32px 16px !important;}
+ main #faq{padding:8px 16px 34px !important;}
+ #product{overflow:hidden;}
+}
+</style>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../styles/base.css">
+</helmet>
+<div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums">
+
+<a href="#main" class="cf-skip">Skip to content</a>
+<header style="position: relative; z-index: 20; border-bottom: 1px solid #252D38; background: #0B0E12">
+<div style="max-width: 1360px; margin: 0 auto; padding: 12px 32px; display: flex; align-items: center; gap: 12px 32px">
+<a href="Main.dc.html" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; color: #E7ECF2; text-decoration: none; font-size: 20px; font-weight: 600; letter-spacing: -0.03em"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x=".5" y=".5" width="29" height="29" rx="8" fill="#151A21" stroke="#2F3945"></rect><path d="M8 13.5l7-7 7 7z" fill="#3DD68C"></path><path d="M8 16.5l7 7 7-7z" fill="#E7ECF2"></path></svg>Crypto Force</a>
+<nav aria-label="Page" class="cf-wide" style="display: flex; gap: 4px 24px; font-size: 15px; font-weight: 400">
+<a href="#product" style="color: #C3CCD6; text-decoration: none; padding: 12px 0">Product</a>
+<a href="#loop" style="color: #C3CCD6; text-decoration: none; padding: 12px 0">How it works</a>
+<a href="#evidence" style="color: #C3CCD6; text-decoration: none; padding: 12px 0">Return vs. risk</a>
+<a href="#faq" style="color: #C3CCD6; text-decoration: none; padding: 12px 0">FAQ</a>
+</nav>
+<div style="margin-left: auto; display: flex; align-items: center; gap: 8px">
+<sc-if value="{{signedOut}}" hint-placeholder-val="{{true}}"><a href="Auth.dc.html" class="cf-ghost cf-wide" style="display: flex; align-items: center; min-height: 44px; padding: 0 16px; color: #E7ECF2; font-size: 15px; font-weight: 600; text-decoration: none">Sign in</a>
+<a href="Auth.dc.html" class="cf-pri" style="display: flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 15px; font-weight: 600; text-decoration: none">Create account</a></sc-if>
+<sc-if value="{{signedIn}}" hint-placeholder-val="{{false}}"><a href="Realtime.dc.html" class="cf-pri" style="display: flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 15px; font-weight: 600; text-decoration: none">Open workspace</a></sc-if>
+<button type="button" class="cf-sec cf-narrow" ref="{{setMenuBtn}}" onClick="{{toggleMenu}}" aria-expanded="{{menuOpen}}" aria-controls="lp-drawer" aria-label="{{menuLabel}}" style="width: 44px; height: 44px; border: 1px solid #2F3945; background: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<sc-if value="{{menuClosed}}" hint-placeholder-val="{{true}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E7ECF2" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></sc-if>
+<sc-if value="{{menuOpen}}" hint-placeholder-val="{{false}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E7ECF2" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></sc-if>
+</button>
+</div>
+</div>
+<sc-if value="{{menuOpen}}" hint-placeholder-val="{{false}}">
+<nav id="lp-drawer" aria-label="Page" class="cf-narrow" onKeyDown="{{drawerKey}}" style="display: flex; flex-direction: column; padding: 8px 20px 20px; border-top: 1px solid #232B35">
+<a href="#product" onClick="{{closeMenu}}" class="cf-ghost" style="display: flex; align-items: center; min-height: 48px; color: #E7ECF2; text-decoration: none; font-size: 16px; border-bottom: 1px solid #232B35">Product</a>
+<a href="#loop" onClick="{{closeMenu}}" class="cf-ghost" style="display: flex; align-items: center; min-height: 48px; color: #E7ECF2; text-decoration: none; font-size: 16px; border-bottom: 1px solid #232B35">How it works</a>
+<a href="#evidence" onClick="{{closeMenu}}" class="cf-ghost" style="display: flex; align-items: center; min-height: 48px; color: #E7ECF2; text-decoration: none; font-size: 16px; border-bottom: 1px solid #232B35">Return vs. risk</a>
+<a href="#faq" onClick="{{closeMenu}}" class="cf-ghost" style="display: flex; align-items: center; min-height: 48px; color: #E7ECF2; text-decoration: none; font-size: 16px; border-bottom: 1px solid #232B35">FAQ</a>
+<sc-if value="{{signedOut}}" hint-placeholder-val="{{true}}"><a href="Auth.dc.html" class="cf-sec" style="display: flex; align-items: center; justify-content: center; min-height: 48px; margin-top: 16px; border: 1px solid #3A4553; border-radius: 8px; color: #E7ECF2; text-decoration: none; font-size: 16px; font-weight: 600">Sign in</a></sc-if><sc-if value="{{signedIn}}" hint-placeholder-val="{{false}}"><a href="Realtime.dc.html" class="cf-sec" style="display: flex; align-items: center; justify-content: center; min-height: 48px; margin-top: 16px; border: 1px solid #3A4553; border-radius: 8px; color: #E7ECF2; text-decoration: none; font-size: 16px; font-weight: 600">Open workspace</a></sc-if>
+</nav>
+</sc-if>
+</header>
+
+<main class="cf-audited-main cf-landing-layout" id="main">
+<sc-if value="{{flash}}" hint-placeholder-val="{{false}}"><div role="status" style="max-width: 1360px; margin: 16px auto 0; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 16px; border: 1px solid #2F4A7A; border-radius: 10px; background: #121C2E; font-size: 14px; line-height: 1.5; color: #C9D8F2"><span style="flex: 1 1 300px">{{flash}}</span><button type="button" onClick="{{dismissFlash}}" class="cf-ghost" style="min-height: 40px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Dismiss</button></div></sc-if>
+<div role="note" style="border:1px solid #334155;border-radius:7px;padding:8px 12px;background:#111923;color:#AFC2D6;font-size:12px;line-height:1.4;max-width:100%;box-sizing:border-box">UI prototype: prices, backtests, news, account state and workflow feedback are illustrative. No live market, AI or account service is connected in this HTML file.</div>
+<section style="max-width: 1360px; margin: 0 auto; padding: 44px 32px 56px">
+<h1 style="margin: 0; font-size: clamp(44px, 7vw, 76px); line-height: 0.98; font-weight: 600; letter-spacing: -0.04em; max-width: 13ch; text-wrap: balance">Test the idea before you trade it.</h1>
+<div style="display: flex; flex-wrap: wrap; gap: 40px; margin-top: 36px; align-items: flex-start">
+
+<div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<p style="margin: 0; font-size: 20px; line-height: 1.5; max-width: 34ch">Describe a trading idea in natural language. Review the generated strategy rules, test them on historical market data, and compare the return <strong>with the maximum drawdown</strong>.</p>
+<form style="display: flex; flex-direction: column; gap: 12px; padding: 20px; background: #12171E; border: 1px solid #252D38; border-radius: 12px">
+<label for="idea" style="font-size: 14px; font-weight: 700">Describe a strategy</label>
+<textarea id="idea" rows="3" value="{{idea}}" onChange="{{setIdea}}" placeholder="e.g. Buy when MA20 crosses above MA50, sell when RSI goes above 70" style="resize: vertical; min-height: 84px; padding: 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; font-size: 15px; line-height: 1.5"></textarea>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{examples}}" as="ex" hint-placeholder-count="3">
+<button type="button" onClick="{{ex.use}}" class="cf-sec" style="min-height: 36px; padding: 0 12px; border: 1px solid #333D4A; border-radius: 999px; background: #0B0E12; font-size: 13px; cursor: pointer">{{ex.label}}</button>
+</sc-for>
+</div>
+<a href="{{ideaHref}}" onClick="{{keepIdea}}" class="cf-pri" style="align-self: flex-start; display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 24px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 700; text-decoration: none">Backtest this idea<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+<span style="font-size: 13px; color: #9AA6B4">Sign up to continue. This description is kept in this browser while you complete the flow.</span>
+</form>
+<dl style="margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 14px">
+<dt style="color: #9AA6B4">Pairs</dt><dd style="margin: 0">BTCUSDT, ETHUSDT, SOLUSDT (examples)</dd>
+<dt style="color: #9AA6B4">Timeframes</dt><dd style="margin: 0">1m, 5m, 15m, 1h, 4h</dd>
+<dt style="color: #9AA6B4">History</dt><dd style="margin: 0">Select a start and end date</dd>
+<dt style="color: #9AA6B4">Data</dt><dd style="margin: 0">Binance public API and WebSocket</dd>
+</dl>
+</div>
+
+<div id="product" style="flex: 1.45 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<figure style="margin: 0; border: 1px solid #2F3945; border-radius: 14px; background: #12171E; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.35)">
+<div aria-hidden="true" style="display: flex; align-items: center; gap: 20px; padding: 0 20px; min-height: 46px; border-bottom: 1px solid #232B35; font-size: 13px; color: #9AA6B4; overflow-x: auto; white-space: nowrap">
+<span style="display: flex; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 50%; background: #333D4A"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #333D4A"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #333D4A"></span></span>
+<span>Realtime</span><span>Strategy Engine</span><span>Discovery</span><span style="color: #E7ECF2; font-weight: 600; padding: 12px 0 12px; border-bottom: 2px solid #7AA2FF">Backtest</span><span>News</span></div>
+<div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 15px; font-weight: 600">MA Crossover · BTCUSDT 5m · 01/05 – 15/05/2025</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px">
+<div style="padding: 12px 16px; border: 1px solid #232B35; border-radius: 10px; background: #151A21"><div style="font-size: 13px; color: #9AA6B4">Net return</div><div style="font-size: 26px; font-weight: 600; color: #3DD68C">+8.42%</div></div>
+<div style="padding: 12px 16px; border: 1px solid #232B35; border-radius: 10px; background: #151A21"><div style="font-size: 13px; color: #9AA6B4">Max drawdown</div><div style="font-size: 26px; font-weight: 600; color: #FF6B5E">−3.03%</div></div>
+<div style="padding: 12px 16px; border: 1px solid #232B35; border-radius: 10px; background: #151A21"><div style="font-size: 13px; color: #9AA6B4">Win rate</div><div style="font-size: 26px; font-weight: 600">61.80%</div><div style="font-size: 12px; color: #9AA6B4">110 of 178 trades</div></div>
+<div style="padding: 12px 16px; border: 1px solid #232B35; border-radius: 10px; background: #151A21; display: flex; flex-direction: column; gap: 12px"><div style="font-size: 13px; color: #9AA6B4">Return vs. max drawdown</div><div role="img" aria-label="Worst drop −3.03%, return +8.42%" style="position: relative; height: 18px"><span style="position: absolute; left: 0; right: 0; top: 8px; border-top: 1px solid #333D4A"></span><span style="position: absolute; left: 33.3%; top: 0; height: 18px; border-left: 1.5px solid #E7ECF2"></span><span style="position: absolute; top: 6px; height: 6px; left: 11.9%; width: 21.4%; background: #FF6B5E"></span><span style="position: absolute; top: 6px; height: 6px; left: 33.3%; width: 56.1%; background: #3DD68C"></span></div></div>
+</div>
+<div style="overflow-x: auto"><table style="width: 100%; min-width: 620px; border-collapse: collapse; font-size: 13px">
+<thead><tr style="border-bottom: 1px solid #2F3945; color: #9AA6B4; text-align: right"><th style="text-align: left; font-weight: 600; padding: 8px 0">Opened</th><th style="text-align: left; font-weight: 600">Side</th><th style="font-weight: 600">Entry</th><th style="font-weight: 600">Exit</th><th style="font-weight: 600">Fee</th><th style="font-weight: 600">Slip.</th><th style="font-weight: 600">P/L (USD)</th></tr></thead>
+<tbody>
+<tr style="border-bottom: 1px solid #232B35; text-align: right"><td style="text-align: left; padding: 8px 0">01/05 06:15</td><td style="text-align: left; color: #3DD68C; font-weight: 600">LONG</td><td>68,120.50</td><td>69,050.80</td><td style="color: #9AA6B4">−0.05</td><td style="color: #9AA6B4">−0.03</td><td style="color: #3DD68C; font-weight: 600">+0.83</td></tr>
+<tr style="border-bottom: 1px solid #232B35; text-align: right"><td style="text-align: left; padding: 8px 0">01/05 09:40</td><td style="text-align: left; color: #FF6B5E; font-weight: 600">SHORT</td><td>69,450.20</td><td>68,430.10</td><td style="color: #9AA6B4">−0.05</td><td style="color: #9AA6B4">−0.03</td><td style="color: #3DD68C; font-weight: 600">+0.87</td></tr>
+<tr style="text-align: right"><td style="text-align: left; padding: 8px 0">01/05 12:25</td><td style="text-align: left; color: #3DD68C; font-weight: 600">LONG</td><td>68,600.10</td><td>67,980.00</td><td style="color: #9AA6B4">−0.05</td><td style="color: #9AA6B4">−0.03</td><td style="color: #FF6B5E; font-weight: 600">−0.67</td></tr>
+</tbody></table></div>
+</div>
+<figcaption style="padding: 12px 24px; border-top: 1px solid #232B35; font-size: 13px; color: #9AA6B4">Illustrative backtest preview for BTCUSDT. Values are examples, not verified trading results or a forecast.</figcaption>
+</figure>
+</div>
+</div>
+</section>
+
+
+
+<section id="evidence" style="background: #151A21; border-top: 1px solid #2F3945; border-bottom: 1px solid #232B35">
+<div style="max-width: 1360px; margin: 0 auto; padding: 48px 32px; display: flex; flex-wrap: wrap; gap: 40px">
+<div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-size: clamp(30px, 4vw, 40px); line-height: 1.08; font-weight: 600; letter-spacing: -0.03em; text-wrap: balance">Higher return isn't always better.</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.55; max-width: 40ch">Two illustrative strategies each start with 100 units. A ends higher but experiences a much deeper drawdown. B earns slightly less with a smaller drawdown. Compare both metrics when assessing a result.</p>
+<table style="border-collapse: collapse; font-size: 15px; margin-top: 8px">
+<thead><tr style="border-bottom: 1px solid #2F3945; font-size: 13px; color: #9AA6B4; text-align: right"><th style="text-align: left; font-weight: 600; padding: 8px 20px 8px 0">Strategy</th><th style="font-weight: 600; padding-right: 20px">Return</th><th style="font-weight: 600; padding-right: 20px">Max DD</th><th style="font-weight: 600; text-align: left">Drawdown example</th></tr></thead>
+<tbody>
+<tr style="border-bottom: 1px solid #232B35"><td style="padding: 12px 20px 12px 0; font-weight: 700">A</td><td style="text-align: right; padding-right: 20px; color: #3DD68C; font-weight: 700">+30%</td><td style="text-align: right; padding-right: 20px; color: #FF6B5E; font-weight: 700">−45%</td><td style="font-size: 14px; line-height: 1.4">Down to 69 from 125 before recovering</td></tr>
+<tr style="border-bottom: 1px solid #232B35"><td style="padding: 12px 20px 12px 0; font-weight: 700">B</td><td style="text-align: right; padding-right: 20px; color: #3DD68C; font-weight: 700">+25%</td><td style="text-align: right; padding-right: 20px; color: #FF6B5E; font-weight: 700">−8%</td><td style="font-size: 14px; line-height: 1.4">Never further than 112 → 103</td></tr>
+</tbody>
+</table>
+</div>
+<figure style="flex: 1.4 1 520px; min-width: 0; margin: 0">
+<figcaption style="display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; font-size: 14px; border-top: 1px solid #252D38; padding-top: 12px"><strong style="font-weight: 600; font-size: 16px; margin-right: auto">Illustrative account value, T1–T7</strong><span style="display: flex; align-items: center; gap: 8px"><span style="width: 18px; border-top: 3px solid #E7ECF2"></span>A</span><span style="display: flex; align-items: center; gap: 8px"><span style="width: 18px; border-top: 3px dashed #7AA2FF"></span>B</span></figcaption>
+<div style="display: flex; gap: 12px; margin-top: 16px">
+<div style="display: flex; flex-direction: column; justify-content: space-between; height: 240px; font-size: 12px; color: #9AA6B4; text-align: right; width: 30px"><span>140</span><span>120</span><span>100</span><span>80</span><span>60</span></div>
+<div style="flex: 1; position: relative; height: 240px">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between"><span style="border-top: 1px solid #232B35"></span><span style="border-top: 1px solid #232B35"></span><span style="border-top: 1px solid #2F3945"></span><span style="border-top: 1px solid #232B35"></span><span style="border-top: 1px solid #232B35"></span></div>
+<svg viewBox="0 0 600 240" preserveAspectRatio="none" role="img" aria-label="Strategy A rises to 125, falls to 69, ends at 130. Strategy B rises steadily to 125 with a small dip to 103." style="position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible">
+<rect x="200" y="0" width="200" height="240" fill="#FF6B5E" opacity="0.08"></rect>
+<polyline points="0,120 100,75 200,45 300,150 400,213 500,135 600,30" fill="none" stroke="#E7ECF2" stroke-width="3" vector-effect="non-scaling-stroke"></polyline>
+<polyline points="0,120 100,102 200,84 300,111 400,90 500,66 600,45" fill="none" stroke="#7AA2FF" stroke-width="3" stroke-dasharray="7 5" vector-effect="non-scaling-stroke"></polyline>
+</svg>
+<span style="position: absolute; left: 50%; top: 4px; transform: translateX(-50%); font-size: 13px; font-weight: 700; color: #FF6B5E; background: #151A21; padding: 0 8px">A: −45% from peak</span>
+</div>
+</div>
+<div style="display: flex; justify-content: space-between; padding-left: 40px; margin-top: 8px; font-size: 12px; color: #9AA6B4"><span>T1</span><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span></div>
+</figure>
+</div>
+</section>
+
+<section id="loop" style="max-width: 1360px; margin: 0 auto; padding: 56px 32px">
+<h2 style="margin: 0 0 8px; font-size: clamp(30px, 4vw, 40px); line-height: 1.08; font-weight: 600; letter-spacing: -0.03em">One loop, from chart to candidate.</h2>
+<p style="margin: 0 0 24px; font-size: 17px; line-height: 1.55; max-width: 60ch; color: #C3CCD6">Each step answers the question the last one raised. Discovery keeps the loop running for you and hands back the strategies worth a closer look.</p>
+<div style="overflow-x: auto">
+<table style="width: 100%; min-width: 760px; border-collapse: collapse">
+<thead><tr style="border-top: 1px solid #2F3945; border-bottom: 1px solid #2F3945; font-size: 13px; color: #9AA6B4; text-align: left"><th style="font-weight: 600; padding: 12px 0; width: 18%">Step</th><th style="font-weight: 600; width: 32%">The question</th><th style="font-weight: 600">What you get</th></tr></thead>
+<tbody>
+<sc-for list="{{loop}}" as="l" hint-placeholder-count="7">
+<tr style="border-bottom: 1px solid #232B35; vertical-align: top">
+<td style="padding: 16px 0; font-size: 17px; font-weight: 600">{{l.name}}</td>
+<td style="padding: 16px 20px 16px 0; font-size: 16px">{{l.q}}</td>
+<td style="padding: 16px 0; font-size: 15px; line-height: 1.5; color: #C3CCD6">{{l.a}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+
+<section id="faq" aria-labelledby="h-faq" style="max-width: 1360px; margin: 0 auto; padding: 8px 32px 64px; display: flex; flex-wrap: wrap; gap: 24px 56px">
+<h2 id="h-faq" style="margin: 0; flex: 1 1 280px; font-size: clamp(30px, 4vw, 40px); line-height: 1.08; font-weight: 600; letter-spacing: -0.03em">Questions</h2>
+<div style="flex: 2 1 560px; min-width: 0; border-top: 1px solid #2F3945">
+<sc-for list="{{faq}}" as="q" hint-placeholder-count="5">
+<div style="border-bottom: 1px solid #2F3945">
+<h3 style="margin: 0; font-size: 17px"><button type="button" onClick="{{q.toggle}}" aria-expanded="{{q.open}}" class="cf-ghost" style="width: 100%; display: flex; align-items: center; gap: 16px; min-height: 60px; padding: 0; border: 0; background: none; color: #E7ECF2; font-size: 17px; font-weight: 600; text-align: left; cursor: pointer">{{q.q}}<svg style="margin-left: auto; flex: none; transform: {{q.rot}}" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9AA6B4" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button></h3>
+<sc-if value="{{q.open}}" hint-placeholder-val="{{false}}"><p style="margin: 0 0 20px; max-width: 68ch; font-size: 16px; line-height: 1.6; color: #C3CCD6">{{q.a}}</p></sc-if>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section id="limits" style="background: #12171E; border-top: 1px solid #252D38; border-bottom: 1px solid #252D38; color: #E7ECF2">
+<div style="max-width: 1360px; margin: 0 auto; padding: 52px 32px; display: flex; flex-wrap: wrap; gap: 36px 56px; align-items: flex-start">
+<h2 style="margin: 0; flex: 1 1 300px; font-size: clamp(30px, 4vw, 40px); line-height: 1.08; font-weight: 600; letter-spacing: -0.03em">What Crypto Force won't do.</h2>
+<ul style="flex: 2 1 520px; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column">
+<li style="padding: 16px 0; border-top: 1px solid #2F3945; font-size: 17px; line-height: 1.5"><strong style="font-weight: 700">It never places an order.</strong> Everything is analysis and simulation on market data.</li>
+<li style="padding: 16px 0; border-top: 1px solid #2F3945; font-size: 17px; line-height: 1.5"><strong style="font-weight: 700">It doesn't promise profit.</strong> A top-ranked candidate only performs well under the selected test and ranking criteria; it is not a forecast.</li>
+<li style="padding: 16px 0; border-top: 1px solid #2F3945; border-bottom: 1px solid #2F3945; font-size: 17px; line-height: 1.5"><strong style="font-weight: 700">It doesn't hide costs.</strong> Review the fee, slippage and data assumptions behind each backtest before comparing results.</li>
+</ul>
+<div style="flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 16px">
+<a href="Auth.dc.html" class="cf-pri" style="display: flex; align-items: center; min-height: 50px; padding: 0 24px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 700; text-decoration: none">Create account</a>
+<a href="Auth.dc.html" style="color: #A9C1FF; font-size: 15px; font-weight: 600">I already have an account</a>
+</div>
+</div>
+</section>
+</main>
+
+<footer style="border-top: 1px solid #252D38">
+<div style="max-width: 1360px; margin: 0 auto; padding: 40px 32px 28px; display: flex; flex-wrap: wrap; gap: 32px 48px">
+<div style="flex: 1.4 1 260px; display: flex; flex-direction: column; gap: 12px">
+<a href="Main.dc.html" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; color: #E7ECF2; text-decoration: none; font-size: 20px; font-weight: 600; letter-spacing: -0.03em"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x=".5" y=".5" width="29" height="29" rx="8" fill="#151A21" stroke="#2F3945"></rect><path d="M8 13.5l7-7 7 7z" fill="#3DD68C"></path><path d="M8 16.5l7 7 7-7z" fill="#E7ECF2"></path></svg>Crypto Force</a>
+<p style="margin: 0; font-size: 14px; line-height: 1.55; color: #9AA6B4; max-width: 36ch">Strategy research for crypto traders. Analysis and simulation only; Crypto Force never places orders.</p>
+</div>
+<nav aria-label="Product" style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 12px; font-size: 14px"><h2 style="margin: 0 0 4px; font-size: 17px; font-weight: 600; color: #E7ECF2">Product</h2><a href="#product" style="color: #E7ECF2; text-decoration: none">Backtest</a><a href="#loop" style="color: #E7ECF2; text-decoration: none">How it works</a><a href="#evidence" style="color: #E7ECF2; text-decoration: none">Return vs. risk</a><a href="Auth.dc.html" style="color: #E7ECF2; text-decoration: none">Create account</a></nav>
+<nav aria-label="Resources" style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 12px; font-size: 14px"><h2 style="margin: 0 0 4px; font-size: 17px; font-weight: 600; color: #E7ECF2">Resources</h2><a href="#faq" style="color: #E7ECF2; text-decoration: none">FAQ</a><a href="#" style="color: #E7ECF2; text-decoration: none">Documentation (planned)</a><a href="#" style="color: #E7ECF2; text-decoration: none">System status (planned)</a></nav>
+<nav aria-label="Legal" style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 12px; font-size: 14px"><h2 style="margin: 0 0 4px; font-size: 17px; font-weight: 600; color: #E7ECF2">Legal</h2><a href="#" style="color: #E7ECF2; text-decoration: none">Terms of Service</a><a href="#" style="color: #E7ECF2; text-decoration: none">Privacy Policy</a><a href="#" style="color: #E7ECF2; text-decoration: none">Risk disclosure</a></nav>
+<nav aria-label="Contact" style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 12px; font-size: 14px"><h2 style="margin: 0 0 4px; font-size: 17px; font-weight: 600; color: #E7ECF2">Contact</h2><a href="#" style="color: #E7ECF2; text-decoration: none">Support contact: not configured</a><a href="#" style="color: #E7ECF2; text-decoration: none">Social link: not configured</a></nav>
+</div>
+<div style="max-width: 1360px; margin: 0 auto; padding: 20px 32px 28px; border-top: 1px solid #232B35; display: flex; flex-wrap: wrap; gap: 12px 24px; font-size: 13px; line-height: 1.55; color: #9AA6B4">
+<span>© Crypto Force</span><span>Market data: Binance API + WebSocket</span>
+<p style="margin: 0; flex: 1 1 100%; max-width: 110ch">Crypto Force is a research tool, not financial advice. Backtests use historical data and simulated fills; real trading results will differ. Crypto assets are volatile and you can lose money.</p>
+</div>
+</footer>
+</div>
+</x-dc>
+</script>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:3700}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { idea: '', menu: false, faq: 0, flash: '' };
+    try { var fl = window.localStorage.getItem('cf.flash'); if (fl) { this.state.flash = JSON.parse(fl); window.localStorage.removeItem('cf.flash'); } } catch (e) {}
+  }
+  renderVals() {
+    var self = this, signedIn = true;
+    try { var sv = JSON.parse(window.localStorage.getItem('cf.session') || 'null'); signedIn = !(sv && sv.state === 'out'); } catch (e) {}
+    function pct(v, lo, hi) { return (v - lo) / (hi - lo) * 100; }
+    function bar(name, ret, win, mdd) {
+      var lo = -10, hi = 30, z = pct(0, lo, hi), n = pct(mdd, lo, hi), p = pct(ret, lo, hi);
+      return {
+        name: name, ret: '+' + ret.toFixed(1) + '%', win: win + '%', mdd: '−' + Math.abs(mdd).toFixed(1) + '%',
+        zero: z + '%', negL: n + '%', negW: (z - n) + '%', posL: z + '%', posW: (p - z) + '%',
+        aria: 'Worst drop ' + mdd + '%, return ' + ret + '%'
+      };
+    }
+    var ex = ['MA20 crosses above MA50', 'RSI below 30 and price under lower Bollinger Band', 'Majority vote of MA, RSI and support/resistance'];
+    return {
+      menuOpen: this.state.menu, menuClosed: !this.state.menu, menuLabel: this.state.menu ? 'Close menu' : 'Open menu',
+      toggleMenu: function () { self.setState({ menu: !self.state.menu }); },
+      closeMenu: function () { self.setState({ menu: false }); },
+      setMenuBtn: function (el) { self._menuBtn = el; },
+      drawerKey: function (e) { if (e.key === 'Escape') { self.setState({ menu: false }); if (self._menuBtn) self._menuBtn.focus(); } },
+      ideaHref: signedIn ? 'Strategy.dc.html' : 'Auth.dc.html',
+      signedIn: signedIn, signedOut: !signedIn, flash: self.state.flash, dismissFlash: function () { self.setState({ flash: '' }); },
+      keepIdea: function () { var t = (self.state.idea || '').trim(); try { if (t) window.localStorage.setItem('cf.idea', JSON.stringify(t)); if (!signedIn) window.localStorage.setItem('cf.next', JSON.stringify({ href: 'Strategy.dc.html', label: 'Strategy Engine', why: t ? 'idea' : 'page' })); } catch (e) {} },
+      faq: [
+        ['Does Crypto Force place trades on my exchange account?', 'No. It never connects to an exchange account and never asks for API keys. Everything is analysis and simulation on market data.'],
+        ['Where does the data come from?', 'Price candles and ticks come from Binance through its public API and WebSocket. News comes from the sources you configure in the News tab.'],
+        ['How do I describe a strategy?', 'Describe the entry and exit rules in your own words, for example "buy when RSI is below 30 and price is under the lower Bollinger Band", or paste a link to a write-up. The Strategy Engine turns it into rules you can check before saving.'],
+        ['Can I trust a backtest result?', 'A backtest shows how a rule would have traded on past data with the fees and slippage you set. Read the return together with max drawdown and the number of trades; a good past result is not a forecast.'],
+        ['Can I reproduce a result later?', 'Reproducibility requires the same strategy version, data, execution assumptions and backtest settings. Compare those details when reviewing a run.']
+      ].map(function (x, i) { var open = self.state.faq === i; return { q: x[0], a: x[1], open: open, rot: open ? 'rotate(180deg)' : 'none', toggle: function () { self.setState({ faq: open ? -1 : i }); } }; }),
+      idea: this.state.idea,
+      setIdea: function (e) { self.setState({ idea: e.target.value }); },
+      examples: ex.map(function (t) { return { label: t, use: function () { self.setState({ idea: t }); } }; }),
+      listings: [bar('MA + RSI + S/R', 24.2, 62, -7.1), bar('MA + Bollinger', 21.7, 55, -8.4), bar('RSI + S/R', 18.4, 64, -6.7)],
+      loop: [
+        { name: 'Market', q: 'How has price moved?', a: 'Up to four candlestick charts of one pair, each on its own timeframe, updating live.' },
+        { name: 'Strategy', q: 'When do I buy or sell?', a: 'Rules based on indicators (MA, RSI, Bollinger, support/resistance, SMC, Wyckoff), described in natural language or referenced by a link, and combined by majority or weighted vote.' },
+        { name: 'Backtest', q: 'How would the rule have traded?', a: 'Every simulated trade over the period you pick, with entries and exits on the chart, fees and slippage included.' },
+        { name: 'Evaluation', q: 'Is it good, or just risky?', a: 'Total return, win rate, max drawdown and number of trades, side by side.' },
+        { name: 'Leaderboard', q: 'Which one is better?', a: 'Results ranked by return, win rate, drawdown or a combined score, keeping the top few.' },
+        { name: 'Discovery', q: 'What should I try next?', a: 'Automatic search that generates, tests and ranks variants until your stop condition, with a status you can pause and resume.' },
+        { name: 'News', q: 'What else is going on?', a: 'News per coin, scored positive, neutral or negative, usable as an input only when a rule asks for it.' }
+      ]
+    };
+  }
+}
+</script>
+
+
+</body></html>

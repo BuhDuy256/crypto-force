@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strategy library – Crypto Force</title>
+<link rel="preload" href="../assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<script src="../vendor/react/react.production.min.js"></script>
+<script src="../vendor/react/react-dom.production.min.js"></script>
+<script src="../tools/dc-source.js"></script>
+<script src="../vendor/dc-runtime/support.js"></script>
+</head>
+<body>
+<script type="text/x-template" data-dc-template>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="../styles/layout-audit.css">
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../styles/base.css">
+</helmet>
+<div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums">
+<div style="position: sticky; top: 0; z-index: 30"><dc-import name="AppHeader" active="st" hint-size="100%,61px"></dc-import></div>
+<main class="cf-audited-main" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 48px; display: flex; flex-direction: column; gap: 20px">
+<nav aria-label="Breadcrumb" style="font-size: 14px; color: #9AA6B4"><a href="Strategy.dc.html" style="font-weight: 600">Strategy Engine</a><span aria-hidden="true" style="margin: 0 8px">/</span><span aria-current="page">Library</span></nav>
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 28px">
+<div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.03em">Strategy library</h1>
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: #9AA6B4">Saved strategies and composites. Open one to see its rules, edit it, or use it in Backtest and Realtime.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<a href="Strategy.dc.html" onClick="{{newStrategy}}" class="cf-pri" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 15px; font-weight: 700; text-decoration: none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>New strategy</a>
+<a href="Discovery.dc.html" onClick="{{newComposite}}" class="cf-sec" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 1px solid #3A4553; border-radius: 8px; color: #E7ECF2; font-size: 15px; font-weight: 600; text-decoration: none">New composite</a>
+</div>
+</div>
+
+<section aria-labelledby="lib-list-title" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px">
+<h2 id="lib-list-title" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Saved items</h2>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px">
+<div role="group" aria-label="Filter by type" style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="3"><button type="button" onClick="{{f.pick}}" aria-pressed="{{f.on}}" class="cf-sec" style="min-height: 40px; padding: 0 14px; border: 1px solid {{f.bd}}; border-radius: 999px; background: {{f.bg}}; color: #E7ECF2; font-size: 14px; font-weight: {{f.w}}; cursor: pointer">{{f.label}} <span style="color: #9AA6B4">{{f.count}}</span></button></sc-for>
+</div>
+<div style="flex: 1 1 260px; display: flex; justify-content: flex-end">
+<label for="lib-q" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Search the library</label>
+<input id="lib-q" type="search" value="{{q}}" onChange="{{setQ}}" placeholder="Search by name or tag" style="width: 320px; max-width: 100%; height: 42px; padding: 0 14px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px">
+</div>
+</div>
+<p style="margin: 0; font-size: 13px; color: #9AA6B4">Realtime signal source: <strong style="color: #E7ECF2; font-weight: 600">{{sigName}}</strong></p>
+
+<sc-if value="{{hasItems}}" hint-placeholder-val="{{true}}">
+<ul style="margin: 0; padding: 0; list-style: none; border-top: 1px solid #232B35">
+<sc-for list="{{items}}" as="it" hint-placeholder-count="3">
+<li style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 16px 0; border-bottom: 1px solid #232B35">
+<div style="flex: 999 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<button type="button" onClick="{{it.open}}" class="cf-ghost" style="padding: 2px 0; border: 0; background: none; color: #E7ECF2; font-size: 16px; font-weight: 700; text-align: left; cursor: pointer; overflow-wrap: anywhere; text-decoration: underline; text-decoration-color: #3A4553; text-underline-offset: 4px">{{it.name}}</button>
+<span style="padding: 2px 8px; border: 1px solid #3A4553; border-radius: 6px; font-size: 12px; font-weight: 600; color: #C3CCD6">{{it.typeLabel}}</span>
+<sc-if value="{{it.isSignal}}" hint-placeholder-val="{{false}}"><span style="padding: 2px 8px; border: 1px solid #1F6B47; border-radius: 6px; background: #11281D; font-size: 12px; font-weight: 600; color: #8BE5B5">Realtime signal source</span></sc-if>
+</div>
+<span style="font-size: 13px; line-height: 1.45; color: #9AA6B4">{{it.meta}}</span>
+<sc-if value="{{it.hasTags}}" hint-placeholder-val="{{true}}"><span style="font-size: 13px; color: #C3CCD6">{{it.tags}}</span></sc-if>
+</div>
+<div style="flex: 1 1 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 12px">
+<span style="font-size: 13px; color: {{it.btC}}">{{it.btLabel}}</span>
+<a href="Backtest.dc.html" onClick="{{it.backtest}}" class="cf-sec" style="display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 1px solid #3A4553; border-radius: 8px; color: #E7ECF2; font-size: 14px; font-weight: 600; text-decoration: none">Backtest</a>
+<a href="{{it.editHref}}" onClick="{{it.edit}}" class="cf-sec" style="display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 1px solid #3A4553; border-radius: 8px; color: #E7ECF2; font-size: 14px; font-weight: 600; text-decoration: none">Edit</a>
+<button type="button" onClick="{{it.open}}" aria-label="Details for {{it.name}}" class="cf-sec" style="min-height: 40px; padding: 0 14px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Details</button>
+</div>
+</li>
+</sc-for>
+</ul>
+</sc-if>
+
+<sc-if value="{{noMatch}}" hint-placeholder-val="{{false}}">
+<div role="status" style="padding: 32px 20px; border: 1px dashed #374456; border-radius: 10px; background: #0E141B; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+<strong style="font-size: 16px">Nothing matches “{{q}}”</strong>
+<span style="font-size: 14px; color: #9AA6B4">Try another name or tag, or show every type.</span>
+<button type="button" onClick="{{clearFilters}}" class="cf-sec" style="min-height: 40px; padding: 0 14px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Clear search and filters</button>
+</div>
+</sc-if>
+
+<sc-if value="{{libEmpty}}" hint-placeholder-val="{{false}}">
+<div role="status" style="padding: 40px 20px; border: 1px dashed #374456; border-radius: 10px; background: #0E141B; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+<strong style="font-size: 16px">Your library is empty</strong>
+<span style="max-width: 420px; font-size: 14px; line-height: 1.5; color: #9AA6B4">Save a strategy from Strategy Engine, or a composite from Discovery, and it will appear here.</span>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 4px">
+<a href="Strategy.dc.html" onClick="{{newStrategy}}" class="cf-pri" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 15px; font-weight: 700; text-decoration: none">Create a strategy</a>
+<a href="Discovery.dc.html" onClick="{{newComposite}}" class="cf-sec" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 1px solid #3A4553; border-radius: 8px; color: #E7ECF2; font-size: 15px; font-weight: 600; text-decoration: none">Build a composite</a>
+</div>
+</div>
+</sc-if>
+</section>
+</main>
+
+<sc-if value="{{drawerOpen}}" hint-placeholder-val="{{false}}">
+<div style="position: fixed; inset: 0; z-index: 70">
+<button type="button" tabindex="-1" aria-hidden="true" onClick="{{closeDrawer}}" class="cf-ghost" style="position: absolute; inset: 0; width: 100%; border: 0; padding: 0; margin: 0; background: rgba(5,7,10,0.6); cursor: default"></button>
+<aside role="dialog" aria-modal="true" aria-labelledby="lib-d-title" tabindex="-1" ref="{{setDrawer}}" onKeyDown="{{drawerKey}}" style="position: absolute; top: 0; right: 0; bottom: 0; width: 520px; max-width: 100%; box-sizing: border-box; background: #12171E; border-left: 1px solid #2F3945; box-shadow: -16px 0 40px rgba(0,0,0,0.45); display: flex; flex-direction: column; outline: none">
+<div style="display: flex; align-items: flex-start; gap: 12px; padding: 20px 20px 16px; border-bottom: 1px solid #232B35">
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; flex-wrap: wrap; gap: 6px"><span style="padding: 2px 8px; border: 1px solid #3A4553; border-radius: 6px; font-size: 12px; font-weight: 600; color: #C3CCD6">{{cur.typeLabel}}</span><sc-if value="{{cur.isSignal}}" hint-placeholder-val="{{false}}"><span style="padding: 2px 8px; border: 1px solid #1F6B47; border-radius: 6px; background: #11281D; font-size: 12px; font-weight: 600; color: #8BE5B5">Realtime signal source</span></sc-if></div>
+<sc-if value="{{notRenaming}}" hint-placeholder-val="{{true}}"><h2 id="lib-d-title" style="margin: 0; font-size: 22px; line-height: 1.25; font-weight: 650; overflow-wrap: anywhere">{{cur.name}}</h2></sc-if>
+<sc-if value="{{renaming}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label id="lib-d-title" for="lib-rename" style="font-size: 13px; font-weight: 700">Name</label>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<input id="lib-rename" type="text" maxlength="60" ref="{{setRenameInput}}" value="{{renameVal}}" onChange="{{setRename}}" onKeyDown="{{renameKey}}" aria-invalid="{{renameInvalid}}" aria-describedby="lib-rename-msg" style="flex: 1 1 200px; min-width: 0; height: 42px; padding: 0 12px; border: 1px solid {{renameBd}}; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 16px">
+<button type="button" onClick="{{saveRename}}" class="cf-pri" style="min-height: 42px; padding: 0 14px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 14px; font-weight: 700; cursor: pointer">Save</button>
+<button type="button" onClick="{{cancelRename}}" class="cf-sec" style="min-height: 42px; padding: 0 14px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Cancel</button>
+</div>
+<span id="lib-rename-msg" style="font-size: 13px; color: {{renameMsgC}}">{{renameMsg}}</span>
+</div>
+</sc-if>
+</div>
+<button type="button" onClick="{{closeDrawer}}" aria-label="Close details" class="cf-ghost" style="flex: none; width: 40px; height: 40px; border: 0; border-radius: 8px; background: none; color: #E7ECF2; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+
+<div style="flex: 1; min-height: 0; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 22px">
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; font-size: 14px">
+<div style="display: flex; flex-direction: column; gap: 2px"><dt style="font-size: 12px; color: #9AA6B4">Version</dt><dd style="margin: 0">{{cur.ver}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><dt style="font-size: 12px; color: #9AA6B4">Source</dt><dd style="margin: 0">{{cur.src}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><dt style="font-size: 12px; color: #9AA6B4">Updated</dt><dd style="margin: 0">{{cur.updated}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><dt style="font-size: 12px; color: #9AA6B4">Created</dt><dd style="margin: 0">{{cur.created}}</dd></div>
+</dl>
+
+<section aria-labelledby="lib-d-rules" style="display: flex; flex-direction: column; gap: 8px">
+<h3 id="lib-d-rules" style="margin: 0; font-size: 15px; font-weight: 650">Rules</h3>
+<ul style="margin: 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.5; color: #C3CCD6">
+<sc-for list="{{cur.rules}}" as="r" hint-placeholder-count="2"><li>{{r}}</li></sc-for>
+</ul>
+</section>
+
+<sc-if value="{{cur.isComposite}}" hint-placeholder-val="{{false}}">
+<section aria-labelledby="lib-d-blocks" style="display: flex; flex-direction: column; gap: 8px">
+<h3 id="lib-d-blocks" style="margin: 0; font-size: 15px; font-weight: 650">Building blocks · {{cur.voteLabel}}</h3>
+<ul style="margin: 0; padding: 0; list-style: none; border-top: 1px solid #232B35">
+<sc-for list="{{cur.blockRows}}" as="b" hint-placeholder-count="3"><li style="display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #232B35; font-size: 14px"><span style="flex: 1">{{b.name}}</span><span style="color: #9AA6B4">weight {{b.w}}</span></li></sc-for>
+</ul>
+</section>
+</sc-if>
+
+<sc-if value="{{cur.hasPrompt}}" hint-placeholder-val="{{false}}">
+<section aria-labelledby="lib-d-desc" style="display: flex; flex-direction: column; gap: 8px">
+<h3 id="lib-d-desc" style="margin: 0; font-size: 15px; font-weight: 650">Description</h3>
+<p style="margin: 0; font-size: 14px; line-height: 1.55; color: #C3CCD6; overflow-wrap: anywhere">{{cur.prompt}}</p>
+</section>
+</sc-if>
+<sc-if value="{{cur.hasUrl}}" hint-placeholder-val="{{false}}">
+<section aria-labelledby="lib-d-url" style="display: flex; flex-direction: column; gap: 8px">
+<h3 id="lib-d-url" style="margin: 0; font-size: 15px; font-weight: 650">Imported from</h3>
+<a href="{{cur.url}}" style="font-size: 14px; overflow-wrap: anywhere">{{cur.url}}</a>
+</section>
+</sc-if>
+
+<section aria-labelledby="lib-d-runs" style="display: flex; flex-direction: column; gap: 8px">
+<h3 id="lib-d-runs" style="margin: 0; font-size: 15px; font-weight: 650">Backtest runs</h3>
+<sc-if value="{{cur.hasRuns}}" hint-placeholder-val="{{false}}">
+<ul style="margin: 0; padding: 0; list-style: none; border-top: 1px solid #232B35">
+<sc-for list="{{cur.runs}}" as="rn" hint-placeholder-count="2"><li style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid #232B35; font-size: 14px"><a href="Backtest.dc.html" onClick="{{rn.open}}" style="flex: 1 1 200px; overflow-wrap: anywhere">{{rn.title}}</a><span style="color: {{rn.c}}">{{rn.result}}</span></li></sc-for>
+</ul>
+</sc-if>
+<sc-if value="{{cur.noRuns}}" hint-placeholder-val="{{true}}"><p style="margin: 0; font-size: 14px; line-height: 1.5; color: #9AA6B4">Not backtested yet. Each run keeps a copy of the configuration it ran with, so editing this later doesn't change past results.</p></sc-if>
+</section>
+</div>
+
+<div style="padding: 16px 20px; border-top: 1px solid #232B35; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<a href="Backtest.dc.html" onClick="{{cur.backtest}}" class="cf-pri" style="flex: 1 1 140px; display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 15px; font-weight: 700; text-decoration: none">Backtest</a>
+<a href="{{cur.editHref}}" onClick="{{cur.edit}}" class="cf-sec" style="flex: 1 1 140px; display: flex; align-items: center; justify-content: center; min-height: 44px; border: 1px solid #3A4553; border-radius: 8px; color: #E7ECF2; font-size: 15px; font-weight: 600; text-decoration: none">{{cur.editLabel}}</a>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" onClick="{{useSignal}}" disabled="{{cur.isSignal}}" class="cf-sec" style="min-height: 40px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">{{cur.signalLabel}}</button>
+<button type="button" onClick="{{startRename}}" class="cf-sec" style="min-height: 40px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Rename</button>
+<button type="button" onClick="{{duplicate}}" class="cf-sec" style="min-height: 40px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Duplicate</button>
+<button type="button" onClick="{{askDelete}}" class="cf-sec" style="margin-left: auto; min-height: 40px; padding: 0 12px; border: 1px solid #5A2A2A; border-radius: 8px; background: none; color: #FF8A80; font-size: 14px; font-weight: 600; cursor: pointer">Delete</button>
+</div>
+</div>
+</aside>
+</div>
+</sc-if>
+
+<sc-if value="{{delOpen}}" hint-placeholder-val="{{false}}">
+<div style="position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box">
+<button type="button" tabindex="-1" aria-hidden="true" onClick="{{cancelDelete}}" class="cf-ghost" style="position: absolute; inset: 0; width: 100%; border: 0; padding: 0; margin: 0; background: rgba(5,7,10,0.7); cursor: default"></button>
+<div role="alertdialog" aria-modal="true" aria-labelledby="lib-del-title" aria-describedby="lib-del-desc" onKeyDown="{{delKey}}" style="position: relative; width: 460px; max-width: 100%; box-sizing: border-box; padding: 24px; background: #12171E; border: 1px solid #2F3945; border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,0.55); display: flex; flex-direction: column; gap: 14px">
+<h2 id="lib-del-title" style="margin: 0; font-size: 20px; line-height: 1.3; font-weight: 650; overflow-wrap: anywhere">Delete “{{delName}}”?</h2>
+<p id="lib-del-desc" style="margin: 0; font-size: 14px; line-height: 1.55; color: #C3CCD6">It will be removed from your library and from strategy pickers. Past backtest runs keep their own copy of this configuration and stay in Backtest.</p>
+<sc-if value="{{delIsSignal}}" hint-placeholder-val="{{false}}"><p style="margin: 0; padding: 10px 12px; border: 1px solid #5A4520; border-radius: 8px; background: #1F1A10; font-size: 14px; line-height: 1.5; color: #F2D28B">This is Realtime's signal source. Realtime will switch back to MA Crossover.</p></sc-if>
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 4px">
+<button type="button" ref="{{setDelCancel}}" onClick="{{cancelDelete}}" class="cf-sec" style="min-height: 44px; padding: 0 16px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 15px; font-weight: 600; cursor: pointer">Cancel</button>
+<button type="button" onClick="{{doDelete}}" class="cf-pri" style="min-height: 44px; padding: 0 16px; border: 0; border-radius: 8px; background: #FF6B5E; color: #0B0E12; font-size: 15px; font-weight: 700; cursor: pointer">Delete</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<div aria-live="polite" style="position: fixed; right: 20px; bottom: 20px; z-index: 95; max-width: calc(100vw - 40px)">
+<sc-if value="{{toastShow}}" hint-placeholder-val="{{false}}">
+<div class="cf-toast" role="status" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid #2F3945; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DD68C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg>
+<span style="flex: 1; font-size: 14px; line-height: 1.45">{{toastText}}</span>
+<sc-if value="{{toastHasUndo}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{toastUndo}}" class="cf-sec" style="min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 13px; font-weight: 600; cursor: pointer">Undo</button></sc-if>
+<sc-if value="{{toastHasLink}}" hint-placeholder-val="{{false}}"><a href="{{toastHref}}" style="font-size: 13px; font-weight: 600">{{toastLink}}</a></sc-if>
+<button type="button" onClick="{{toastDismiss}}" aria-label="Dismiss" class="cf-ghost" style="width: 32px; height: 32px; border: 0; border-radius: 8px; background: none; color: #9AA6B4; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+</sc-if>
+</div>
+</div>
+</x-dc>
+</script>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1100}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { filter: 'all', q: '', openId: null, renaming: false, renameVal: '', renameErr: '', delId: null, toast: null };
+    var o = this.store('libOpen'); if (o) { this.state.openId = o; this.unstore('libOpen'); }
+  }
+  libSeed() {
+    return [
+      { id: 'st-rsi-bb', kind: 'strategy', name: 'RSI_BB_LB_LONG_SL2_TP4', src: 'Written by you', input: 'prompt', prompt: 'When RSI is below 30 and price is under the lower Bollinger Band, go LONG. Stop loss 2%, take profit 4%.', tags: ['RSI', 'Bollinger', 'Mean Reversion', 'Long'], ver: '1.0.0', created: '20/05/2025 10:42', updated: '20/05/2025 10:42', rules: ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)', 'Stop loss 2% below entry', 'Take profit 4% above entry'] },
+      { id: 'st-macd', kind: 'strategy', name: 'MACD_Cross_TrendFollow', src: 'Imported from a link', input: 'url', url: 'https://www.tradingview.com/script/abc123-example/', tags: ['MACD', 'Trend', 'Swing'], ver: '1.2.1', created: '19/05/2025 16:30', updated: '19/05/2025 16:30', rules: ['LONG when the MACD line crosses above its signal line and the close is above EMA(200)', 'Exit when the MACD line crosses back below its signal line'] },
+      { id: 'cp-ma-rsi-sr', kind: 'composite', name: 'MA + RSI + S/R', src: 'Built in Discovery', blocks: ['MA', 'RSI', 'Support / Resistance'], vote: 'weighted', w: [0.4, 0.3, 0.3], tags: ['Composite', 'Weighted vote'], ver: '1.0.0', created: '18/05/2025 09:05', updated: '18/05/2025 09:05', rules: ['MA, RSI and Support / Resistance each vote BUY, SELL or HOLD on every candle', 'Weighted vote (0.40 / 0.30 / 0.30) decides the signal'] }
+    ];
+  }
+  lib() { try { var v = window.localStorage.getItem('cf.library'); return v ? JSON.parse(v) : this.libSeed(); } catch (e) { return this.libSeed(); } }
+  setLib(list) { try { window.localStorage.setItem('cf.library', JSON.stringify(list)); } catch (e) {} }
+  nowStamp() { var d = new Date(); function p(n) { return (n < 10 ? '0' : '') + n; } return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
+  bumpVer(v) { var p = String(v || '1.0.0').split('.').map(function (x) { return parseInt(x, 10) || 0; }); while (p.length < 3) p.push(0); p[2] += 1; return p.join('.'); }
+  shortBlock(b) { return b === 'Support / Resistance' ? 'S/R' : (b === 'Bollinger Bands' ? 'Bollinger' : b); }
+  compositeRules(blocks, vote, w) {
+    var names = blocks.join(', ').replace(/, ([^,]*)$/, ' and $1');
+    var how = vote === 'weighted' ? 'Weighted vote (' + (w || []).slice(0, blocks.length).map(function (x) { return Number(x).toFixed(2); }).join(' / ') + ') decides the signal' : 'Majority vote decides the signal; ties hold';
+    return [names + ' each vote BUY, SELL or HOLD on every candle', how];
+  }
+  store(key, val) { try { if (val === undefined) { var v = window.localStorage.getItem('cf.' + key); return v ? JSON.parse(v) : null; } window.localStorage.setItem('cf.' + key, JSON.stringify(val)); } catch (e) { return null; } return val; }
+  unstore(key) { try { window.localStorage.removeItem('cf.' + key); } catch (e) {} }
+  setRef(name) { var self = this; this._refs = this._refs || {}; this._rs = this._rs || {}; if (!this._rs[name]) this._rs[name] = function (el) { self._refs[name] = el; }; return this._rs[name]; }
+  focusRef(name) { var el = this._refs && this._refs[name]; if (el && el.focus) el.focus(); }
+  componentDidMount() { var self = this; if (this.state.openId) setTimeout(function () { self.focusRef('drawer'); }, 0); }
+  componentDidUpdate(pp, ps) {
+    var st = this.state, self = this;
+    if (st.openId && st.openId !== ps.openId) setTimeout(function () { self.focusRef('drawer'); }, 0);
+    if (st.renaming && !ps.renaming) setTimeout(function () { var el = self._refs && self._refs.renameInput; if (el) { el.focus(); if (el.select) el.select(); } }, 0);
+    if (st.delId && !ps.delId) setTimeout(function () { self.focusRef('delCancel'); }, 0);
+    if (!st.delId && ps.delId && st.openId) setTimeout(function () { self.focusRef('drawer'); }, 0);
+  }
+  toast(text, opts) {
+    var self = this; opts = opts || {};
+    this._undoFn = opts.undo || null;
+    this.setState({ toast: { text: text, link: opts.link || '', href: opts.href || '', undo: !!opts.undo } });
+    clearTimeout(this._tt);
+    this._tt = setTimeout(function () { self.setState({ toast: null }); }, opts.undo ? 8000 : 5000);
+  }
+  renderVals() {
+    var self = this, st = this.state, list = this.lib(), sig = this.store('signal'), runs = this.store('runs') || [];
+    if (sig && !list.some(function (x) { return x.id === sig.id; })) sig = null;
+    var q = st.q.trim().toLowerCase();
+    var nS = list.filter(function (x) { return x.kind === 'strategy'; }).length, nC = list.length - nS;
+    var shown = list.filter(function (x) {
+      if (st.filter !== 'all' && x.kind !== st.filter) return false;
+      if (!q) return true;
+      return (x.name + ' ' + (x.tags || []).join(' ')).toLowerCase().indexOf(q) >= 0;
+    });
+    function runsOf(it) { return runs.filter(function (r) { return r.strategyId === it.id; }); }
+    function lastRun(it) { var r = runsOf(it); return r.length ? r[0] : null; }
+    function editFn(it) { return function () { self.store('edit', { id: it.id }); }; }
+    function btFn(it) { return function () { self.store('handoff', { strategy: it.name, id: it.id, from: 'your library' }); }; }
+    function uniqueName(base, exceptId) {
+      var taken = {}; list.forEach(function (x) { if (x.id !== exceptId) taken[x.name.toLowerCase()] = true; });
+      if (!taken[base.toLowerCase()]) return base;
+      for (var i = 2; i < 100; i++) { var n = base + ' ' + i; if (!taken[n.toLowerCase()]) return n; }
+      return base + ' ' + Date.now();
+    }
+    var items = shown.map(function (it) {
+      var lr = lastRun(it), comp = it.kind === 'composite';
+      return {
+        id: it.id, name: it.name, typeLabel: comp ? 'Composite' : 'Strategy',
+        meta: it.src + ' · v' + it.ver + ' · Updated ' + it.updated,
+        tags: (it.tags || []).join(' · '), hasTags: (it.tags || []).length > 0,
+        isSignal: !!(sig && sig.id === it.id),
+        btLabel: lr ? 'Last run ' + lr.result : 'Not backtested yet', btC: lr ? '#C3CCD6' : '#F2B544',
+        open: function () { self.setState({ openId: it.id, renaming: false, renameErr: '' }); },
+        editHref: comp ? 'Discovery.dc.html' : 'Strategy.dc.html', edit: editFn(it), backtest: btFn(it)
+      };
+    });
+    var curItem = list.filter(function (x) { return x.id === st.openId; })[0] || null;
+    var cur = { name: '', typeLabel: '', rules: [], blockRows: [], runs: [] };
+    if (curItem) {
+      var comp = curItem.kind === 'composite', cr = runsOf(curItem);
+      cur = {
+        name: curItem.name, typeLabel: comp ? 'Composite' : 'Strategy', ver: curItem.ver, src: curItem.src, updated: curItem.updated, created: curItem.created || curItem.updated,
+        rules: curItem.rules || [], isComposite: comp,
+        voteLabel: curItem.vote === 'weighted' ? 'Weighted vote' : 'Majority vote',
+        blockRows: (curItem.blocks || []).map(function (b, i) { return { name: b, w: curItem.vote === 'weighted' ? Number((curItem.w || [])[i] || 0).toFixed(2) : 'equal' }; }),
+        hasPrompt: !comp && curItem.input !== 'url' && !!curItem.prompt, prompt: curItem.prompt || '',
+        hasUrl: !comp && curItem.input === 'url' && !!curItem.url, url: curItem.url || '',
+        runs: cr.slice(0, 5).map(function (r) { return { title: r.title + ' · ' + r.id, result: r.status === 'running' ? 'Running' : r.result, c: r.status === 'failed' ? '#FF6B5E' : '#C3CCD6', open: function () { self.store('runOpen', r.id); } }; }), hasRuns: cr.length > 0, noRuns: cr.length === 0,
+        isSignal: !!(sig && sig.id === curItem.id), signalLabel: (sig && sig.id === curItem.id) ? 'Current signal source' : 'Use as signal source',
+        editHref: comp ? 'Discovery.dc.html' : 'Strategy.dc.html', editLabel: comp ? 'Edit in Composite builder' : 'Edit in Strategy Engine',
+        edit: editFn(curItem), backtest: btFn(curItem)
+      };
+    }
+    var renameMsg = st.renameErr || 'Up to 60 characters. Renaming doesn’t change the rules or past runs.';
+    var delItem = list.filter(function (x) { return x.id === st.delId; })[0] || null;
+    var t = st.toast;
+    return {
+      newStrategy: function () { self.unstore('edit'); }, newComposite: function () { self.unstore('edit'); },
+      filters: [['all', 'All', list.length], ['strategy', 'Strategies', nS], ['composite', 'Composites', nC]].map(function (f) {
+        var on = st.filter === f[0];
+        return { label: f[1], count: f[2], on: on ? 'true' : 'false', bd: on ? '#7AA2FF' : '#333D4A', bg: on ? '#16213A' : '#151A21', w: on ? '700' : '500', pick: function () { self.setState({ filter: f[0] }); } };
+      }),
+      q: st.q, setQ: function (e) { self.setState({ q: e.target.value }); },
+      clearFilters: function () { self.setState({ q: '', filter: 'all' }); },
+      sigName: sig ? sig.name : 'MA Crossover (built-in)',
+      items: items, hasItems: items.length > 0, noMatch: list.length > 0 && items.length === 0, libEmpty: list.length === 0,
+
+      drawerOpen: !!curItem, cur: cur, setDrawer: this.setRef('drawer'),
+      closeDrawer: function () { self.setState({ openId: null, renaming: false, renameErr: '' }); },
+      drawerKey: function (e) { if (e.key === 'Escape' && !self.state.renaming && !self.state.delId) { e.preventDefault(); self.setState({ openId: null }); } },
+
+      renaming: st.renaming, notRenaming: !st.renaming, renameVal: st.renameVal, setRenameInput: this.setRef('renameInput'),
+      renameMsg: renameMsg, renameMsgC: st.renameErr ? '#FF6B5E' : '#9AA6B4', renameBd: st.renameErr ? '#FF6B5E' : '#3A4553', renameInvalid: st.renameErr ? 'true' : 'false',
+      startRename: function () { if (curItem) self.setState({ renaming: true, renameVal: curItem.name, renameErr: '' }); },
+      setRename: function (e) { self.setState({ renameVal: e.target.value, renameErr: '' }); },
+      cancelRename: function () { self.setState({ renaming: false, renameErr: '' }); },
+      saveRename: function () { self._saveRename(curItem, list, sig); },
+      renameKey: function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); self._saveRename(curItem, list, sig); }
+        else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); self.setState({ renaming: false, renameErr: '' }); }
+      },
+
+      useSignal: function () {
+        if (!curItem) return;
+        self.store('signal', { id: curItem.id, name: curItem.name });
+        self.toast(curItem.name + ' is now the Realtime signal source.', { link: 'Open Realtime', href: 'Realtime.dc.html' });
+      },
+      duplicate: function () {
+        if (!curItem) return;
+        var now = self.nowStamp(), copy = JSON.parse(JSON.stringify(curItem));
+        copy.id = (curItem.kind === 'composite' ? 'cp-' : 'st-') + Date.now();
+        copy.name = uniqueName(curItem.name + ' (copy)'); copy.ver = '1.0.0'; copy.created = now; copy.updated = now;
+        var l = list.slice(), i = l.indexOf(curItem); l.splice(i + 1, 0, copy); self.setLib(l);
+        self.setState({ openId: copy.id, renaming: true, renameVal: copy.name, renameErr: '' });
+        self.toast('Duplicated as ' + copy.name + '. Rename it, then edit its rules.');
+      },
+
+      askDelete: function () { if (curItem) self.setState({ delId: curItem.id, renaming: false }); },
+      delOpen: !!delItem, delName: delItem ? delItem.name : '', delIsSignal: !!(delItem && sig && sig.id === delItem.id), setDelCancel: this.setRef('delCancel'),
+      cancelDelete: function () { self.setState({ delId: null }); },
+      delKey: function (e) { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); self.setState({ delId: null }); } },
+      doDelete: function () {
+        if (!delItem) return;
+        var before = list.slice(), wasSig = !!(sig && sig.id === delItem.id), name = delItem.name;
+        self.setLib(list.filter(function (x) { return x.id !== delItem.id; }));
+        // Keep the signal reference: Realtime sees it is gone, explains, and falls back.
+        self.setState({ delId: null, openId: null });
+        self.toast('Deleted ' + name + '.' + (wasSig ? ' Realtime now uses MA Crossover.' : ''), { undo: function () { self.setLib(before); } });
+      },
+
+      toastShow: !!t, toastText: t ? t.text : '', toastHasUndo: !!(t && t.undo), toastHasLink: !!(t && t.link), toastLink: t ? t.link : '', toastHref: t ? t.href : '#',
+      toastUndo: function () { var f = self._undoFn; self._undoFn = null; if (f) f(); self.setState({ toast: null }); },
+      toastDismiss: function () { self.setState({ toast: null }); }
+    };
+  }
+  _saveRename(curItem, list, sig) {
+    if (!curItem) return;
+    var name = (this.state.renameVal || '').trim();
+    if (!name) { this.setState({ renameErr: 'Enter a name.' }); return; }
+    if (list.some(function (x) { return x.id !== curItem.id && x.name.toLowerCase() === name.toLowerCase(); })) { this.setState({ renameErr: 'Another item is already called “' + name + '”.' }); return; }
+    var now = this.nowStamp();
+    this.setLib(list.map(function (x) { return x.id === curItem.id ? Object.assign({}, x, { name: name, updated: now }) : x; }));
+    if (sig && sig.id === curItem.id) this.store('signal', { id: curItem.id, name: name });
+    this.setState({ renaming: false, renameErr: '' });
+    if (name !== curItem.name) this.toast('Renamed to ' + name + '.');
+  }
+}
+</script>
+
+</body></html>

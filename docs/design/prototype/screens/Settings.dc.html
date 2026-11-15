@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings – Crypto Force</title>
+<link rel="preload" href="../assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<script src="../vendor/react/react.production.min.js"></script>
+<script src="../vendor/react/react-dom.production.min.js"></script>
+<script src="../tools/dc-source.js"></script>
+<script src="../vendor/dc-runtime/support.js"></script>
+
+</head>
+<body>
+<script type="text/x-template" data-dc-template>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="../styles/layout-audit.css">
+<style id="cf-audit-layout-fixes">
+/* Settings: navigation reflows to scrollable compact section pills. */
+.cf-settings-content > nav{flex:none;}
+@media(max-width:800px){
+ .cf-settings-content{display:flex !important;flex-direction:column !important;gap:16px !important;}
+ .cf-settings-content>nav{display:flex !important;flex-direction:row !important;max-width:100% !important;width:100% !important;gap:6px !important;overflow-x:auto;padding:2px 0 10px;scrollbar-width:thin;}
+ .cf-settings-content>nav a{flex:0 0 auto;white-space:nowrap;border:1px solid #303C49;border-radius:999px !important;min-height:38px !important;}
+ .cf-settings-content>div{width:100%;flex:1 1 100% !important;}
+}
+@media(max-width:560px){.cf-settings-content section{padding:16px !important;}
+ .cf-settings-content [style*="grid-template-columns: repeat(auto-fit"]{grid-template-columns: minmax(0,1fr) !important;}}
+</style>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../styles/base.css">
+</helmet>
+<div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums">
+<div style="position: sticky; top: 0; z-index: 30"><dc-import name="AppHeader" active="settings" hint-size="100%,61px"></dc-import></div>
+<main class="cf-audited-main cf-settings-layout" style="max-width: 1180px; margin: 0 auto; padding: 24px 28px 56px; display: flex; flex-direction: column; gap: 24px">
+<div role="note" style="border:1px solid #334155;border-radius:7px;padding:8px 12px;background:#111923;color:#AFC2D6;font-size:12px;line-height:1.4;max-width:100%;box-sizing:border-box">UI prototype: prices, backtests, news, account state and workflow feedback are illustrative. No live market, AI or account service is connected in this HTML file.</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.03em">Settings</h1>
+<p style="margin: 0; font-size: 15px; color: #9AA6B4">Manage profile, security preferences, notifications and research settings.</p>
+</div>
+<div class="cf-settings-content" style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">
+<nav aria-label="Settings sections" style="flex: 1 1 200px; max-width: 240px; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{sections}}" as="s" hint-placeholder-count="5"><a href="{{s.href}}" class="cf-ghost" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; color: {{s.c}}; text-decoration: none; font-size: 15px; font-weight: 400">{{s.label}}</a></sc-for>
+</nav>
+
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+
+<section id="profile" aria-labelledby="h-profile" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px">
+<h2 id="h-profile" style="margin: 0; font-size: 17px; font-weight: 600">Profile</h2>
+<sc-if value="{{draftNote}}" hint-placeholder-val="{{false}}"><p role="status" style="margin: 0; padding: 10px 12px; border: 1px solid #5A4520; border-radius: 8px; background: #1F1A10; font-size: 14px; line-height: 1.5; color: #F2D28B">{{draftNote}}</p></sc-if>
+<div style="display: flex; align-items: center; gap: 16px"><span style="width: 56px; height: 56px; border-radius: 50%; background: #E7ECF2; color: #0B0E12; font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{initials}}</span><label class="cf-sec" style="position: relative; display: inline-flex; align-items: center; min-height: 38px; padding: 0 16px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Change photo<input type="file" accept="image/*" onChange="{{pickPhoto}}" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer"></label></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="p-name" style="font-size: 13px; font-weight: 600">Full name</label><input id="p-name" type="text" autocomplete="name" value="{{name}}" onChange="{{setName}}" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="p-email" style="font-size: 13px; font-weight: 600">Email</label><div style="display: flex; align-items: center; gap: 8px; height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A"><input id="p-email" type="email" value="student@example.com" style="flex: 1; min-width: 0; border: 0; background: none; color: #E7ECF2; font-size: 15px"><span style="font-size: 12px; font-weight: 600; color: #3DD68C">Verified</span></div></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="p-tz" style="font-size: 13px; font-weight: 600">Time zone</label><select id="p-tz" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"><option>Asia/Ho_Chi_Minh (UTC+7)</option><option>UTC</option></select></div>
+</div>
+<h3 style="margin: 4px 0 0; font-size: 15px; font-weight: 600">Research defaults</h3>
+<p style="margin: -8px 0 0; font-size: 14px; color: #9AA6B4">Used to pre-fill Realtime and Backtest. You can still change them per run.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-pair" style="font-size: 13px; font-weight: 600">Pair</label><select id="d-pair" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"><option>BTCUSDT</option><option>ETHUSDT</option><option>SOLUSDT</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-tf" style="font-size: 13px; font-weight: 600">Timeframe</label><select id="d-tf" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"><option>1m</option><option>5m</option><option selected="">15m</option><option>1h</option><option>4h</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-cap" style="font-size: 13px; font-weight: 600">Capital (USD)</label><input id="d-cap" type="text" inputmode="decimal" value="100" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-fee" style="font-size: 13px; font-weight: 600">Fee (%)</label><input id="d-fee" type="text" inputmode="decimal" value="0.08" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-slip" style="font-size: 13px; font-weight: 600">Slippage (bps)</label><input id="d-slip" type="text" inputmode="numeric" value="5" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+</div>
+<div style="display: flex; align-items: center; gap: 12px"><button type="button" onClick="{{saveProfile}}" class="cf-pri" style="min-height: 42px; padding: 0 20px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 15px; font-weight: 600; cursor: pointer">Save changes</button><sc-if value="{{profileSaved}}" hint-placeholder-val="{{false}}"><span role="status" style="font-size: 14px; color: #3DD68C">Saved</span></sc-if><sc-if value="{{profileDirty}}" hint-placeholder-val="{{false}}"><span role="status" style="font-size: 14px; color: #F2B544">Unsaved changes</span><button type="button" onClick="{{discardProfile}}" class="cf-ghost" style="min-height: 40px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Discard</button></sc-if></div>
+</section>
+
+<section id="security" aria-labelledby="h-sec" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px">
+<h2 id="h-sec" style="margin: 0; font-size: 17px; font-weight: 600">Sign-in &amp; security</h2>
+<h3 style="margin: 0; font-size: 15px; font-weight: 600">Change password</h3>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="pw-cur" style="font-size: 13px; font-weight: 600">Current password</label><input id="pw-cur" type="password" autocomplete="current-password" value="{{pwCur}}" onChange="{{setPwCur}}" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="pw-new" style="font-size: 13px; font-weight: 600">New password</label><input id="pw-new" type="password" autocomplete="new-password" value="{{pwNew}}" onChange="{{setPwNew}}" aria-describedby="pw-msg" style="height: 42px; padding: 0 12px; border: 1px solid {{pwNewBd}}; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="pw-conf" style="font-size: 13px; font-weight: 600">Confirm new password</label><input id="pw-conf" type="password" autocomplete="new-password" value="{{pwConf}}" onChange="{{setPwConf}}" aria-describedby="pw-msg" style="height: 42px; padding: 0 12px; border: 1px solid {{pwConfBd}}; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px"><button type="button" onClick="{{savePw}}" class="cf-pri" style="min-height: 42px; padding: 0 20px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 15px; font-weight: 600; cursor: pointer">Update password</button><span id="pw-msg" role="status" style="font-size: 14px; color: {{pwMsgC}}">{{pwMsg}}</span></div>
+<h3 style="margin: 8px 0 0; font-size: 15px; font-weight: 600">Signed-in devices</h3>
+<ul style="margin: 0; padding: 0; list-style: none; border-top: 1px solid #232B35">
+<sc-for list="{{devices}}" as="d" hint-placeholder-count="2"><li style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 0; border-bottom: 1px solid #232B35"><span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 14px; font-weight: 600">{{d.name}}</strong><span style="font-size: 13px; color: #9AA6B4">{{d.meta}}</span></span>
+<sc-if value="{{d.current}}" hint-placeholder-val="{{true}}"><span style="margin-left: auto; font-size: 13px; color: #3DD68C">This device</span></sc-if>
+<sc-if value="{{d.other}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{d.out}}" class="cf-sec" style="margin-left: auto; min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 13px; font-weight: 600; cursor: pointer">Sign out</button></sc-if></li></sc-for>
+</ul>
+</section>
+
+<section id="connected" aria-labelledby="h-con" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 12px">
+<h2 id="h-con" style="margin: 0; font-size: 17px; font-weight: 600">Connected accounts</h2>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 12px 16px; border: 1px solid #232B35; border-radius: 10px; background: #151A21">
+<svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.8 6.1C12.4 13.6 17.7 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 7l7.4 5.7c4.3-4 6.9-9.9 6.9-17.2z"></path><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.8-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.8-6.1z"></path><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.2-8.5 2.2-6.3 0-11.6-4.1-13.5-9.8l-7.8 6.1C6.6 42.6 14.6 48 24 48z"></path></svg>
+<span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 14px; font-weight: 600">Google</strong><span style="font-size: 13px; color: #9AA6B4">{{googleText}}</span></span>
+<button type="button" onClick="{{toggleGoogle}}" class="cf-sec" style="margin-left: auto; min-height: 36px; padding: 0 16px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">{{googleBtn}}</button>
+</div>
+<p style="margin: 0; font-size: 13px; color: #9AA6B4">Crypto Force never asks for exchange API keys. Market data comes from Binance's public feed.</p>
+</section>
+
+<section id="notifications" aria-labelledby="h-not" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 12px">
+<h2 id="h-not" style="margin: 0; font-size: 17px; font-weight: 600">Notifications</h2>
+<div style="overflow-x: auto">
+<table style="width: 100%; min-width: 480px; border-collapse: collapse; font-size: 14px">
+<thead><tr style="border-bottom: 1px solid #2F3945; color: #9AA6B4; font-size: 13px"><th style="text-align: left; font-weight: 600; padding: 8px 0">Notify me when</th><th style="font-weight: 600; width: 90px">In app</th><th style="font-weight: 600; width: 90px">Email</th></tr></thead>
+<tbody>
+<sc-for list="{{prefs}}" as="p" hint-placeholder-count="5"><tr style="border-bottom: 1px solid #232B35"><td style="padding: 12px 0">{{p.label}}</td>
+<td style="text-align: center"><input type="checkbox" checked="{{p.app}}" onChange="{{p.toggleApp}}" aria-label="{{p.label}}, in app" style="width: 18px; height: 18px"></td>
+<td style="text-align: center"><input type="checkbox" checked="{{p.mail}}" onChange="{{p.toggleMail}}" aria-label="{{p.label}}, email" style="width: 18px; height: 18px"></td></tr></sc-for>
+</tbody>
+</table>
+</div>
+</section>
+
+<section id="data" aria-labelledby="h-data" style="background: #12171E; border: 1px solid #4A2A2A; border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px">
+<h2 id="h-data" style="margin: 0; font-size: 17px; font-weight: 600">Your data</h2>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px"><span style="flex: 1 1 280px; font-size: 14px; line-height: 1.5; color: #C3CCD6">Download your strategies, backtest results and Discovery history as JSON.</span><button type="button" onClick="{{act.export.run}}" disabled="{{act.export.busy}}" aria-busy="{{act.export.busy}}" class="cf-sec" style="display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer"><sc-if value="{{act.export.busy}}" hint-placeholder-val="{{false}}"><svg class="cf-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"></path></svg></sc-if>{{act.export.label}}</button></div>
+<div style="border-top: 1px solid #232B35; padding-top: 16px; display: flex; flex-direction: column; gap: 12px">
+<h3 style="margin: 0; font-size: 15px; font-weight: 600; color: #FF6B5E">Delete account</h3>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #C3CCD6">In a connected application, deleting an account would permanently remove its saved data. This preview does not delete an account.</p>
+<sc-if value="{{delClosed}}" hint-placeholder-val="{{true}}"><button type="button" onClick="{{openDel}}" class="cf-sec" style="align-self: flex-start; min-height: 38px; padding: 0 16px; border: 1px solid #FF6B5E; border-radius: 8px; background: none; color: #FF6B5E; font-size: 14px; font-weight: 600; cursor: pointer">Delete my account</button></sc-if>
+<sc-if value="{{delOpen}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 16px; border: 1px solid #4A2A2A; border-radius: 10px; background: #1A1315">
+<label for="del-confirm" style="font-size: 14px">Type <strong>DELETE</strong> to confirm</label>
+<input id="del-confirm" type="text" value="{{delText}}" onChange="{{setDel}}" autocomplete="off" style="height: 42px; max-width: 260px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px">
+<div style="display: flex; gap: 12px"><sc-if value="{{cantDel}}" hint-placeholder-val="{{true}}"><button type="button" disabled="{{delDisabled}}" class="cf-ghost" style="min-height: 40px; padding: 0 16px; border: 0; border-radius: 8px; font-size: 14px; font-weight: 600; background: {{delBg}}; color: {{delFg}}; cursor: {{delCursor}}">Confirm deletion (demo only)</button></sc-if><sc-if value="{{canDelete}}" hint-placeholder-val="{{false}}"><a href="Main.dc.html" onClick="{{deleteAccount}}" class="cf-pri" style="display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 8px; background: #FF6B5E; color: #0B0E12; font-size: 14px; font-weight: 700; text-decoration: none">Confirm deletion (demo only)</a></sc-if><button type="button" onClick="{{closeDel}}" class="cf-sec" style="min-height: 40px; padding: 0 16px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Cancel</button></div>
+</div>
+</sc-if>
+</div>
+</section>
+</div>
+</div>
+</main>
+<div aria-live="polite" style="position: fixed; right: 20px; bottom: 20px; z-index: 60; max-width: calc(100vw - 40px)">
+<sc-if value="{{toastShow}}" hint-placeholder-val="{{false}}">
+<div class="cf-toast" role="status" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
+<sc-if value="{{toastOk}}" hint-placeholder-val="{{true}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DD68C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></sc-if>
+<sc-if value="{{toastErr}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B5E" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.5"></path></svg></sc-if>
+<span style="flex: 1; font-size: 14px; line-height: 1.45">{{toastText}}</span>
+<sc-if value="{{toastHasUndo}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{toastUndo}}" class="cf-sec" style="min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 13px; font-weight: 600; cursor: pointer">Undo</button></sc-if>
+<sc-if value="{{toastHasLink}}" hint-placeholder-val="{{false}}"><a href="{{toastHref}}" style="font-size: 13px; font-weight: 600">{{toastLink}}</a></sc-if>
+<button type="button" onClick="{{toastDismiss}}" aria-label="Dismiss" class="cf-ghost" style="width: 32px; height: 32px; border: 0; border-radius: 8px; background: none; color: #9AA6B4; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+</sc-if>
+</div>
+</div>
+</x-dc>
+</script>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:2000}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    var ses0 = this.store('session'), nm0 = (ses0 && ses0.name) || 'Nguyen Minh', dr0 = this.store('draftSettings');
+    this.state = { name: dr0 && dr0.name ? dr0.name : nm0, savedName: nm0, draftNote: dr0 && dr0.name && dr0.name !== nm0 ? 'Restored a name you hadn’t saved yet (from ' + dr0.at + '). Save it or discard it below.' : '', profileSaved: false, pwCur: '', pwNew: '', pwConf: '', pwTried: false, pwDone: false, google: true, del: false, delText: '',
+      devices: [{ id: 1, name: 'Chrome on macOS', meta: 'Ho Chi Minh City · active now', current: true }, { id: 2, name: 'Safari on iPhone', meta: 'Ho Chi Minh City · 2 days ago', current: false }],
+      prefs: [['Backtest finished', true, false], ['Discovery found a better candidate', true, true], ['Discovery session finished or failed', true, true], ['News crawl problems', true, false], ['Weekly research summary', false, true]] };
+  }
+  actionsCfg() { return { export: { idle: 'Export data', busy: 'Preparing export\u2026', ms: 1800, msg: 'Demo: export preview completed. No JSON file was generated.' } }; }
+  pageVals() {
+    var self = this, st = this.state;
+    function set(k) { return function (e) { var o = {}; o[k] = e.target.value; o.pwDone = false; o.profileSaved = false; self.setState(o); }; }
+    var pwShort = st.pwNew.length > 0 && st.pwNew.length < 8, mismatch = st.pwConf.length > 0 && st.pwConf !== st.pwNew;
+    var pwMsg = '', pwMsgC = '#9AA6B4';
+    if (st.pwDone) { pwMsg = 'Demo: password update preview completed. No account password was changed.'; pwMsgC = '#3DD68C'; }
+    else if (st.pwTried && !st.pwCur) { pwMsg = 'Enter your current password.'; pwMsgC = '#FF6B5E'; }
+    else if (pwShort) { pwMsg = 'New password needs at least 8 characters.'; pwMsgC = '#FF6B5E'; }
+    else if (mismatch) { pwMsg = 'The two new passwords don’t match.'; pwMsgC = '#FF6B5E'; }
+    else pwMsg = 'At least 8 characters.';
+    var canDel = st.delText === 'DELETE';
+    var ids = ['profile', 'security', 'connected', 'notifications', 'data'], labels = ['Profile', 'Sign-in & security', 'Connected accounts', 'Notifications', 'Your data'];
+    return {
+      sections: ids.map(function (id, i) { return { href: '#' + id, label: labels[i], c: i === 4 ? '#FF8F85' : '#C3CCD6' }; }),
+      name: st.name, setName: set('name'), profileSaved: st.profileSaved,
+      initials: (st.savedName || '').split(/\s+/).filter(Boolean).map(function (w) { return w.charAt(0); }).slice(0, 2).join('').toUpperCase() || '?',
+      profileDirty: (st.name || '') !== (st.savedName || ''), draftNote: st.draftNote || '',
+      discardProfile: function () { self.setState({ name: self.state.savedName, draftNote: '' }); },
+      saveProfile: function () {
+        var n = (self.state.name || '').trim(); if (!n) { self.toast('Enter your name before saving.', 'error'); return; }
+        var s = self.store('session') || { state: 'in', email: 'student@example.com' }; s.name = n; if (!s.state) s.state = 'in'; if (!s.email) s.email = 'student@example.com'; self.store('session', s);
+        self.setState({ name: n, savedName: n, profileSaved: true, draftNote: '' }); self.toast('Demo: profile saved. Your name is updated across the app.');
+      },
+      pwCur: st.pwCur, pwNew: st.pwNew, pwConf: st.pwConf, setPwCur: set('pwCur'), setPwNew: set('pwNew'), setPwConf: set('pwConf'),
+      pwNewBd: pwShort ? '#FF6B5E' : '#3A4553', pwConfBd: mismatch ? '#FF6B5E' : '#3A4553', pwMsg: pwMsg, pwMsgC: pwMsgC,
+      savePw: function () { var ok = self.state.pwCur && self.state.pwNew.length >= 8 && self.state.pwNew === self.state.pwConf; self.setState(ok ? { pwDone: true, pwTried: false, pwCur: '', pwNew: '', pwConf: '' } : { pwTried: true }); },
+      devices: st.devices.map(function (d) { return Object.assign({}, d, { other: !d.current, out: function () { var before = self.state.devices; self.setState({ devices: before.filter(function (x) { return x.id !== d.id; }) }); self.toast('Signed out ' + d.name + '.', 'ok', { undo: function () { self.setState({ devices: before }); } }); } }); }),
+      googleText: st.google ? 'Connected as student@example.com' : 'Not connected', googleBtn: st.google ? 'Disconnect' : 'Connect',
+      toggleGoogle: function () { self.setState({ google: !self.state.google }); },
+      prefs: st.prefs.map(function (p, i) { return { label: p[0], app: p[1], mail: p[2],
+        toggleApp: function () { var x = self.state.prefs.map(function (r) { return r.slice(); }); x[i][1] = !x[i][1]; self.setState({ prefs: x }); },
+        toggleMail: function () { var x = self.state.prefs.map(function (r) { return r.slice(); }); x[i][2] = !x[i][2]; self.setState({ prefs: x }); } }; }),
+      delOpen: st.del, delClosed: !st.del, delText: st.delText, setDel: set('delText'),
+      openDel: function () { self.setState({ del: true }); }, closeDel: function () { self.setState({ del: false, delText: '' }); },
+      cantDel: !canDel, canDelete: canDel,
+      deleteAccount: function () {
+        ['library', 'runs', 'notes', 'draftStrategy', 'draftSettings', 'dirty', 'discovery', 'signal', 'newsSources', 'edit', 'handoff', 'next', 'idea', 'libOpen', 'runOpen'].forEach(function (k) { self.unstore(k); });
+        self.store('session', { state: 'out' });
+        self.store('flash', 'Your account and its demo data were deleted from this browser. You can create a new account at any time.');
+      },
+      pickPhoto: function (e) { var f = e.target.files && e.target.files[0]; if (f) self.toast('Selected ' + f.name + '. Photo uploads aren’t stored in this prototype, so your initials stay.'); },
+      delDisabled: !canDel, delBg: canDel ? '#FF6B5E' : '#2A2F37', delFg: canDel ? '#0B0E12' : '#7D8896', delCursor: canDel ? 'pointer' : 'not-allowed'
+    };
+  }
+
+  componentDidMount() { var self = this; var anc = this.store('settingsAnchor'); if (anc) { this.unstore('settingsAnchor'); setTimeout(function () { var el = document.getElementById(anc); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'start' }); }, 60); } this._bu = function (e) { if (self._dirty) { e.preventDefault(); e.returnValue = ''; } }; window.addEventListener('beforeunload', this._bu); this.syncDirty(); }
+  componentDidUpdate() { this.syncDirty(); }
+  componentWillUnmount() { window.removeEventListener('beforeunload', this._bu); this.unstore('dirty'); }
+  syncDirty() {
+    var st = this.state, nameDirty = (st.name || '') !== (st.savedName || ''), pwDirty = !!(st.pwCur || st.pwNew || st.pwConf), t = new Date();
+    if (nameDirty) this.store('draftSettings', { name: st.name, at: (t.getHours() < 10 ? '0' : '') + t.getHours() + ':' + (t.getMinutes() < 10 ? '0' : '') + t.getMinutes() }); else this.unstore('draftSettings');
+    var dirty = nameDirty || pwDirty;
+    if (dirty !== this._dirty) { this._dirty = dirty; if (dirty) this.store('dirty', { page: 'Settings', draftKey: 'draftSettings', what: nameDirty && pwDirty ? 'profile changes and a password you started changing' : (nameDirty ? 'profile changes' : 'a password you started changing') }); else this.unstore('dirty'); }
+    else if (dirty) this.store('dirty', { page: 'Settings', draftKey: 'draftSettings', what: nameDirty && pwDirty ? 'profile changes and a password you started changing' : (nameDirty ? 'profile changes' : 'a password you started changing') });
+  }
+  toast(text, kind, opts) {
+    var self = this; opts = opts || {};
+    this._undoFn = opts.undo || null;
+    this.setState({ toast: { text: text, kind: kind || 'ok', link: opts.link || '', href: opts.href || '', undo: !!opts.undo } });
+    clearTimeout(this._tt);
+    this._tt = setTimeout(function () { self.setState({ toast: null }); }, opts.undo ? 8000 : 5000);
+  }
+  store(key, val) { try { if (val === undefined) { var v = window.localStorage.getItem('cf.' + key); return v ? JSON.parse(v) : null; } window.localStorage.setItem('cf.' + key, JSON.stringify(val)); } catch (e) { return null; } return val; }
+  unstore(key) { try { window.localStorage.removeItem('cf.' + key); } catch (e) {} }
+  actionVals() {
+    var self = this, cfg = this.actionsCfg ? this.actionsCfg() : {}, st = this.state.act || {}, out = {};
+    Object.keys(cfg).forEach(function (k) {
+      var c = cfg[k], busy = st[k] === 'busy';
+      out[k] = { busy: busy, idle: !busy, label: busy ? c.busy : c.idle, run: function () {
+        if ((self.state.act || {})[k] === 'busy') return;
+        if (c.check && !c.check()) return;
+        var a = Object.assign({}, self.state.act); a[k] = 'busy'; self.setState({ act: a });
+        setTimeout(function () {
+          var b = Object.assign({}, self.state.act); b[k] = 'idle'; self.setState({ act: b });
+          var r = c.done ? c.done() : null; r = r || {};
+          self.toast(r.text || c.msg, r.kind || c.kind || 'ok', { link: r.link || c.link, href: r.href || c.href });
+        }, c.ms || 1300);
+      } };
+    });
+    var t = this.state.toast;
+    return { act: out, toastShow: !!t, toastText: t ? t.text : '', toastErr: !!(t && t.kind === 'error'), toastOk: !!(t && t.kind !== 'error'),
+      toastBd: t && t.kind === 'error' ? '#5A2A2A' : '#1F6B47', toastHasLink: !!(t && t.href), toastLink: t ? t.link : '', toastHref: t ? t.href : '#',
+      toastHasUndo: !!(t && t.undo), toastUndo: function () { var f = self._undoFn; self._undoFn = null; self.setState({ toast: null }); if (f) f(); },
+      toastDismiss: function () { self.setState({ toast: null }); } };
+  }
+  renderVals() { return Object.assign({}, this.pageVals(), this.actionVals()); }
+
+}
+</script>
+
+
+</body></html>

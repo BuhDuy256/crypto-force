@@ -15,6 +15,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 - `docs/testing/test-strategy.md`: test strategy theo STLC, đi từ 17 rủi ro chất lượng tới test levels, test types và công cụ đề xuất.
 - `docs/open-questions.md`: register tập trung 74 câu hỏi mở (OQ-001 – OQ-074), có mức ưu tiên, cột "Chặn" và bảng Resolved & Dropped.
 - `docs/CONTRIBUTING.md` thêm quy tắc trích dẫn nguồn kiểu paper (`[n]` + `## References`) và quy tắc câu hỏi mở chỉ ghi trong `open-questions.md`.
+- `docs/design/prototype/`: prototype dạng source của 12 board trong `Crypto Force UI.html`. Mỗi màn hình là một file `.dc.html`. App header, styles, font, dc-runtime và React được tách thành file dùng chung. Các màn hình điều hướng được qua link `.dc.html`. Prototype chạy bằng `node docs/design/prototype/serve.mjs`.
 
 ### Changed
 - Tách authoring conventions khỏi reader-facing content: tạo `docs/CONTRIBUTING.md` làm Single Source of Truth cho quy tắc viết và maintain tài liệu; `docs/README.md` và `docs/architecture/README.md` còn lại phục vụ người đọc.
@@ -28,6 +29,8 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 - `docs/design/README.md` ghi rõ nguồn gốc board "Crypto Force UI.html" (export từ Claude Web UI Design) và giải thích vì sao `reqs-from-ui/` là nguồn mô tả hành vi sản phẩm thay vì trích trực tiếp từ file HTML.
 - Đổi tên mục **Cần chốt** thành **Điểm UI chưa xác định** trong toàn bộ `docs/design/reqs-from-ui/` và các tham chiếu kèm theo.
 - Thêm ảnh PNG từng màn hình vào `docs/design/` (Landing, Sign in, 404, Realtime, Strategy Engine, Strategy library, Discovery, Backtest, News, Settings, Empty & loading states); cập nhật Table of Contents trong `docs/design/README.md`.
+
+- `docs/design/README.md` thêm mục Prototype. Đồng thời sửa danh sách board thành 12 (bổ sung Strategy library; Backtest có kích thước 1600×1500) và bỏ mô tả thanh điều hướng sticky cùng các chế độ Desktop/Tablet/Mobile, vì bản export không có.
 
 - Chốt Tech Stack trong `AGENTS.md`: bỏ các nhãn Proposed/Open, thêm Data tables, Market data, Sentiment, Auth (Better Auth), Email, Logging; PostgreSQL chạy bằng Docker Compose; mục Testing trỏ tới test strategy.
 

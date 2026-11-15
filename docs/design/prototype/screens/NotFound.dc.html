@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found – Crypto Force</title>
+<link rel="preload" href="../assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<script src="../vendor/react/react.production.min.js"></script>
+<script src="../vendor/react/react-dom.production.min.js"></script>
+<script src="../tools/dc-source.js"></script>
+<script src="../vendor/dc-runtime/support.js"></script>
+<script src="../tools/url-props.js"></script>
+
+</head>
+<body>
+<script type="text/x-template" data-dc-template>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="../styles/layout-audit.css">
+<style id="cf-audit-layout-fixes">
+.cf-error-layout {max-width:1120px !important;align-items:center !important;justify-content:center !important;gap:44px !important;padding:clamp(40px,8vh,84px) 32px !important;}
+.cf-error-layout > div {flex:1 1 430px !important;max-width:640px !important;}
+.cf-error-layout > nav {flex:0 1 300px !important;max-width:340px !important;}
+@media(max-width:780px){.cf-error-layout{align-items:stretch !important;gap:30px !important;}
+ .cf-error-layout > nav{max-width:100% !important;flex:1 1 100% !important;}
+ .cf-error-layout > div {max-width:100% !important;}
+}
+</style>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../styles/base.css">
+</helmet>
+<div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; display: flex; flex-direction: column">
+<header style="border-bottom: 1px solid #252D38">
+<div style="max-width: 1200px; margin: 0 auto; padding: 12px 32px; display: flex; align-items: center; gap: 24px">
+<a href="Main.dc.html" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; color: #E7ECF2; text-decoration: none; font-size: 20px; font-weight: 600; letter-spacing: -0.03em"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x=".5" y=".5" width="29" height="29" rx="8" fill="#151A21" stroke="#2F3945"></rect><path d="M8 13.5l7-7 7 7z" fill="#3DD68C"></path><path d="M8 16.5l7 7 7-7z" fill="#E7ECF2"></path></svg>Crypto Force</a>
+<a href="Main.dc.html" class="cf-ghost" style="margin-left: auto; display: flex; align-items: center; min-height: 44px; font-size: 15px; font-weight: 600; color: #E7ECF2; text-decoration: none">Home</a>
+</div>
+</header>
+<main class="cf-audited-main cf-error-layout" style="flex: 1; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 72px 32px; display: flex; flex-wrap: wrap; gap: 40px 72px; align-items: flex-start">
+<div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 20px">
+<span style="font-size: 15px; font-weight: 600; color: {{codeColor}}">{{code}}</span>
+<h1 style="margin: 0; font-size: clamp(36px, 5vw, 56px); line-height: 1.05; font-weight: 600; letter-spacing: -0.035em; text-wrap: balance">{{title}}</h1>
+<p style="margin: 0; font-size: 17px; line-height: 1.6; color: #C3CCD6; max-width: 46ch">{{body}}</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px">
+<sc-if value="{{isError}}" hint-placeholder-val="{{false}}"><a href="Realtime.dc.html" class="cf-pri" style="display: flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 15px; font-weight: 600; text-decoration: none">Try again</a></sc-if>
+<a href="Realtime.dc.html" class="cf-sec" style="display: flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 8px; background: {{p2bg}}; color: {{p2fg}}; border: 1px solid {{p2bd}}; font-size: 15px; font-weight: 600; text-decoration: none">Go to Realtime</a>
+<a href="Main.dc.html" class="cf-ghost" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; color: #E7ECF2; font-size: 15px; font-weight: 600">Back to home</a>
+</div>
+<sc-if value="{{isError}}" hint-placeholder-val="{{false}}"><p style="margin: 8px 0 0; font-size: 14px; color: #9AA6B4">Example reference ID (not linked to a real error log): <span style="font-family: 'JetBrains Mono', ui-monospace, monospace; color: #E7ECF2">CF-REF 7Q2M-48KD</span></p></sc-if>
+</div>
+<nav aria-label="Where to go" style="flex: 1 1 320px; background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px">
+<h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 600">Jump to</h2>
+<ul style="margin: 0; padding: 0; list-style: none">
+<li style="border-bottom: 1px solid #232B35"><a href="Realtime.dc.html" class="cf-ghost" style="display: flex; justify-content: space-between; padding: 12px 0; color: #E7ECF2; text-decoration: none; font-size: 15px">Realtime<span style="color: #9AA6B4">Live charts</span></a></li>
+<li style="border-bottom: 1px solid #232B35"><a href="Strategy.dc.html" class="cf-ghost" style="display: flex; justify-content: space-between; padding: 12px 0; color: #E7ECF2; text-decoration: none; font-size: 15px">Strategy Engine<span style="color: #9AA6B4">Create a strategy</span></a></li>
+<li style="border-bottom: 1px solid #232B35"><a href="Discovery.dc.html" class="cf-ghost" style="display: flex; justify-content: space-between; padding: 12px 0; color: #E7ECF2; text-decoration: none; font-size: 15px">Discovery<span style="color: #9AA6B4">Search &amp; leaderboard</span></a></li>
+<li style="border-bottom: 1px solid #232B35"><a href="Backtest.dc.html" class="cf-ghost" style="display: flex; justify-content: space-between; padding: 12px 0; color: #E7ECF2; text-decoration: none; font-size: 15px">Backtest<span style="color: #9AA6B4">Review historical tests</span></a></li>
+<li><a href="News.dc.html" class="cf-ghost" style="display: flex; justify-content: space-between; padding: 12px 0; color: #E7ECF2; text-decoration: none; font-size: 15px">News<span style="color: #9AA6B4">Sentiment</span></a></li>
+</ul>
+</nav>
+</main>
+</div>
+</x-dc>
+</script>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;notfound&quot;,&quot;error&quot;],&quot;default&quot;:&quot;notfound&quot;},&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:800}}">
+class Component extends DCLogic {
+  renderVals() {
+    var err = (this.props.variant || 'notfound') === 'error';
+    return {
+      isError: err,
+      code: err ? 'Error 500' : 'Error 404',
+      codeColor: err ? '#FF6B5E' : '#7AA2FF',
+      title: err ? 'Something went wrong on our side.' : 'This page doesn’t exist.',
+      body: err ? 'Your strategies and results are safe. Please try again in a moment.' : 'The link may be old or mistyped. Your strategies and results are still where you left them.',
+      p2bg: err ? 'transparent' : '#E7ECF2', p2fg: err ? '#E7ECF2' : '#0B0E12', p2bd: err ? '#3A4553' : '#E7ECF2'
+    };
+  }
+}
+</script>
+
+
+</body></html>

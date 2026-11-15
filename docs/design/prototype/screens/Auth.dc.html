@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in – Crypto Force</title>
+<link rel="preload" href="../assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<script src="../vendor/react/react.production.min.js"></script>
+<script src="../vendor/react/react-dom.production.min.js"></script>
+<script src="../tools/dc-source.js"></script>
+<script src="../vendor/dc-runtime/support.js"></script>
+
+</head>
+<body>
+<script type="text/x-template" data-dc-template>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="../styles/layout-audit.css">
+<style id="cf-audit-layout-fixes">
+/* Authentication: single-purpose modes center; registration alone is split. */
+.cf-auth-layout {min-height:calc(100svh - 70px);box-sizing:border-box;}
+.cf-auth-layout:not(:has(aside)) {
+ width:100% !important;max-width:650px !important;
+ padding:42px 24px 88px !important;margin:0 auto !important;
+ justify-content:center !important;align-items:center !important;
+ gap:0 !important;
+}
+.cf-auth-layout:not(:has(aside)) > section {flex:0 1 432px !important;max-width:432px !important;width:100% !important;margin:0 auto !important;}
+.cf-auth-layout:has(aside) {max-width:1200px !important;justify-content:space-between !important;align-items:flex-start !important;gap:44px 64px !important;}
+.cf-auth-layout:has(aside) > section {flex:1 1 410px !important;max-width:460px !important;}
+.cf-auth-layout:has(aside) > aside {flex:1 1 410px !important;max-width:560px !important;}
+.cf-auth-layout input {width:100%;}
+@media(max-width:920px){
+ .cf-auth-layout:has(aside) {justify-content:center !important;align-items:flex-start !important;gap:28px !important;}
+ .cf-auth-layout:has(aside)>section {max-width:460px !important;flex:1 1 100% !important;}
+ .cf-auth-layout:has(aside)>aside {max-width:460px !important;flex:1 1 100% !important;}
+ .cf-auth-layout {padding:30px 20px 52px !important;}
+}
+@media(max-width:600px){
+ .cf-auth-layout:not(:has(aside)) {min-height:calc(100svh - 70px);padding:32px 20px 66px !important;}
+ .cf-auth-layout:has(aside){padding:28px 20px 46px !important;}
+ .cf-auth-layout h1 {font-size:clamp(26px,7vw,32px) !important;}
+ .cf-auth-layout:has(aside) > aside {padding-top:20px !important;}
+}
+</style>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../styles/base.css">
+</helmet>
+<div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums; display: flex; flex-direction: column">
+<header style="border-bottom: 1px solid #252D38">
+<div style="max-width: 1200px; margin: 0 auto; padding: 16px 32px; display: flex; align-items: center; gap: 24px">
+<a href="Main.dc.html" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; color: #E7ECF2; text-decoration: none; font-size: 20px; font-weight: 600; letter-spacing: -0.03em"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x=".5" y=".5" width="29" height="29" rx="8" fill="#151A21" stroke="#2F3945"></rect><path d="M8 13.5l7-7 7 7z" fill="#3DD68C"></path><path d="M8 16.5l7 7 7-7z" fill="#E7ECF2"></path></svg>Crypto Force</a>
+<a href="Main.dc.html" class="cf-ghost" style="margin-left: auto; display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 15px; font-weight: 600; color: #E7ECF2; text-decoration: none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>Back to home</a>
+</div>
+</header>
+
+<main class="cf-audited-main cf-auth-layout" style="flex: 1; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 48px 32px; display: flex; flex-wrap: wrap; gap: 48px 72px; align-items: flex-start">
+<section aria-labelledby="auth-title" style="flex: 1 1 400px; max-width: 460px; display: flex; flex-direction: column; gap: 24px">
+
+<sc-if value="{{isVerify}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 16px">
+
+<h1 id="auth-title" style="margin: 0; font-size: 32px; line-height: 1.1; font-weight: 600; letter-spacing: -0.03em">Check your email</h1>
+<p style="margin: 0; font-size: 16px; line-height: 1.55; color: #C3CCD6">We sent a confirmation link to <strong style="color: #E7ECF2">{{email}}</strong>. Open it to activate your account. Follow the instructions in the email to verify your account.</p>
+<sc-if value="{{hasNext}}" hint-placeholder-val="{{false}}"><p role="status" style="margin: 0; padding: 12px 16px; border: 1px solid #2F4A7A; border-radius: 8px; background: #121C2E; font-size: 14px; line-height: 1.5; color: #C9D8F2">{{nextNote}}</p></sc-if>
+<a href="{{nextHref}}" onClick="{{completeSignin}}" class="cf-pri" style="display: flex; align-items: center; justify-content: center; min-height: 50px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 600; text-decoration: none">I've confirmed, continue to {{nextLabel}}</a>
+<div style="display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: #9AA6B4">
+<span>Didn't get it? Check spam, or</span>
+<button type="button" onClick="{{resend}}" disabled="{{resent}}" class="cf-ghost" style="padding: 0; border: 0; background: none; color: {{resendC}}; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">{{resendLabel}}</button>
+<button type="button" onClick="{{toSignup}}" class="cf-ghost" style="padding: 0; border: 0; background: none; color: #7AA2FF; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Use a different email</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isNewpw}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<h1 id="auth-title" style="margin: 0; font-size: 32px; line-height: 1.1; font-weight: 600; letter-spacing: -0.03em">{{npTitle}}</h1>
+<sc-if value="{{npExpired}}" hint-placeholder-val="{{false}}">
+<div role="alert" style="padding: 16px; border: 1px solid #5A2A2A; border-radius: 8px; background: #1A1315; font-size: 15px; line-height: 1.5; color: #FFB4AC">This reset link has expired or was already used. Request a new link to choose a password.</div>
+<button type="button" onClick="{{resendReset}}" class="cf-pri" style="min-height: 50px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 600; cursor: pointer">Send a new link</button>
+<button type="button" onClick="{{toSignin}}" class="cf-ghost" style="align-self: flex-start; min-height: 40px; padding: 0; border: 0; background: none; color: #7AA2FF; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Back to sign in</button>
+</sc-if>
+<sc-if value="{{npDone}}" hint-placeholder-val="{{false}}">
+<div role="status" style="padding: 16px 16px; border: 1px solid #1F6B47; border-radius: 8px; background: #11281D; font-size: 15px; line-height: 1.5">Password updated.</div>
+<button type="button" onClick="{{toSignin}}" class="cf-pri" style="min-height: 50px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 600; cursor: pointer">Sign in</button>
+</sc-if>
+<sc-if value="{{npOpen}}" hint-placeholder-val="{{true}}">
+<p style="margin: 0; font-size: 15px; color: #C3CCD6">For {{emailOrDemo}}</p>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="np-1" style="font-size: 14px; font-weight: 600">New password</label><input id="np-1" type="password" autocomplete="new-password" value="{{np1}}" onChange="{{setNp1}}" aria-describedby="np-msg" style="height: 48px; padding: 0 16px; border: 1px solid {{np1Bd}}; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 16px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="np-2" style="font-size: 14px; font-weight: 600">Confirm new password</label><input id="np-2" type="password" autocomplete="new-password" value="{{np2}}" onChange="{{setNp2}}" aria-describedby="np-msg" style="height: 48px; padding: 0 16px; border: 1px solid {{np2Bd}}; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 16px"></div>
+<span id="np-msg" style="font-size: 14px; color: {{npMsgC}}">{{npMsg}}</span>
+<button type="button" onClick="{{saveNp}}" class="cf-pri" style="min-height: 50px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 600; cursor: pointer">Save new password</button>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{isForgot}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 20px">
+<button type="button" onClick="{{toSignin}}" class="cf-ghost" style="align-self: flex-start; display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0; border: 0; background: none; font-size: 14px; font-weight: 600; cursor: pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>Back to sign in</button>
+<h1 id="auth-title" style="margin: 0; font-size: 32px; line-height: 1.1; font-weight: 600; letter-spacing: -0.03em">Reset your password</h1>
+<sc-if value="{{sent}}" hint-placeholder-val="{{false}}">
+<div role="status" style="padding: 16px; border: 1px solid #3DD68C; background: #11281D; font-size: 15px; line-height: 1.5">If an account exists for <strong>{{email}}</strong>, a reset link is on its way. Follow the instructions in the email to reset your password.</div>
+<button type="button" onClick="{{toNewpw}}" class="cf-ghost" style="align-self: flex-start; padding: 0; border: 0; background: none; color: #7AA2FF; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Open the link from the email (preview)</button>
+<button type="button" onClick="{{toExpired}}" class="cf-ghost" style="align-self: flex-start; padding: 0; border: 0; background: none; color: #9AA6B4; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Open an expired link (preview)</button>
+</sc-if>
+<sc-if value="{{notSent}}" hint-placeholder-val="{{true}}">
+<p style="margin: 0; font-size: 16px; line-height: 1.5; color: #C3CCD6">Enter the email you signed up with and we'll send a link to choose a new password.</p>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="f-email" style="font-size: 14px; font-weight: 700">Email</label>
+<input id="f-email" type="email" autocomplete="email" value="{{email}}" onChange="{{setEmail}}" aria-invalid="{{emailInvalid}}" aria-describedby="f-email-err" style="height: 48px; padding: 0 16px; border: 1px solid {{emailBorder}}; border-radius: 8px; background: #0F141A; font-size: 16px">
+<sc-if value="{{emailError}}" hint-placeholder-val="{{false}}"><span id="f-email-err" style="font-size: 14px; color: #FF6B5E">{{emailError}}</span></sc-if>
+</div>
+<button type="button" onClick="{{sendReset}}" class="cf-pri" style="min-height: 50px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 700; cursor: pointer">Send reset link</button>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{isMain}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 24px">
+<h1 id="auth-title" style="margin: 0; font-size: 32px; line-height: 1.1; font-weight: 600; letter-spacing: -0.03em">{{title}}</h1>
+<sc-if value="{{hasNext}}" hint-placeholder-val="{{false}}"><p role="status" style="margin: 0; padding: 12px 16px; border: 1px solid #2F4A7A; border-radius: 8px; background: #121C2E; font-size: 14px; line-height: 1.5; color: #C9D8F2">{{nextNote}}</p></sc-if>
+<div role="tablist" aria-label="Account" onKeyDown="{{tabKey}}" style="display: flex; border-bottom: 1px solid #2F3945">
+<button type="button" role="tab" id="tab-signin" tabindex="{{tabInIdx}}" aria-selected="{{isSignin}}" onClick="{{toSignin}}" class="cf-ghost" style="min-height: 46px; padding: 0 20px; border: 0; background: none; cursor: pointer; font-size: 15px; font-weight: {{tabInW}}; color: {{tabInC}}; border-bottom: 2px solid {{tabInB}}; margin-bottom: -1px">Sign in</button>
+<button type="button" role="tab" id="tab-signup" tabindex="{{tabUpIdx}}" aria-selected="{{isSignup}}" onClick="{{toSignup}}" class="cf-ghost" style="min-height: 46px; padding: 0 20px; border: 0; background: none; cursor: pointer; font-size: 15px; font-weight: {{tabUpW}}; color: {{tabUpC}}; border-bottom: 2px solid {{tabUpB}}; margin-bottom: -1px">Create account</button>
+</div>
+
+<button type="button" onClick="{{google}}" disabled="{{gLoading}}" aria-busy="{{gLoading}}" class="cf-sec" style="display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 50px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 16px; font-weight: 600; cursor: pointer">
+<sc-if value="{{gIdle}}" hint-placeholder-val="{{true}}"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.8 6.1C12.4 13.6 17.7 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 7l7.4 5.7c4.3-4 6.9-9.9 6.9-17.2z"></path><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.8-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.8-6.1z"></path><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.2-8.5 2.2-6.3 0-11.6-4.1-13.5-9.8l-7.8 6.1C6.6 42.6 14.6 48 24 48z"></path></svg></sc-if>
+<sc-if value="{{gLoading}}" hint-placeholder-val="{{false}}"><svg class="cf-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"></path></svg></sc-if>
+{{gLabel}}</button>
+<sc-if value="{{gError}}" hint-placeholder-val="{{false}}"><div role="alert" style="padding: 12px 16px; border: 1px solid #5A2A2A; border-radius: 8px; background: #1A1315; font-size: 14px; line-height: 1.5; color: #FFB4AC">Google sign-in didn't finish. The pop-up may have been closed or blocked. Try again, or use your email below.</div></sc-if>
+<div style="display: flex; align-items: center; gap: 16px; font-size: 13px; color: #9AA6B4"><span style="flex: 1; border-top: 1px solid #333D4A"></span>or with email<span style="flex: 1; border-top: 1px solid #333D4A"></span></div>
+
+<div style="display: flex; flex-direction: column; gap: 16px">
+<sc-if value="{{isSignup}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="a-name" style="font-size: 14px; font-weight: 700">Full name</label>
+<input id="a-name" type="text" autocomplete="name" value="{{name}}" onChange="{{setName}}" style="height: 48px; padding: 0 16px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; font-size: 16px">
+</div>
+</sc-if>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="a-email" style="font-size: 14px; font-weight: 700">Email</label>
+<input id="a-email" type="email" autocomplete="email" value="{{email}}" onChange="{{setEmail}}" aria-invalid="{{emailInvalid}}" aria-describedby="a-email-err" style="height: 48px; padding: 0 16px; border: 1px solid {{emailBorder}}; border-radius: 8px; background: #0F141A; font-size: 16px">
+<sc-if value="{{emailError}}" hint-placeholder-val="{{false}}"><span id="a-email-err" style="font-size: 14px; color: #FF6B5E">{{emailError}}</span></sc-if>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline"><label for="a-pw" style="font-size: 14px; font-weight: 700">Password</label>
+<sc-if value="{{isSignin}}" hint-placeholder-val="{{true}}"><button type="button" onClick="{{toForgot}}" class="cf-ghost" style="margin-left: auto; padding: 4px 0; border: 0; background: none; color: #7AA2FF; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Forgot password?</button></sc-if>
+</div>
+<div style="display: flex; border: 1px solid {{pwBorder}}; border-radius: 8px; background: #0F141A">
+<input id="a-pw" type="{{pwType}}" autocomplete="{{pwAuto}}" value="{{password}}" onChange="{{setPassword}}" aria-invalid="{{pwInvalid}}" aria-describedby="a-pw-hint" style="flex: 1; min-width: 0; height: 46px; padding: 0 16px; border: 0; background: none; font-size: 16px">
+<button type="button" onClick="{{togglePw}}" aria-pressed="{{showPw}}" class="cf-ghost" style="min-width: 64px; border: 0; border-left: 1px solid #232B35; background: none; font-size: 14px; font-weight: 600; cursor: pointer">{{pwToggleLabel}}</button>
+</div>
+<span id="a-pw-hint" style="font-size: 14px; color: {{pwHintColor}}">{{pwHint}}</span>
+</div>
+<sc-if value="{{isSignup}}" hint-placeholder-val="{{false}}">
+<label style="display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 1.5; cursor: pointer"><input type="checkbox" checked="{{agree}}" onChange="{{toggleAgree}}" style="width: 18px; height: 18px; margin: 2px 0 0"><span>I understand Crypto Force only simulates trades and never places real orders, and I accept the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</span></label>
+<sc-if value="{{agreeError}}" hint-placeholder-val="{{false}}"><span style="font-size: 14px; color: #FF6B5E">{{agreeError}}</span></sc-if>
+</sc-if>
+<sc-if value="{{isSignin}}" hint-placeholder-val="{{true}}">
+<label style="display: flex; gap: 12px; align-items: center; font-size: 14px; cursor: pointer"><input type="checkbox" checked="{{remember}}" onChange="{{toggleRemember}}" style="width: 18px; height: 18px; margin: 0">Keep me signed in on this device</label>
+</sc-if>
+<sc-if value="{{authErr}}" hint-placeholder-val="{{false}}"><div role="alert" style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; border: 1px solid #5A2A2A; border-radius: 8px; background: #1A1315; font-size: 14px; line-height: 1.5; color: #FFB4AC"><span>{{authErr}}</span><button type="button" onClick="{{toForgot}}" class="cf-ghost" style="align-self: flex-start; padding: 0; border: 0; background: none; color: #7AA2FF; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Reset password</button></div></sc-if>
+<sc-if value="{{validSignin}}" hint-placeholder-val="{{false}}">
+<a href="{{nextHref}}" onClick="{{completeSignin}}" class="cf-pri" style="display: flex; align-items: center; justify-content: center; min-height: 50px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 700; text-decoration: none">{{cta}}</a>
+</sc-if>
+<sc-if value="{{needsButton}}" hint-placeholder-val="{{true}}">
+<button type="button" onClick="{{submit}}" class="cf-pri" style="min-height: 50px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 700; cursor: pointer">{{cta}}</button>
+</sc-if>
+</div>
+<p style="margin: 0; font-size: 14px; color: #9AA6B4">{{switchText}} <button type="button" onClick="{{switchMode}}" class="cf-ghost" style="padding: 0; border: 0; background: none; color: #7AA2FF; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">{{switchLink}}</button></p>
+</div>
+</sc-if>
+</section>
+
+<sc-if value="{{isSignup}}" hint-placeholder-val="{{false}}"><aside style="flex: 1 1 380px; min-width: 0; border-top: 1px solid #2F3945; padding-top: 12px; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-size: 20px; font-weight: 600">What you can do once you're in</h2>
+<table style="width: 100%; border-collapse: collapse; font-size: 15px">
+<tbody>
+<tr style="border-bottom: 1px solid #232B35"><td style="padding: 12px 16px 12px 0; font-weight: 700; width: 34%">Realtime</td><td style="line-height: 1.45">Watch BTCUSDT on four timeframes at once</td></tr>
+<tr style="border-bottom: 1px solid #232B35"><td style="padding: 12px 16px 12px 0; font-weight: 700">Strategy Engine</td><td style="line-height: 1.45">Convert a description or link into draft rules to review</td></tr>
+<tr style="border-bottom: 1px solid #232B35"><td style="padding: 12px 16px 12px 0; font-weight: 700">Backtest</td><td style="line-height: 1.45">Replay it with fees and slippage, trade by trade</td></tr>
+<tr style="border-bottom: 1px solid #232B35"><td style="padding: 12px 16px 12px 0; font-weight: 700">Discovery</td><td style="line-height: 1.45">Compare candidate strategies using selected metrics</td></tr>
+<tr style="border-bottom: 1px solid #232B35"><td style="padding: 12px 16px 12px 0; font-weight: 700">News</td><td style="line-height: 1.45">See sentiment per coin as optional context</td></tr>
+</tbody>
+</table>
+<p style="margin: 0; padding: 16px 16px; background: #1B222B; border: 1px solid #2F3945; border-radius: 10px; color: #E7ECF2; font-size: 15px; line-height: 1.5">Research only. Crypto Force never connects to an exchange account and never places an order.</p>
+</aside></sc-if>
+</main>
+</div>
+</x-dc>
+</script>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { mode: 'signin', email: '', password: '', name: '', showPw: false, agree: false, remember: true, tried: false, sent: false, g: 'idle', resent: false, np1: '', np2: '', npTried: false, npDone: false, npExpired: false, authErr: '', attempts: 0 };
+    try { this.state.next = JSON.parse(window.localStorage.getItem('cf.next') || 'null'); } catch (e) { this.state.next = null; }
+  }
+  renderVals() {
+    var self = this, st = this.state, m = st.mode;
+    var signup = m === 'signup', signin = m === 'signin', forgot = m === 'forgot', verify = m === 'verify', newpw = m === 'newpw';
+    var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(st.email);
+    var pwOk = signup ? st.password.length >= 8 : st.password.length > 0;
+    var valid = emailOk && pwOk && (!signup || st.agree);
+    var emailError = st.tried && !emailOk ? (st.email ? 'That doesn’t look like an email address. Check for a missing @ or domain.' : 'Enter your email address.') : '';
+    var pwError = st.tried && !pwOk;
+    var pwHint = signup ? 'At least 8 characters.' : 'Demo: any password signs in. Type “wrongpass” to preview the error.';
+    if (pwError) pwHint = signup ? 'Use at least 8 characters.' : 'Enter your password.';
+    function set(k) { return function (e) { var o = {}; o[k] = e.target.value; self.setState(o); }; }
+    function go(mode) { return function () { self.setState({ mode: mode, tried: false, sent: false, authErr: '' }); }; }
+    var INK = '#E7ECF2', MUTED = '#9AA6B4';
+    var WRONG = 'wrongpass', locked = st.attempts >= 3, LOCKED_MSG = 'Too many attempts. Wait a few minutes and try again, or reset your password.';
+    var canEnter = valid && signin && st.password !== WRONG && !locked;
+    var nx = st.next, nextHref = nx && nx.href ? nx.href : 'Realtime.dc.html', nextLabel = nx && nx.label ? nx.label : 'Realtime';
+    var nextNote = !nx ? '' : (nx.why === 'idea' ? 'Once you’re signed in, we’ll open Strategy Engine with the idea you wrote, so you can review its rules before backtesting.' : 'Sign in to continue to ' + nextLabel + '. We’ll take you back to where you were.');
+    return {
+      tabInIdx: signin ? '0' : '-1', tabUpIdx: signup ? '0' : '-1',
+      tabKey: function (e) { if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].indexOf(e.key) < 0) return; e.preventDefault(); var next = self.state.mode === 'signin' ? 'signup' : 'signin'; if (e.key === 'Home') next = 'signin'; if (e.key === 'End') next = 'signup'; self.setState({ mode: next, tried: false }); setTimeout(function () { var b = document.getElementById('tab-' + next); if (b) b.focus(); }, 0); },
+      isForgot: forgot, isMain: signin || signup, isSignin: signin, isSignup: signup, isVerify: verify, isNewpw: newpw,
+      validSignin: canEnter, needsButton: !canEnter,
+      hasNext: !!nx, nextNote: nextNote, nextHref: nextHref, nextLabel: nextLabel,
+      completeSignin: function () { try { window.localStorage.setItem('cf.session', JSON.stringify({ state: 'in', name: self.state.name || 'Nguyen Minh', email: self.state.email || 'student@example.com' })); window.localStorage.removeItem('cf.next'); } catch (e) {} },
+      authErr: st.authErr,
+      npExpired: newpw && st.npExpired, npTitle: st.npExpired ? 'This link has expired' : 'Choose a new password',
+      toExpired: function () { self.setState({ mode: 'newpw', npExpired: true, npDone: false }); },
+      resendReset: function () { self.setState({ mode: 'forgot', sent: false, npExpired: false, tried: false }); },
+      gIdle: st.g !== 'loading', gLoading: st.g === 'loading', gError: st.g === 'error', gLabel: st.g === 'loading' ? 'Waiting for Google\u2026' : 'Continue with Google',
+      google: function () { self.setState({ g: 'loading' }); setTimeout(function () { self.setState({ g: 'error' }); }, 1600); },
+      resent: st.resent, resendLabel: st.resent ? 'Sent again' : 'resend the link', resendC: st.resent ? '#9AA6B4' : '#7AA2FF',
+      resend: function () { self.setState({ resent: true }); },
+      toNewpw: function () { self.setState({ mode: 'newpw', npExpired: false, npDone: false, npTried: false, np1: '', np2: '' }); },
+      emailOrDemo: st.email || 'student@example.com',
+      np1: st.np1, np2: st.np2, setNp1: function (e) { self.setState({ np1: e.target.value }); }, setNp2: function (e) { self.setState({ np2: e.target.value }); },
+      np1Bd: (st.np1 && st.np1.length < 8) ? '#FF6B5E' : '#3A4553', np2Bd: (st.np2 && st.np2 !== st.np1) ? '#FF6B5E' : '#3A4553',
+      npMsg: (st.np1 && st.np1.length < 8) ? 'Use at least 8 characters.' : ((st.np2 && st.np2 !== st.np1) ? 'The two passwords don\u2019t match.' : (st.npTried ? 'Fill in both fields.' : 'At least 8 characters.')),
+      npMsgC: ((st.np1 && st.np1.length < 8) || (st.np2 && st.np2 !== st.np1) || st.npTried) ? '#FF6B5E' : '#9AA6B4',
+      npDone: st.npDone && !st.npExpired, npOpen: !st.npDone && !st.npExpired,
+      saveNp: function () { var a = self.state.np1, b = self.state.np2; if (a.length >= 8 && a === b) self.setState({ npDone: true }); else self.setState({ npTried: true }); },
+      title: signup ? 'Create your account' : 'Welcome back',
+      tabInW: signin ? '700' : '400', tabInC: signin ? INK : MUTED, tabInB: signin ? '#7AA2FF' : 'transparent',
+      tabUpW: signup ? '700' : '400', tabUpC: signup ? INK : MUTED, tabUpB: signup ? '#7AA2FF' : 'transparent',
+      toSignin: go('signin'), toSignup: go('signup'), toForgot: go('forgot'),
+      switchMode: go(signup ? 'signin' : 'signup'),
+      switchText: signup ? 'Already have an account?' : 'New to Crypto Force?',
+      switchLink: signup ? 'Sign in' : 'Create an account',
+      email: st.email, name: st.name, password: st.password,
+      setEmail: set('email'), setName: set('name'), setPassword: function (e) { self.setState({ password: e.target.value, authErr: self.state.attempts >= 3 ? self.state.authErr : '' }); },
+      emailError: emailError, emailInvalid: emailError ? 'true' : 'false', emailBorder: emailError ? '#FF6B5E' : '#3A4553',
+      pwType: st.showPw ? 'text' : 'password', pwAuto: signup ? 'new-password' : 'current-password',
+      showPw: st.showPw, pwToggleLabel: st.showPw ? 'Hide' : 'Show',
+      togglePw: function () { self.setState({ showPw: !self.state.showPw }); },
+      pwHint: pwHint, pwHintColor: pwError ? '#FF6B5E' : MUTED, pwInvalid: pwError ? 'true' : 'false', pwBorder: pwError ? '#FF6B5E' : '#3A4553',
+      agree: st.agree, toggleAgree: function () { self.setState({ agree: !self.state.agree }); },
+      agreeError: st.tried && signup && !st.agree ? 'Please confirm to create your account.' : '',
+      remember: st.remember, toggleRemember: function () { self.setState({ remember: !self.state.remember }); },
+      valid: valid, invalid: !valid, cta: signup ? 'Create account' : 'Sign in',
+      submit: function () {
+        if (valid && signup) { self.setState({ mode: 'verify', tried: false, resent: false }); return; }
+        if (valid && signin && locked) { self.setState({ authErr: LOCKED_MSG }); return; }
+        if (valid && signin && self.state.password === WRONG) { var n = self.state.attempts + 1; self.setState({ attempts: n, authErr: n >= 3 ? LOCKED_MSG : 'That email and password don’t match. Check for typos, or reset your password.' }); return; }
+        self.setState({ tried: true });
+      },
+      sent: st.sent, notSent: !st.sent,
+      sendReset: function () { if (emailOk) self.setState({ sent: true, tried: false }); else self.setState({ tried: true }); }
+    };
+  }
+}
+</script>
+
+
+</body></html>

@@ -1,0 +1,35 @@
+/* === Crypto Force layout audit: shared safety and responsive design === */
+html { -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+body {max-width:100%; overflow-x:clip;}
+main {box-sizing:border-box; min-width:0;}
+main :is(section,aside,article,form,nav) {min-width:0;box-sizing:border-box;}
+main :is(img,svg) {max-width:100%;}
+main :is(input,select,textarea) {max-width:100%;box-sizing:border-box;}
+main :is(p,h1,h2,h3) {overflow-wrap:break-word;}
+main :is(table,pre,code) {max-width:100%;}
+main pre {overflow-x:auto;white-space:pre;}
+main [style*="overflow-x: auto"] {max-width:100%;scrollbar-width:thin;}
+/* Imported AppHeader has its own markup; apply breakpoints in every screen. */
+@media(min-width:1101px) and (max-width:1380px){
+ header nav.cf-wide a {padding-left:9px !important;padding-right:9px !important;font-size:14px !important;white-space:nowrap;}
+ header span.cf-wide[role="status"]{display:none !important;}
+ header button.cf-wide[aria-haspopup="dialog"]{display:none !important;}
+ header button.cf-narrow[aria-label="Search"]{display:flex !important;}
+ header div.cf-wide button[aria-haspopup="menu"] > span:nth-of-type(2){display:none !important;}
+}
+@media(max-width:1100px){
+ .cf-wide{display:none !important;}
+ .cf-narrow{display:flex !important;}
+ header > div:first-child{gap:12px !important;padding-inline:16px !important;}
+}
+@media(max-width:900px){
+ main.cf-audited-main {padding:24px 20px 40px !important;gap:20px !important;}
+ main.cf-audited-main h1 {font-size:clamp(26px,4vw,32px) !important;line-height:1.18 !important;}
+}
+@media(max-width:600px){
+ main.cf-audited-main {padding:20px 16px 36px !important;gap:16px !important;}
+ main.cf-audited-main section[style*="padding: 16px 20px"] {padding:16px !important;}
+ main.cf-audited-main section[style*="padding: 20px 24px"] {padding:16px !important;}
+ main.cf-audited-main [role="tablist"] {max-width:100%;overflow-x:auto;scrollbar-width:thin;}
+ main.cf-audited-main button {max-width:100%;}
+}

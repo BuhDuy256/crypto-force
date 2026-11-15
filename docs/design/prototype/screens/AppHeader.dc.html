@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>App header – Crypto Force</title>
+<link rel="preload" href="../assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<script src="../vendor/react/react.production.min.js"></script>
+<script src="../vendor/react/react-dom.production.min.js"></script>
+<script src="../tools/dc-source.js"></script>
+<script src="../vendor/dc-runtime/support.js"></script>
+<script src="../tools/url-props.js"></script>
+
+</head>
+<body>
+<script type="text/x-template" data-dc-template>
+<x-dc>
+<helmet>
+<style id="cf-audit-layout-fixes">
+/* Kept inline on purpose: dc-runtime de-duplicates <link> stylesheets across components,
+   so linking styles/layout-audit.css here would drop this second copy. It must be
+   injected after the screen's base.css so the header breakpoints keep winning. */
+
+/* === Crypto Force layout audit: shared safety and responsive design === */
+html { -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+body {max-width:100%; overflow-x:clip;}
+main {box-sizing:border-box; min-width:0;}
+main :is(section,aside,article,form,nav) {min-width:0;box-sizing:border-box;}
+main :is(img,svg) {max-width:100%;}
+main :is(input,select,textarea) {max-width:100%;box-sizing:border-box;}
+main :is(p,h1,h2,h3) {overflow-wrap:break-word;}
+main :is(table,pre,code) {max-width:100%;}
+main pre {overflow-x:auto;white-space:pre;}
+main [style*="overflow-x: auto"] {max-width:100%;scrollbar-width:thin;}
+/* Imported AppHeader has its own markup; apply breakpoints in every screen. */
+@media(min-width:1101px) and (max-width:1380px){
+ header nav.cf-wide a {padding-left:9px !important;padding-right:9px !important;font-size:14px !important;white-space:nowrap;}
+ header span.cf-wide[role="status"]{display:none !important;}
+ header button.cf-wide[aria-haspopup="dialog"]{display:none !important;}
+ header button.cf-narrow[aria-label="Search"]{display:flex !important;}
+ header div.cf-wide button[aria-haspopup="menu"] > span:nth-of-type(2){display:none !important;}
+}
+@media(max-width:1100px){
+ .cf-wide{display:none !important;}
+ .cf-narrow{display:flex !important;}
+ header > div:first-child{gap:12px !important;padding-inline:16px !important;}
+}
+@media(max-width:900px){
+ main.cf-audited-main {padding:24px 20px 40px !important;gap:20px !important;}
+ main.cf-audited-main h1 {font-size:clamp(26px,4vw,32px) !important;line-height:1.18 !important;}
+}
+@media(max-width:600px){
+ main.cf-audited-main {padding:20px 16px 36px !important;gap:16px !important;}
+ main.cf-audited-main section[style*="padding: 16px 20px"] {padding:16px !important;}
+ main.cf-audited-main section[style*="padding: 20px 24px"] {padding:16px !important;}
+ main.cf-audited-main [role="tablist"] {max-width:100%;overflow-x:auto;scrollbar-width:thin;}
+ main.cf-audited-main button {max-width:100%;}
+}
+
+
+/* Header breakpoints: full / compressed / compact navigation. */
+.cf-app-header > div:first-child {min-width:0;box-sizing:border-box;}
+.cf-app-header nav.cf-wide a {white-space:nowrap;}
+@media(min-width:1101px) and (max-width:1380px){
+ .cf-app-header > div:first-child {gap:0 12px !important;padding:0 20px !important;}
+ .cf-app-header nav.cf-wide a {padding-left:9px !important;padding-right:9px !important;font-size:14px !important;}
+ .cf-app-header span.cf-wide[role="status"] {display:none !important;}
+ .cf-app-header button.cf-wide[aria-haspopup="dialog"] {display:none !important;}
+ .cf-app-header button.cf-narrow[aria-label="Search"] {display:flex !important;}
+ .cf-app-header .cf-wide button[aria-haspopup="menu"]>span:nth-of-type(2) {display:none !important;}
+ .cf-app-header .cf-wide button[aria-haspopup="menu"]{padding-right:4px !important;gap:6px !important;}
+}
+@media(max-width:1100px){
+ .cf-app-header .cf-wide{display:none !important;}
+ .cf-app-header .cf-narrow{display:flex !important;}
+ .cf-app-header > div:first-child {padding:0 16px !important;gap:12px !important;min-height:60px !important;}
+ .cf-app-header a[href="Main.dc.html"] {font-size:18px !important;}
+ .cf-app-header [role="dialog"] {max-width:calc(100vw - 24px) !important;}
+}
+/* Session gate: full-viewport interstitial shown on workspace screens when signed out. */
+.cf-app-header .cf-gate a.cf-gate-home{font-size:14px !important;}
+@media(max-width:420px){
+ .cf-app-header > div:first-child {padding:0 12px !important;gap:8px !important;}
+ .cf-app-header [aria-label="Notifications"]{width:40px !important;}
+}
+
+</style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<header class="cf-app-header" onClickCapture="{{guardClick}}" style="position: relative; z-index: 20; background: #0B0E12; border-bottom: 1px solid #252D38; font-family: Onest, system-ui, sans-serif; color: #E7ECF2; font-variant-numeric: tabular-nums lining-nums">
+<div style="max-width: 1640px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; gap: 0 28px; min-height: 60px">
+<a href="Main.dc.html" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; color: #E7ECF2; text-decoration: none; font-size: 20px; font-weight: 600; letter-spacing: -0.03em"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x=".5" y=".5" width="29" height="29" rx="8" fill="#151A21" stroke="#2F3945"></rect><path d="M8 13.5l7-7 7 7z" fill="#3DD68C"></path><path d="M8 16.5l7 7 7-7z" fill="#E7ECF2"></path></svg>Crypto Force</a>
+<nav aria-label="Main" class="cf-wide" style="display: flex; align-self: stretch">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="5">
+<a href="{{t.href}}" aria-current="{{t.cur}}" class="cf-ghost" style="display: flex; align-items: center; padding: 2px 16px 0; min-height: 60px; box-sizing: border-box; border-bottom: 2px solid {{t.bd}}; font-size: 15px; font-weight: {{t.w}}; color: {{t.c}}; text-decoration: none">{{t.label}}</a>
+</sc-for>
+</nav>
+<div style="margin-left: auto; display: flex; align-items: center; gap: 4px; padding: 8px 0">
+<span role="status" title="Market data: Binance API + WebSocket" class="cf-wide" style="display: flex; align-items: center; gap: 8px; margin-right: 12px; font-size: 13px; color: #9AA6B4"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3DD68C"></span>Market data</span>
+<sc-if value="{{runChip}}" hint-placeholder-val="{{false}}"><a href="Backtest.dc.html" onClick="{{openActiveRun}}" aria-label="{{runChipAria}}" class="cf-sec" style="display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; margin-right: 8px; border: 1px solid #2F4A7A; border-radius: 999px; background: #121C2E; color: #C9D8F2; font-size: 13px; font-weight: 600; text-decoration: none; white-space: nowrap"><svg class="cf-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"></path></svg>{{runChipLabel}}</a></sc-if>
+<button type="button" ref="{{setSearchBtn}}" onClick="{{openSearch}}" aria-haspopup="dialog" class="cf-sec cf-wide" style="display: flex; align-items: center; gap: 12px; min-width: 240px; min-height: 40px; padding: 0 12px; margin-right: 8px; border: 1px solid #2F3945; border-radius: 8px; background: #151A21; color: #9AA6B4; font-size: 14px; cursor: pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>Search strategies, runs, pairs</button>
+<button type="button" onClick="{{openSearch}}" aria-haspopup="dialog" aria-label="Search" class="cf-ghost cf-narrow" style="width: 44px; height: 44px; border: 0; border-radius: 8px; background: none; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E7ECF2" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg></button>
+
+<div style="position: relative" onKeyDown="{{notifKey}}">
+<button type="button" ref="{{setBellBtn}}" onClick="{{toggleNotif}}" aria-expanded="{{notifOpen}}" aria-haspopup="dialog" aria-label="{{bellLabel}}" class="cf-ghost" style="position: relative; width: 44px; height: 44px; border: 0; background: {{bellBg}}; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E7ECF2" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg>
+<sc-if value="{{hasUnread}}" hint-placeholder-val="{{true}}"><span style="position: absolute; top: 7px; right: 6px; min-width: 18px; height: 18px; padding: 0 4px; box-sizing: border-box; border-radius: 999px; background: #FF6B5E; border: 2px solid #0B0E12; color: #0B0E12; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{unread}}</span></sc-if></button>
+<sc-if value="{{notifOpen}}" hint-placeholder-val="{{false}}">
+<button type="button" tabindex="-1" aria-hidden="true" onClick="{{closeAll}}" class="cf-ghost" style="position: fixed; inset: 0; z-index: 0; border: 0; padding: 0; margin: 0; background: transparent; cursor: default"></button>
+<section role="dialog" aria-label="Notifications" tabindex="-1" ref="{{setNotifPanel}}" style="z-index: 1; position: absolute; right: -60px; top: 52px; width: 380px; max-width: calc(100vw - 32px); background: #12171E; border: 1px solid #2F3945; border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.45); overflow: hidden">
+<div style="display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid #232B35"><h2 style="margin: 0; font-size: 15px; font-weight: 600">Notifications</h2>
+<sc-if value="{{hasNotes}}" hint-placeholder-val="{{true}}"><button type="button" onClick="{{markAll}}" class="cf-ghost" style="margin-left: auto; min-height: 36px; padding: 0 8px; border: 0; background: none; color: #7AA2FF; font-size: 13px; font-weight: 600; cursor: pointer">Mark all read</button><button type="button" onClick="{{clearAll}}" class="cf-ghost" style="min-height: 36px; padding: 0 8px; border: 0; background: none; color: #9AA6B4; font-size: 13px; cursor: pointer">Clear</button></sc-if></div>
+<sc-if value="{{hasNotes}}" hint-placeholder-val="{{true}}">
+<ul style="margin: 0; padding: 0; list-style: none; max-height: 360px; overflow-y: auto">
+<sc-for list="{{notes}}" as="n" hint-placeholder-count="4">
+<li style="border-bottom: 1px solid #232B35"><a href="{{n.href}}" onClick="{{n.read}}" class="cf-pri" style="display: flex; gap: 12px; padding: 12px 16px; color: #E7ECF2; text-decoration: none; background: {{n.bg}}">
+<span style="width: 8px; height: 8px; margin-top: 8px; flex: none; border-radius: 50%; background: {{n.dot}}"></span>
+<span style="display: flex; flex-direction: column; gap: 4px"><strong style="font-size: 14px; font-weight: 600">{{n.title}}</strong><span style="font-size: 13px; line-height: 1.45; color: #C3CCD6">{{n.body}}</span><span style="font-size: 12px; color: #9AA6B4">{{n.time}}</span></span></a></li>
+</sc-for>
+</ul>
+</sc-if>
+<sc-if value="{{noNotes}}" hint-placeholder-val="{{false}}">
+<div style="padding: 28px 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9AA6B4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg><strong style="font-size: 14px; font-weight: 600">You're all caught up</strong><sc-if value="{{undoClear}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{restore}}" class="cf-sec" style="min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 13px; font-weight: 600; cursor: pointer">Undo clear</button></sc-if><span style="font-size: 13px; line-height: 1.45; color: #9AA6B4">In a connected application, completed runs, search results and source issues can appear here.</span></div>
+</sc-if>
+<a href="Settings.dc.html" onClick="{{toNotifSettings}}" class="cf-ghost" style="display: block; padding: 12px 16px; font-size: 13px; font-weight: 600">Notification settings</a>
+</section>
+</sc-if>
+</div>
+
+<div style="position: relative" class="cf-wide" onKeyDown="{{acctKey}}">
+<button type="button" ref="{{setAcctBtn}}" onClick="{{toggleAcct}}" aria-expanded="{{acctOpen}}" aria-haspopup="menu" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 8px 0 4px; border: 0; background: {{acctBg}}; border-radius: 8px; color: #E7ECF2; cursor: pointer">
+<span style="width: 32px; height: 32px; border-radius: 50%; background: #E7ECF2; color: #0B0E12; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{acctInitials}}</span>
+<span style="display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2"><span style="font-size: 14px; font-weight: 600">{{acctName}}</span><span style="font-size: 12px; color: #9AA6B4">{{acctEmail}}</span></span>
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E7ECF2" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+</button>
+<sc-if value="{{acctOpen}}" hint-placeholder-val="{{false}}">
+<button type="button" tabindex="-1" aria-hidden="true" onClick="{{closeAll}}" class="cf-ghost" style="position: fixed; inset: 0; z-index: 0; border: 0; padding: 0; margin: 0; background: transparent; cursor: default"></button>
+<div role="menu" aria-label="Account" ref="{{setMenu}}" style="z-index: 1; position: absolute; right: 0; top: 52px; width: 240px; padding: 8px; background: #12171E; border: 1px solid #2F3945; border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.45); display: flex; flex-direction: column">
+<a role="menuitem" tabindex="-1" href="Settings.dc.html" onClick="{{toProfile}}" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 12px; border-radius: 8px; color: #E7ECF2; text-decoration: none; font-size: 14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"></path></svg>Profile</a>
+<a role="menuitem" tabindex="-1" href="Settings.dc.html" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 12px; border-radius: 8px; color: #E7ECF2; text-decoration: none; font-size: 14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"></path></svg>Settings</a>
+<a role="menuitem" tabindex="-1" href="Main.dc.html#faq" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 12px; border-radius: 8px; color: #E7ECF2; text-decoration: none; font-size: 14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"></circle><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.9M12 17.2v.3"></path></svg>Help &amp; FAQ</a>
+<span role="separator" style="margin: 8px 0; border-top: 1px solid #232B35"></span>
+<sc-if value="{{hasActiveRun}}" hint-placeholder-val="{{false}}"><button type="button" role="menuitem" tabindex="-1" onClick="{{askSignOut}}" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; width: 100%; min-height: 40px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: #FF6B5E; font-size: 14px; text-align: left; cursor: pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4v16h-4M10 16l-4-4 4-4M6 12h10"></path></svg>Sign out</button></sc-if>
+<sc-if value="{{noActiveRun}}" hint-placeholder-val="{{true}}"><a role="menuitem" tabindex="-1" href="Main.dc.html" onClick="{{signOut}}" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 12px; border-radius: 8px; color: #FF6B5E; text-decoration: none; font-size: 14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4v16h-4M10 16l-4-4 4-4M6 12h10"></path></svg>Sign out</a></sc-if>
+</div>
+</sc-if>
+</div>
+
+<button type="button" class="cf-sec cf-narrow" ref="{{setMobileBtn}}" onClick="{{toggleMobile}}" aria-expanded="{{mobileOpen}}" aria-controls="cf-drawer" aria-label="{{menuLabel}}" style="width: 44px; height: 44px; border: 1px solid #2F3945; background: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<sc-if value="{{mobileClosed}}" hint-placeholder-val="{{true}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E7ECF2" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></sc-if>
+<sc-if value="{{mobileOpen}}" hint-placeholder-val="{{false}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E7ECF2" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></sc-if>
+</button>
+</div>
+</div>
+
+<sc-if value="{{mobileOpen}}" hint-placeholder-val="{{false}}">
+<nav id="cf-drawer" aria-label="Main" class="cf-narrow" onKeyDown="{{mobileKey}}" style="display: flex; flex-direction: column; padding: 8px 16px 16px; border-top: 1px solid #232B35; background: #0B0E12">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="5"><a href="{{t.href}}" aria-current="{{t.cur}}" class="cf-ghost" style="display: flex; align-items: center; min-height: 48px; padding: 0 12px; border-radius: 8px; font-size: 16px; font-weight: {{t.w}}; color: {{t.c}}; background: {{t.mbg}}; text-decoration: none">{{t.label}}</a></sc-for>
+<span style="margin: 8px 0; border-top: 1px solid #232B35"></span>
+<div style="display: flex; align-items: center; gap: 12px; padding: 8px 12px"><span style="width: 32px; height: 32px; border-radius: 50%; background: #E7ECF2; color: #0B0E12; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{acctInitials}}</span><span style="display: flex; flex-direction: column; line-height: 1.25"><strong style="font-size: 14px; font-weight: 600">{{acctName}}</strong><span style="font-size: 12px; color: #9AA6B4">{{acctEmail}}</span></span></div>
+<a href="Settings.dc.html" class="cf-ghost" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; color: #E7ECF2; text-decoration: none; font-size: 15px">Settings</a>
+<a href="Main.dc.html#faq" class="cf-ghost" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; color: #E7ECF2; text-decoration: none; font-size: 15px">Help &amp; FAQ</a>
+<sc-if value="{{noActiveRun}}" hint-placeholder-val="{{true}}"><a href="Main.dc.html" onClick="{{signOut}}" class="cf-ghost" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; color: #FF6B5E; text-decoration: none; font-size: 15px">Sign out</a></sc-if>
+<sc-if value="{{hasActiveRun}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{askSignOut}}" class="cf-ghost" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border: 0; background: none; color: #FF6B5E; font-size: 15px; text-align: left; cursor: pointer">Sign out</button></sc-if>
+</nav>
+</sc-if>
+
+<sc-if value="{{searchOpen}}" hint-placeholder-val="{{false}}">
+<div style="position: fixed; inset: 0; z-index: 50">
+<button type="button" tabindex="-1" aria-hidden="true" onClick="{{closeSearch}}" class="cf-ghost" style="position: absolute; inset: 0; border: 0; padding: 0; margin: 0; background: rgba(5,7,10,0.6); cursor: default"></button>
+<div role="dialog" aria-modal="true" aria-label="Search" onKeyDown="{{searchKey}}" style="position: relative; width: 620px; max-width: calc(100vw - 24px); margin: 10vh auto 0; background: #12171E; border: 1px solid #2F3945; border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,0.55); overflow: hidden">
+<div style="display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid #232B35">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9AA6B4" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+<input ref="{{setSearchInput}}" type="search" role="combobox" aria-expanded="true" aria-controls="cf-results" aria-activedescendant="{{activeId}}" aria-label="Search strategies, runs, pairs and pages" placeholder="Search strategies, runs, pairs, pages" value="{{q}}" onChange="{{setQ}}" style="flex: 1; min-width: 0; height: 52px; border: 0; outline: none; background: none; color: #E7ECF2; font-size: 16px">
+<span style="font-size: 12px; color: #9AA6B4; border: 1px solid #2F3945; border-radius: 6px; padding: 2px 8px">Esc</span>
+</div>
+<sc-if value="{{hasResults}}" hint-placeholder-val="{{true}}">
+<ul id="cf-results" role="listbox" aria-label="Results" style="margin: 0; padding: 8px; list-style: none; max-height: 380px; overflow-y: auto">
+<sc-for list="{{results}}" as="r" hint-placeholder-count="6">
+<li role="presentation"><sc-if value="{{r.first}}" hint-placeholder-val="{{false}}"><div style="padding: 12px 12px 4px; font-size: 12px; font-weight: 600; color: #9AA6B4">{{r.group}}</div></sc-if>
+<a id="{{r.id}}" role="option" aria-selected="{{r.on}}" data-active="{{r.on}}" href="{{r.href}}" onClick="{{r.pick}}" tabindex="-1" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #E7ECF2; text-decoration: none; background: {{r.bg}}"><span style="flex: 1; font-size: 14px">{{r.label}}</span><span style="font-size: 12px; color: #9AA6B4">{{r.meta}}</span></a></li>
+</sc-for>
+</ul>
+</sc-if>
+<sc-if value="{{noResults}}" hint-placeholder-val="{{false}}"><p style="margin: 0; padding: 24px 20px; font-size: 14px; color: #9AA6B4">No matches for “{{q}}”. Try a strategy name, a pair like BTCUSDT, or a tab name.</p></sc-if>
+<div style="display: flex; gap: 16px; padding: 12px 16px; border-top: 1px solid #232B35; font-size: 12px; color: #9AA6B4"><span>↑ ↓ to move</span><span>Enter to open</span><span>Esc to close</span></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{leaveOpen}}" hint-placeholder-val="{{false}}">
+<div style="position: fixed; inset: 0; z-index: 86; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box">
+<button type="button" tabindex="-1" aria-hidden="true" onClick="{{closeLeave}}" class="cf-ghost" style="position: absolute; inset: 0; width: 100%; border: 0; padding: 0; margin: 0; background: rgba(5,7,10,0.7); cursor: default"></button>
+<div role="alertdialog" aria-modal="true" aria-labelledby="cf-lv-title" aria-describedby="cf-lv-desc" onKeyDown="{{leaveKey}}" style="position: relative; width: 440px; max-width: 100%; box-sizing: border-box; padding: 24px; background: #12171E; border: 1px solid #2F3945; border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,0.55); display: flex; flex-direction: column; gap: 14px; color: #E7ECF2">
+<h2 id="cf-lv-title" style="margin: 0; font-size: 20px; font-weight: 650">Leave without saving?</h2>
+<p id="cf-lv-desc" style="margin: 0; font-size: 14px; line-height: 1.55; color: #C3CCD6">{{leaveText}}</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px">
+<button type="button" ref="{{setLeaveStay}}" onClick="{{closeLeave}}" class="cf-sec" style="min-height: 44px; padding: 0 16px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 15px; font-weight: 600; cursor: pointer">{{leaveStayLabel}}</button>
+<a href="{{leaveHref}}" data-cf-leave="1" onClick="{{leaveGo}}" class="cf-pri cf-gate-home" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 8px; background: #FF6B5E; color: #0B0E12; font-size: 14px; font-weight: 700; text-decoration: none">Leave without saving</a>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{signOutAsk}}" hint-placeholder-val="{{false}}">
+<div style="position: fixed; inset: 0; z-index: 85; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box">
+<button type="button" tabindex="-1" aria-hidden="true" onClick="{{closeSignOut}}" class="cf-ghost" style="position: absolute; inset: 0; width: 100%; border: 0; padding: 0; margin: 0; background: rgba(5,7,10,0.7); cursor: default"></button>
+<div role="alertdialog" aria-modal="true" aria-labelledby="cf-so-title" aria-describedby="cf-so-desc" onKeyDown="{{signOutKey}}" style="position: relative; width: 440px; max-width: 100%; box-sizing: border-box; padding: 24px; background: #12171E; border: 1px solid #2F3945; border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,0.55); display: flex; flex-direction: column; gap: 14px; color: #E7ECF2">
+<h2 id="cf-so-title" style="margin: 0; font-size: 20px; font-weight: 650">A backtest is still running</h2>
+<p id="cf-so-desc" style="margin: 0; font-size: 14px; line-height: 1.55; color: #C3CCD6">{{signOutText}}</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px">
+<button type="button" ref="{{setSoStay}}" onClick="{{closeSignOut}}" class="cf-sec" style="min-height: 44px; padding: 0 16px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 15px; font-weight: 600; cursor: pointer">Stay signed in</button>
+<a href="Main.dc.html" onClick="{{signOut}}" class="cf-pri cf-gate-home" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 14px; font-weight: 700; text-decoration: none">Sign out anyway</a>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{gated}}" hint-placeholder-val="{{false}}">
+<div class="cf-gate" role="dialog" aria-modal="true" aria-labelledby="cf-gate-title" aria-describedby="cf-gate-desc" style="position: fixed; inset: 0; z-index: 80; overflow-y: auto; background: #0B0E12; display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box">
+<div style="width: 440px; max-width: 100%; display: flex; flex-direction: column; gap: 16px; padding: 28px; box-sizing: border-box; background: #12171E; border: 1px solid #2F3945; border-radius: 14px">
+<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7AA2FF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"></rect><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"></path></svg>
+<h2 id="cf-gate-title" style="margin: 0; font-size: 24px; line-height: 1.2; font-weight: 600; letter-spacing: -0.02em">Sign in to open {{gateLabel}}</h2>
+<p id="cf-gate-desc" style="margin: 0; font-size: 15px; line-height: 1.55; color: #C3CCD6">Your workspace is only available while you're signed in. After you sign in, we'll bring you back to {{gateLabel}}.</p>
+<a href="Auth.dc.html" onClick="{{rememberNext}}" class="cf-pri" style="display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 700; text-decoration: none">Sign in to continue</a>
+<a href="Main.dc.html" class="cf-ghost cf-gate-home" style="align-self: center; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; font-size: 14px; font-weight: 600; color: #7AA2FF">Back to home</a>
+<p style="margin: 0; font-size: 12px; line-height: 1.5; color: #9AA6B4">Prototype: the session is simulated in this browser and is not a security check.</p>
+</div>
+</div>
+</sc-if>
+</header>
+</x-dc>
+</script>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;rt&quot;,&quot;st&quot;,&quot;di&quot;,&quot;bt&quot;,&quot;nw&quot;,&quot;settings&quot;],&quot;default&quot;:&quot;rt&quot;},&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:61}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { acct: false, notif: false, mobile: false, notes: [
+      { id: 1, run: 'R-1042', title: 'Backtest finished', body: 'MA Crossover · BTCUSDT 5m: +8.42% with max drawdown −3.03%.', time: '2 min ago', href: 'Backtest.dc.html', unread: true },
+      { id: 2, title: 'Discovery found a better candidate', body: 'MA + RSI + S/R now leads at +24.2% (MDD −7.1%).', time: '15 min ago', href: 'Discovery.dc.html', unread: true },
+      { id: 3, panel: 'sources', title: 'News crawl: 2 sources not responding', body: 'Blockworks and CryptoSlate didn’t respond on the last crawl. Review your news sources.', time: '1 h ago', href: 'News.dc.html', unread: true },
+      { id: 4, title: 'Extraction template updated', body: 'Self-healing saved v1.4.3 (errors 11.9% → 4.1%).', time: 'Yesterday', href: 'News.dc.html', unread: false }
+    ] };
+    var extra = []; try { extra = JSON.parse(window.localStorage.getItem('cf.notes') || '[]'); } catch (e) {}
+    this.state.notes = extra.concat(this.state.notes);
+  }
+  runs() { try { return JSON.parse(window.localStorage.getItem('cf.runs') || '[]'); } catch (e) { return []; } }
+  componentDidMount() {
+    var self = this;
+    this._iv = setInterval(function () {
+      var runs = self.runs(), now = Date.now(), fin = [];
+      runs.forEach(function (r) { if (r.status === 'running' && now >= r.startedAt + r.durationMs) { r.status = r.fail ? 'failed' : 'completed'; r.endedAt = r.startedAt + r.durationMs; r.result = r.status === 'completed' ? '+8.42% · max DD −3.03%' : 'Failed · no candles for that period'; fin.push(r); } });
+      if (fin.length) {
+        var notes = []; try { notes = JSON.parse(window.localStorage.getItem('cf.notes') || '[]'); } catch (e) {}
+        fin.forEach(function (r) { notes.unshift({ id: 'n-' + r.id, run: r.id, title: r.status === 'completed' ? 'Backtest finished' : 'Backtest failed', body: r.strategyName + ' · ' + r.pair + ' ' + r.tf + ': ' + r.result + '.', time: 'Just now', href: 'Backtest.dc.html', unread: true }); });
+        try { window.localStorage.setItem('cf.runs', JSON.stringify(runs)); window.localStorage.setItem('cf.notes', JSON.stringify(notes.slice(0, 20))); } catch (e) {}
+      }
+      var stored = []; try { stored = JSON.parse(window.localStorage.getItem('cf.notes') || '[]'); } catch (e) {}
+      var have = {}; self.state.notes.forEach(function (n) { have[n.id] = true; });
+      var fresh = stored.filter(function (n) { return !have[n.id]; });
+      var running = runs.some(function (r) { return r.status === 'running'; });
+      if (fresh.length) self.setState({ notes: fresh.concat(self.state.notes) });
+      else if (running || self._wasRunning) self.setState({ tick: now });
+      self._wasRunning = running;
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this._iv); }
+  setRef(name) { var self = this; this._refs = this._refs || {}; if (!this._refSetters) this._refSetters = {}; if (!this._refSetters[name]) this._refSetters[name] = function (el) { self._refs[name] = el; }; return this._refSetters[name]; }
+  session() {
+    var demo = { state: 'in', name: 'Nguyen Minh', email: 'student@example.com' };
+    try { var v = window.localStorage.getItem('cf.session'); var s = v ? JSON.parse(v) : null; return s && s.state ? s : demo; } catch (e) { return demo; }
+  }
+  keep(k, v) { try { if (v === null) window.localStorage.removeItem('cf.' + k); else window.localStorage.setItem('cf.' + k, JSON.stringify(v)); } catch (e) {} }
+  focusRef(name) { var el = this._refs && this._refs[name]; if (el && el.focus) el.focus(); }
+  componentDidUpdate(pp, ps) {
+    var st = this.state, self = this;
+    if (ps.notes !== st.notes) { try { window.localStorage.setItem('cf.notes', JSON.stringify(st.notes.filter(function (n) { return typeof n.id === 'string'; }).slice(0, 20))); } catch (e) {} }
+    if (st.leave && !ps.leave) setTimeout(function () { var el = self._lvStay; if (el && el.focus) el.focus(); }, 0);
+    if (st.soAsk && !ps.soAsk) setTimeout(function () { var el = self._soStay; if (el && el.focus) el.focus(); }, 0);
+    if (st.acct && !ps.acct) setTimeout(function () { var m = self._refs.menu; var f = m && m.querySelector('[role=menuitem]'); if (f) f.focus(); }, 0);
+    if (st.notif && !ps.notif) setTimeout(function () { self.focusRef('notifPanel'); }, 0);
+    if (st.search && !ps.search) setTimeout(function () { self.focusRef('searchInput'); }, 0);
+  }
+  closeTo(key, btn) { var o = {}; o[key] = false; this.setState(o); var self = this; setTimeout(function () { self.focusRef(btn); }, 0); }
+  renderVals() {
+    var self = this, st = this.state, active = this.props.active || 'rt';
+    var defs = [['rt', 'Realtime.dc.html', 'Realtime'], ['st', 'Strategy.dc.html', 'Strategy Engine'], ['di', 'Discovery.dc.html', 'Discovery'], ['bt', 'Backtest.dc.html', 'Backtest'], ['nw', 'News.dc.html', 'News']];
+    var unread = st.notes.filter(function (n) { return n.unread; }).length;
+    var LIB = [];
+    try { var lv = window.localStorage.getItem('cf.library'); LIB = lv ? JSON.parse(lv) : [{ id: 'st-rsi-bb', kind: 'strategy', name: 'RSI_BB_LB_LONG_SL2_TP4', ver: '1.0.0' }, { id: 'st-macd', kind: 'strategy', name: 'MACD_Cross_TrendFollow', ver: '1.2.1' }, { id: 'cp-ma-rsi-sr', kind: 'composite', name: 'MA + RSI + S/R', ver: '1.0.0' }]; } catch (e) {}
+    var INDEX = LIB.map(function (x) { return ['Strategies', x.name, (x.kind === 'composite' ? 'Composite' : 'Strategy') + ' · v' + x.ver, 'Library.dc.html', x.id]; }).concat([
+      ['Discovery candidates', 'MA + Bollinger', 'Leaderboard · +21.7% · MDD −8.4%', 'Discovery.dc.html'],
+      ['Discovery candidates', 'RSI + S/R', 'Leaderboard · +18.4% · MDD −6.7%', 'Discovery.dc.html'],
+      ['Pairs', 'BTCUSDT', 'Open in Realtime', 'Realtime.dc.html'],
+      ['Pairs', 'ETHUSDT', 'Open in Realtime', 'Realtime.dc.html'],
+      ['Pairs', 'SOLUSDT', 'Open in Realtime', 'Realtime.dc.html'],
+      ['Pages', 'Realtime', 'Tab', 'Realtime.dc.html'], ['Pages', 'Strategy Engine', 'Tab', 'Strategy.dc.html'], ['Pages', 'Discovery', 'Tab', 'Discovery.dc.html'],
+      ['Pages', 'Backtest', 'Tab', 'Backtest.dc.html'], ['Pages', 'News', 'Tab', 'News.dc.html'], ['Pages', 'Strategy library', 'Strategy Engine', 'Library.dc.html'], ['Pages', 'Settings', 'Account', 'Settings.dc.html']
+    ]).concat(this.runs().slice(0, 6).map(function (r) { return ['Backtest runs', r.title || r.id, r.id + ' · ' + (r.status === 'running' ? 'running' : r.result), 'Backtest.dc.html', null, r.id]; }));
+    var q = (st.q || '').trim().toLowerCase();
+    var hits = INDEX.filter(function (r) { return !q || (r[1] + ' ' + r[2] + ' ' + r[0]).toLowerCase().indexOf(q) >= 0; });
+    var sel = Math.min(st.sel || 0, Math.max(0, hits.length - 1));
+    var results = hits.map(function (r, i) { return { id: 'cf-r' + i, group: r[0], first: i === 0 || hits[i - 1][0] !== r[0], label: r[1], meta: r[2], href: r[3], pick: r[4] ? (function (id) { return function () { self.keep('libOpen', id); }; })(r[4]) : (r[5] ? (function (id) { return function () { self.keep('runOpen', id); }; })(r[5]) : null), on: i === sel ? 'true' : 'false', bg: i === sel ? '#1E2631' : 'transparent' }; });
+    function closeAll() { self.setState({ acct: false, notif: false }); }
+    var ses = this.session(), signedIn = ses.state === 'in';
+    var PAGES = { rt: ['Realtime.dc.html', 'Realtime'], st: ['Strategy.dc.html', 'Strategy Engine'], di: ['Discovery.dc.html', 'Discovery'], bt: ['Backtest.dc.html', 'Backtest'], nw: ['News.dc.html', 'News'], settings: ['Settings.dc.html', 'Settings'] };
+    var here = PAGES[active] || PAGES.rt;
+    var initials = (ses.name || '').split(/\s+/).filter(Boolean).map(function (w) { return w.charAt(0); }).slice(0, 2).join('').toUpperCase() || '?';
+    var runsNow = this.runs(), actRun = runsNow.filter(function (r) { return r.status === 'running'; })[0] || null;
+    var actPct = actRun ? Math.max(1, Math.min(99, Math.floor((Date.now() - actRun.startedAt) / actRun.durationMs * 100))) : 0;
+    var lv = st.leave || null;
+    function goSection(id) { return function () { self.keep('settingsAnchor', id); if (active === 'settings') { self.setState({ acct: false, notif: false }); setTimeout(function () { var el = document.getElementById(id); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'start' }); }, 30); } }; }
+    return {
+      toProfile: goSection('profile'), toNotifSettings: goSection('notifications'),
+      guardClick: function (e) {
+        var dd = null; try { dd = JSON.parse(window.localStorage.getItem('cf.dirty') || 'null'); } catch (x) {}
+        if (!dd || self.state.leave || here[0] !== dd.page + '.dc.html') return;
+        var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+        if (!a || a.hasAttribute('data-cf-leave')) return;
+        var href = a.getAttribute('href') || '';
+        if (!href || href.charAt(0) === '#' || href.indexOf(dd.page + '.dc.html') === 0) return;
+        e.preventDefault(); e.stopPropagation();
+        self.setState({ leave: { href: href, what: dd.what, page: dd.page, draftKey: dd.draftKey, signOut: /sign out/i.test(a.textContent || '') }, acct: false, notif: false, mobile: false, search: false });
+      },
+      leaveOpen: !!lv, leaveHref: lv ? lv.href : '#',
+      leaveText: lv ? 'You have unsaved ' + lv.what + ' on ' + lv.page + '. If you leave now, they’ll be discarded.' : '',
+      leaveStayLabel: lv ? 'Stay on ' + lv.page : 'Stay',
+      setLeaveStay: function (el) { self._lvStay = el; },
+      closeLeave: function () { self.setState({ leave: null }); },
+      leaveKey: function (e) { if (e.key === 'Escape') { e.preventDefault(); self.setState({ leave: null }); } },
+      leaveGo: function () { var l = self.state.leave; if (l && l.draftKey) self.keep(l.draftKey, null); self.keep('dirty', null); if (l && l.signOut) { self.keep('session', { state: 'out' }); self.keep('next', null); } },
+      runChip: !!actRun && signedIn, runChipLabel: actRun ? 'Backtest ' + actPct + '%' : '', runChipAria: actRun ? 'Backtest ' + actRun.id + ' running, ' + actPct + '% done. Open the run.' : '',
+      openActiveRun: function () { if (actRun) self.keep('runOpen', actRun.id); },
+      hasActiveRun: !!actRun, noActiveRun: !actRun,
+      signOutAsk: !!st.soAsk && !!actRun, setSoStay: function (el) { self._soStay = el; },
+      signOutText: actRun ? 'Run ' + actRun.id + ' (' + (actRun.title || actRun.strategyName) + ') is ' + actPct + '% done. Signing out doesn’t stop it: its result will be in Backtest › Runs when you sign back in.' : '',
+      askSignOut: function () { self.setState({ soAsk: true, acct: false, mobile: false }); },
+      closeSignOut: function () { self.setState({ soAsk: false }); },
+      signOutKey: function (e) { if (e.key === 'Escape') { e.preventDefault(); self.setState({ soAsk: false }); } },
+      acctName: ses.name || 'Your account', acctEmail: ses.email || '', acctInitials: initials,
+      signOut: function () { self.keep('session', { state: 'out' }); self.keep('next', null); },
+      gated: !signedIn, gateLabel: here[1],
+      rememberNext: function () { self.keep('next', { href: here[0], label: here[1], why: 'page' }); },
+      tabs: defs.map(function (d) { var on = d[0] === active; return { href: d[1], label: d[2], cur: on ? 'page' : 'false', bd: on ? '#7AA2FF' : 'transparent', w: on ? '600' : '400', c: on ? '#E7ECF2' : '#9AA6B4', mbg: on ? '#1B222B' : 'transparent' }; }),
+      setBellBtn: this.setRef('bellBtn'), setAcctBtn: this.setRef('acctBtn'), setMobileBtn: this.setRef('mobileBtn'), setSearchBtn: this.setRef('searchBtn'),
+      setNotifPanel: this.setRef('notifPanel'), setMenu: this.setRef('menu'), setSearchInput: this.setRef('searchInput'),
+      notifOpen: st.notif, acctOpen: st.acct, mobileOpen: st.mobile, mobileClosed: !st.mobile, searchOpen: !!st.search,
+      menuLabel: st.mobile ? 'Close menu' : 'Open menu',
+      bellBg: st.notif ? '#1B222B' : 'transparent', acctBg: st.acct ? '#1B222B' : 'transparent',
+      toggleNotif: function () { self.setState({ notif: !self.state.notif, acct: false }); },
+      toggleAcct: function () { self.setState({ acct: !self.state.acct, notif: false }); },
+      toggleMobile: function () { self.setState({ mobile: !self.state.mobile, acct: false, notif: false }); },
+      closeAll: closeAll,
+      notifKey: function (e) { if (e.key === 'Escape' && self.state.notif) { e.stopPropagation(); self.closeTo('notif', 'bellBtn'); } },
+      mobileKey: function (e) { if (e.key === 'Escape') { self.closeTo('mobile', 'mobileBtn'); } },
+      acctKey: function (e) {
+        if (!self.state.acct) return;
+        if (e.key === 'Escape') { e.preventDefault(); self.closeTo('acct', 'acctBtn'); return; }
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Home' || e.key === 'End') {
+          e.preventDefault();
+          var items = Array.prototype.slice.call(self._refs.menu.querySelectorAll('[role=menuitem]'));
+          var i = items.indexOf(document.activeElement);
+          if (e.key === 'Home') i = 0; else if (e.key === 'End') i = items.length - 1;
+          else i = (i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+          items[i].focus();
+        }
+        if (e.key === 'Tab') self.setState({ acct: false });
+      },
+      openSearch: function () { self.setState({ search: true, q: '', sel: 0, acct: false, notif: false, mobile: false }); },
+      closeSearch: function () { self.closeTo('search', 'searchBtn'); },
+      q: st.q || '', setQ: function (e) { self.setState({ q: e.target.value, sel: 0 }); },
+      results: results, hasResults: hits.length > 0, noResults: hits.length === 0, activeId: hits.length ? 'cf-r' + sel : '',
+      searchKey: function (e) {
+        if (e.key === 'Escape') { e.preventDefault(); self.closeTo('search', 'searchBtn'); }
+        else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); var n = hits.length; if (n) self.setState({ sel: (sel + (e.key === 'ArrowDown' ? 1 : -1) + n) % n }); }
+        else if (e.key === 'Enter') { var a = e.currentTarget.querySelector('[data-active="true"]'); if (a) { e.preventDefault(); a.click(); } }
+      },
+      unread: unread, hasUnread: unread > 0, bellLabel: unread ? 'Notifications, ' + unread + ' unread' : 'Notifications',
+      hasNotes: st.notes.length > 0, noNotes: st.notes.length === 0,
+      markAll: function () { self.setState({ notes: self.state.notes.map(function (n) { return Object.assign({}, n, { unread: false }); }) }); },
+      clearAll: function () { self._cleared = self.state.notes; self.setState({ notes: [], undoClear: true }); },
+      undoClear: !!st.undoClear && st.notes.length === 0,
+      restore: function () { self.setState({ notes: self._cleared || [], undoClear: false }); },
+      notes: st.notes.map(function (n) { return Object.assign({}, n, { bg: n.unread ? '#151C26' : 'transparent', dot: n.unread ? '#7AA2FF' : 'transparent', read: function () { if (n.run) self.keep('runOpen', n.run); if (n.panel) self.keep('newsPanel', n.panel); self.setState({ notes: self.state.notes.map(function (x) { return x.id === n.id ? Object.assign({}, x, { unread: false }) : x; }) }); } }); })
+    };
+  }
+}
+</script>
+
+
+</body></html>
