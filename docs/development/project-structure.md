@@ -20,9 +20,8 @@ apps/
     app/
       routes/           # React Router route modules
       pages/            # UI màn hình phức tạp, khi cần
-      components/
+      components/       # Components shared across pages
         ui/             # shadcn/ui primitives
-        common/         # Reusable app components
       hooks/            # UI logic và query hooks
       services/         # Typed API access
       layouts/
@@ -68,12 +67,12 @@ packages/
 | `routes/` | Route modules, route-level data APIs và composition; không gom toàn bộ business logic vào route. |
 | `pages/` | Màn hình phức tạp; có thể có `components/` riêng bên trong từng page. Không bắt buộc mỗi route có page riêng. |
 | `components/ui/` | UI primitives theo shadcn/ui. |
-| `components/common/` | Component dùng lại giữa nhiều màn hình. |
+| `components/` (ngoài `ui/`) | Component dùng chung giữa nhiều màn hình, không thuộc riêng một page. |
 | `hooks/` | Custom hooks cho UI state, interactions và TanStack Query. |
 | `services/` | Gọi backend qua API client; không chứa React rendering. |
 | `types/` | Types đặc thù UI; contract chia sẻ với backend đặt tại `packages/shared`. |
 
-Dùng React Router framework mode theo Tech Stack đã chọn [[1, Tech Stack]](#ref-1). Không bắt buộc một route module chỉ được render một page; có thể viết UI đơn giản ngay trong route module. Component đặc thù của một page nên colocate trong page; chỉ chuyển vào `components/common/` khi thực sự được dùng chung.
+Dùng React Router framework mode theo Tech Stack đã chọn [[1, Tech Stack]](#ref-1). Không bắt buộc một route module chỉ được render một page; có thể viết UI đơn giản ngay trong route module. Component đặc thù của một page nên colocate trong `pages/<Page>/components/`; chỉ chuyển lên `components/` khi thực sự được dùng chung giữa các page. Không tạo `components/common/` vì `components/` đã là nơi chứa component dùng chung. Khả năng tái sử dụng trong tương lai không phải lý do để chuyển component lên sớm.
 
 ## API: layer-based
 
