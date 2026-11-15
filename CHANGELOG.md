@@ -16,5 +16,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 - `docs/design/README.md` mô tả design board `UI.html`, cách mở file và danh sách 11 board thay cho danh sách ảnh mockup cũ.
 - Cập nhật design board `docs/design/UI.html` sang bản task-oriented workspace; tiêu đề trang đổi thành "Crypto Force – Task-Oriented Workspace", danh sách 11 board và kích thước giữ nguyên.
 
+- Cập nhật `docs/design/README.md` định vị `UI.html` là design reference chứ không phải implementation specification: thêm hướng dẫn trích xuất ý đồ thiết kế (information architecture, user flows, visual language), các giả định cần tránh và implementation principles.
+
 ### Removed
 - Năm ảnh mockup JPG trong `docs/design/` (`01-realtime`, `02-strategy-engine`, `03-discovery`, `04-backtest`, `05-new-crawler`), được thay bằng `UI.html`.

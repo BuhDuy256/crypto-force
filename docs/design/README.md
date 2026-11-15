@@ -1,6 +1,6 @@
 # Design
 
-Đọc file này để biết thiết kế giao diện và luồng màn hình, và tìm file thiết kế tương ứng.
+Thư mục chứa các tài liệu tham khảo UI/UX của Crypto Force, giúp định hướng thiết kế và trải nghiệm người dùng, **không phải implementation specification bắt buộc phải sao chép nguyên mẫu**.
 
 ## Table of Contents
 
@@ -10,14 +10,37 @@
 
 ## UI.html
 
-`UI.html` là file HTML tự chứa (self-contained) chứa design board **Crypto Force – Workspace Review** với 11 màn hình của Crypto Force. File nhúng sẵn CSS, JavaScript, font Onest và nội dung của từng màn hình, nên chỉ cần mở trực tiếp bằng trình duyệt (double-click hoặc kéo file vào cửa sổ trình duyệt), không cần web server hay kết nối mạng.
+`UI.html` là file HTML tự chứa (self-contained), nhúng sẵn CSS, JavaScript, font Onest và nội dung của 11 boards. Có thể mở trực tiếp bằng trình duyệt, không cần web server hoặc kết nối mạng.
 
-- File cần JavaScript để giải nén bundle và render nội dung. Khi JavaScript bị tắt, trang chỉ hiển thị thông báo "This page requires JavaScript to display."
-- Thanh điều hướng dạng sticky ở đầu trang liệt kê đủ 11 board; chọn một mục để cuộn tới board tương ứng.
-- Mỗi board render màn hình trong một iframe và có nút chuyển chế độ xem **Desktop** (giữ nguyên chiều rộng thiết kế), **Tablet** (768 px) và **Mobile** (390 px).
-- Board `Component · App header` chỉ chứa component app header, không phải một màn hình đầy đủ.
+### How to Use
 
-Design board gồm 11 board theo thứ tự sau:
+**What to extract:**
+* **Information Architecture:** Cấu trúc màn hình và cách nhóm chức năng.
+* **User Flows & Interactions:** Tác vụ, hành động và trạng thái giao diện.
+* **Visual Language:** Colors, typography, spacing và component styles.
+* **Content Hierarchy:** Cách ưu tiên và trình bày thông tin.
+
+**What NOT to assume:**
+* Layout, kích thước và workflow trong prototype là cố định hoặc bắt buộc.
+* UX copy, dữ liệu mẫu và tương tác demo là product requirements hoặc business logic đã được xác nhận.
+* UI thể hiện đầy đủ mọi chức năng và trường hợp sử dụng.
+* Ngôn ngữ giao diện quyết định ngôn ngữ đầu vào được hỗ trợ.
+
+**Implementation principles:**
+* **Preserve intent, not pixels.** Giữ ý đồ thiết kế, không sao chép máy móc.
+* **Content-aware layout.** Bố cục thích ứng với nội dung, trạng thái và viewport; tránh khoảng trống hoặc kéo giãn component không cần thiết.
+* **Task-oriented design.** Tổ chức giao diện theo tác vụ thực tế, không ép mọi chức năng thành workflow tuần tự.
+* **Requirements first.** Đối chiếu với requirements và domain rules trước khi triển khai; không tự suy diễn khả năng sản phẩm.
+* **Review & improve.** Chủ động cải thiện usability, visual balance, information hierarchy và responsive behavior mà không tự thay đổi business logic.
+
+### Navigation
+
+* File cần JavaScript để giải nén bundle và render giao diện.
+* Thanh điều hướng sticky cho phép chuyển giữa 11 boards.
+* Mỗi board hiển thị trong iframe với ba chế độ: **Desktop** (chiều rộng thiết kế), **Tablet** (768px) và **Mobile** (390px).
+* `Component · App header` là component reference, không phải màn hình đầy đủ.
+
+### Design Boards
 
 | # | Board | Kích thước (px) |
 | --- | --- | --- |
@@ -32,3 +55,7 @@ Design board gồm 11 board theo thứ tự sau:
 | 9 | App · Settings | 1440×2000 |
 | 10 | App · Empty & loading states | 1600×1300 |
 | 11 | Component · App header | 1440×61 |
+
+*Kích thước chỉ mang tính tham khảo, không phải yêu cầu cố định khi triển khai.*
+
+**Guiding principle:** UI.html is a design reference, not a source of truth for product requirements or implementation details.
