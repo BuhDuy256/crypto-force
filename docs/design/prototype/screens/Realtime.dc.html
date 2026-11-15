@@ -47,6 +47,57 @@
  .cf-realtime-workspace > section > article {border-right:0 !important;padding:14px !important;}
 }
 @media(max-width:540px){.cf-realtime-workspace > section > article{padding:12px !important;}}
+/* Realtime toolbar: configuration, realtime status and strategy actions live in separate zones. */
+.cf-rt-head {display:flex; flex-direction:column; gap:14px; min-width:0;}
+.cf-rt-toolbar {display:grid; grid-template-columns:minmax(0,1fr) auto auto; grid-template-areas:"config status actions"; align-items:stretch; background:#12171E; border:1px solid #252D38; border-radius:12px; overflow:hidden;}
+.cf-rt-zone {display:flex; flex-direction:column; justify-content:flex-end; gap:8px; min-width:0; padding:11px 14px 12px;}
+.cf-rt-zone + .cf-rt-zone {border-left:1px solid #232B35;}
+.cf-rt-config {grid-area:config; flex-direction:row; flex-wrap:wrap; justify-content:flex-start; align-items:flex-end; gap:8px 16px;}
+.cf-rt-status {grid-area:status;}
+.cf-rt-actions {grid-area:actions;}
+.cf-rt-field {display:flex; flex-direction:column; gap:8px; min-width:0;}
+.cf-rt-label {font-size:13px; font-weight:700; line-height:18px;}
+.cf-rt-zone-title {font-size:13px; font-weight:700; line-height:18px; color:#9AA6B4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.cf-rt-select {height:42px; padding:0 12px; border:1px solid #3A4553; border-radius:8px; background:#0F141A; color:#E7ECF2; font-size:15px; box-sizing:border-box;}
+.cf-rt-select-pair {min-width:160px; font-weight:600;}
+.cf-rt-select-sig {min-width:200px;}
+.cf-rt-charts {display:flex; height:42px; box-sizing:border-box; border:1px solid #3A4553; border-radius:8px; overflow:hidden;}
+.cf-rt-charts > button {min-width:46px; border:0; border-left:1px solid #2F3945; font-size:14px; font-weight:600; cursor:pointer;}
+.cf-rt-charts > button:first-child {border-left:0;}
+/* The group clips its corners, so draw the focus ring inside each button. */
+.cf-rt-charts > button:focus-visible {outline-offset:-3px;}
+/* Status row: toggle, two-line status text and the connection-loss action sit on one centred axis. */
+.cf-rt-status-row {display:flex; align-items:center; gap:10px; min-height:42px;}
+.cf-rt-toggle {display:flex; align-items:center; flex:none; width:52px; height:36px; box-sizing:border-box; padding:2px; border:1px solid #3A4553; border-radius:999px; cursor:pointer;}
+.cf-rt-knob {flex:none; width:24px; height:24px; border-radius:50%;}
+.cf-rt-text {display:flex; flex-direction:column; line-height:1.25;}
+.cf-rt-preview {flex:none; align-self:center; margin:0; min-height:36px; padding:0 4px; border:0; border-radius:8px; background:none; color:#9AA6B4; font-size:13px; text-decoration:underline; text-underline-offset:3px; cursor:pointer;}
+.cf-rt-actions-title {max-width:280px;}
+.cf-rt-action-row {display:flex; align-items:center; gap:8px; min-height:42px;}
+.cf-rt-action {display:inline-flex; align-items:center; justify-content:center; min-height:42px; box-sizing:border-box; padding:0 12px; border-radius:8px; font-size:13px; font-weight:700; text-decoration:none; white-space:nowrap;}
+.cf-rt-action-pri {border:1px solid #E7ECF2; background:#E7ECF2; color:#0B0E12;}
+.cf-rt-action-sec {border:1px solid #3A4553; background:none; color:#E7ECF2;}
+.cf-rt-toolbar-note {grid-column:1/-1; margin:0; padding:8px 16px; border-top:1px solid #232B35; font-size:13px; line-height:1.4; color:#F2B544;}
+@media(max-width:1439px){
+ .cf-rt-toolbar {grid-template-columns:minmax(0,1fr) auto; grid-template-areas:"config config" "status actions";}
+ .cf-rt-config {border-bottom:1px solid #232B35;}
+ .cf-rt-status {border-left:0;}
+ .cf-rt-actions {border-left:1px solid #232B35; justify-content:flex-start;}
+ .cf-rt-status-row {flex-wrap:wrap; row-gap:0;}
+}
+@media(max-width:659px){
+ .cf-rt-toolbar {grid-template-columns:minmax(0,1fr); grid-template-areas:"config" "status" "actions";}
+ .cf-rt-config {flex-direction:column; align-items:stretch; gap:10px; border-bottom:0;}
+ .cf-rt-zone {padding:12px 14px;}
+ .cf-rt-status, .cf-rt-actions {border-left:0; border-top:1px solid #232B35;}
+ .cf-rt-field, .cf-rt-select, .cf-rt-charts {width:100%;}
+ .cf-rt-charts > button {flex:1;}
+ .cf-rt-status-row {gap:8px; min-height:0;}
+ .cf-rt-preview {padding:0; min-height:28px;}
+ .cf-rt-action-row {flex-wrap:wrap; min-height:0;}
+ .cf-rt-action {flex:1 1 150px;}
+ .cf-rt-toolbar-note {padding:8px 14px;}
+}
 </style>
 <link rel="stylesheet" href="../assets/fonts/fonts.css">
 <link rel="stylesheet" href="../styles/base.css">
@@ -56,31 +107,44 @@
 <main class="cf-audited-main cf-realtime-layout" id="main" tabindex="-1" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 20px">
 <div role="note" style="border:1px solid #334155;border-radius:7px;padding:8px 12px;background:#111923;color:#AFC2D6;font-size:12px;line-height:1.4;max-width:100%;box-sizing:border-box">UI prototype: prices, backtests, news, account state and workflow feedback are illustrative. No live market, AI or account service is connected in this HTML file.</div>
 
-<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px 28px">
-<div style="display: flex; flex-direction: column; gap: 4px; margin-right: auto">
+<div class="cf-rt-head">
+<div>
 <h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.03em">Realtime</h1>
 <p style="margin: 0; font-size: 15px; color: #9AA6B4">One pair, up to four charts, each on its own timeframe.</p>
 </div>
-<div style="display: flex; flex-direction: column; gap: 8px">
-<label for="pair" style="font-size: 13px; font-weight: 700">Pair</label>
-<select id="pair" style="height: 42px; min-width: 170px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; font-size: 15px; font-weight: 600"><option>BTCUSDT</option><option>ETHUSDT</option><option>SOLUSDT</option></select>
+<div class="cf-rt-toolbar" role="group" aria-label="Realtime setup">
+<div class="cf-rt-zone cf-rt-config" role="group" aria-label="Configuration">
+<div class="cf-rt-field">
+<label for="pair" class="cf-rt-label">Pair</label>
+<select id="pair" class="cf-rt-select cf-rt-select-pair"><option>BTCUSDT</option><option>ETHUSDT</option><option>SOLUSDT</option></select>
 </div>
-<div style="display: flex; flex-direction: column; gap: 8px">
-<label for="sigsrc" style="font-size: 13px; font-weight: 700">Signals from</label>
-<select id="sigsrc" value="{{sigSrc}}" onChange="{{setSigSrc}}" style="height: 42px; min-width: 200px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; font-size: 15px"><sc-for list="{{sigOptions}}" as="o" hint-placeholder-count="3"><option value="{{o.value}}">{{o.label}}</option></sc-for></select>
-<sc-if value="{{sigMissing}}" hint-placeholder-val="{{false}}"><span role="status" style="max-width: 280px; font-size: 12px; line-height: 1.4; color: #F2B544">{{sigMissingText}}</span></sc-if>
-<div style="display: flex; flex-wrap: wrap; gap: 0 16px"><a href="Backtest.dc.html" onClick="{{handoff}}" style="display: inline-flex; align-items: center; min-height: 28px; font-size: 13px; font-weight: 600">Backtest this strategy</a><a href="Library.dc.html" style="display: inline-flex; align-items: center; min-height: 28px; font-size: 13px; font-weight: 600">Manage in library</a></div>
+<div class="cf-rt-field">
+<label for="sigsrc" class="cf-rt-label">Signals from</label>
+<select id="sigsrc" value="{{sigSrc}}" onChange="{{setSigSrc}}" class="cf-rt-select cf-rt-select-sig"><sc-for list="{{sigOptions}}" as="o" hint-placeholder-count="3"><option value="{{o.value}}">{{o.label}}</option></sc-for></select>
 </div>
-<div style="display: flex; flex-direction: column; gap: 8px">
-<span id="lbl-layout" style="font-size: 13px; font-weight: 700">Charts</span>
-<div role="group" aria-labelledby="lbl-layout" style="display: flex; border: 1px solid #3A4553; border-radius: 8px; overflow: hidden">
-<sc-for list="{{layouts}}" as="l" hint-placeholder-count="3"><button type="button" onClick="{{l.pick}}" aria-pressed="{{l.on}}" class="cf-ghost" style="min-width: 48px; height: 40px; border: 0; border-left: 1px solid #2F3945; font-size: 14px; font-weight: 600; cursor: pointer; background: {{l.bg}}; color: {{l.fg}}">{{l.label}}</button></sc-for>
+<div class="cf-rt-field">
+<span id="lbl-layout" class="cf-rt-label">Charts</span>
+<div role="group" aria-labelledby="lbl-layout" class="cf-rt-charts">
+<sc-for list="{{layouts}}" as="l" hint-placeholder-count="3"><button type="button" onClick="{{l.pick}}" aria-pressed="{{l.on}}" class="cf-ghost" style="background: {{l.bg}}; color: {{l.fg}}">{{l.label}}</button></sc-for>
 </div>
 </div>
-<div style="display: flex; align-items: center; gap: 12px; min-height: 42px">
-<button type="button" role="switch" aria-checked="{{live}}" aria-labelledby="lbl-live" onClick="{{toggleLive}}" class="cf-sec" style="width: 52px; height: 36px; border-radius: 999px; border: 1px solid #3A4553; padding: 2px; cursor: pointer; display: flex; justify-content: {{knob}}; background: {{switchBg}}"><span style="width: 24px; height: 24px; border-radius: 50%; background: {{knobBg}}"></span></button>
-<span id="lbl-live" style="display: flex; flex-direction: column; line-height: 1.25"><strong style="font-size: 14px; font-weight: 700">Live updates (demo)</strong><span style="font-size: 13px; color: {{liveColor}}">{{liveText}}</span></span>
-<button type="button" onClick="{{simLoss}}" class="cf-ghost" style="min-height: 36px; padding: 0 8px; border: 0; border-radius: 8px; background: none; color: #9AA6B4; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Preview connection loss</button>
+</div>
+<div class="cf-rt-zone cf-rt-status" role="group" aria-label="Realtime status">
+<span class="cf-rt-zone-title">Realtime</span>
+<div class="cf-rt-status-row">
+<button type="button" role="switch" aria-checked="{{live}}" aria-labelledby="lbl-live" onClick="{{toggleLive}}" class="cf-sec cf-rt-toggle" style="justify-content: {{knob}}; background: {{switchBg}}"><span class="cf-rt-knob" style="background: {{knobBg}}"></span></button>
+<span id="lbl-live" class="cf-rt-text"><strong style="font-size: 14px; font-weight: 700">Live updates (demo)</strong><span style="font-size: 13px; color: {{liveColor}}">{{liveText}}</span></span>
+<button type="button" onClick="{{simLoss}}" class="cf-ghost cf-rt-preview">Preview connection loss</button>
+</div>
+</div>
+<div class="cf-rt-zone cf-rt-actions" role="group" aria-label="Strategy actions">
+<span class="cf-rt-zone-title cf-rt-actions-title" title="Actions for {{sigSrc}}">Actions for {{sigSrc}}</span>
+<div class="cf-rt-action-row">
+<a href="Backtest.dc.html" onClick="{{handoff}}" class="cf-pri cf-rt-action cf-rt-action-pri">Backtest this strategy</a>
+<a href="Library.dc.html" class="cf-sec cf-rt-action cf-rt-action-sec">Manage in library</a>
+</div>
+</div>
+<sc-if value="{{sigMissing}}" hint-placeholder-val="{{false}}"><p role="status" class="cf-rt-toolbar-note">{{sigMissingText}}</p></sc-if>
 </div>
 </div>
 
