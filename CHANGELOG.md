@@ -11,6 +11,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 - Các skill trong `.claude/`: `commit`, `commit-push`, `lesson-manager`.
 - Design board `docs/design/UI.html` (Crypto Force – Workspace Review) gồm 11 board, tự chứa CSS, JavaScript và font nên mở trực tiếp bằng trình duyệt.
 - Tài liệu `docs/requirements/project-brief.md` ghi bài toán gốc, mục tiêu, các module và yêu cầu kiến trúc của Crypto Force; tham chiếu trong `docs/requirements/README.md` và `docs/CONTRIBUTING.md`.
+- Thư mục `docs/design/reqs-from-ui/` mô tả hành vi sản phẩm theo UI cho từng nhóm màn hình (workspace, strategy engine, backtest, discovery, realtime, news, settings, authentication, public pages) với nhãn `Confirmed`/`Inferred`/`Proposed` và mục **Cần chốt**.
 
 ### Changed
 - Tách authoring conventions khỏi reader-facing content: tạo `docs/CONTRIBUTING.md` làm Single Source of Truth cho quy tắc viết và maintain tài liệu; `docs/README.md` và `docs/architecture/README.md` còn lại phục vụ người đọc.

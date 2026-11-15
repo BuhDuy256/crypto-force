@@ -7,6 +7,7 @@ Thư mục chứa các tài liệu tham khảo UI/UX của Crypto Force, giúp �
 | File | Subject |
 | --- | --- |
 | [Crypto Force UI.html](Crypto%20Force%20UI.html) | Design board "Crypto Force – Workspace Review" gồm 11 màn hình |
+| [reqs-from-ui/](reqs-from-ui/README.md) | Hành vi sản phẩm theo UI: tác vụ, chuyển màn hình, thay đổi dữ liệu và các điểm **Cần chốt** |
 
 ## Crypto Force UI.html
 
