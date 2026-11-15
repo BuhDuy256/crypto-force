@@ -14,6 +14,8 @@
 <script src="../vendor/react/react-dom.production.min.js"></script>
 <script src="../tools/dc-source.js"></script>
 <script src="../vendor/dc-runtime/support.js"></script>
+<script src="../tools/dc-lifecycle.js"></script>
+<script src="../tools/modal-focus.js"></script>
 
 </head>
 <body>
@@ -23,6 +25,9 @@
 <link rel="stylesheet" href="../styles/layout-audit.css">
 <style id="cf-audit-layout-fixes">
 /* Landing: keep conversion action before the dashboard illustration. */
+/* Full-bleed sections and the footer share the 1360px content edge with the other sections. */
+#evidence > div, #limits > div, footer > div {box-sizing:border-box;}
+footer nav a {display:inline-flex;align-items:center;min-height:28px;}
 @media(max-width:930px){
  main > section:first-of-type {padding:36px 24px 40px !important;}
  main > section:first-of-type > div {gap:28px !important;}
@@ -91,7 +96,7 @@
 </sc-for>
 </div>
 <a href="{{ideaHref}}" onClick="{{keepIdea}}" class="cf-pri" style="align-self: flex-start; display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 24px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 700; text-decoration: none">Backtest this idea<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
-<span style="font-size: 13px; color: #9AA6B4">Sign up to continue. This description is kept in this browser while you complete the flow.</span>
+<span style="font-size: 13px; color: #9AA6B4">{{ideaNote}}</span>
 </form>
 <dl style="margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 14px">
 <dt style="color: #9AA6B4">Pairs</dt><dd style="margin: 0">BTCUSDT, ETHUSDT, SOLUSDT (examples)</dd>
@@ -105,21 +110,21 @@
 <figure style="margin: 0; border: 1px solid #2F3945; border-radius: 14px; background: #12171E; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.35)">
 <div aria-hidden="true" style="display: flex; align-items: center; gap: 20px; padding: 0 20px; min-height: 46px; border-bottom: 1px solid #232B35; font-size: 13px; color: #9AA6B4; overflow-x: auto; white-space: nowrap">
 <span style="display: flex; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 50%; background: #333D4A"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #333D4A"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #333D4A"></span></span>
-<span>Realtime</span><span>Strategy Engine</span><span>Discovery</span><span style="color: #E7ECF2; font-weight: 600; padding: 12px 0 12px; border-bottom: 2px solid #7AA2FF">Backtest</span><span>News</span></div>
+<span style="color: #C3CCD6; font-weight: 600">Backtest result</span><span style="margin-left: auto; padding: 2px 8px; border: 1px solid #333D4A; border-radius: 6px; font-size: 12px">Example</span></div>
 <div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 16px">
-<div style="font-size: 15px; font-weight: 600">MA Crossover · BTCUSDT 5m · 01/05 – 15/05/2025</div>
+<div style="font-size: 15px; font-weight: 600">MA Crossover · BTCUSDT 5m · 01 May – 15 May 2025</div>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px">
 <div style="padding: 12px 16px; border: 1px solid #232B35; border-radius: 10px; background: #151A21"><div style="font-size: 13px; color: #9AA6B4">Net return</div><div style="font-size: 26px; font-weight: 600; color: #3DD68C">+8.42%</div></div>
 <div style="padding: 12px 16px; border: 1px solid #232B35; border-radius: 10px; background: #151A21"><div style="font-size: 13px; color: #9AA6B4">Max drawdown</div><div style="font-size: 26px; font-weight: 600; color: #FF6B5E">−3.03%</div></div>
 <div style="padding: 12px 16px; border: 1px solid #232B35; border-radius: 10px; background: #151A21"><div style="font-size: 13px; color: #9AA6B4">Win rate</div><div style="font-size: 26px; font-weight: 600">61.80%</div><div style="font-size: 12px; color: #9AA6B4">110 of 178 trades</div></div>
 <div style="padding: 12px 16px; border: 1px solid #232B35; border-radius: 10px; background: #151A21; display: flex; flex-direction: column; gap: 12px"><div style="font-size: 13px; color: #9AA6B4">Return vs. max drawdown</div><div role="img" aria-label="Worst drop −3.03%, return +8.42%" style="position: relative; height: 18px"><span style="position: absolute; left: 0; right: 0; top: 8px; border-top: 1px solid #333D4A"></span><span style="position: absolute; left: 33.3%; top: 0; height: 18px; border-left: 1.5px solid #E7ECF2"></span><span style="position: absolute; top: 6px; height: 6px; left: 11.9%; width: 21.4%; background: #FF6B5E"></span><span style="position: absolute; top: 6px; height: 6px; left: 33.3%; width: 56.1%; background: #3DD68C"></span></div></div>
 </div>
-<div style="overflow-x: auto"><table style="width: 100%; min-width: 620px; border-collapse: collapse; font-size: 13px">
+<div class="cf-scroll-x" tabindex="0" role="region" aria-label="Example trades" style="overflow-x: auto"><table style="width: 100%; min-width: 620px; border-collapse: collapse; font-size: 13px">
 <thead><tr style="border-bottom: 1px solid #2F3945; color: #9AA6B4; text-align: right"><th style="text-align: left; font-weight: 600; padding: 8px 0">Opened</th><th style="text-align: left; font-weight: 600">Side</th><th style="font-weight: 600">Entry</th><th style="font-weight: 600">Exit</th><th style="font-weight: 600">Fee</th><th style="font-weight: 600">Slip.</th><th style="font-weight: 600">P/L (USD)</th></tr></thead>
 <tbody>
-<tr style="border-bottom: 1px solid #232B35; text-align: right"><td style="text-align: left; padding: 8px 0">01/05 06:15</td><td style="text-align: left; color: #3DD68C; font-weight: 600">LONG</td><td>68,120.50</td><td>69,050.80</td><td style="color: #9AA6B4">−0.05</td><td style="color: #9AA6B4">−0.03</td><td style="color: #3DD68C; font-weight: 600">+0.83</td></tr>
-<tr style="border-bottom: 1px solid #232B35; text-align: right"><td style="text-align: left; padding: 8px 0">01/05 09:40</td><td style="text-align: left; color: #FF6B5E; font-weight: 600">SHORT</td><td>69,450.20</td><td>68,430.10</td><td style="color: #9AA6B4">−0.05</td><td style="color: #9AA6B4">−0.03</td><td style="color: #3DD68C; font-weight: 600">+0.87</td></tr>
-<tr style="text-align: right"><td style="text-align: left; padding: 8px 0">01/05 12:25</td><td style="text-align: left; color: #3DD68C; font-weight: 600">LONG</td><td>68,600.10</td><td>67,980.00</td><td style="color: #9AA6B4">−0.05</td><td style="color: #9AA6B4">−0.03</td><td style="color: #FF6B5E; font-weight: 600">−0.67</td></tr>
+<tr style="border-bottom: 1px solid #232B35; text-align: right"><td style="text-align: left; padding: 8px 0">01 May, 06:15</td><td style="text-align: left; color: #3DD68C; font-weight: 600">LONG</td><td>68,120.50</td><td>69,050.80</td><td style="color: #9AA6B4">−0.05</td><td style="color: #9AA6B4">−0.03</td><td style="color: #3DD68C; font-weight: 600">+0.83</td></tr>
+<tr style="border-bottom: 1px solid #232B35; text-align: right"><td style="text-align: left; padding: 8px 0">01 May, 09:40</td><td style="text-align: left; color: #FF6B5E; font-weight: 600">SHORT</td><td>69,450.20</td><td>68,430.10</td><td style="color: #9AA6B4">−0.05</td><td style="color: #9AA6B4">−0.03</td><td style="color: #3DD68C; font-weight: 600">+0.87</td></tr>
+<tr style="text-align: right"><td style="text-align: left; padding: 8px 0">01 May, 12:25</td><td style="text-align: left; color: #3DD68C; font-weight: 600">LONG</td><td>68,600.10</td><td>67,980.00</td><td style="color: #9AA6B4">−0.05</td><td style="color: #9AA6B4">−0.03</td><td style="color: #FF6B5E; font-weight: 600">−0.67</td></tr>
 </tbody></table></div>
 </div>
 <figcaption style="padding: 12px 24px; border-top: 1px solid #232B35; font-size: 13px; color: #9AA6B4">Illustrative backtest preview for BTCUSDT. Values are examples, not verified trading results or a forecast.</figcaption>
@@ -165,7 +170,7 @@
 <section id="loop" style="max-width: 1360px; margin: 0 auto; padding: 56px 32px">
 <h2 style="margin: 0 0 8px; font-size: clamp(30px, 4vw, 40px); line-height: 1.08; font-weight: 600; letter-spacing: -0.03em">One loop, from chart to candidate.</h2>
 <p style="margin: 0 0 24px; font-size: 17px; line-height: 1.55; max-width: 60ch; color: #C3CCD6">Each step answers the question the last one raised. Discovery keeps the loop running for you and hands back the strategies worth a closer look.</p>
-<div style="overflow-x: auto">
+<div tabindex="0" role="region" aria-label="How the loop works" style="overflow-x: auto">
 <table style="width: 100%; min-width: 760px; border-collapse: collapse">
 <thead><tr style="border-top: 1px solid #2F3945; border-bottom: 1px solid #2F3945; font-size: 13px; color: #9AA6B4; text-align: left"><th style="font-weight: 600; padding: 12px 0; width: 18%">Step</th><th style="font-weight: 600; width: 32%">The question</th><th style="font-weight: 600">What you get</th></tr></thead>
 <tbody>
@@ -202,8 +207,9 @@
 <li style="padding: 16px 0; border-top: 1px solid #2F3945; border-bottom: 1px solid #2F3945; font-size: 17px; line-height: 1.5"><strong style="font-weight: 700">It doesn't hide costs.</strong> Review the fee, slippage and data assumptions behind each backtest before comparing results.</li>
 </ul>
 <div style="flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 16px">
-<a href="Auth.dc.html" class="cf-pri" style="display: flex; align-items: center; min-height: 50px; padding: 0 24px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 700; text-decoration: none">Create account</a>
-<a href="Auth.dc.html" style="color: #A9C1FF; font-size: 15px; font-weight: 600">I already have an account</a>
+<sc-if value="{{signedOut}}" hint-placeholder-val="{{true}}"><a href="Auth.dc.html" class="cf-pri" style="display: flex; align-items: center; min-height: 50px; padding: 0 24px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 700; text-decoration: none">Create account</a>
+<a href="Auth.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; color: #A9C1FF; font-size: 15px; font-weight: 600">I already have an account</a></sc-if>
+<sc-if value="{{signedIn}}" hint-placeholder-val="{{false}}"><a href="Realtime.dc.html" class="cf-pri" style="display: flex; align-items: center; min-height: 50px; padding: 0 24px; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 16px; font-weight: 700; text-decoration: none">Open workspace</a></sc-if>
 </div>
 </div>
 </section>
@@ -215,10 +221,10 @@
 <a href="Main.dc.html" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; color: #E7ECF2; text-decoration: none; font-size: 20px; font-weight: 600; letter-spacing: -0.03em"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x=".5" y=".5" width="29" height="29" rx="8" fill="#151A21" stroke="#2F3945"></rect><path d="M8 13.5l7-7 7 7z" fill="#3DD68C"></path><path d="M8 16.5l7 7 7-7z" fill="#E7ECF2"></path></svg>Crypto Force</a>
 <p style="margin: 0; font-size: 14px; line-height: 1.55; color: #9AA6B4; max-width: 36ch">Strategy research for crypto traders. Analysis and simulation only; Crypto Force never places orders.</p>
 </div>
-<nav aria-label="Product" style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 12px; font-size: 14px"><h2 style="margin: 0 0 4px; font-size: 17px; font-weight: 600; color: #E7ECF2">Product</h2><a href="#product" style="color: #E7ECF2; text-decoration: none">Backtest</a><a href="#loop" style="color: #E7ECF2; text-decoration: none">How it works</a><a href="#evidence" style="color: #E7ECF2; text-decoration: none">Return vs. risk</a><a href="Auth.dc.html" style="color: #E7ECF2; text-decoration: none">Create account</a></nav>
-<nav aria-label="Resources" style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 12px; font-size: 14px"><h2 style="margin: 0 0 4px; font-size: 17px; font-weight: 600; color: #E7ECF2">Resources</h2><a href="#faq" style="color: #E7ECF2; text-decoration: none">FAQ</a><a href="#" style="color: #E7ECF2; text-decoration: none">Documentation (planned)</a><a href="#" style="color: #E7ECF2; text-decoration: none">System status (planned)</a></nav>
-<nav aria-label="Legal" style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 12px; font-size: 14px"><h2 style="margin: 0 0 4px; font-size: 17px; font-weight: 600; color: #E7ECF2">Legal</h2><a href="#" style="color: #E7ECF2; text-decoration: none">Terms of Service</a><a href="#" style="color: #E7ECF2; text-decoration: none">Privacy Policy</a><a href="#" style="color: #E7ECF2; text-decoration: none">Risk disclosure</a></nav>
-<nav aria-label="Contact" style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 12px; font-size: 14px"><h2 style="margin: 0 0 4px; font-size: 17px; font-weight: 600; color: #E7ECF2">Contact</h2><a href="#" style="color: #E7ECF2; text-decoration: none">Support contact: not configured</a><a href="#" style="color: #E7ECF2; text-decoration: none">Social link: not configured</a></nav>
+<nav aria-label="Product" style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 4px; font-size: 14px"><h2 style="margin: 0 0 4px; font-size: 17px; font-weight: 600; color: #E7ECF2">Product</h2><a href="#product" style="color: #E7ECF2; text-decoration: none">Backtest</a><a href="#loop" style="color: #E7ECF2; text-decoration: none">How it works</a><a href="#evidence" style="color: #E7ECF2; text-decoration: none">Return vs. risk</a><a href="Auth.dc.html" style="color: #E7ECF2; text-decoration: none">Create account</a></nav>
+<nav aria-label="Resources" style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 4px; font-size: 14px"><h2 style="margin: 0 0 4px; font-size: 17px; font-weight: 600; color: #E7ECF2">Resources</h2><a href="#faq" style="color: #E7ECF2; text-decoration: none">FAQ</a><a href="#" style="color: #E7ECF2; text-decoration: none">Documentation (planned)</a><a href="#" style="color: #E7ECF2; text-decoration: none">System status (planned)</a></nav>
+<nav aria-label="Legal" style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 4px; font-size: 14px"><h2 style="margin: 0 0 4px; font-size: 17px; font-weight: 600; color: #E7ECF2">Legal</h2><a href="#" style="color: #E7ECF2; text-decoration: none">Terms of Service</a><a href="#" style="color: #E7ECF2; text-decoration: none">Privacy Policy</a><a href="#" style="color: #E7ECF2; text-decoration: none">Risk disclosure</a></nav>
+<nav aria-label="Contact" style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 4px; font-size: 14px"><h2 style="margin: 0 0 4px; font-size: 17px; font-weight: 600; color: #E7ECF2">Contact</h2><a href="#" style="color: #E7ECF2; text-decoration: none">Support contact: not configured</a><a href="#" style="color: #E7ECF2; text-decoration: none">Social link: not configured</a></nav>
 </div>
 <div style="max-width: 1360px; margin: 0 auto; padding: 20px 32px 28px; border-top: 1px solid #232B35; display: flex; flex-wrap: wrap; gap: 12px 24px; font-size: 13px; line-height: 1.55; color: #9AA6B4">
 <span>© Crypto Force</span><span>Market data: Binance API + WebSocket</span>
@@ -255,6 +261,7 @@ class Component extends DCLogic {
       setMenuBtn: function (el) { self._menuBtn = el; },
       drawerKey: function (e) { if (e.key === 'Escape') { self.setState({ menu: false }); if (self._menuBtn) self._menuBtn.focus(); } },
       ideaHref: signedIn ? 'Strategy.dc.html' : 'Auth.dc.html',
+      ideaNote: signedIn ? 'Opens Strategy Engine with this description so you can review the rules before backtesting.' : 'Sign up to continue. This description is kept in this browser while you complete the flow.',
       signedIn: signedIn, signedOut: !signedIn, flash: self.state.flash, dismissFlash: function () { self.setState({ flash: '' }); },
       keepIdea: function () { var t = (self.state.idea || '').trim(); try { if (t) window.localStorage.setItem('cf.idea', JSON.stringify(t)); if (!signedIn) window.localStorage.setItem('cf.next', JSON.stringify({ href: 'Strategy.dc.html', label: 'Strategy Engine', why: t ? 'idea' : 'page' })); } catch (e) {} },
       faq: [

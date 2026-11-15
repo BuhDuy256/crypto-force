@@ -8,16 +8,19 @@ Settings có năm phần: Profile, Sign-in & security, Connected accounts, Notif
 
 Profile gồm ảnh đại diện, Full name, Email, Time zone, và nhóm research defaults (Pair, Timeframe, Capital, Fee, Slippage).
 
-1. Người dùng sửa thông tin. Khi Full name khác với giá trị đã lưu, cạnh nút lưu hiện "Unsaved changes" và nút **Discard** (đưa tên về giá trị đã lưu).
-2. **Save changes**:
-   - Full name trống: toast lỗi, không lưu.
-   - Hợp lệ: lưu tên vào phiên, hiện "Saved". Tên mới và chữ viết tắt trên avatar được cập nhật ở App header và ở Settings.
+1. Người dùng sửa thông tin. Profile có thay đổi chưa lưu khi Full name, Time zone hoặc một trong các research defaults khác với giá trị đã lưu. Khi đó, cạnh nút lưu hiện "Unsaved changes" và nút **Discard**.
+2. **Discard** đưa mọi trường của Profile về giá trị đã lưu.
+3. **Save changes**:
+   - Full name trống: báo lỗi ngay dưới trường Full name, chuyển focus vào trường đó, không lưu.
+   - Hợp lệ: lưu tên vào phiên, lưu Time zone và research defaults, hiện "Saved" và xóa trạng thái chưa lưu. Tên mới và chữ viết tắt trên avatar được cập nhật ở App header và ở Settings.
 
-Trong lúc còn thay đổi chưa lưu ở Full name hoặc ở phần đổi password:
+Research defaults chỉ được lưu khi người dùng chọn Save changes, không tự lưu.
+
+Trong lúc Profile hoặc phần đổi password còn thay đổi chưa lưu:
 
 - Bấm link ra khỏi Settings trong App header sẽ mở hộp thoại "Leave without saving?" ([workspace.md](workspace.md#rời-trang-khi-còn-thay-đổi-chưa-lưu)).
-- Đóng hoặc tải lại tab trình duyệt sẽ hiện cảnh báo của trình duyệt.
-- Full name chưa lưu được giữ lại. Khi quay lại Settings, tên đó được khôi phục kèm ghi chú nhắc lưu hoặc bỏ.
+- Đóng tab, tải lại trang hoặc dùng nút Back/Forward của trình duyệt sẽ hiện cảnh báo của trình duyệt.
+- Full name chưa lưu được giữ lại. Khi quay lại Settings, tên đó được khôi phục kèm ghi chú nhắc lưu hoặc bỏ. Các trường khác của Profile không được giữ lại dưới dạng nháp.
 
 Password không bao giờ được lưu lại dưới dạng nháp.
 
@@ -32,6 +35,7 @@ Gồm Current password, New password và Confirm new password.
 | New password dưới 8 ký tự | Báo lỗi ngay khi gõ |
 | Confirm không khớp | Báo lỗi ngay khi gõ |
 | Bấm Update password khi thiếu Current password | "Enter your current password." |
+| Bấm Update password khi còn lỗi | Focus chuyển tới trường lỗi đầu tiên |
 | Hợp lệ | Xóa nội dung ba trường và báo đã cập nhật (trong prototype không đổi password thật) |
 
 ## Quản lý thiết bị đăng nhập

@@ -9,6 +9,8 @@
 <script src="../vendor/react/react-dom.production.min.js"></script>
 <script src="../tools/dc-source.js"></script>
 <script src="../vendor/dc-runtime/support.js"></script>
+<script src="../tools/dc-lifecycle.js"></script>
+<script src="../tools/modal-focus.js"></script>
 
 </head>
 <body>
@@ -33,7 +35,7 @@
 </helmet>
 <div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums">
 <div style="position: sticky; top: 0; z-index: 30"><dc-import name="AppHeader" active="settings" hint-size="100%,61px"></dc-import></div>
-<main class="cf-audited-main cf-settings-layout" style="max-width: 1180px; margin: 0 auto; padding: 24px 28px 56px; display: flex; flex-direction: column; gap: 24px">
+<main class="cf-audited-main cf-settings-layout" id="main" tabindex="-1" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 56px; display: flex; flex-direction: column; gap: 24px">
 <div role="note" style="border:1px solid #334155;border-radius:7px;padding:8px 12px;background:#111923;color:#AFC2D6;font-size:12px;line-height:1.4;max-width:100%;box-sizing:border-box">UI prototype: prices, backtests, news, account state and workflow feedback are illustrative. No live market, AI or account service is connected in this HTML file.</div>
 <div style="display: flex; flex-direction: column; gap: 4px">
 <h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.03em">Settings</h1>
@@ -44,25 +46,25 @@
 <sc-for list="{{sections}}" as="s" hint-placeholder-count="5"><a href="{{s.href}}" class="cf-ghost" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; color: {{s.c}}; text-decoration: none; font-size: 15px; font-weight: 400">{{s.label}}</a></sc-for>
 </nav>
 
-<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<div style="flex: 999 1 560px; min-width: 0; max-width: 900px; display: flex; flex-direction: column; gap: 20px">
 
 <section id="profile" aria-labelledby="h-profile" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px">
 <h2 id="h-profile" style="margin: 0; font-size: 17px; font-weight: 600">Profile</h2>
 <sc-if value="{{draftNote}}" hint-placeholder-val="{{false}}"><p role="status" style="margin: 0; padding: 10px 12px; border: 1px solid #5A4520; border-radius: 8px; background: #1F1A10; font-size: 14px; line-height: 1.5; color: #F2D28B">{{draftNote}}</p></sc-if>
 <div style="display: flex; align-items: center; gap: 16px"><span style="width: 56px; height: 56px; border-radius: 50%; background: #E7ECF2; color: #0B0E12; font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{initials}}</span><label class="cf-sec" style="position: relative; display: inline-flex; align-items: center; min-height: 38px; padding: 0 16px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Change photo<input type="file" accept="image/*" onChange="{{pickPhoto}}" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer"></label></div>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
-<div style="display: flex; flex-direction: column; gap: 8px"><label for="p-name" style="font-size: 13px; font-weight: 600">Full name</label><input id="p-name" type="text" autocomplete="name" value="{{name}}" onChange="{{setName}}" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="p-name" style="font-size: 13px; font-weight: 600">Full name</label><input id="p-name" type="text" autocomplete="name" value="{{name}}" onChange="{{setName}}" aria-invalid="{{nameInv}}" aria-describedby="p-name-err" style="height: 42px; padding: 0 12px; border: 1px solid {{nameBd}}; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"><sc-if value="{{nameErr}}" hint-placeholder-val="{{false}}"><span id="p-name-err" style="font-size: 13px; color: #FF6B5E">{{nameErr}}</span></sc-if></div>
 <div style="display: flex; flex-direction: column; gap: 8px"><label for="p-email" style="font-size: 13px; font-weight: 600">Email</label><div style="display: flex; align-items: center; gap: 8px; height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A"><input id="p-email" type="email" value="student@example.com" style="flex: 1; min-width: 0; border: 0; background: none; color: #E7ECF2; font-size: 15px"><span style="font-size: 12px; font-weight: 600; color: #3DD68C">Verified</span></div></div>
-<div style="display: flex; flex-direction: column; gap: 8px"><label for="p-tz" style="font-size: 13px; font-weight: 600">Time zone</label><select id="p-tz" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"><option>Asia/Ho_Chi_Minh (UTC+7)</option><option>UTC</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="p-tz" style="font-size: 13px; font-weight: 600">Time zone</label><select id="p-tz" value="{{f.tz}}" onChange="{{on.tz}}" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"><option>Asia/Ho_Chi_Minh (UTC+7)</option><option>UTC</option></select></div>
 </div>
 <h3 style="margin: 4px 0 0; font-size: 15px; font-weight: 600">Research defaults</h3>
 <p style="margin: -8px 0 0; font-size: 14px; color: #9AA6B4">Used to pre-fill Realtime and Backtest. You can still change them per run.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px">
-<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-pair" style="font-size: 13px; font-weight: 600">Pair</label><select id="d-pair" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"><option>BTCUSDT</option><option>ETHUSDT</option><option>SOLUSDT</option></select></div>
-<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-tf" style="font-size: 13px; font-weight: 600">Timeframe</label><select id="d-tf" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"><option>1m</option><option>5m</option><option selected="">15m</option><option>1h</option><option>4h</option></select></div>
-<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-cap" style="font-size: 13px; font-weight: 600">Capital (USD)</label><input id="d-cap" type="text" inputmode="decimal" value="100" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
-<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-fee" style="font-size: 13px; font-weight: 600">Fee (%)</label><input id="d-fee" type="text" inputmode="decimal" value="0.08" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
-<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-slip" style="font-size: 13px; font-weight: 600">Slippage (bps)</label><input id="d-slip" type="text" inputmode="numeric" value="5" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-pair" style="font-size: 13px; font-weight: 600">Pair</label><select id="d-pair" value="{{f.pair}}" onChange="{{on.pair}}" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"><option>BTCUSDT</option><option>ETHUSDT</option><option>SOLUSDT</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-tf" style="font-size: 13px; font-weight: 600">Timeframe</label><select id="d-tf" value="{{f.tf}}" onChange="{{on.tf}}" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"><option>1m</option><option>5m</option><option>15m</option><option>1h</option><option>4h</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-cap" style="font-size: 13px; font-weight: 600">Capital (USD)</label><input id="d-cap" type="text" inputmode="decimal" value="{{f.cap}}" onChange="{{on.cap}}" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-fee" style="font-size: 13px; font-weight: 600">Fee (%)</label><input id="d-fee" type="text" inputmode="decimal" value="{{f.fee}}" onChange="{{on.fee}}" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="d-slip" style="font-size: 13px; font-weight: 600">Slippage (bps)</label><input id="d-slip" type="text" inputmode="numeric" value="{{f.slip}}" onChange="{{on.slip}}" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
 </div>
 <div style="display: flex; align-items: center; gap: 12px"><button type="button" onClick="{{saveProfile}}" class="cf-pri" style="min-height: 42px; padding: 0 20px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 15px; font-weight: 600; cursor: pointer">Save changes</button><sc-if value="{{profileSaved}}" hint-placeholder-val="{{false}}"><span role="status" style="font-size: 14px; color: #3DD68C">Saved</span></sc-if><sc-if value="{{profileDirty}}" hint-placeholder-val="{{false}}"><span role="status" style="font-size: 14px; color: #F2B544">Unsaved changes</span><button type="button" onClick="{{discardProfile}}" class="cf-ghost" style="min-height: 40px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Discard</button></sc-if></div>
 </section>
@@ -71,9 +73,9 @@
 <h2 id="h-sec" style="margin: 0; font-size: 17px; font-weight: 600">Sign-in &amp; security</h2>
 <h3 style="margin: 0; font-size: 15px; font-weight: 600">Change password</h3>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
-<div style="display: flex; flex-direction: column; gap: 8px"><label for="pw-cur" style="font-size: 13px; font-weight: 600">Current password</label><input id="pw-cur" type="password" autocomplete="current-password" value="{{pwCur}}" onChange="{{setPwCur}}" style="height: 42px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
-<div style="display: flex; flex-direction: column; gap: 8px"><label for="pw-new" style="font-size: 13px; font-weight: 600">New password</label><input id="pw-new" type="password" autocomplete="new-password" value="{{pwNew}}" onChange="{{setPwNew}}" aria-describedby="pw-msg" style="height: 42px; padding: 0 12px; border: 1px solid {{pwNewBd}}; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
-<div style="display: flex; flex-direction: column; gap: 8px"><label for="pw-conf" style="font-size: 13px; font-weight: 600">Confirm new password</label><input id="pw-conf" type="password" autocomplete="new-password" value="{{pwConf}}" onChange="{{setPwConf}}" aria-describedby="pw-msg" style="height: 42px; padding: 0 12px; border: 1px solid {{pwConfBd}}; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="pw-cur" style="font-size: 13px; font-weight: 600">Current password</label><input id="pw-cur" type="password" autocomplete="current-password" value="{{pwCur}}" onChange="{{setPwCur}}" aria-invalid="{{pwCurInv}}" aria-describedby="pw-msg" style="height: 42px; padding: 0 12px; border: 1px solid {{pwCurBd}}; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="pw-new" style="font-size: 13px; font-weight: 600">New password</label><input id="pw-new" type="password" autocomplete="new-password" value="{{pwNew}}" onChange="{{setPwNew}}" aria-invalid="{{pwNewInv}}" aria-describedby="pw-msg" style="height: 42px; padding: 0 12px; border: 1px solid {{pwNewBd}}; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><label for="pw-conf" style="font-size: 13px; font-weight: 600">Confirm new password</label><input id="pw-conf" type="password" autocomplete="new-password" value="{{pwConf}}" onChange="{{setPwConf}}" aria-invalid="{{pwConfInv}}" aria-describedby="pw-msg" style="height: 42px; padding: 0 12px; border: 1px solid {{pwConfBd}}; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"></div>
 </div>
 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px"><button type="button" onClick="{{savePw}}" class="cf-pri" style="min-height: 42px; padding: 0 20px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 15px; font-weight: 600; cursor: pointer">Update password</button><span id="pw-msg" role="status" style="font-size: 14px; color: {{pwMsgC}}">{{pwMsg}}</span></div>
 <h3 style="margin: 8px 0 0; font-size: 15px; font-weight: 600">Signed-in devices</h3>
@@ -101,8 +103,8 @@
 <thead><tr style="border-bottom: 1px solid #2F3945; color: #9AA6B4; font-size: 13px"><th style="text-align: left; font-weight: 600; padding: 8px 0">Notify me when</th><th style="font-weight: 600; width: 90px">In app</th><th style="font-weight: 600; width: 90px">Email</th></tr></thead>
 <tbody>
 <sc-for list="{{prefs}}" as="p" hint-placeholder-count="5"><tr style="border-bottom: 1px solid #232B35"><td style="padding: 12px 0">{{p.label}}</td>
-<td style="text-align: center"><input type="checkbox" checked="{{p.app}}" onChange="{{p.toggleApp}}" aria-label="{{p.label}}, in app" style="width: 18px; height: 18px"></td>
-<td style="text-align: center"><input type="checkbox" checked="{{p.mail}}" onChange="{{p.toggleMail}}" aria-label="{{p.label}}, email" style="width: 18px; height: 18px"></td></tr></sc-for>
+<td style="text-align: center"><label style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; cursor: pointer"><input type="checkbox" checked="{{p.app}}" onChange="{{p.toggleApp}}" aria-label="{{p.label}}, in app" style="width: 20px; height: 20px; margin: 0"></label></td>
+<td style="text-align: center"><label style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; cursor: pointer"><input type="checkbox" checked="{{p.mail}}" onChange="{{p.toggleMail}}" aria-label="{{p.label}}, email" style="width: 20px; height: 20px; margin: 0"></label></td></tr></sc-for>
 </tbody>
 </table>
 </div>
@@ -129,7 +131,7 @@
 </main>
 <div aria-live="polite" style="position: fixed; right: 20px; bottom: 20px; z-index: 60; max-width: calc(100vw - 40px)">
 <sc-if value="{{toastShow}}" hint-placeholder-val="{{false}}">
-<div class="cf-toast" role="status" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
+<div class="cf-toast" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
 <sc-if value="{{toastOk}}" hint-placeholder-val="{{true}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DD68C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></sc-if>
 <sc-if value="{{toastErr}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B5E" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.5"></path></svg></sc-if>
 <span style="flex: 1; font-size: 14px; line-height: 1.45">{{toastText}}</span>
@@ -147,7 +149,9 @@ class Component extends DCLogic {
   constructor(props) {
     super(props);
     var ses0 = this.store('session'), nm0 = (ses0 && ses0.name) || 'Nguyen Minh', dr0 = this.store('draftSettings');
-    this.state = { name: dr0 && dr0.name ? dr0.name : nm0, savedName: nm0, draftNote: dr0 && dr0.name && dr0.name !== nm0 ? 'Restored a name you hadn’t saved yet (from ' + dr0.at + '). Save it or discard it below.' : '', profileSaved: false, pwCur: '', pwNew: '', pwConf: '', pwTried: false, pwDone: false, google: true, del: false, delText: '',
+    // Saved profile values; the form compares against these to decide whether there are unsaved changes.
+    var saved = Object.assign({ tz: 'Asia/Ho_Chi_Minh (UTC+7)', pair: 'BTCUSDT', tf: '15m', cap: '100', fee: '0.08', slip: '5' }, this.store('settings') || {});
+    this.state = { name: dr0 && dr0.name ? dr0.name : nm0, savedName: nm0, saved: saved, f: Object.assign({}, saved), nameErr: '', draftNote: dr0 && dr0.name && dr0.name !== nm0 ? 'Restored a name you hadn’t saved yet (from ' + dr0.at + '). Save it or discard it below.' : '', profileSaved: false, pwCur: '', pwNew: '', pwConf: '', pwTried: false, pwDone: false, google: true, del: false, delText: '',
       devices: [{ id: 1, name: 'Chrome on macOS', meta: 'Ho Chi Minh City · active now', current: true }, { id: 2, name: 'Safari on iPhone', meta: 'Ho Chi Minh City · 2 days ago', current: false }],
       prefs: [['Backtest finished', true, false], ['Discovery found a better candidate', true, true], ['Discovery session finished or failed', true, true], ['News crawl problems', true, false], ['Weekly research summary', false, true]] };
   }
@@ -164,20 +168,32 @@ class Component extends DCLogic {
     else pwMsg = 'At least 8 characters.';
     var canDel = st.delText === 'DELETE';
     var ids = ['profile', 'security', 'connected', 'notifications', 'data'], labels = ['Profile', 'Sign-in & security', 'Connected accounts', 'Notifications', 'Your data'];
+    function focusId(id) { setTimeout(function () { var el = document.getElementById(id); if (el) el.focus(); }, 0); }
+    var on = {};
+    ['tz', 'pair', 'tf', 'cap', 'fee', 'slip'].forEach(function (k) { on[k] = function (e) { var f = Object.assign({}, self.state.f); f[k] = e.target.value; self.setState({ f: f, profileSaved: false }); }; });
     return {
-      sections: ids.map(function (id, i) { return { href: '#' + id, label: labels[i], c: i === 4 ? '#FF8F85' : '#C3CCD6' }; }),
-      name: st.name, setName: set('name'), profileSaved: st.profileSaved,
+      sections: ids.map(function (id, i) { return { href: '#' + id, label: labels[i], c: '#C3CCD6' }; }),
+      name: st.name, setName: function (e) { self.setState({ name: e.target.value, nameErr: '', profileSaved: false }); }, profileSaved: st.profileSaved,
+      f: st.f, on: on,
+      nameErr: st.nameErr, nameInv: st.nameErr ? 'true' : 'false', nameBd: st.nameErr ? '#FF6B5E' : '#3A4553',
       initials: (st.savedName || '').split(/\s+/).filter(Boolean).map(function (w) { return w.charAt(0); }).slice(0, 2).join('').toUpperCase() || '?',
-      profileDirty: (st.name || '') !== (st.savedName || ''), draftNote: st.draftNote || '',
-      discardProfile: function () { self.setState({ name: self.state.savedName, draftNote: '' }); },
+      profileDirty: this.profileDirty(), draftNote: st.draftNote || '',
+      discardProfile: function () { self.setState({ name: self.state.savedName, f: Object.assign({}, self.state.saved), nameErr: '', draftNote: '' }); },
       saveProfile: function () {
-        var n = (self.state.name || '').trim(); if (!n) { self.toast('Enter your name before saving.', 'error'); return; }
+        var n = (self.state.name || '').trim(); if (!n) { self.setState({ nameErr: 'Enter your name before saving.' }); focusId('p-name'); return; }
         var s = self.store('session') || { state: 'in', email: 'student@example.com' }; s.name = n; if (!s.state) s.state = 'in'; if (!s.email) s.email = 'student@example.com'; self.store('session', s);
-        self.setState({ name: n, savedName: n, profileSaved: true, draftNote: '' }); self.toast('Demo: profile saved. Your name is updated across the app.');
+        var f = Object.assign({}, self.state.f); self.store('settings', f);
+        self.setState({ name: n, savedName: n, saved: f, f: Object.assign({}, f), profileSaved: true, nameErr: '', draftNote: '' }); self.toast('Demo: profile saved. Your name is updated across the app.');
       },
+      pwCurInv: st.pwTried && !st.pwCur ? 'true' : 'false', pwCurBd: st.pwTried && !st.pwCur ? '#FF6B5E' : '#3A4553',
+      pwNewInv: pwShort || (st.pwTried && st.pwNew.length < 8) ? 'true' : 'false', pwConfInv: mismatch || (st.pwTried && st.pwConf !== st.pwNew) ? 'true' : 'false',
       pwCur: st.pwCur, pwNew: st.pwNew, pwConf: st.pwConf, setPwCur: set('pwCur'), setPwNew: set('pwNew'), setPwConf: set('pwConf'),
       pwNewBd: pwShort ? '#FF6B5E' : '#3A4553', pwConfBd: mismatch ? '#FF6B5E' : '#3A4553', pwMsg: pwMsg, pwMsgC: pwMsgC,
-      savePw: function () { var ok = self.state.pwCur && self.state.pwNew.length >= 8 && self.state.pwNew === self.state.pwConf; self.setState(ok ? { pwDone: true, pwTried: false, pwCur: '', pwNew: '', pwConf: '' } : { pwTried: true }); },
+      savePw: function () {
+        var s = self.state, ok = s.pwCur && s.pwNew.length >= 8 && s.pwNew === s.pwConf;
+        self.setState(ok ? { pwDone: true, pwTried: false, pwCur: '', pwNew: '', pwConf: '' } : { pwTried: true });
+        if (!ok) focusId(!s.pwCur ? 'pw-cur' : (s.pwNew.length < 8 ? 'pw-new' : 'pw-conf'));
+      },
       devices: st.devices.map(function (d) { return Object.assign({}, d, { other: !d.current, out: function () { var before = self.state.devices; self.setState({ devices: before.filter(function (x) { return x.id !== d.id; }) }); self.toast('Signed out ' + d.name + '.', 'ok', { undo: function () { self.setState({ devices: before }); } }); } }); }),
       googleText: st.google ? 'Connected as student@example.com' : 'Not connected', googleBtn: st.google ? 'Disconnect' : 'Connect',
       toggleGoogle: function () { self.setState({ google: !self.state.google }); },
@@ -188,7 +204,7 @@ class Component extends DCLogic {
       openDel: function () { self.setState({ del: true }); }, closeDel: function () { self.setState({ del: false, delText: '' }); },
       cantDel: !canDel, canDelete: canDel,
       deleteAccount: function () {
-        ['library', 'runs', 'notes', 'draftStrategy', 'draftSettings', 'dirty', 'discovery', 'signal', 'newsSources', 'edit', 'handoff', 'next', 'idea', 'libOpen', 'runOpen'].forEach(function (k) { self.unstore(k); });
+        ['library', 'runs', 'notes', 'draftStrategy', 'draftSettings', 'settings', 'dirty', 'discovery', 'signal', 'newsSources', 'edit', 'handoff', 'next', 'idea', 'libOpen', 'runOpen'].forEach(function (k) { self.unstore(k); });
         self.store('session', { state: 'out' });
         self.store('flash', 'Your account and its demo data were deleted from this browser. You can create a new account at any time.');
       },
@@ -200,12 +216,19 @@ class Component extends DCLogic {
   componentDidMount() { var self = this; var anc = this.store('settingsAnchor'); if (anc) { this.unstore('settingsAnchor'); setTimeout(function () { var el = document.getElementById(anc); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'start' }); }, 60); } this._bu = function (e) { if (self._dirty) { e.preventDefault(); e.returnValue = ''; } }; window.addEventListener('beforeunload', this._bu); this.syncDirty(); }
   componentDidUpdate() { this.syncDirty(); }
   componentWillUnmount() { window.removeEventListener('beforeunload', this._bu); this.unstore('dirty'); }
+  // Profile is dirty when the name, time zone or any research default differs from the saved value.
+  profileDirty() {
+    var st = this.state;
+    return (st.name || '') !== (st.savedName || '') || ['tz', 'pair', 'tf', 'cap', 'fee', 'slip'].some(function (k) { return String(st.f[k]) !== String(st.saved[k]); });
+  }
   syncDirty() {
-    var st = this.state, nameDirty = (st.name || '') !== (st.savedName || ''), pwDirty = !!(st.pwCur || st.pwNew || st.pwConf), t = new Date();
+    var st = this.state, nameDirty = (st.name || '') !== (st.savedName || ''), profDirty = this.profileDirty(), pwDirty = !!(st.pwCur || st.pwNew || st.pwConf), t = new Date();
+    // Only the unsaved Full name is kept as a draft; research defaults are never stored until Save.
     if (nameDirty) this.store('draftSettings', { name: st.name, at: (t.getHours() < 10 ? '0' : '') + t.getHours() + ':' + (t.getMinutes() < 10 ? '0' : '') + t.getMinutes() }); else this.unstore('draftSettings');
-    var dirty = nameDirty || pwDirty;
-    if (dirty !== this._dirty) { this._dirty = dirty; if (dirty) this.store('dirty', { page: 'Settings', draftKey: 'draftSettings', what: nameDirty && pwDirty ? 'profile changes and a password you started changing' : (nameDirty ? 'profile changes' : 'a password you started changing') }); else this.unstore('dirty'); }
-    else if (dirty) this.store('dirty', { page: 'Settings', draftKey: 'draftSettings', what: nameDirty && pwDirty ? 'profile changes and a password you started changing' : (nameDirty ? 'profile changes' : 'a password you started changing') });
+    var dirty = profDirty || pwDirty;
+    var what = profDirty && pwDirty ? 'profile changes and a password you started changing' : (profDirty ? 'profile changes' : 'a password you started changing');
+    if (dirty !== this._dirty) { this._dirty = dirty; if (dirty) this.store('dirty', { page: 'Settings', draftKey: 'draftSettings', what: what }); else this.unstore('dirty'); }
+    else if (dirty) this.store('dirty', { page: 'Settings', draftKey: 'draftSettings', what: what });
   }
   toast(text, kind, opts) {
     var self = this; opts = opts || {};

@@ -9,6 +9,8 @@
 <script src="../vendor/react/react-dom.production.min.js"></script>
 <script src="../tools/dc-source.js"></script>
 <script src="../vendor/dc-runtime/support.js"></script>
+<script src="../tools/dc-lifecycle.js"></script>
+<script src="../tools/modal-focus.js"></script>
 
 </head>
 <body>
@@ -49,7 +51,7 @@
 </helmet>
 <div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums">
 <div style="position: sticky; top: 0; z-index: 30"><dc-import name="AppHeader" active="nw" hint-size="100%,61px"></dc-import></div>
-<main class="cf-audited-main cf-news-layout" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 24px">
+<main class="cf-audited-main cf-news-layout" id="main" tabindex="-1" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 24px">
 <div role="note" style="border:1px solid #334155;border-radius:7px;padding:8px 12px;background:#111923;color:#AFC2D6;font-size:12px;line-height:1.4;max-width:100%;box-sizing:border-box">UI prototype: prices, backtests, news, account state and workflow feedback are illustrative. No live market, AI or account service is connected in this HTML file.</div>
 <div style="display: flex; flex-direction: column; gap: 4px">
 <h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.03em">News</h1>
@@ -160,9 +162,9 @@
 <table style="flex: 1 1 220px; border-collapse: collapse; font-size: 14px; align-self: flex-start">
 <caption style="text-align: left; font-size: 13px; font-weight: 700; padding-bottom: 8px">Template versions</caption>
 <tbody>
-<tr style="border-top: 1px solid #2F3945; border-bottom: 1px solid #232B35"><td style="padding: 8px 0; font-weight: 600">{{currentVer}}</td><td style="color: #9AA6B4">18/05/2025 10:32</td><td style="text-align: right; color: #3DD68C; font-weight: 700">Current</td></tr>
-<tr style="border-bottom: 1px solid #232B35"><td style="padding: 8px 0">v1.4.1</td><td style="color: #9AA6B4">17/05/2025 09:10</td><td style="text-align: right"><button type="button" onClick="{{restore141}}" class="cf-ghost" style="padding: 0; border: 0; background: none; color: #7AA2FF; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Restore</button></td></tr>
-<tr style="border-bottom: 1px solid #232B35"><td style="padding: 8px 0">v1.4.0</td><td style="color: #9AA6B4">16/05/2025 16:22</td><td style="text-align: right"><button type="button" onClick="{{restore140}}" class="cf-ghost" style="padding: 0; border: 0; background: none; color: #7AA2FF; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Restore</button></td></tr>
+<tr style="border-top: 1px solid #2F3945; border-bottom: 1px solid #232B35"><td style="padding: 8px 0; font-weight: 600">{{currentVer}}</td><td style="color: #9AA6B4">18 May 2025, 10:32</td><td style="text-align: right; color: #3DD68C; font-weight: 700">Current</td></tr>
+<tr style="border-bottom: 1px solid #232B35"><td style="padding: 8px 0">v1.4.1</td><td style="color: #9AA6B4">17 May 2025, 09:10</td><td style="text-align: right"><button type="button" onClick="{{restore141}}" class="cf-ghost" style="padding: 0; border: 0; background: none; color: #7AA2FF; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Restore</button></td></tr>
+<tr style="border-bottom: 1px solid #232B35"><td style="padding: 8px 0">v1.4.0</td><td style="color: #9AA6B4">16 May 2025, 16:22</td><td style="text-align: right"><button type="button" onClick="{{restore140}}" class="cf-ghost" style="padding: 0; border: 0; background: none; color: #7AA2FF; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Restore</button></td></tr>
 </tbody>
 </table>
 </div>
@@ -177,7 +179,7 @@
 <div style="padding: 12px 12px; border-right: 1px solid #232B35; border-bottom: 1px solid #232B35; font-size: 14px"><div style="font-size: 13px; font-weight: 700; margin-bottom: 4px">Now (v1.4.2)</div>Empty fields 8.7%<br>Bad format 3.2%<br>Confidence 0.76<div style="margin-top: 8px; font-size: 16px; font-weight: 600; color: #FF6B5E">Errors 11.9%</div></div>
 <div style="padding: 12px 12px; border-right: 1px solid #232B35; border-bottom: 1px solid #232B35; font-size: 14px; background: #2E1715"><div style="font-size: 13px; font-weight: 700; margin-bottom: 4px">Check</div><strong style="font-size: 16px; font-weight: 600; color: #FF6B5E">Above 10%</strong><div style="margin-top: 4px; line-height: 1.45">so an example fix is shown</div></div>
 <div style="padding: 12px 12px; border-right: 1px solid #232B35; border-bottom: 1px solid #232B35; font-size: 14px"><div style="font-size: 13px; font-weight: 700; margin-bottom: 4px">Proposed v1.4.3</div>Errors 11.9% → <strong style="color: #3DD68C">4.1%</strong><br>Confidence <strong style="color: #3DD68C">0.93</strong><div style="margin-top: 8px"><button type="button" disabled="{{true}}" title="Not available yet: self-healing is under review" class="cf-ghost" style="padding: 0; border: 0; background: none; color: #9AA6B4; font-size: 14px; font-weight: 600; cursor: not-allowed">View diff (not available yet)</button></div></div>
-<div style="padding: 12px 12px; border-right: 1px solid #232B35; border-bottom: 1px solid #232B35; font-size: 14px"><div style="font-size: 13px; font-weight: 700; margin-bottom: 4px">Saved</div><strong style="font-size: 17px; font-weight: 600; color: #3DD68C">v1.4.3</strong><div style="color: #9AA6B4">18/05/2025 10:45</div>
+<div style="padding: 12px 12px; border-right: 1px solid #232B35; border-bottom: 1px solid #232B35; font-size: 14px"><div style="font-size: 13px; font-weight: 700; margin-bottom: 4px">Saved</div><strong style="font-size: 17px; font-weight: 600; color: #3DD68C">v1.4.3</strong><div style="color: #9AA6B4">18 May 2025, 10:45</div>
 <button type="button" onClick="{{apply}}" disabled="{{applied}}" class="cf-pri" style="margin-top: 8px; min-height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: #E7ECF2; color: #0B0E12; font-size: 13px; font-weight: 700; cursor: pointer">{{applyLabel}}</button></div>
 </div>
 </section>
@@ -224,7 +226,7 @@
 </sc-if>
 <div aria-live="polite" style="position: fixed; right: 20px; bottom: 20px; z-index: 60; max-width: calc(100vw - 40px)">
 <sc-if value="{{toastShow}}" hint-placeholder-val="{{false}}">
-<div class="cf-toast" role="status" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
+<div class="cf-toast" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
 <sc-if value="{{toastOk}}" hint-placeholder-val="{{true}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DD68C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></sc-if>
 <sc-if value="{{toastErr}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B5E" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.5"></path></svg></sc-if>
 <span style="flex: 1; font-size: 14px; line-height: 1.45">{{toastText}}</span>
@@ -249,7 +251,7 @@ class Component extends DCLogic {
     var saved = this.store('newsSources') || {};
     return base.map(function (b) { return { name: b[0], type: b[1], assets: b[2], down: b[3] === 'down', on: saved[b[0]] === undefined ? true : !!saved[b[0]] }; });
   }
-  componentDidUpdate(pp, ps) { var self = this, st = this.state; if ((st.srcOpen && !ps.srcOpen) || (st.article && st.article !== ps.article)) setTimeout(function () { var el = self._drawer; if (el && el.focus) el.focus(); }, 0); }
+  componentDidUpdate(pp) { var ps = this.prevState(); var self = this, st = this.state; if ((st.srcOpen && !ps.srcOpen) || (st.article && st.article !== ps.article)) setTimeout(function () { var el = self._drawer; if (el && el.focus) el.focus(); }, 0); }
   actionsCfg() { var self = this; return { crawl: { idle: 'Start crawl', busy: 'Starting\u2026', ms: 1000, done: function () { self.setState({ crawling: true }); return { text: 'Demo crawl status started. No sources were fetched.' }; } } }; }
   pageVals() { var v = this.pageVals0(), self = this, st = this.state, SC = { Positive: '#3DD68C', Neutral: '#9AA6B4', Negative: '#FF6B5E' };
     v.news = v.news.map(function (n) { return Object.assign({}, n, { sc: SC[n.sent] }); });

@@ -30,11 +30,13 @@ prototype/
 ├── serve.mjs             # Static server, trả NotFound.dc.html cho URL lạ trong screens/
 ├── screens/              # Mỗi file là một màn hình; AppHeader.dc.html là shared component
 ├── styles/
-│   ├── base.css          # Base styles dùng chung: nền, link, focus, button states, skeleton, toast, tooltip
+│   ├── base.css          # Base styles dùng chung: nền, link, focus, skip link, button states, skeleton, toast, tooltip, scroll region, state panel
 │   └── layout-audit.css  # Quy tắc responsive dùng chung cho mọi màn hình, kể cả breakpoint của header
 ├── assets/fonts/         # Onest, JetBrains Mono (woff2), fonts.css, OFL.txt
 ├── tools/
 │   ├── dc-source.js      # Đưa template của màn hình cho runtime; cuộn tới #fragment sau khi render
+│   ├── dc-lifecycle.js   # Cho logic của màn hình đọc state trước đó trong componentDidUpdate
+│   ├── modal-focus.js    # Focus trap, initial focus và trả focus cho mọi phần tử aria-modal="true"
 │   └── url-props.js      # Áp dụng props từ query string (?variant=error, ?active=bt)
 └── vendor/
     ├── dc-runtime/support.js   # Runtime của định dạng .dc.html (bản build, không sửa)
@@ -55,7 +57,7 @@ prototype/
 | `Backtest.dc.html` | App · Backtest | |
 | `News.dc.html` | App · News | |
 | `Settings.dc.html` | App · Settings | Có anchor `#profile`, `#security`, `#notifications`, `#connected`, `#data` |
-| `States.dc.html` | App · Empty & loading states | Chỉ để minh họa, không có link nào dẫn tới |
+| `States.dc.html` | App · Empty & loading states | Chỉ để minh họa, không có link nào dẫn tới. Gồm cả trạng thái lỗi tải dữ liệu, dữ liệu cũ sau khi refresh lỗi, và offline |
 | `AppHeader.dc.html` | Component · App header | `?active=rt\|st\|di\|bt\|nw\|settings` chọn mục đang active khi mở riêng |
 
 Tên file khớp với link trong source, ví dụ `<a href="Realtime.dc.html">`. Nhờ vậy, điều hướng giữa các màn hình là link HTML thông thường, không cần router. Không có link nào trỏ tới `NotFound` và `States`, nên tên hai file này được đặt theo nội dung màn hình.
@@ -64,7 +66,8 @@ Tên file khớp với link trong source, ví dụ `<a href="Realtime.dc.html">`
 
 ```html
 <head>
-  <!-- fonts, React, tools/dc-source.js, vendor/dc-runtime/support.js -->
+  <!-- fonts, React, tools/dc-source.js, vendor/dc-runtime/support.js,
+       tools/dc-lifecycle.js, tools/modal-focus.js -->
 </head>
 <body>
 <script type="text/x-template" data-dc-template>
@@ -85,6 +88,7 @@ class Component extends DCLogic {
 
 - **Markup**: `{{name}}` lấy giá trị từ object do `renderVals()` trả về. `<sc-if value="{{cond}}">` render có điều kiện, `<sc-for list="{{items}}" as="it">` lặp danh sách. Event viết theo kiểu React, ví dụ `onClick="{{handler}}"`. `<dc-import name="AppHeader" active="bt">` nhúng component `AppHeader.dc.html` với prop `active`.
 - **Logic**: class `Component` kế thừa `DCLogic` từ runtime, có `this.state`, `setState()` và lifecycle như React class component. State, handler và dữ liệu mẫu của màn hình đều nằm trong class này.
+- **`componentDidUpdate`**: runtime chỉ truyền `prevProps`, không truyền `prevState`. Màn hình cần so sánh state cũ và mới thì gọi `this.prevState()` ở đầu hàm, do `tools/dc-lifecycle.js` cung cấp: `componentDidUpdate(pp) { var ps = this.prevState(); … }`. Hàm trả về state tại lần commit trước, và chỉ gọi một lần trong mỗi lần `componentDidUpdate`.
 - **`data-props`**: khai báo props và kích thước preview của board. Chỉ `NotFound` (`variant`) và `AppHeader` (`active`) có props.
 - **Khối `<x-dc>` nằm trong `<script type="text/x-template">`**: nhờ vậy trình duyệt không parse markup trước runtime. Nếu bị parse trước, attribute camelCase sẽ bị đổi thành chữ thường và các dòng `<sc-for>` trong `<table>` hoặc `<select>` sẽ bị đẩy ra ngoài. Editor như VS Code vẫn highlight HTML trong khối này. Không viết `</script>` hoặc `<!--` trong markup.
 
@@ -119,6 +123,7 @@ Prototype không gọi backend. Dữ liệu mẫu là literal trong logic của 
 | `cf.signal` | Nguồn tín hiệu của Realtime | Library, Realtime |
 | `cf.edit`, `cf.handoff`, `cf.libOpen`, `cf.runOpen`, `cf.condition`, `cf.idea`, `cf.newsPanel`, `cf.settingsAnchor`, `cf.flash` | Ngữ cảnh truyền khi chuyển từ màn hình này sang màn hình khác | Nhiều màn hình |
 | `cf.draftStrategy`, `cf.draftComposite`, `cf.draftSettings`, `cf.dirty` | Bản nháp và cờ thay đổi chưa lưu | Strategy, Discovery, Settings, AppHeader |
+| `cf.settings` | Time zone và research defaults đã lưu trong Settings | Settings |
 | `cf.discovery`, `cf.newsSources`, `cf.onboardHidden` | Trạng thái riêng của Discovery, News, Realtime | Discovery, News, Realtime |
 
 - Khi `localStorage` trống, các màn hình coi người dùng đã đăng nhập với hồ sơ mẫu. Muốn xem trạng thái chưa đăng nhập, dùng **Sign out** trong menu avatar.
@@ -132,9 +137,20 @@ Prototype không gọi backend. Dữ liệu mẫu là literal trong logic của 
 - `vendor/react/` là bản UMD production chính thức của React 18.3.1, có hash trùng với SRI mà runtime dùng khi tải React từ CDN.
 - Font Onest và JetBrains Mono theo SIL Open Font License 1.1, xem `assets/fonts/OFL.txt`.
 
+## Pattern dùng chung
+
+- **Overlay**: drawer, dialog và màn chặn đăng nhập đều có `aria-modal="true"`. `tools/modal-focus.js` ghi nhớ phần tử đang có focus khi overlay mở, chuyển focus vào trong overlay nếu logic của màn hình chưa làm, giữ Tab và Shift+Tab trong overlay trên cùng, và trả focus về phần tử đã mở overlay khi overlay đóng. Phím Esc do từng màn hình xử lý.
+- **Skip link**: phần tử focus được đầu tiên của AppHeader là "Skip to main content", dẫn tới `<main id="main">` của màn hình.
+- **Lỗi form**: lỗi hiện ngay dưới trường, được liên kết bằng `aria-describedby` và đánh dấu `aria-invalid`. Khi bấm submit mà còn lỗi, focus chuyển tới trường lỗi đầu tiên. Form nhiều trường (Auth) hiện thêm danh sách lỗi; chọn một lỗi sẽ focus trường tương ứng.
+- **Toast**: mỗi màn hình có một container `aria-live="polite"` tồn tại sẵn. Toast được chèn vào container đó và không có live region riêng, nên mỗi thông báo chỉ được đọc một lần.
+- **Bảng dữ liệu**: trên desktop hiển thị dạng bảng. Khi bảng rộng hơn khung, phần cuộn ngang dùng class `.cf-scroll-x`, có `tabindex="0"`, `role="region"` và nhãn, nên cuộn được bằng bàn phím. Trên màn hình từ 600px trở xuống, Trades (Backtest) và Leaderboard (Discovery) chuyển sang dạng card.
+- **Ngày giờ**: giao diện hiển thị ngày dạng `01 May 2025` và thời điểm dạng `20 May 2025, 10:42`. Giá trị lưu trong state vẫn ở dạng ISO (`2025-05-01`).
+- **Trạng thái dữ liệu**: rỗng (khung nét đứt), đang tải (skeleton), lỗi tải (`.cf-state-error`), dữ liệu cũ được giữ lại sau khi refresh lỗi (`.cf-state-stale`) và offline (`.cf-state-offline`). Ví dụ của từng trạng thái nằm trong `States.dc.html`.
+
 ## Vấn đề đã biết
 
-Nhiều màn hình khai báo `componentDidUpdate(prevProps, prevState)` và đọc `prevState`, trong khi runtime chỉ truyền `prevProps`. Do đó, một số tương tác làm console báo `TypeError: Cannot read properties of undefined` (ví dụ `reading 'delId'`), và đoạn chuyển focus trong các hàm này không chạy. Runtime bắt lỗi này nên giao diện vẫn hoạt động. `Crypto Force UI.html` có cùng hành vi.
+- Ô chọn ngày From/To trong Backtest là `<input type="date">` của trình duyệt, nên định dạng hiển thị theo locale của trình duyệt (ví dụ `05/01/2025` trên Chrome en-US). Dòng "Period" ngay dưới form nhắc lại khoảng thời gian theo định dạng của ứng dụng.
+- `Crypto Force UI.html` vẫn giữ hành vi cũ: focus không chuyển vào overlay và bản nháp không được lưu, vì file này là bản export gốc và không được chỉnh sửa.
 
 ## References
 

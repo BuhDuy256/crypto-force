@@ -9,6 +9,8 @@
 <script src="../vendor/react/react-dom.production.min.js"></script>
 <script src="../tools/dc-source.js"></script>
 <script src="../vendor/dc-runtime/support.js"></script>
+<script src="../tools/dc-lifecycle.js"></script>
+<script src="../tools/modal-focus.js"></script>
 
 </head>
 <body>
@@ -35,13 +37,17 @@
 .cf-discovery-flow .cf-activity-empty span{font-size:13px;color:#9AA6B4;line-height:1.5;}
 @media(max-width:1080px){.cf-discovery-flow{gap:16px !important;}.cf-discovery-flow > .cf-results{grid-template-columns:minmax(0,1fr);gap:16px;}.cf-discovery-flow > .cf-results > section[aria-labelledby="d-comp"]{position:static;}}
 @media(max-width:600px){.cf-discovery-flow section{padding:16px !important;}}
+/* Leaderboard: table from 601px (scrolls when narrow), compact cards with a sort control on phones. */
+.d-lb-cards,.d-lb-sort{display:none !important;}
+.d-lb-table th[aria-sort],.d-lb-table td.num{padding-left:16px;}
+@media(max-width:600px){.d-lb-table{display:none !important;}.d-lb-cards{display:flex !important;}.d-lb-sort{display:flex !important;}}
 </style>
 <link rel="stylesheet" href="../assets/fonts/fonts.css">
 <link rel="stylesheet" href="../styles/base.css">
 </helmet>
 <div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums">
 <div style="position: sticky; top: 0; z-index: 30"><dc-import name="AppHeader" active="di" hint-size="100%,61px"></dc-import></div>
-<main class="cf-audited-main cf-discovery-layout" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 24px">
+<main class="cf-audited-main cf-discovery-layout" id="main" tabindex="-1" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 24px">
 <div role="note" style="border:1px solid #334155;border-radius:7px;padding:8px 12px;background:#111923;color:#AFC2D6;font-size:12px;line-height:1.4;max-width:100%;box-sizing:border-box">UI prototype: prices, backtests, news, account state and workflow feedback are illustrative. No live market, AI or account service is connected in this HTML file.</div>
 <div style="display: flex; flex-direction: column; gap: 4px">
 <h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.03em">Discovery</h1>
@@ -64,7 +70,7 @@
 <fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px">
 <legend style="padding: 0; margin-bottom: 8px; font-size: 13px; font-weight: 700">Search method</legend>
 <div style="display: flex; flex-wrap: wrap; gap: 4px 16px">
-<sc-for list="{{methods}}" as="m" hint-placeholder-count="3"><label title="{{m.desc}}" style="display: flex; align-items: center; gap: 8px; min-height: 36px; font-size: 14px; cursor: pointer"><input type="radio" name="method" checked="{{m.on}}" onChange="{{m.pick}}" style="width: 17px; height: 17px; margin: 0">{{m.name}}</label></sc-for>
+<sc-for list="{{methods}}" as="m" hint-placeholder-count="3"><label title="{{m.desc}}" style="display: flex; align-items: center; gap: 8px; min-height: 40px; font-size: 14px; cursor: pointer"><input type="radio" name="method" checked="{{m.on}}" onChange="{{m.pick}}" style="width: 20px; height: 20px; margin: 0; flex: none">{{m.name}}</label></sc-for>
 </div>
 <span style="font-size: 13px; color: #9AA6B4">{{methodDesc}}</span>
 </fieldset>
@@ -72,13 +78,13 @@
 <legend style="padding: 0; margin-bottom: 6px; font-size: 13px; font-weight: 700">Stop when any of these is reached</legend>
 <sc-for list="{{limits}}" as="l" hint-placeholder-count="3">
 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px">
-<label style="display: flex; align-items: center; gap: 8px; min-height: 40px; flex: 0 1 280px; font-size: 14px; cursor: pointer"><input type="checkbox" checked="{{l.on}}" onChange="{{l.toggle}}" style="width: 17px; height: 17px; margin: 0">{{l.label}}</label>
-<input type="number" aria-label="{{l.aria}}" min="{{l.min}}" max="{{l.max}}" step="{{l.step}}" value="{{l.val}}" onChange="{{l.set}}" disabled="{{l.off}}" aria-invalid="{{l.inv}}" style="width: 110px; height: 40px; padding: 0 12px; border: 1px solid {{l.bd}}; border-radius: 8px; background: #0F141A; font-size: 14px">
+<label style="display: flex; align-items: center; gap: 8px; min-height: 40px; flex: 0 1 280px; font-size: 14px; cursor: pointer"><input id="{{l.boxId}}" type="checkbox" checked="{{l.on}}" onChange="{{l.toggle}}" aria-describedby="d-lim-none" style="width: 20px; height: 20px; margin: 0; flex: none">{{l.label}}</label>
+<input id="{{l.id}}" type="number" aria-label="{{l.aria}}" min="{{l.min}}" max="{{l.max}}" step="{{l.step}}" value="{{l.val}}" onChange="{{l.set}}" disabled="{{l.off}}" aria-invalid="{{l.inv}}" aria-describedby="{{l.errId}}" style="width: 110px; height: 40px; padding: 0 12px; border: 1px solid {{l.bd}}; border-radius: 8px; background: #0F141A; font-size: 14px">
 <span style="font-size: 13px; color: #9AA6B4">{{l.unit}}</span>
-<sc-if value="{{l.err}}" hint-placeholder-val="{{false}}"><span style="flex-basis: 100%; font-size: 13px; color: #FF6B5E">{{l.err}}</span></sc-if>
+<sc-if value="{{l.err}}" hint-placeholder-val="{{false}}"><span id="{{l.errId}}" style="flex-basis: 100%; font-size: 13px; color: #FF6B5E">{{l.err}}</span></sc-if>
 </div>
 </sc-for>
-<sc-if value="{{limitsErr}}" hint-placeholder-val="{{false}}"><span role="alert" style="font-size: 13px; color: #FF6B5E">{{limitsErr}}</span></sc-if>
+<sc-if value="{{limitsErr}}" hint-placeholder-val="{{false}}"><span id="d-lim-none" role="alert" style="font-size: 13px; color: #FF6B5E">{{limitsErr}}</span></sc-if>
 </fieldset>
 </div>
 </fieldset>
@@ -108,32 +114,54 @@
 </section>
 <div class="cf-results">
 <section aria-labelledby="d-lb" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px">
-<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px"><h2 id="d-lb" style="margin:0;font-size:18px;font-weight:650">Leaderboard</h2><span style="font-size: 13px; color: #9AA6B4">Illustrative candidate results · BTCUSDT 15m · 01/05–15/05/2025 · not produced by this demo search</span>
-<label style="margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700">Keep top <select style="height: 36px; padding: 0 8px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; font-size: 13px"><option>3</option><option>5</option><option>10</option></select></label></div>
-<div style="overflow-x: auto">
-<table style="width: 100%; min-width: 640px; border-collapse: collapse; font-size: 15px; margin-top: 8px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px"><h2 id="d-lb" style="margin:0;font-size:18px;font-weight:650">Leaderboard</h2><span style="font-size: 13px; color: #9AA6B4">Illustrative candidate results · BTCUSDT 15m · 01 May – 15 May 2025 · not produced by this demo search</span>
+<div style="margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px 16px">
+<label class="d-lb-sort" style="align-items: center; gap: 8px; font-size: 13px; font-weight: 700">Sort by <select value="{{sortKey}}" onChange="{{setSort}}" style="height: 36px; padding: 0 8px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; font-size: 13px"><option value="score">Score</option><option value="ret">Return</option><option value="mdd">Max DD</option><option value="win">Win rate</option></select></label>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700">Keep top <select style="height: 36px; padding: 0 8px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; font-size: 13px"><option>3</option><option>5</option><option>10</option></select></label>
+</div></div>
+<div class="d-lb-table cf-scroll-x" tabindex="0" role="region" aria-labelledby="d-lb" style="overflow-x: auto">
+<table style="width: 100%; min-width: 720px; border-collapse: collapse; font-size: 15px; margin-top: 8px">
 <thead><tr style="border-bottom: 1px solid #2F3945; font-size: 13px; color: #9AA6B4; text-align: right">
 <th style="text-align: left; font-weight: 600; padding: 8px 0; width: 44px">#</th><th style="text-align: left; font-weight: 600">Strategy</th>
 <sc-for list="{{sorts}}" as="s" hint-placeholder-count="4"><th aria-sort="{{s.aria}}" style="font-weight: 600"><button type="button" onClick="{{s.pick}}" class="cf-ghost" style="display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 0; border: 0; background: none; cursor: pointer; font-size: 13px; font-weight: {{s.w}}; color: {{s.c}}">{{s.label}}<sc-if value="{{s.on}}" hint-placeholder-val="{{false}}"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 9L.5 2h9z" fill="currentColor"></path></svg></sc-if></button></th></sc-for>
-<th style="font-weight: 600; text-align: right">Trades</th><th style="font-weight: 600; text-align: center; width: 24%">Return vs. max drawdown</th><th style="width: 140px"><span style="position: absolute; left: -9999px">Actions</span></th></tr></thead>
+<th style="font-weight: 600; text-align: right; padding-left: 16px">Trades</th><th style="font-weight: 600; text-align: center; width: 24%">Return vs. max drawdown</th><th style="width: 140px"><span style="position: absolute; left: -9999px">Actions</span></th></tr></thead>
 <tbody>
 <sc-for list="{{board}}" as="r" hint-placeholder-count="3">
 <tr style="border-bottom: 1px solid #232B35">
 <td style="padding: 12px 0; font-weight: 600">{{r.rank}}</td>
 <td style="font-weight: 700">{{r.name}}</td>
-<td style="text-align: right; color: #3DD68C; font-weight: 700">{{r.retTxt}}</td>
-<td style="text-align: right">{{r.winTxt}}</td>
-<td style="text-align: right; color: #FF6B5E">{{r.mddTxt}}</td>
-<td style="text-align: right">{{r.scoreTxt}}</td>
-<td style="text-align: right; color: {{r.tradesC}}">{{r.trades}}</td>
+<td class="num" style="text-align: right; color: #3DD68C; font-weight: 700">{{r.retTxt}}</td>
+<td class="num" style="text-align: right">{{r.winTxt}}</td>
+<td class="num" style="text-align: right; color: #FF6B5E">{{r.mddTxt}}</td>
+<td class="num" style="text-align: right; font-weight: 600">{{r.scoreTxt}}</td>
+<td class="num" style="text-align: right; white-space: nowrap; color: {{r.tradesC}}">{{r.trades}}</td>
 <td style="padding-left: 20px"><div role="img" aria-label="{{r.aria}}" style="position: relative; height: 16px"><span style="position: absolute; left: 0; right: 0; top: 7px; border-top: 1px solid #333D4A"></span><span style="position: absolute; left: {{r.zero}}; top: 0; height: 16px; border-left: 1px solid #2F3945"></span><span style="position: absolute; top: 5px; height: 5px; left: {{r.negL}}; width: {{r.negW}}; background: #FF6B5E"></span><span style="position: absolute; top: 5px; height: 5px; left: {{r.posL}}; width: {{r.posW}}; background: #3DD68C"></span></div></td>
-<td style="text-align: right; white-space: nowrap"><a href="Backtest.dc.html" onClick="{{r.open}}" class="cf-ghost" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 8px; font-size: 13px; font-weight: 600">Re-test</a></td>
+<td style="text-align: right; white-space: nowrap"><a href="Backtest.dc.html" onClick="{{r.open}}" class="cf-ghost" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 8px; font-size: 13px; font-weight: 600">Re-test<span class="cf-sr"> {{r.name}}</span></a></td>
 </tr>
 </sc-for>
 </tbody>
 </table>
 </div>
-<p style="margin: 8px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; font-size: 13px; color: #9AA6B4"><span>Click a column to rank by it. The example score combines return, max drawdown and win rate. Final calculation and weights must be verified against the search engine.</span><span class="cf-tip">Max DD<button type="button" class="cf-tipbtn" aria-label="What is Max DD?" aria-describedby="tip7"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5"></path></svg></button><span role="tooltip" id="tip7" class="cf-tipbox">Max drawdown: the largest drop from a peak to a later low during the test, as a percent of the account.</span></span><span class="cf-tip">Score<button type="button" class="cf-tipbtn" aria-label="What is Score?" aria-describedby="tip8"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5"></path></svg></button><span role="tooltip" id="tip8" class="cf-tipbox">Combined rank from return, win rate and max drawdown. Higher is better.</span></span></p>
+<ol class="d-lb-cards" aria-label="Leaderboard candidates" style="margin: 12px 0 0; padding: 0; list-style: none; flex-direction: column; gap: 10px">
+<sc-for list="{{board}}" as="r" hint-placeholder-count="3">
+<li style="display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border: 1px solid #303C49; border-radius: 10px; background: #151B23">
+<div style="display: flex; align-items: center; gap: 10px"><span style="font-size: 13px; font-weight: 600; color: #9AA6B4">#{{r.rank}}</span><strong style="flex: 1; min-width: 0; font-size: 15px; overflow-wrap: anywhere">{{r.name}}</strong><a href="Backtest.dc.html" onClick="{{r.open}}" class="cf-sec" style="display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 1px solid #3A4553; border-radius: 8px; color: #E7ECF2; font-size: 14px; font-weight: 600; text-decoration: none">Re-test<span class="cf-sr"> {{r.name}}</span></a></div>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 12px">
+<div><dt style="font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: #8F9CAC">Score</dt><dd style="margin: 0; font-size: 16px; font-weight: 700">{{r.scoreTxt}}</dd></div>
+<div><dt style="font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: #8F9CAC">Return</dt><dd style="margin: 0; font-size: 16px; font-weight: 700; color: #3DD68C">{{r.retTxt}}</dd></div>
+<div><dt style="font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: #8F9CAC">Max DD</dt><dd style="margin: 0; font-size: 16px; font-weight: 700; color: #FF6B5E">{{r.mddTxt}}</dd></div>
+</dl>
+<details style="font-size: 14px"><summary style="display: flex; align-items: center; min-height: 32px; cursor: pointer; color: #C3CCD6; font-weight: 600">More metrics</summary>
+<dl style="margin: 6px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px">
+<div><dt style="font-size: 12px; color: #9AA6B4">Win rate</dt><dd style="margin: 0">{{r.winTxt}}</dd></div>
+<div><dt style="font-size: 12px; color: #9AA6B4">Trades</dt><dd style="margin: 0; color: {{r.tradesC}}">{{r.trades}}</dd></div>
+</dl>
+<div role="img" aria-label="{{r.aria}}" style="position: relative; height: 16px; margin-top: 8px"><span style="position: absolute; left: 0; right: 0; top: 7px; border-top: 1px solid #333D4A"></span><span style="position: absolute; left: {{r.zero}}; top: 0; height: 16px; border-left: 1px solid #2F3945"></span><span style="position: absolute; top: 5px; height: 5px; left: {{r.negL}}; width: {{r.negW}}; background: #FF6B5E"></span><span style="position: absolute; top: 5px; height: 5px; left: {{r.posL}}; width: {{r.posW}}; background: #3DD68C"></span></div>
+</details>
+</li>
+</sc-for>
+</ol>
+<p style="margin: 8px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; font-size: 13px; color: #9AA6B4"><span>Rank by a column heading, or with Sort by on small screens. The example score combines return, max drawdown and win rate. Final calculation and weights must be verified against the search engine.</span><span class="cf-tip">Max DD<button type="button" class="cf-tipbtn" aria-label="What is Max DD?" aria-describedby="tip7"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5"></path></svg></button><span role="tooltip" id="tip7" class="cf-tipbox">Max drawdown: the largest drop from a peak to a later low during the test, as a percent of the account.</span></span><span class="cf-tip">Score<button type="button" class="cf-tipbtn" aria-label="What is Score?" aria-describedby="tip8"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5"></path></svg></button><span role="tooltip" id="tip8" class="cf-tipbox">Combined rank from return, win rate and max drawdown. Higher is better.</span></span></p>
 </section>
 <section aria-labelledby="d-comp" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 16px">
 <h2 id="d-comp" style="margin:0;font-size:18px;font-weight:650">Composite builder</h2><p class="cf-muted-explainer">Combine signal sources and adjust how they contribute to a candidate strategy.</p>
@@ -143,7 +171,7 @@
 <legend style="padding: 0; margin-bottom: 8px; font-size: 13px; font-weight: 700">Building blocks</legend>
 <div style="display: flex; flex-direction: column; border-top: 1px solid #232B35">
 <sc-for list="{{singles}}" as="s" hint-placeholder-count="6">
-<label style="display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; border-bottom: 1px solid #232B35; cursor: pointer"><input type="checkbox" checked="{{s.on}}" onChange="{{s.toggle}}" style="width: 17px; height: 17px; margin: 2px 0 0"><span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 14px; font-weight: 700">{{s.name}}</strong><span style="font-size: 13px; color: #9AA6B4; line-height: 1.4">{{s.desc}}</span></span></label>
+<label style="display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; border-bottom: 1px solid #232B35; cursor: pointer"><input type="checkbox" checked="{{s.on}}" onChange="{{s.toggle}}" style="width: 20px; height: 20px; margin: 1px 0 0; flex: none"><span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 14px; font-weight: 700">{{s.name}}</strong><span style="font-size: 13px; color: #9AA6B4; line-height: 1.4">{{s.desc}}</span></span></label>
 </sc-for>
 </div>
 </fieldset>
@@ -205,7 +233,7 @@
 </sc-if>
 <div aria-live="polite" style="position: fixed; right: 20px; bottom: 20px; z-index: 60; max-width: calc(100vw - 40px)">
 <sc-if value="{{toastShow}}" hint-placeholder-val="{{false}}">
-<div class="cf-toast" role="status" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
+<div class="cf-toast" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
 <sc-if value="{{toastOk}}" hint-placeholder-val="{{true}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DD68C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></sc-if>
 <sc-if value="{{toastErr}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B5E" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.5"></path></svg></sc-if>
 <span style="flex: 1; font-size: 14px; line-height: 1.45">{{toastText}}</span>
@@ -235,7 +263,7 @@ class Component extends DCLogic {
     }
   }
   csnap(s) { return { picked: (s.picked || []).slice(), vote: s.vote, w: (s.w || []).slice() }; }
-  componentDidUpdate(pp, ps) {
+  componentDidUpdate(pp) { var ps = this.prevState();
     var cur = JSON.stringify(this.csnap(this.state)), self = this;
     if (this.state.stopEdit && !ps.stopEdit) setTimeout(function () { var el = self._seKeep; if (el && el.focus) el.focus(); }, 0);
     if (cur === JSON.stringify(this.csnap(ps))) return;
@@ -265,7 +293,13 @@ class Component extends DCLogic {
     var self = this, cur = this.state.ses;
     if (resume && cur && cur.status === 'paused') { var r = Object.assign({}, cur, { status: 'running', startedAt: Date.now() }); this.dsSave(r); this.setState({ ses: r }); this.toast('Search resumed.'); return; }
     var errs = this.dsLimitErrors();
-    if (Object.keys(errs).length) { this.setState({ settingsOpen: true }); this.toast(errs.none || 'Fix the stop conditions before starting.', 'error'); return; }
+    if (Object.keys(errs).length) {
+      this.setState({ settingsOpen: true }); this.toast(errs.none || 'Fix the stop conditions before starting.', 'error');
+      // Move focus to the first field that needs attention once the settings panel is rendered.
+      var first = ['cand', 'time', 'stale'].filter(function (k) { return errs[k]; })[0];
+      setTimeout(function () { var el = document.getElementById(first ? 'd-lim-' + first : 'd-lim-cand-on'); if (el) el.focus(); }, 50);
+      return;
+    }
     var ses = { id: Date.now(), status: 'running', startedAt: Date.now(), elapsedBefore: 0, method: this.state.method, limits: this.dsLimitsFromState() };
     this.store('done.discovery', true); this.dsSave(ses); this.setState({ ses: ses, settingsOpen: false });
     this.toast('Search started. It ends on its own at the first stop condition it reaches.');
@@ -299,14 +333,14 @@ class Component extends DCLogic {
   }
   libSeed() {
     return [
-      { id: 'st-rsi-bb', kind: 'strategy', name: 'RSI_BB_LB_LONG_SL2_TP4', src: 'Written by you', input: 'prompt', prompt: 'When RSI is below 30 and price is under the lower Bollinger Band, go LONG. Stop loss 2%, take profit 4%.', tags: ['RSI', 'Bollinger', 'Mean Reversion', 'Long'], ver: '1.0.0', created: '20/05/2025 10:42', updated: '20/05/2025 10:42', rules: ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)', 'Stop loss 2% below entry', 'Take profit 4% above entry'] },
-      { id: 'st-macd', kind: 'strategy', name: 'MACD_Cross_TrendFollow', src: 'Imported from a link', input: 'url', url: 'https://www.tradingview.com/script/abc123-example/', tags: ['MACD', 'Trend', 'Swing'], ver: '1.2.1', created: '19/05/2025 16:30', updated: '19/05/2025 16:30', rules: ['LONG when the MACD line crosses above its signal line and the close is above EMA(200)', 'Exit when the MACD line crosses back below its signal line'] },
-      { id: 'cp-ma-rsi-sr', kind: 'composite', name: 'MA + RSI + S/R', src: 'Built in Discovery', blocks: ['MA', 'RSI', 'Support / Resistance'], vote: 'weighted', w: [0.4, 0.3, 0.3], tags: ['Composite', 'Weighted vote'], ver: '1.0.0', created: '18/05/2025 09:05', updated: '18/05/2025 09:05', rules: ['MA, RSI and Support / Resistance each vote BUY, SELL or HOLD on every candle', 'Weighted vote (0.40 / 0.30 / 0.30) decides the signal'] }
+      { id: 'st-rsi-bb', kind: 'strategy', name: 'RSI_BB_LB_LONG_SL2_TP4', src: 'Written by you', input: 'prompt', prompt: 'When RSI is below 30 and price is under the lower Bollinger Band, go LONG. Stop loss 2%, take profit 4%.', tags: ['RSI', 'Bollinger', 'Mean Reversion', 'Long'], ver: '1.0.0', created: '20 May 2025, 10:42', updated: '20 May 2025, 10:42', rules: ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)', 'Stop loss 2% below entry', 'Take profit 4% above entry'] },
+      { id: 'st-macd', kind: 'strategy', name: 'MACD_Cross_TrendFollow', src: 'Imported from a link', input: 'url', url: 'https://www.tradingview.com/script/abc123-example/', tags: ['MACD', 'Trend', 'Swing'], ver: '1.2.1', created: '19 May 2025, 16:30', updated: '19 May 2025, 16:30', rules: ['LONG when the MACD line crosses above its signal line and the close is above EMA(200)', 'Exit when the MACD line crosses back below its signal line'] },
+      { id: 'cp-ma-rsi-sr', kind: 'composite', name: 'MA + RSI + S/R', src: 'Built in Discovery', blocks: ['MA', 'RSI', 'Support / Resistance'], vote: 'weighted', w: [0.4, 0.3, 0.3], tags: ['Composite', 'Weighted vote'], ver: '1.0.0', created: '18 May 2025, 09:05', updated: '18 May 2025, 09:05', rules: ['MA, RSI and Support / Resistance each vote BUY, SELL or HOLD on every candle', 'Weighted vote (0.40 / 0.30 / 0.30) decides the signal'] }
     ];
   }
   lib() { try { var v = window.localStorage.getItem('cf.library'); return v ? JSON.parse(v) : this.libSeed(); } catch (e) { return this.libSeed(); } }
   setLib(list) { try { window.localStorage.setItem('cf.library', JSON.stringify(list)); } catch (e) {} }
-  nowStamp() { var d = new Date(); function p(n) { return (n < 10 ? '0' : '') + n; } return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
+  nowStamp() { var d = new Date(); function p(n) { return (n < 10 ? '0' : '') + n; } return p(d.getDate()) + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()] + ' ' + d.getFullYear() + ', ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
   bumpVer(v) { var p = String(v || '1.0.0').split('.').map(function (x) { return parseInt(x, 10) || 0; }); while (p.length < 3) p.push(0); p[2] += 1; return p.join('.'); }
   shortBlock(b) { return b === 'Support / Resistance' ? 'S/R' : (b === 'Bollinger Bands' ? 'Bollinger' : b); }
   compositeRules(blocks, vote, w) {
@@ -396,7 +430,7 @@ class Component extends DCLogic {
       start: function () { self._dsStart(s === 'paused'); },
       limits: [['cand', 'Candidates evaluated', 'Candidate limit', st.cand, 'candidates', 10, 10000, 10, 'cand'], ['time', 'Search time', 'Time limit in minutes', st.timeVal, 'minutes', 1, 1440, 1, 'timeVal'], ['stale', 'Rounds without a better candidate', 'Rounds without improvement', st.staleVal, 'rounds in a row', 1, 500, 1, 'staleVal']].map(function (x) {
         var on = !!st.lim[x[0]], err = lerr[x[0]] || '';
-        return { label: x[1], aria: x[2], val: x[3], unit: x[4], min: x[5], max: x[6], step: x[7], on: on, off: !on, err: err, inv: err ? 'true' : 'false', bd: err ? '#FF6B5E' : '#3A4553',
+        return { id: 'd-lim-' + x[0], boxId: 'd-lim-' + x[0] + '-on', errId: 'd-lim-' + x[0] + '-err', label: x[1], aria: x[2], val: x[3], unit: x[4], min: x[5], max: x[6], step: x[7], on: on, off: !on, err: err, inv: err ? 'true' : 'false', bd: err ? '#FF6B5E' : '#3A4553',
           toggle: function () { var l = Object.assign({}, self.state.lim); l[x[0]] = !l[x[0]]; self.setState({ lim: l }); },
           set: function (e) { var o = {}; o[x[8]] = e.target.value; self.setState(o); } };
       }),
@@ -417,7 +451,7 @@ class Component extends DCLogic {
       methods: methods.map(function (m, i) { return { name: m.name, desc: m.desc, on: st.method === i, pick: function () { self.setState({ method: i }); } }; }),
       methodDesc: methods[st.method].desc,
       sorts: [['ret', 'Return'], ['win', 'Win rate'], ['mdd', 'Max DD'], ['score', 'Score']].map(function (x) { var on = key === x[0]; return { label: x[1], on: on, aria: on ? 'descending' : 'none', w: on ? '800' : '600', c: on ? '#E7ECF2' : '#9AA6B4', pick: function () { self.setState({ sort: x[0] }); } }; }),
-      board: board,
+      board: board, sortKey: key, setSort: function (e) { self.setState({ sort: e.target.value }); },
       singles: singles.map(function (x) { var on = st.picked.indexOf(x[0]) >= 0; return { name: x[0], desc: x[1], on: on, toggle: function () { var p = self.state.picked.slice(), i = p.indexOf(x[0]); if (i >= 0) p.splice(i, 1); else p.push(x[0]); self.setState({ picked: p }); } }; }),
       combos: combos.map(function (c, i) { return { label: comboLabels[i], pick: function () { self.setState({ picked: c.slice() }); } }; }),
       votes: [['majority', 'Majority vote'], ['weighted', 'Weighted']].map(function (v) { var on = st.vote === v[0]; return { label: v[1], on: on, bg: on ? '#E7ECF2' : '#151A21', fg: on ? '#0B0E12' : '#E7ECF2', pick: function () { self.setState({ vote: v[0] }); } }; }),

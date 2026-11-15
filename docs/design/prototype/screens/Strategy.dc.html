@@ -9,6 +9,8 @@
 <script src="../vendor/react/react-dom.production.min.js"></script>
 <script src="../tools/dc-source.js"></script>
 <script src="../vendor/dc-runtime/support.js"></script>
+<script src="../tools/dc-lifecycle.js"></script>
+<script src="../tools/modal-focus.js"></script>
 
 </head>
 <body>
@@ -43,14 +45,14 @@
 </helmet>
 <div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums">
 <div style="position: sticky; top: 0; z-index: 30"><dc-import name="AppHeader" active="st" hint-size="100%,61px"></dc-import></div>
-<main class="cf-audited-main cf-strategy-layout" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 24px">
+<main class="cf-audited-main cf-strategy-layout" id="main" tabindex="-1" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 24px">
 <div role="note" style="border:1px solid #334155;border-radius:7px;padding:8px 12px;background:#111923;color:#AFC2D6;font-size:12px;line-height:1.4;max-width:100%;box-sizing:border-box">UI prototype: prices, backtests, news, account state and workflow feedback are illustrative. No live market, AI or account service is connected in this HTML file.</div>
 <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 28px">
 <div style="display: flex; flex-direction: column; gap: 4px; margin-right: auto">
 <h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.03em">Strategy Engine</h1>
 <p style="margin: 0; font-size: 15px; color: #9AA6B4">Describe a trading idea or add a public link. Review example rules, confirm assumptions, and refine your strategy.</p>
 </div>
-<a href="Library.dc.html" style="font-size: 15px; font-weight: 600">Strategy library ({{libCount}})</a>
+<a href="Library.dc.html" style="display: inline-flex; align-items: center; min-height: 32px; font-size: 15px; font-weight: 600">Strategy library ({{libCount}})</a>
 </div>
 
 <sc-if value="{{draftNote}}" hint-placeholder-val="{{false}}"><div role="status" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 16px; border: 1px solid #5A4520; border-radius: 10px; background: #1F1A10; font-size: 14px; line-height: 1.5; color: #F2D28B"><span style="flex: 1 1 320px">{{draftNote}} Drafts are kept in this browser until you save or discard them.</span><button type="button" onClick="{{discardDraft}}" class="cf-sec" style="min-height: 40px; padding: 0 14px; border: 1px solid #5A4520; border-radius: 8px; background: none; color: #F2D28B; font-size: 14px; font-weight: 600; cursor: pointer">Discard draft</button><button type="button" onClick="{{keepDraft}}" class="cf-ghost" style="min-height: 40px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: #E7ECF2; font-size: 14px; font-weight: 600; cursor: pointer">Keep</button></div></sc-if>
@@ -167,7 +169,7 @@
 </div>
 
 <section id="library" aria-labelledby="s-lib" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px">
-<div style="display: flex; align-items: baseline"><h2 id="s-lib" style="margin: 0; font-size: 17px; font-weight: 600">Your library</h2><span style="margin-left: 12px; font-size: 13px; color: #9AA6B4">Most recently saved</span><a href="Library.dc.html" style="margin-left: auto; font-size: 14px; font-weight: 600">View all ({{libCount}})</a></div>
+<div style="display: flex; align-items: baseline"><h2 id="s-lib" style="margin: 0; font-size: 17px; font-weight: 600">Your library</h2><span style="margin-left: 12px; font-size: 13px; color: #9AA6B4">Most recently saved</span><a href="Library.dc.html" style="margin-left: auto; display: inline-flex; align-items: center; min-height: 32px; font-size: 14px; font-weight: 600">View all ({{libCount}})</a></div>
 <sc-if value="{{hasRows}}" hint-placeholder-val="{{true}}">
 <div style="overflow-x: auto">
 <table style="width: 100%; min-width: 860px; border-collapse: collapse; font-size: 14px; margin-top: 8px">
@@ -206,7 +208,7 @@
 </sc-if>
 <div aria-live="polite" style="position: fixed; right: 20px; bottom: 20px; z-index: 60; max-width: calc(100vw - 40px)">
 <sc-if value="{{toastShow}}" hint-placeholder-val="{{false}}">
-<div class="cf-toast" role="status" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
+<div class="cf-toast" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
 <sc-if value="{{toastOk}}" hint-placeholder-val="{{true}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DD68C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></sc-if>
 <sc-if value="{{toastErr}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B5E" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.5"></path></svg></sc-if>
 <span style="flex: 1; font-size: 14px; line-height: 1.45">{{toastText}}</span>
@@ -244,7 +246,7 @@ class Component extends DCLogic {
     }
   }
   snap(s) { return { input: s.input, prompt: s.prompt, url: s.url, tags: (s.tags || []).slice(), saveName: s.saveName, hasShort: s.hasShort !== false }; }
-  componentDidUpdate(pp, ps) {
+  componentDidUpdate(pp) { var ps = this.prevState();
     var cur = JSON.stringify(this.snap(this.state)), self = this;
     if (this.state.stopEdit && !ps.stopEdit) setTimeout(function () { var el = self._seKeep; if (el && el.focus) el.focus(); }, 0);
     if (cur === JSON.stringify(this.snap(ps))) return;
@@ -253,14 +255,14 @@ class Component extends DCLogic {
   }
   libSeed() {
     return [
-      { id: 'st-rsi-bb', kind: 'strategy', name: 'RSI_BB_LB_LONG_SL2_TP4', src: 'Written by you', input: 'prompt', prompt: 'When RSI is below 30 and price is under the lower Bollinger Band, go LONG. Stop loss 2%, take profit 4%.', tags: ['RSI', 'Bollinger', 'Mean Reversion', 'Long'], ver: '1.0.0', created: '20/05/2025 10:42', updated: '20/05/2025 10:42', rules: ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)', 'Stop loss 2% below entry', 'Take profit 4% above entry'] },
-      { id: 'st-macd', kind: 'strategy', name: 'MACD_Cross_TrendFollow', src: 'Imported from a link', input: 'url', url: 'https://www.tradingview.com/script/abc123-example/', tags: ['MACD', 'Trend', 'Swing'], ver: '1.2.1', created: '19/05/2025 16:30', updated: '19/05/2025 16:30', rules: ['LONG when the MACD line crosses above its signal line and the close is above EMA(200)', 'Exit when the MACD line crosses back below its signal line'] },
-      { id: 'cp-ma-rsi-sr', kind: 'composite', name: 'MA + RSI + S/R', src: 'Built in Discovery', blocks: ['MA', 'RSI', 'Support / Resistance'], vote: 'weighted', w: [0.4, 0.3, 0.3], tags: ['Composite', 'Weighted vote'], ver: '1.0.0', created: '18/05/2025 09:05', updated: '18/05/2025 09:05', rules: ['MA, RSI and Support / Resistance each vote BUY, SELL or HOLD on every candle', 'Weighted vote (0.40 / 0.30 / 0.30) decides the signal'] }
+      { id: 'st-rsi-bb', kind: 'strategy', name: 'RSI_BB_LB_LONG_SL2_TP4', src: 'Written by you', input: 'prompt', prompt: 'When RSI is below 30 and price is under the lower Bollinger Band, go LONG. Stop loss 2%, take profit 4%.', tags: ['RSI', 'Bollinger', 'Mean Reversion', 'Long'], ver: '1.0.0', created: '20 May 2025, 10:42', updated: '20 May 2025, 10:42', rules: ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)', 'Stop loss 2% below entry', 'Take profit 4% above entry'] },
+      { id: 'st-macd', kind: 'strategy', name: 'MACD_Cross_TrendFollow', src: 'Imported from a link', input: 'url', url: 'https://www.tradingview.com/script/abc123-example/', tags: ['MACD', 'Trend', 'Swing'], ver: '1.2.1', created: '19 May 2025, 16:30', updated: '19 May 2025, 16:30', rules: ['LONG when the MACD line crosses above its signal line and the close is above EMA(200)', 'Exit when the MACD line crosses back below its signal line'] },
+      { id: 'cp-ma-rsi-sr', kind: 'composite', name: 'MA + RSI + S/R', src: 'Built in Discovery', blocks: ['MA', 'RSI', 'Support / Resistance'], vote: 'weighted', w: [0.4, 0.3, 0.3], tags: ['Composite', 'Weighted vote'], ver: '1.0.0', created: '18 May 2025, 09:05', updated: '18 May 2025, 09:05', rules: ['MA, RSI and Support / Resistance each vote BUY, SELL or HOLD on every candle', 'Weighted vote (0.40 / 0.30 / 0.30) decides the signal'] }
     ];
   }
   lib() { try { var v = window.localStorage.getItem('cf.library'); return v ? JSON.parse(v) : this.libSeed(); } catch (e) { return this.libSeed(); } }
   setLib(list) { try { window.localStorage.setItem('cf.library', JSON.stringify(list)); } catch (e) {} }
-  nowStamp() { var d = new Date(); function p(n) { return (n < 10 ? '0' : '') + n; } return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
+  nowStamp() { var d = new Date(); function p(n) { return (n < 10 ? '0' : '') + n; } return p(d.getDate()) + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()] + ' ' + d.getFullYear() + ', ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
   bumpVer(v) { var p = String(v || '1.0.0').split('.').map(function (x) { return parseInt(x, 10) || 0; }); while (p.length < 3) p.push(0); p[2] += 1; return p.join('.'); }
   editItem() { var id = this.state.editId; return id ? this.lib().filter(function (x) { return x.id === id; })[0] || null : null; }
   urlOk() { return /^https?:\/\/[^\s\/]+\.[^\s\/]+/.test(this.state.url); }
@@ -347,7 +349,7 @@ class Component extends DCLogic {
       rows: self.lib().slice(0, 3).map(function (r) {
         var runs = (self.store('runs') || []).filter(function (x) { return x.strategyId === r.id; });
         return { name: r.name, type: r.kind === 'composite' ? 'Composite' : 'Strategy', src: r.src, date: r.updated, ver: r.ver, tags: (r.tags || []).join(', '),
-          bt: runs.length ? runs[0].result : 'Not backtested yet', btC: runs.length ? '#C3CCD6' : '#F2B544',
+          bt: runs.length ? runs[0].result : 'Not backtested yet', btC: runs.length ? '#C3CCD6' : '#9AA6B4',
           handoff: function () { self.store('handoff', { strategy: r.name, id: r.id, from: 'your library' }); },
           open: function () { self.store('libOpen', r.id); } };
       })

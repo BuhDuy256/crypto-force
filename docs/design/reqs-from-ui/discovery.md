@@ -23,7 +23,7 @@ Validation:
 
 - Giá trị nằm ngoài khoảng của một điều kiện đang bật: báo lỗi ngay dưới trường đó.
 - Không bật điều kiện nào: báo "Turn on at least one stop condition so the search can end on its own."
-- Bấm Start khi có lỗi: mở phần settings và hiện toast lỗi; phiên không bắt đầu.
+- Bấm Start khi có lỗi: mở phần settings, hiện toast lỗi và chuyển focus tới trường lỗi đầu tiên; phiên không bắt đầu.
 
 Khi phiên đang chạy hoặc tạm dừng, phần settings bị khóa, kèm dòng nhắc phải Stop thì mới đổi được.
 
@@ -84,7 +84,7 @@ Trong prototype, trạng thái Failed xảy ra khi dùng Genetic với dưới 1
 
 ## Xem và mở candidate
 
-Leaderboard xếp hạng candidate theo **Return**, **Win rate**, **Max DD** hoặc **Score** (mặc định: Score). Chọn tiêu đề cột để đổi tiêu chí; cột đang dùng có `aria-sort`. Max DD xếp từ mức sụt giảm nhỏ nhất. Max DD và Score có tooltip giải thích; Score là điểm kết hợp return, max drawdown và win rate.
+Leaderboard xếp hạng candidate theo **Return**, **Win rate**, **Max DD** hoặc **Score** (mặc định: Score). Chọn tiêu đề cột để đổi tiêu chí; cột đang dùng có `aria-sort`. Trên màn hình hẹp, Leaderboard là danh sách card: mỗi card hiện Score, Return, Max DD và Re-test; Win rate, số trades và thanh so sánh nằm trong phần mở rộng "More metrics"; tiêu chí xếp hạng chọn bằng ô **Sort by**. Max DD xếp từ mức sụt giảm nhỏ nhất. Max DD và Score có tooltip giải thích; Score là điểm kết hợp return, max drawdown và win rate.
 
 Mỗi candidate hiện return, win rate, max drawdown, score, số trades, cùng một thanh so sánh return với max drawdown. Candidate dưới 50 trades được đánh dấu "few".
 

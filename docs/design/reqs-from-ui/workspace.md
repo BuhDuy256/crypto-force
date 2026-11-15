@@ -88,7 +88,7 @@ Khi một màn hình gửi đối tượng sang màn hình khác, đối tượn
 Hai cách bảo vệ dữ liệu đang được dùng:
 
 - **Tự lưu nháp**: Strategy Engine và Composite builder lưu nháp liên tục ([strategy-engine.md](strategy-engine.md#bản-nháp)). Rời trang không cần xác nhận.
-- **Xác nhận khi rời trang**: Settings đánh dấu khi có thay đổi chưa lưu. Khi đó, bấm bất kỳ link nào trong App header dẫn ra khỏi Settings sẽ mở hộp thoại "Leave without saving?": **Stay on Settings** hoặc **Leave without saving**. Đóng hoặc tải lại tab trình duyệt sẽ hiện cảnh báo của trình duyệt ([settings.md](settings.md#lưu-profile)).
+- **Xác nhận khi rời trang**: Settings đánh dấu khi Profile hoặc phần đổi password có thay đổi chưa lưu. Khi đó, bấm bất kỳ link nào trong App header dẫn ra khỏi Settings (tab, Search, Notifications, menu tài khoản) sẽ mở hộp thoại "Leave without saving?": **Stay on Settings** hoặc **Leave without saving**. Đóng tab, tải lại trang hoặc dùng Back/Forward của trình duyệt sẽ hiện cảnh báo của trình duyệt ([settings.md](settings.md#lưu-profile)).
 
 ## Phản hồi dùng chung
 

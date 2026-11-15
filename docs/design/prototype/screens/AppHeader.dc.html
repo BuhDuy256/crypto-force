@@ -9,6 +9,8 @@
 <script src="../vendor/react/react-dom.production.min.js"></script>
 <script src="../tools/dc-source.js"></script>
 <script src="../vendor/dc-runtime/support.js"></script>
+<script src="../tools/dc-lifecycle.js"></script>
+<script src="../tools/modal-focus.js"></script>
 <script src="../tools/url-props.js"></script>
 
 </head>
@@ -88,9 +90,13 @@ main [style*="overflow-x: auto"] {max-width:100%;scrollbar-width:thin;}
 <link href="../assets/fonts/fonts.css" rel="stylesheet">
 <style>
 body{margin:0}
+/* The header is also opened on its own, without base.css: keep the skip link hidden until focused. */
+.cf-app-header .cf-skip{position:absolute;left:12px;top:-60px;z-index:50;padding:10px 14px;border-radius:8px;background:#E7ECF2;color:#0B0E12;font-weight:650;text-decoration:none}
+.cf-app-header .cf-skip:focus{top:12px}
 </style>
 </helmet>
 <header class="cf-app-header" onClickCapture="{{guardClick}}" style="position: relative; z-index: 20; background: #0B0E12; border-bottom: 1px solid #252D38; font-family: Onest, system-ui, sans-serif; color: #E7ECF2; font-variant-numeric: tabular-nums lining-nums">
+<a href="#main" class="cf-skip">Skip to main content</a>
 <div style="max-width: 1640px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; gap: 0 28px; min-height: 60px">
 <a href="Main.dc.html" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; color: #E7ECF2; text-decoration: none; font-size: 20px; font-weight: 600; letter-spacing: -0.03em"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x=".5" y=".5" width="29" height="29" rx="8" fill="#151A21" stroke="#2F3945"></rect><path d="M8 13.5l7-7 7 7z" fill="#3DD68C"></path><path d="M8 16.5l7 7 7-7z" fill="#E7ECF2"></path></svg>Crypto Force</a>
 <nav aria-label="Main" class="cf-wide" style="display: flex; align-self: stretch">
@@ -177,7 +183,7 @@ body{margin:0}
 <span style="font-size: 12px; color: #9AA6B4; border: 1px solid #2F3945; border-radius: 6px; padding: 2px 8px">Esc</span>
 </div>
 <sc-if value="{{hasResults}}" hint-placeholder-val="{{true}}">
-<ul id="cf-results" role="listbox" aria-label="Results" style="margin: 0; padding: 8px; list-style: none; max-height: 380px; overflow-y: auto">
+<ul id="cf-results" role="listbox" aria-label="Results" tabindex="-1" style="margin: 0; padding: 8px; list-style: none; max-height: 380px; overflow-y: auto">
 <sc-for list="{{results}}" as="r" hint-placeholder-count="6">
 <li role="presentation"><sc-if value="{{r.first}}" hint-placeholder-val="{{false}}"><div style="padding: 12px 12px 4px; font-size: 12px; font-weight: 600; color: #9AA6B4">{{r.group}}</div></sc-if>
 <a id="{{r.id}}" role="option" aria-selected="{{r.on}}" data-active="{{r.on}}" href="{{r.href}}" onClick="{{r.pick}}" tabindex="-1" class="cf-ghost" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: #E7ECF2; text-decoration: none; background: {{r.bg}}"><span style="flex: 1; font-size: 14px">{{r.label}}</span><span style="font-size: 12px; color: #9AA6B4">{{r.meta}}</span></a></li>
@@ -274,11 +280,13 @@ class Component extends DCLogic {
   }
   keep(k, v) { try { if (v === null) window.localStorage.removeItem('cf.' + k); else window.localStorage.setItem('cf.' + k, JSON.stringify(v)); } catch (e) {} }
   focusRef(name) { var el = this._refs && this._refs[name]; if (el && el.focus) el.focus(); }
-  componentDidUpdate(pp, ps) {
+  componentDidUpdate(pp) { var ps = this.prevState();
     var st = this.state, self = this;
     if (ps.notes !== st.notes) { try { window.localStorage.setItem('cf.notes', JSON.stringify(st.notes.filter(function (n) { return typeof n.id === 'string'; }).slice(0, 20))); } catch (e) {} }
     if (st.leave && !ps.leave) setTimeout(function () { var el = self._lvStay; if (el && el.focus) el.focus(); }, 0);
     if (st.soAsk && !ps.soAsk) setTimeout(function () { var el = self._soStay; if (el && el.focus) el.focus(); }, 0);
+    // The menu item that opened the sign-out dialog is gone; return focus to the control that opened the menu.
+    if (!st.soAsk && ps.soAsk) setTimeout(function () { var b = self._refs.acctBtn; if (b && b.getClientRects().length) b.focus(); else self.focusRef('mobileBtn'); }, 0);
     if (st.acct && !ps.acct) setTimeout(function () { var m = self._refs.menu; var f = m && m.querySelector('[role=menuitem]'); if (f) f.focus(); }, 0);
     if (st.notif && !ps.notif) setTimeout(function () { self.focusRef('notifPanel'); }, 0);
     if (st.search && !ps.search) setTimeout(function () { self.focusRef('searchInput'); }, 0);

@@ -18,6 +18,8 @@ Backtest có hai view: **Set up & run** và **Runs (N)**. Chi tiết của một
 
 Lỗi hiện ngay dưới từng trường, kèm dòng tổng "Fix N field(s) above to run the backtest". Run backtest bị vô hiệu khi còn lỗi.
 
+Khi From và To hợp lệ, dưới form hiện dòng "Period" nhắc lại khoảng thời gian và số ngày, ví dụ "01 May 2025 → 15 May 2025 · 14 days". Ô chọn ngày hiển thị theo định dạng của trình duyệt, nên dòng này giúp người dùng kiểm tra ngày theo một định dạng không gây nhầm lẫn.
+
 ## Chọn strategy để backtest
 
 Ô Strategy liệt kê MA Crossover (built-in) cùng toàn bộ item trong Strategy library.
@@ -119,7 +121,7 @@ Khi chạy lại một run có strategy không còn trong Library, form dùng b�
 | Tóm tắt | Net return, max drawdown, win rate, số trades, kết quả trung bình mỗi trade so với chi phí mỗi trade, so sánh với buy & hold, thanh return so với max drawdown |
 | Account value and drawdown | Đường giá trị tài khoản, đường buy & hold, vùng sụt giảm từ đỉnh, đánh dấu đỉnh và đáy |
 | Price and trades | Nến, MA(20), MA(50), support, resistance, điểm entry và exit, mức stop loss và take profit |
-| Trades | Từng lệnh: thời điểm mở, chiều, entry, stop loss, take profit, exit, fee, slippage, thời gian giữ, P/L |
+| Trades | Từng lệnh: thời điểm mở, chiều, P/L (USD), P/L %, entry, exit, stop loss, take profit, fee, slippage, thời gian giữ. P/L đứng ngay sau chiều lệnh để luôn nhìn thấy; trên màn hình hẹp, mỗi lệnh là một card |
 | Effect of trading costs | Gross P/L, fee, slippage, net P/L và tỷ lệ chi phí trên gross P/L |
 | Assumptions | Các giả định của engine |
 

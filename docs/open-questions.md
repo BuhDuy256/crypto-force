@@ -106,11 +106,11 @@
 | ID | Câu hỏi | Điều đã biết | Chặn | Ưu tiên | Nguồn |
 | --- | --- | --- | --- | --- | --- |
 | <a id="oq-060"></a>OQ-060 | Thông báo có phụ thuộc tùy chọn trong Settings › Notifications không? Có cần thông báo qua email không? | Backtest tạo thông báo khi kết thúc; Discovery tạo khi phiên kết thúc lúc màn Discovery đang mở | Notifications | Medium | [[6]](#ref-6) |
-| <a id="oq-061"></a>OQ-061 | "Leave without saving?" có cần chặn link trong nội dung trang và nút Back của trình duyệt không? | Chỉ chặn link trong App header khi đang ở Settings | — | Low | [[6]](#ref-6) |
 | <a id="oq-062"></a>OQ-062 | "Discovery found a better candidate" và "Extraction template updated" có thật không, và khi nào thì phát ra? | Hai thông báo này là dữ liệu cố định | — | Low | [[6]](#ref-6) |
 | <a id="oq-063"></a>OQ-063 | Trang chân trang nào cần có ở bản đầu và nội dung lấy từ đâu? | Terms, Privacy Policy, Risk disclosure trỏ `#`; Documentation và System status ghi "planned"; Support và Social ghi "not configured" | — | Low | [[11]](#ref-11) |
 | <a id="oq-064"></a>OQ-064 | Khách chưa đăng nhập vào URL không tồn tại thì thấy 404 hay được đưa về Landing? | Trang 404 có link vào workspace | — | Low | [[11]](#ref-11) |
 | <a id="oq-065"></a>OQ-065 | "Try again" trên 404 có nên tải lại URL vừa lỗi thay vì mở Realtime không? | Nút này mở Realtime | — | Low | [[11]](#ref-11) |
+| <a id="oq-075"></a>OQ-075 | Khi tải hoặc làm mới dữ liệu thất bại (Library, Runs, News feed), màn hình nào giữ dữ liệu cũ và giữ trong bao lâu? Retry chỉ do người dùng bấm, hay hệ thống tự thử lại? | Prototype có pattern hiển thị cho lỗi tải, dữ liệu cũ được giữ lại và offline, kèm nút Retry; chưa có quy tắc retry | Xử lý lỗi API ở frontend | Low | [[14]](#ref-14) |
 
 ## Testing
 
@@ -129,6 +129,7 @@
 | <a id="oq-071"></a>OQ-071 | Có mở bài gốc không? Có lưu toàn văn không? | Resolved | Có. Schema News gồm `content` và `url` | [[13, §14]](#ref-13) |
 | <a id="oq-072"></a>OQ-072 | Khi đăng nhập trên thiết bị khác, dữ liệu nào cần đồng bộ? | Resolved | Library, Runs và Notifications lưu trong PostgreSQL nên đồng bộ theo tài khoản. Bản nháp của Strategy Engine và Composite builder vẫn lưu trong trình duyệt | [[7, Tech Stack]](#ref-7) [[3, Bản nháp]](#ref-3) |
 | <a id="oq-073"></a>OQ-073 | Mọi run Completed dùng chung một bộ kết quả mẫu | Dropped | Đây là dữ liệu minh họa của prototype, không phải câu hỏi sản phẩm | [[4]](#ref-4) |
+| <a id="oq-061"></a>OQ-061 | "Leave without saving?" có cần chặn link trong nội dung trang và nút Back của trình duyệt không? | Resolved | Hộp thoại chặn mọi điều hướng trong ứng dụng ra khỏi Settings; Back/Forward, đóng tab và tải lại trang dùng cảnh báo của trình duyệt | [[10, Lưu Profile]](#ref-10) [[6, Rời trang khi còn thay đổi chưa lưu]](#ref-6) |
 | <a id="oq-074"></a>OQ-074 | Lỗi sai thông tin kích hoạt bằng password `wrongpass`; link reset dùng nút preview | Dropped | Đây là trigger demo của prototype, không phải yêu cầu | [[9]](#ref-9) |
 
 ## References
@@ -146,3 +147,4 @@
 11. <a id="ref-11"></a>[Public pages](design/reqs-from-ui/public-pages.md)
 12. <a id="ref-12"></a>[CI/CD](development/cicd.md)
 13. <a id="ref-13"></a>[Project Brief](requirements/project-brief.md)
+14. <a id="ref-14"></a>[Crypto Force UI Prototype](design/prototype/README.md)

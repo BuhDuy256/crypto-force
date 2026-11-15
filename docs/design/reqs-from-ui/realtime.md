@@ -6,7 +6,7 @@ Realtime hiện một pair (BTCUSDT) trên tối đa bốn chart nến, mỗi ch
 
 ## Chọn số chart và timeframe
 
-- **Charts**: chọn 1, 2 hoặc 4 chart. Chọn ít chart hơn thì chỉ ẩn các chart cuối; timeframe của chúng vẫn được giữ khi bật lại.
+- **Charts**: chọn 1, 2 hoặc 4 chart trên mọi kích thước màn hình. Chọn ít chart hơn thì chỉ ẩn các chart cuối; timeframe của chúng vẫn được giữ khi bật lại. Khi đủ chỗ, các chart xếp thành hai cột (một chart thì chiếm cả hàng); trên màn hình hẹp, các chart xếp thành một cột và người dùng cuộn dọc để xem hết.
 - **Timeframe**: mỗi chart có một ô chọn riêng (1m, 5m, 15m, 1h, 4h). Đổi timeframe của một chart không ảnh hưởng các chart khác.
 
 Mỗi chart hiện nến, volume, đường MA(20), giá cuối, thay đổi trong 24 giờ và badge tín hiệu BUY hoặc SELL theo signal source đang chọn. Mỗi chart có mô tả cho screen reader, gồm giá cuối, MA(20) và tín hiệu.
@@ -25,7 +25,7 @@ Link **Manage in library** mở Strategy library.
 
 ## Backtest strategy đang xem
 
-**Backtest this strategy** mở Backtest với signal source hiện tại được chọn sẵn ([backtest.md](backtest.md#chọn-strategy-để-backtest)).
+**Backtest this strategy** nằm ngay dưới ô Signals from, một nút cho cả màn hình. Nút mở Backtest với signal source hiện tại được chọn sẵn ([backtest.md](backtest.md#chọn-strategy-để-backtest)).
 
 ## Cập nhật live và dữ liệu lịch sử
 

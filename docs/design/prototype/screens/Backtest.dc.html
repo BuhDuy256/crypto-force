@@ -9,6 +9,8 @@
 <script src="../vendor/react/react-dom.production.min.js"></script>
 <script src="../tools/dc-source.js"></script>
 <script src="../vendor/dc-runtime/support.js"></script>
+<script src="../tools/dc-lifecycle.js"></script>
+<script src="../tools/modal-focus.js"></script>
 
 </head>
 <body>
@@ -36,15 +38,16 @@
  .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(1)::before{content:"Trade";}
  .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(2)::before{content:"Opened";}
  .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(3)::before{content:"Side";}
- .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(4)::before{content:"Entry";}
- .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(5)::before{content:"Stop loss";}
- .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(6)::before{content:"Take profit";}
+ .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(4)::before{content:"P/L (USD)";}
+ .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(5)::before{content:"P/L %";}
+ .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:is(:nth-child(4),:nth-child(5)){font-size:16px;}
+ .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(6)::before{content:"Entry";}
  .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(7)::before{content:"Exit";}
- .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(8)::before{content:"Fee";}
- .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(9)::before{content:"Slippage";}
- .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(10)::before{content:"Held";}
- .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(11)::before{content:"P/L (USD)";}
- .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(12)::before{content:"P/L %";}
+ .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(8)::before{content:"Stop loss";}
+ .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(9)::before{content:"Take profit";}
+ .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(10)::before{content:"Fee";}
+ .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(11)::before{content:"Slippage";}
+ .cf-backtest-layout section[aria-labelledby="b-trades"] tbody td:nth-child(12)::before{content:"Held";}
 }
 </style>
 <link rel="stylesheet" href="../assets/fonts/fonts.css">
@@ -52,7 +55,7 @@
 </helmet>
 <div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums">
 <div style="position: sticky; top: 0; z-index: 30"><dc-import name="AppHeader" active="bt" hint-size="100%,61px"></dc-import></div>
-<main class="cf-audited-main cf-backtest-layout" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 24px">
+<main class="cf-audited-main cf-backtest-layout" id="main" tabindex="-1" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 24px">
 <div role="note" style="border:1px solid #334155;border-radius:7px;padding:8px 12px;background:#111923;color:#AFC2D6;font-size:12px;line-height:1.4;max-width:100%;box-sizing:border-box">UI prototype: prices, backtests, news, account state and workflow feedback are illustrative. No live market, AI or account service is connected in this HTML file.</div>
 <div style="display: flex; flex-direction: column; gap: 4px">
 <h1 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.03em">Backtest</h1>
@@ -74,6 +77,7 @@
 <div style="flex: 0.8 1 110px; display: flex; flex-direction: column; gap: 8px"><label for="b-fee" style="font-size: 13px; font-weight: 700"><span class="cf-tip">Fee (%)<button type="button" class="cf-tipbtn" aria-label="What is Fee (%)?" aria-describedby="tip1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5"></path></svg></button><span role="tooltip" id="tip1" class="cf-tipbox">Exchange trading fee charged on each entry and exit, as a percent of the trade size.</span></span></label><input id="b-fee" type="number" min="0" max="1" step="0.01" value="{{v.fee}}" onChange="{{on.fee}}" aria-invalid="{{e.fee.inv}}" aria-describedby="b-fee-err" style="height: 42px; padding: 0 12px; border: 1px solid {{e.fee.bd}}; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"><sc-if value="{{e.fee.msg}}" hint-placeholder-val="{{false}}"><span id="b-fee-err" style="font-size: 12px; line-height: 1.4; color: #FF6B5E">{{e.fee.msg}}</span></sc-if></div>
 <div style="flex: 0.8 1 120px; display: flex; flex-direction: column; gap: 8px"><label for="b-slip" style="font-size: 13px; font-weight: 700"><span class="cf-tip">Slippage (bps)<button type="button" class="cf-tipbtn" aria-label="What is Slippage (bps)?" aria-describedby="tip2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5"></path></svg></button><span role="tooltip" id="tip2" class="cf-tipbox">Expected gap between the signal price and the price you actually get. 1 bps = 0.01%.</span></span></label><input id="b-slip" type="number" min="0" max="100" step="1" value="{{v.slip}}" onChange="{{on.slip}}" aria-invalid="{{e.slip.inv}}" aria-describedby="b-slip-err" style="height: 42px; padding: 0 12px; border: 1px solid {{e.slip.bd}}; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px"><sc-if value="{{e.slip.msg}}" hint-placeholder-val="{{false}}"><span id="b-slip-err" style="font-size: 12px; line-height: 1.4; color: #FF6B5E">{{e.slip.msg}}</span></sc-if></div>
 </div>
+<sc-if value="{{periodTxt}}" hint-placeholder-val="{{true}}"><p style="margin: 0; font-size: 13px; color: #9AA6B4">Period: <span style="color: #E7ECF2">{{periodTxt}}</span></p></sc-if>
 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px">
 <sc-if value="{{handoffNote}}" hint-placeholder-val="{{false}}"><span role="status" style="font-size: 14px; color: #A9C1FF">{{handoffNote}}</span></sc-if>
 <sc-if value="{{hasErrors}}" hint-placeholder-val="{{false}}"><span role="alert" style="font-size: 14px; color: #FF6B5E">Fix {{errorCount}} field(s) above to run the backtest.</span></sc-if>
@@ -139,7 +143,7 @@
 <section aria-labelledby="b-res" style="background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px">
 <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px"><h2 id="b-res" style="margin: 0; font-size: 20px; font-weight: 600">{{runTitle}}</h2><span style="font-size: 13px; color: #9AA6B4">{{runMeta}}</span></div>
 <sc-if value="{{stale}}" hint-placeholder-val="{{false}}"><div role="status" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 16px; border: 1px solid #5A4520; border-radius: 8px; background: #1F1A10; font-size: 14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F2B544" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span style="flex: 1 1 260px"><strong style="font-weight: 600">Inputs changed since this run.</strong> These results are for the settings shown above them. Run the backtest again to update.</span><button type="button" onClick="{{startRun}}" disabled="{{runDisabled}}" class="cf-sec" style="min-height: 36px; padding: 0 12px; border: 1px solid #F2B544; border-radius: 8px; background: none; color: #F2B544; font-size: 13px; font-weight: 600; cursor: pointer">Run again</button><button type="button" onClick="{{revert}}" class="cf-ghost" style="min-height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: #E7ECF2; font-size: 13px; font-weight: 600; cursor: pointer">Revert inputs</button></div></sc-if>
-<div style="overflow-x: auto; opacity: {{dim}}; transition: opacity 150ms ease-out">
+<div class="cf-scroll-x" tabindex="0" role="region" aria-labelledby="b-res" style="overflow-x: auto; opacity: {{dim}}; transition: opacity 150ms ease-out">
 <table style="width: 100%; min-width: 980px; border-collapse: collapse">
 <thead><tr style="border-bottom: 1px solid #2F3945; font-size: 13px; color: #9AA6B4; text-align: right"><th style="text-align: left; font-weight: 600; padding: 8px 0">Net return</th><th style="font-weight: 600"><span class="cf-tip">Max drawdown<button type="button" class="cf-tipbtn" aria-label="What is Max drawdown?" aria-describedby="tip3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5"></path></svg></button><span role="tooltip" id="tip3" class="cf-tipbox">The largest drop from a peak to a later low during the test. This measures the largest peak-to-trough decline in simulated account value.</span></span></th><th style="font-weight: 600"><span class="cf-tip">Win rate<button type="button" class="cf-tipbtn" aria-label="What is Win rate?" aria-describedby="tip4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5"></path></svg></button><span role="tooltip" id="tip4" class="cf-tipbox">Share of closed trades that made money after fees and slippage.</span></span></th><th style="font-weight: 600">Trades</th><th style="font-weight: 600"><span class="cf-tip">Per trade<button type="button" class="cf-tipbtn" aria-label="What is Per trade?" aria-describedby="tip5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5"></path></svg></button><span role="tooltip" id="tip5" class="cf-tipbox">Average net result of one trade, next to the average fee plus slippage it paid.</span></span></th><th style="font-weight: 600"><span class="cf-tip">vs. buy &amp; hold<button type="button" class="cf-tipbtn" aria-label="What is vs. buy &amp; hold?" aria-describedby="tip6"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5v.5"></path></svg></button><span role="tooltip" id="tip6" class="cf-tipbox">What simply holding the pair over the same period would have returned, from the same candles.</span></span></th><th style="font-weight: 600; text-align: center; width: 30%">Return vs. max drawdown</th></tr></thead>
 <tbody><tr style="border-bottom: 1px solid #232B35; text-align: right; vertical-align: middle">
@@ -175,7 +179,7 @@
 </div>
 <div style="width: 64px; height: 56px; display: flex; flex-direction: column; justify-content: space-between; font-size: 12px; color: #9AA6B4"><span>0</span><span>−4</span></div>
 </div>
-<div style="display: flex; justify-content: space-between; padding-right: 72px; font-size: 12px; color: #9AA6B4"><span>Trade 1 · 01/05</span><span>Trade 89</span><span>Trade 178 · 15/05</span></div>
+<div style="display: flex; justify-content: space-between; padding-right: 72px; font-size: 12px; color: #9AA6B4"><span>Trade 1 · 01 May</span><span>Trade 89</span><span>Trade 178 · 15 May</span></div>
 </section>
 
 
@@ -215,21 +219,22 @@
 </div>
 <div style="width: 74px; display: flex; flex-direction: column; justify-content: space-between; padding-left: 4px; font-size: 12px; color: #9AA6B4"><span>10K</span><span>0</span></div>
 </div>
-<div style="display: flex; justify-content: space-between; padding: 0 80px 0 12px; font-size: 12px; color: #9AA6B4"><span>06:00</span><span>09:00</span><span>12:00</span><span>15:00</span><span>18:00</span><span>21:00</span><span>15/05</span><span>03:00</span><span>06:00</span><span>09:00</span></div>
+<div style="display: flex; justify-content: space-between; padding: 0 80px 0 12px; font-size: 12px; color: #9AA6B4"><span>06:00</span><span>09:00</span><span>12:00</span><span>15:00</span><span>18:00</span><span>21:00</span><span>15 May</span><span>03:00</span><span>06:00</span><span>09:00</span></div>
 </section>
 
-<section aria-labelledby="b-trades" style="opacity: {{dim}}; flex: 1.2 1 600px; min-width: 0; background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 8px">
-<div style="display: flex; align-items: baseline"><h2 id="b-trades" style="margin: 0; font-size: 17px; font-weight: 600">Trades</h2><span style="margin-left: auto; font-size: 13px; color: #9AA6B4">{{rangeTxt}}</span></div>
-<div style="overflow-x: auto">
+<section aria-labelledby="b-trades" style="opacity: {{dim}}; flex: 1 1 100%; min-width: 0; background: #12171E; border: 1px solid #252D38; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px"><h2 id="b-trades" style="margin: 0; font-size: 17px; font-weight: 600">Trades</h2><span style="margin-left: auto; font-size: 13px; color: #9AA6B4">{{rangeTxt}}</span></div>
+<div class="cf-scroll-x" tabindex="0" role="region" aria-labelledby="b-trades" style="overflow-x: auto">
 <table style="width: 100%; min-width: 900px; border-collapse: collapse; font-size: 13px">
-<thead><tr style="border-bottom: 1px solid #2F3945; color: #9AA6B4; text-align: right"><th style="text-align: left; font-weight: 600; padding: 8px 0">#</th><th style="text-align: left; font-weight: 600">Opened</th><th style="text-align: left; font-weight: 600">Side</th><th style="font-weight: 600">Entry</th><th style="font-weight: 600">Stop loss</th><th style="font-weight: 600">Take profit</th><th style="font-weight: 600">Exit</th><th style="font-weight: 600">Fee</th><th style="font-weight: 600">Slip.</th><th style="font-weight: 600">Held</th><th style="font-weight: 600">P/L (USD)</th><th style="font-weight: 600">P/L %</th></tr></thead>
+<thead><tr style="border-bottom: 1px solid #2F3945; color: #9AA6B4; text-align: right"><th scope="col" style="text-align: left; font-weight: 600; padding: 8px 0">#</th><th scope="col" style="text-align: left; font-weight: 600">Opened</th><th scope="col" style="text-align: left; font-weight: 600">Side</th><th scope="col" style="font-weight: 600">P/L (USD)</th><th scope="col" style="font-weight: 600">P/L %</th><th scope="col" style="font-weight: 600">Entry</th><th scope="col" style="font-weight: 600">Exit</th><th scope="col" style="font-weight: 600">Stop loss</th><th scope="col" style="font-weight: 600">Take profit</th><th scope="col" style="font-weight: 600">Fee</th><th scope="col" style="font-weight: 600">Slip.</th><th scope="col" style="font-weight: 600">Held</th></tr></thead>
 <tbody>
 <sc-for list="{{trades}}" as="t" hint-placeholder-count="10">
 <tr style="border-bottom: 1px solid #232B35; text-align: right">
 <td style="text-align: left; padding: 8px 0; color: #9AA6B4">{{t.i}}</td><td style="text-align: left">{{t.time}}</td>
 <td style="text-align: left"><span style="display: inline-flex; align-items: center; gap: 4px; font-weight: 600; font-size: 12px; color: {{t.dirC}}"><sc-if value="{{t.long}}" hint-placeholder-val="{{true}}"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1l4.5 7h-9z" fill="currentColor"></path></svg></sc-if><sc-if value="{{t.short}}" hint-placeholder-val="{{false}}"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 9L.5 2h9z" fill="currentColor"></path></svg></sc-if>{{t.dir}}</span></td>
-<td>{{t.entry}}</td><td>{{t.sl}}</td><td>{{t.tp}}</td><td>{{t.exit}}</td><td style="color: #9AA6B4">−0.05</td><td style="color: #9AA6B4">−0.03</td>
-<td style="color: #9AA6B4">{{t.held}}</td><td style="font-weight: 600; color: {{t.pc}}">{{t.p}}</td><td style="color: {{t.pc}}">{{t.pp}}</td>
+<td style="font-weight: 600; color: {{t.pc}}">{{t.p}}</td><td style="color: {{t.pc}}">{{t.pp}}</td>
+<td>{{t.entry}}</td><td>{{t.exit}}</td><td>{{t.sl}}</td><td>{{t.tp}}</td><td style="color: #9AA6B4">−0.05</td><td style="color: #9AA6B4">−0.03</td>
+<td style="color: #9AA6B4">{{t.held}}</td>
 </tr>
 </sc-for>
 </tbody>
@@ -284,7 +289,7 @@
 </sc-if>
 <div aria-live="polite" style="position: fixed; right: 20px; bottom: 20px; z-index: 60; max-width: calc(100vw - 40px)">
 <sc-if value="{{toastShow}}" hint-placeholder-val="{{false}}">
-<div class="cf-toast" role="status" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
+<div class="cf-toast" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid {{toastBd}}; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
 <sc-if value="{{toastOk}}" hint-placeholder-val="{{true}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DD68C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg></sc-if>
 <sc-if value="{{toastErr}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B5E" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.5"></path></svg></sc-if>
 <span style="flex: 1; font-size: 14px; line-height: 1.45">{{toastText}}</span>
@@ -315,14 +320,14 @@ class Component extends DCLogic {
   }
   libSeed() {
     return [
-      { id: 'st-rsi-bb', kind: 'strategy', name: 'RSI_BB_LB_LONG_SL2_TP4', src: 'Written by you', input: 'prompt', prompt: 'When RSI is below 30 and price is under the lower Bollinger Band, go LONG. Stop loss 2%, take profit 4%.', tags: ['RSI', 'Bollinger', 'Mean Reversion', 'Long'], ver: '1.0.0', created: '20/05/2025 10:42', updated: '20/05/2025 10:42', rules: ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)', 'Stop loss 2% below entry', 'Take profit 4% above entry'] },
-      { id: 'st-macd', kind: 'strategy', name: 'MACD_Cross_TrendFollow', src: 'Imported from a link', input: 'url', url: 'https://www.tradingview.com/script/abc123-example/', tags: ['MACD', 'Trend', 'Swing'], ver: '1.2.1', created: '19/05/2025 16:30', updated: '19/05/2025 16:30', rules: ['LONG when the MACD line crosses above its signal line and the close is above EMA(200)', 'Exit when the MACD line crosses back below its signal line'] },
-      { id: 'cp-ma-rsi-sr', kind: 'composite', name: 'MA + RSI + S/R', src: 'Built in Discovery', blocks: ['MA', 'RSI', 'Support / Resistance'], vote: 'weighted', w: [0.4, 0.3, 0.3], tags: ['Composite', 'Weighted vote'], ver: '1.0.0', created: '18/05/2025 09:05', updated: '18/05/2025 09:05', rules: ['MA, RSI and Support / Resistance each vote BUY, SELL or HOLD on every candle', 'Weighted vote (0.40 / 0.30 / 0.30) decides the signal'] }
+      { id: 'st-rsi-bb', kind: 'strategy', name: 'RSI_BB_LB_LONG_SL2_TP4', src: 'Written by you', input: 'prompt', prompt: 'When RSI is below 30 and price is under the lower Bollinger Band, go LONG. Stop loss 2%, take profit 4%.', tags: ['RSI', 'Bollinger', 'Mean Reversion', 'Long'], ver: '1.0.0', created: '20 May 2025, 10:42', updated: '20 May 2025, 10:42', rules: ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)', 'Stop loss 2% below entry', 'Take profit 4% above entry'] },
+      { id: 'st-macd', kind: 'strategy', name: 'MACD_Cross_TrendFollow', src: 'Imported from a link', input: 'url', url: 'https://www.tradingview.com/script/abc123-example/', tags: ['MACD', 'Trend', 'Swing'], ver: '1.2.1', created: '19 May 2025, 16:30', updated: '19 May 2025, 16:30', rules: ['LONG when the MACD line crosses above its signal line and the close is above EMA(200)', 'Exit when the MACD line crosses back below its signal line'] },
+      { id: 'cp-ma-rsi-sr', kind: 'composite', name: 'MA + RSI + S/R', src: 'Built in Discovery', blocks: ['MA', 'RSI', 'Support / Resistance'], vote: 'weighted', w: [0.4, 0.3, 0.3], tags: ['Composite', 'Weighted vote'], ver: '1.0.0', created: '18 May 2025, 09:05', updated: '18 May 2025, 09:05', rules: ['MA, RSI and Support / Resistance each vote BUY, SELL or HOLD on every candle', 'Weighted vote (0.40 / 0.30 / 0.30) decides the signal'] }
     ];
   }
   lib() { try { var v = window.localStorage.getItem('cf.library'); return v ? JSON.parse(v) : this.libSeed(); } catch (e) { return this.libSeed(); } }
-  dmy(s) { var p = String(s || '').split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : s; }
-  stamp(ms) { var d = new Date(ms); function p(n) { return (n < 10 ? '0' : '') + n; } return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
+  dmy(s) { var p = String(s || '').split('-'); return p.length === 3 ? p[2] + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][parseInt(p[1], 10) - 1] + ' ' + p[0] : s; }
+  stamp(ms) { var d = new Date(ms); function p(n) { return (n < 10 ? '0' : '') + n; } return p(d.getDate()) + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()] + ' ' + d.getFullYear() + ', ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
   maRules() { return ['LONG when MA(20) crosses above MA(50); SHORT when it crosses below', 'Stop loss and take profit from the strategy settings']; }
   withResult(r) {
     r.title = r.strategyName + ' · ' + r.pair + ' ' + r.tf + ' · ' + this.dmy(r.from) + ' – ' + this.dmy(r.to);
@@ -334,7 +339,7 @@ class Component extends DCLogic {
     function mk(o) { return self.withResult(Object.assign({ strategyId: null, strategyVer: 'built-in', kind: 'builtin', rules: MA, cap: '100', fee: '0.08', slip: '5', durationMs: 12000 }, o)); }
     return [
       mk({ id: 'R-1042', status: 'completed', strategyName: 'MA Crossover', pair: 'BTCUSDT', tf: '5m', from: '2025-05-01', to: '2025-05-15', startedAt: now - 140000, endedAt: now - 128000 }),
-      mk({ id: 'R-1041', status: 'failed', strategyName: 'RSI_BB_LB_LONG_SL2_TP4', strategyId: 'st-rsi-bb', strategyVer: '1.0.0', kind: 'strategy', rules: ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)', 'Stop loss 2% below entry', 'Take profit 4% above entry'], pair: 'SOLUSDT', tf: '1h', from: '2019-06-01', to: '2020-12-31', fail: 'Binance has no SOLUSDT candles before 11/08/2020, when the pair was listed. Pick a start date on or after that day.', startedAt: now - 86400000, endedAt: now - 86388000 }),
+      mk({ id: 'R-1041', status: 'failed', strategyName: 'RSI_BB_LB_LONG_SL2_TP4', strategyId: 'st-rsi-bb', strategyVer: '1.0.0', kind: 'strategy', rules: ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)', 'Stop loss 2% below entry', 'Take profit 4% above entry'], pair: 'SOLUSDT', tf: '1h', from: '2019-06-01', to: '2020-12-31', fail: 'Binance has no SOLUSDT candles before 11 Aug 2020, when the pair was listed. Pick a start date on or after that day.', startedAt: now - 86400000, endedAt: now - 86388000 }),
       mk({ id: 'R-1040', status: 'cancelled', strategyName: 'MACD_Cross_TrendFollow', strategyId: 'st-macd', strategyVer: '1.2.1', kind: 'strategy', rules: ['LONG when the MACD line crosses above its signal line and the close is above EMA(200)', 'Exit when the MACD line crosses back below its signal line'], pair: 'ETHUSDT', tf: '15m', from: '2025-03-01', to: '2025-04-30', startedAt: now - 90000000, endedAt: now - 89995000 })
     ];
   }
@@ -465,16 +470,16 @@ class Component extends DCLogic {
     axis.push({ label: '70,200.00', top: Yp(70200), bg: '#FF6B5E', fg: '#151A21', fw: '700' });
     axis.push({ label: '67,800.00', top: Yp(67800), bg: '#3DD68C', fg: '#151A21', fw: '700' });
     var raw = [
-      ['01/05 06:15', 'LONG', '68,120.50', '67,620.00', '69,120.00', '69,050.80', '+0.83'],
-      ['01/05 09:40', 'SHORT', '69,450.20', '69,950.00', '68,450.00', '68,430.10', '+0.87'],
-      ['01/05 12:25', 'LONG', '68,600.10', '68,100.00', '69,600.00', '67,980.00', '−0.67'],
-      ['01/05 16:10', 'SHORT', '69,320.30', '69,820.00', '68,320.00', '68,310.40', '+0.90'],
-      ['02/05 03:50', 'LONG', '68,800.40', '68,300.00', '69,800.00', '69,800.00', '+0.95'],
-      ['02/05 08:35', 'SHORT', '69,900.80', '70,400.00', '68,900.00', '70,430.00', '−0.58'],
-      ['02/05 13:05', 'LONG', '68,950.60', '68,450.00', '69,950.00', '69,930.20', '+0.92'],
-      ['03/05 01:20', 'SHORT', '69,120.70', '69,620.00', '68,120.00', '68,110.30', '+0.86'],
-      ['03/05 06:55', 'LONG', '68,520.30', '68,020.00', '69,520.00', '68,020.00', '−0.55'],
-      ['03/05 11:10', 'SHORT', '69,010.20', '69,510.00', '68,010.00', '68,005.50', '+0.95']
+      ['01 May, 06:15', 'LONG', '68,120.50', '67,620.00', '69,120.00', '69,050.80', '+0.83'],
+      ['01 May, 09:40', 'SHORT', '69,450.20', '69,950.00', '68,450.00', '68,430.10', '+0.87'],
+      ['01 May, 12:25', 'LONG', '68,600.10', '68,100.00', '69,600.00', '67,980.00', '−0.67'],
+      ['01 May, 16:10', 'SHORT', '69,320.30', '69,820.00', '68,320.00', '68,310.40', '+0.90'],
+      ['02 May, 03:50', 'LONG', '68,800.40', '68,300.00', '69,800.00', '69,800.00', '+0.95'],
+      ['02 May, 08:35', 'SHORT', '69,900.80', '70,400.00', '68,900.00', '70,430.00', '−0.58'],
+      ['02 May, 13:05', 'LONG', '68,950.60', '68,450.00', '69,950.00', '69,930.20', '+0.92'],
+      ['03 May, 01:20', 'SHORT', '69,120.70', '69,620.00', '68,120.00', '68,110.30', '+0.86'],
+      ['03 May, 06:55', 'LONG', '68,520.30', '68,020.00', '69,520.00', '68,020.00', '−0.55'],
+      ['03 May, 11:10', 'SHORT', '69,010.20', '69,510.00', '68,010.00', '68,005.50', '+0.95']
     ];
     var held = ['2h 10m', '1h 45m', '3h 05m', '4h 20m', '2h 30m', '1h 15m', '3h 40m', '2h 55m', '1h 50m', '3h 20m'];
     var trades = raw.map(function (t, i) { var lg = t[1] === 'LONG', win = t[6].charAt(0) === '+'; return { held: held[i], pp: (t[6].charAt(0) === '+' ? '+' : '\u2212') + (Math.abs(parseFloat(t[6].replace('\u2212', '-'))) / 100 * 100).toFixed(2) + '%', i: i + 1, time: t[0], dir: t[1], long: lg, short: !lg, dirC: lg ? '#3DD68C' : '#FF6B5E', entry: t[2], sl: t[3], tp: t[4], exit: t[5], p: t[6], pc: win ? '#3DD68C' : '#FF6B5E' }; });
@@ -484,7 +489,7 @@ class Component extends DCLogic {
     var e = {}, on = {};
     keys.forEach(function (k) { e[k] = { msg: errs[k] || '', inv: errs[k] ? 'true' : 'false', bd: errs[k] ? '#FF6B5E' : '#3A4553' }; on[k] = function (ev) { var nv = Object.assign({}, self.state.v); nv[k] = ev.target.value; self.setState({ v: nv }); }; });
     var stale = keys.some(function (k) { return v[k] !== last[k]; });
-    function dmy(s) { var p = s.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+    function dmy(s) { var p = s.split('-'); return p[2] + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][parseInt(p[1], 10) - 1] + ' ' + p[0]; }
     var busy = false, st = this.state, runs = this.getRuns(), now = Date.now();
     var act = runs.filter(function (r) { return r.status === 'running'; })[0] || null;
     var isNewV = st.view === 'new', isRunsV = st.view === 'runs';
@@ -529,6 +534,8 @@ class Component extends DCLogic {
     return {
       v: v, on: on, e: e,
       eqPts: (this._eq = this._eq || this.equity()).eqPts, ddPts: this._eq.ddPts, bhPts: this._eq.bhPts, peakX: this._eq.peakX, peakY: this._eq.peakY, troughX: this._eq.troughX, troughY: this._eq.troughY, today: '2026-11-14', last: last,
+      // The date inputs follow the browser locale; this line restates the period in the app's own format.
+      periodTxt: (!errs.from && !errs.to && v.from && v.to) ? this.dmy(v.from) + ' → ' + this.dmy(v.to) + ' · ' + Math.round((Date.parse(v.to) - Date.parse(v.from)) / 86400000) + ' days' : '',
       hasErrors: Object.keys(errs).length > 0, errorCount: Object.keys(errs).length,
       runDisabled: Object.keys(errs).length > 0 || busy,
       stale: stale && isNewV, dim: (stale && isNewV) ? '0.5' : '1',

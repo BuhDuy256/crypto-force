@@ -1,7 +1,7 @@
 body{margin:0;background:#0B0E12}
 a{color:#7AA2FF;text-underline-offset:3px}
 .cf-skip{position:absolute;left:12px;top:-60px;z-index:50;padding:10px 14px;border-radius:8px;background:#E7ECF2;color:#0B0E12;font-weight:650;text-decoration:none}
-.cf-skip:focus{top:12px}a:hover{text-decoration-thickness:2px}
+.cf-skip:focus{top:12px}main[tabindex="-1"]:focus{outline:none}main{scroll-margin-top:72px}a:hover{text-decoration-thickness:2px}
 button,input,select,textarea{font:inherit;color:inherit}
 ::selection{background:#7AA2FF;color:#151A21}
 :focus-visible{outline:2px solid #7AA2FF;outline-offset:2px}
@@ -26,12 +26,20 @@ button:disabled{cursor:not-allowed !important;opacity:.6;filter:none !important;
 tbody tr{transition:background-color 120ms ease-out}
 tbody tr:hover{background-color:#141A22}
 .cf-tip{position:relative;display:inline-flex;align-items:center}
-.cf-tipbtn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-left:4px;padding:0;border:0;border-radius:50%;background:none;color:#9AA6B4;cursor:help}
+.cf-tipbtn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;margin:-2px 0 -2px 2px;padding:0;border:0;border-radius:50%;background:none;color:#9AA6B4;cursor:help}
 .cf-tipbtn:hover{color:#E7ECF2}
 .cf-tipbox{display:none;position:absolute;z-index:40;left:50%;top:calc(100% + 6px);transform:translateX(-50%);width:240px;padding:10px 12px;border:1px solid #2F3945;border-radius:8px;background:#1B222B;color:#E7ECF2;font-size:13px;font-weight:400;line-height:1.5;text-align:left;white-space:normal;box-shadow:0 12px 28px rgba(0,0,0,.45)}
 .cf-tip:hover .cf-tipbox,.cf-tip:focus-within .cf-tipbox{display:block}
 .cf-toast{animation:cf-in 180ms ease-out}
 @keyframes cf-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion: reduce){.cf-toast{animation:none}.cf-pri,.cf-sec,.cf-ghost,tbody tr{transition:none}}
+.cf-sr{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* Horizontal scroll region inside a #12171E panel: focusable for keyboard scrolling, with edge shadows while more content is hidden. */
+.cf-scroll-x{overflow-x:auto;scrollbar-width:thin;border-radius:6px;background:linear-gradient(to right,#12171E 30%,rgba(18,23,30,0)) left/40px 100% no-repeat local,linear-gradient(to left,#12171E 30%,rgba(18,23,30,0)) right/40px 100% no-repeat local,linear-gradient(to right,rgba(0,0,0,.55),rgba(0,0,0,0)) left/14px 100% no-repeat scroll,linear-gradient(to left,rgba(0,0,0,.55),rgba(0,0,0,0)) right/14px 100% no-repeat scroll}
+/* State panels: empty (dashed, in each screen), error = data failed to load, stale = older data kept after a failed refresh, offline = no network. */
+.cf-state{padding:24px 20px;border-radius:10px;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.cf-state-error{border:1px solid #5A2A2A;background:#1A1315}
+.cf-state-stale{border:1px solid #5A4520;background:#1F1A10}
+.cf-state-offline{border:1px solid #3A4553;background:#151A21}
 @media (max-width: 900px){.cf-wide{display:none !important}}
 @media (min-width: 901px){.cf-narrow{display:none !important}}

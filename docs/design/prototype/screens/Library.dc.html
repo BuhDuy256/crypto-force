@@ -9,6 +9,8 @@
 <script src="../vendor/react/react-dom.production.min.js"></script>
 <script src="../tools/dc-source.js"></script>
 <script src="../vendor/dc-runtime/support.js"></script>
+<script src="../tools/dc-lifecycle.js"></script>
+<script src="../tools/modal-focus.js"></script>
 </head>
 <body>
 <script type="text/x-template" data-dc-template>
@@ -20,8 +22,9 @@
 </helmet>
 <div style="min-height: 100vh; background: #0B0E12; color: #E7ECF2; font-family: Onest, system-ui, sans-serif; font-variant-numeric: tabular-nums lining-nums">
 <div style="position: sticky; top: 0; z-index: 30"><dc-import name="AppHeader" active="st" hint-size="100%,61px"></dc-import></div>
-<main class="cf-audited-main" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 48px; display: flex; flex-direction: column; gap: 20px">
-<nav aria-label="Breadcrumb" style="font-size: 14px; color: #9AA6B4"><a href="Strategy.dc.html" style="font-weight: 600">Strategy Engine</a><span aria-hidden="true" style="margin: 0 8px">/</span><span aria-current="page">Library</span></nav>
+<main class="cf-audited-main" id="main" tabindex="-1" style="max-width: 1640px; margin: 0 auto; padding: 24px 28px 48px; display: flex; flex-direction: column; gap: 20px">
+<div role="note" style="border:1px solid #334155;border-radius:7px;padding:8px 12px;background:#111923;color:#AFC2D6;font-size:12px;line-height:1.4;max-width:100%;box-sizing:border-box">UI prototype: prices, backtests, news, account state and workflow feedback are illustrative. No live market, AI or account service is connected in this HTML file.</div>
+<nav aria-label="Breadcrumb" style="font-size: 14px; color: #9AA6B4"><a href="Strategy.dc.html" style="display: inline-flex; align-items: center; min-height: 28px; font-weight: 600">Strategy Engine</a><span aria-hidden="true" style="margin: 0 8px">/</span><span aria-current="page">Library</span></nav>
 
 <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 28px">
 <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 4px">
@@ -40,9 +43,9 @@
 <div role="group" aria-label="Filter by type" style="display: flex; flex-wrap: wrap; gap: 6px">
 <sc-for list="{{filters}}" as="f" hint-placeholder-count="3"><button type="button" onClick="{{f.pick}}" aria-pressed="{{f.on}}" class="cf-sec" style="min-height: 40px; padding: 0 14px; border: 1px solid {{f.bd}}; border-radius: 999px; background: {{f.bg}}; color: #E7ECF2; font-size: 14px; font-weight: {{f.w}}; cursor: pointer">{{f.label}} <span style="color: #9AA6B4">{{f.count}}</span></button></sc-for>
 </div>
-<div style="flex: 1 1 260px; display: flex; justify-content: flex-end">
+<div style="flex: 1 1 260px; min-width: 0; display: flex; justify-content: flex-end">
 <label for="lib-q" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">Search the library</label>
-<input id="lib-q" type="search" value="{{q}}" onChange="{{setQ}}" placeholder="Search by name or tag" style="width: 320px; max-width: 100%; height: 42px; padding: 0 14px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px">
+<input id="lib-q" type="search" value="{{q}}" onChange="{{setQ}}" placeholder="Search by name or tag" style="width: 100%; max-width: 320px; min-width: 0; height: 42px; padding: 0 14px; border: 1px solid #3A4553; border-radius: 8px; background: #0F141A; color: #E7ECF2; font-size: 15px">
 </div>
 </div>
 <p style="margin: 0; font-size: 13px; color: #9AA6B4">Realtime signal source: <strong style="color: #E7ECF2; font-weight: 600">{{sigName}}</strong></p>
@@ -196,7 +199,7 @@
 
 <div aria-live="polite" style="position: fixed; right: 20px; bottom: 20px; z-index: 95; max-width: calc(100vw - 40px)">
 <sc-if value="{{toastShow}}" hint-placeholder-val="{{false}}">
-<div class="cf-toast" role="status" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid #2F3945; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
+<div class="cf-toast" style="display: flex; align-items: center; gap: 12px; width: 380px; max-width: 100%; box-sizing: border-box; padding: 12px 12px 12px 16px; border: 1px solid #2F3945; border-radius: 12px; background: #1B222B; box-shadow: 0 16px 40px rgba(0,0,0,.5); color: #E7ECF2; font-family: Onest, system-ui, sans-serif">
 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DD68C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg>
 <span style="flex: 1; font-size: 14px; line-height: 1.45">{{toastText}}</span>
 <sc-if value="{{toastHasUndo}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{toastUndo}}" class="cf-sec" style="min-height: 36px; padding: 0 12px; border: 1px solid #3A4553; border-radius: 8px; background: none; color: #E7ECF2; font-size: 13px; font-weight: 600; cursor: pointer">Undo</button></sc-if>
@@ -217,14 +220,14 @@ class Component extends DCLogic {
   }
   libSeed() {
     return [
-      { id: 'st-rsi-bb', kind: 'strategy', name: 'RSI_BB_LB_LONG_SL2_TP4', src: 'Written by you', input: 'prompt', prompt: 'When RSI is below 30 and price is under the lower Bollinger Band, go LONG. Stop loss 2%, take profit 4%.', tags: ['RSI', 'Bollinger', 'Mean Reversion', 'Long'], ver: '1.0.0', created: '20/05/2025 10:42', updated: '20/05/2025 10:42', rules: ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)', 'Stop loss 2% below entry', 'Take profit 4% above entry'] },
-      { id: 'st-macd', kind: 'strategy', name: 'MACD_Cross_TrendFollow', src: 'Imported from a link', input: 'url', url: 'https://www.tradingview.com/script/abc123-example/', tags: ['MACD', 'Trend', 'Swing'], ver: '1.2.1', created: '19/05/2025 16:30', updated: '19/05/2025 16:30', rules: ['LONG when the MACD line crosses above its signal line and the close is above EMA(200)', 'Exit when the MACD line crosses back below its signal line'] },
-      { id: 'cp-ma-rsi-sr', kind: 'composite', name: 'MA + RSI + S/R', src: 'Built in Discovery', blocks: ['MA', 'RSI', 'Support / Resistance'], vote: 'weighted', w: [0.4, 0.3, 0.3], tags: ['Composite', 'Weighted vote'], ver: '1.0.0', created: '18/05/2025 09:05', updated: '18/05/2025 09:05', rules: ['MA, RSI and Support / Resistance each vote BUY, SELL or HOLD on every candle', 'Weighted vote (0.40 / 0.30 / 0.30) decides the signal'] }
+      { id: 'st-rsi-bb', kind: 'strategy', name: 'RSI_BB_LB_LONG_SL2_TP4', src: 'Written by you', input: 'prompt', prompt: 'When RSI is below 30 and price is under the lower Bollinger Band, go LONG. Stop loss 2%, take profit 4%.', tags: ['RSI', 'Bollinger', 'Mean Reversion', 'Long'], ver: '1.0.0', created: '20 May 2025, 10:42', updated: '20 May 2025, 10:42', rules: ['LONG when RSI(14) is below 30 and the close is under the lower Bollinger Band (20, 2)', 'Stop loss 2% below entry', 'Take profit 4% above entry'] },
+      { id: 'st-macd', kind: 'strategy', name: 'MACD_Cross_TrendFollow', src: 'Imported from a link', input: 'url', url: 'https://www.tradingview.com/script/abc123-example/', tags: ['MACD', 'Trend', 'Swing'], ver: '1.2.1', created: '19 May 2025, 16:30', updated: '19 May 2025, 16:30', rules: ['LONG when the MACD line crosses above its signal line and the close is above EMA(200)', 'Exit when the MACD line crosses back below its signal line'] },
+      { id: 'cp-ma-rsi-sr', kind: 'composite', name: 'MA + RSI + S/R', src: 'Built in Discovery', blocks: ['MA', 'RSI', 'Support / Resistance'], vote: 'weighted', w: [0.4, 0.3, 0.3], tags: ['Composite', 'Weighted vote'], ver: '1.0.0', created: '18 May 2025, 09:05', updated: '18 May 2025, 09:05', rules: ['MA, RSI and Support / Resistance each vote BUY, SELL or HOLD on every candle', 'Weighted vote (0.40 / 0.30 / 0.30) decides the signal'] }
     ];
   }
   lib() { try { var v = window.localStorage.getItem('cf.library'); return v ? JSON.parse(v) : this.libSeed(); } catch (e) { return this.libSeed(); } }
   setLib(list) { try { window.localStorage.setItem('cf.library', JSON.stringify(list)); } catch (e) {} }
-  nowStamp() { var d = new Date(); function p(n) { return (n < 10 ? '0' : '') + n; } return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
+  nowStamp() { var d = new Date(); function p(n) { return (n < 10 ? '0' : '') + n; } return p(d.getDate()) + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()] + ' ' + d.getFullYear() + ', ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
   bumpVer(v) { var p = String(v || '1.0.0').split('.').map(function (x) { return parseInt(x, 10) || 0; }); while (p.length < 3) p.push(0); p[2] += 1; return p.join('.'); }
   shortBlock(b) { return b === 'Support / Resistance' ? 'S/R' : (b === 'Bollinger Bands' ? 'Bollinger' : b); }
   compositeRules(blocks, vote, w) {
@@ -237,12 +240,13 @@ class Component extends DCLogic {
   setRef(name) { var self = this; this._refs = this._refs || {}; this._rs = this._rs || {}; if (!this._rs[name]) this._rs[name] = function (el) { self._refs[name] = el; }; return this._rs[name]; }
   focusRef(name) { var el = this._refs && this._refs[name]; if (el && el.focus) el.focus(); }
   componentDidMount() { var self = this; if (this.state.openId) setTimeout(function () { self.focusRef('drawer'); }, 0); }
-  componentDidUpdate(pp, ps) {
+  componentDidUpdate(pp) { var ps = this.prevState();
     var st = this.state, self = this;
     if (st.openId && st.openId !== ps.openId) setTimeout(function () { self.focusRef('drawer'); }, 0);
     if (st.renaming && !ps.renaming) setTimeout(function () { var el = self._refs && self._refs.renameInput; if (el) { el.focus(); if (el.select) el.select(); } }, 0);
     if (st.delId && !ps.delId) setTimeout(function () { self.focusRef('delCancel'); }, 0);
     if (!st.delId && ps.delId && st.openId) setTimeout(function () { self.focusRef('drawer'); }, 0);
+    if (!st.renaming && ps.renaming && st.openId) setTimeout(function () { self.focusRef('drawer'); }, 0);
   }
   toast(text, opts) {
     var self = this; opts = opts || {};
@@ -278,7 +282,7 @@ class Component extends DCLogic {
         meta: it.src + ' · v' + it.ver + ' · Updated ' + it.updated,
         tags: (it.tags || []).join(' · '), hasTags: (it.tags || []).length > 0,
         isSignal: !!(sig && sig.id === it.id),
-        btLabel: lr ? 'Last run ' + lr.result : 'Not backtested yet', btC: lr ? '#C3CCD6' : '#F2B544',
+        btLabel: lr ? 'Last run ' + lr.result : 'Not backtested yet', btC: lr ? '#C3CCD6' : '#9AA6B4',
         open: function () { self.setState({ openId: it.id, renaming: false, renameErr: '' }); },
         editHref: comp ? 'Discovery.dc.html' : 'Strategy.dc.html', edit: editFn(it), backtest: btFn(it)
       };
