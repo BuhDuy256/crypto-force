@@ -31,7 +31,15 @@
 
 ## Architecture
 
+01. Tuân thủ [Project Structure](docs/development/project-structure.md) về folder organization, layer responsibilities và dependency boundaries.
+02. Áp dụng nguyên tắc **Strict Boundaries, Flexible Implementation**: giữ ranh giới trách nhiệm rõ ràng, không tạo folder, layer hoặc abstraction khi chưa có nhu cầu thực tế.
+03. Các quyết định về hành vi và thiết kế hệ thống được quản lý trong [Architecture Documentation](docs/architecture/README.md). Không xem cấu trúc tài liệu là cấu trúc bắt buộc của source code.
+
 ## Coding Conventions
+
+01. Tuân thủ [Coding Guidelines](docs/development/coding-guidelines.md) về naming, TypeScript, validation, error handling và coding constraints.
+02. Ưu tiên conventions của framework/tool đang sử dụng; áp dụng project-specific conventions theo Coding Guidelines khi framework không quy định.
+03. Không sao chép hoặc định nghĩa lại các conventions đã được quy định trong Development Guide.
 
 ## Documentation
 
