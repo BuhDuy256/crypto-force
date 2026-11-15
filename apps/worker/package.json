@@ -1,0 +1,19 @@
+{
+  "name": "@crypto-force/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=../../.env src/index.ts",
+    "build": "tsup",
+    "start": "node --env-file-if-exists=../../.env dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@crypto-force/engine": "workspace:^",
+    "@crypto-force/shared": "workspace:^",
+    "pg-boss": "^12.38.2",
+    "pino": "^10.4.0",
+    "zod": "^4.6.7"
+  }
+}
