@@ -8,5 +8,3 @@
 | --- | --- |
 | [project-brief.md](project-brief.md) | Project Brief |
 | [system-description.md](system-description.md) | System Description |
-| [functional-requirements.md](functional-requirements.md) | Functional Requirements |
-| [non-functional-requirements.md](non-functional-requirements.md) | Non-functional Requirements |
