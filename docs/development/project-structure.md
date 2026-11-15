@@ -18,12 +18,13 @@ Cây dưới đây là nơi đặt code khi phát sinh nhu cầu, không phải 
 apps/
   web/
     app/
+      routes.ts        # Explicit React Router route config
       routes/           # React Router route modules
       pages/            # UI màn hình phức tạp, khi cần
       components/       # Components shared across pages
         ui/             # shadcn/ui primitives
       hooks/            # UI logic và query hooks
-      services/         # Typed API access
+      api/              # Typed HTTP API access
       layouts/
       contexts/
       types/            # UI-only types
@@ -42,7 +43,7 @@ apps/
       errors/
   worker/
     src/
-      jobs/
+      jobs/             # *.handler.ts: job execution handlers
       services/
       configs/
 packages/
@@ -64,12 +65,12 @@ packages/
 
 | Vị trí | Trách nhiệm |
 | --- | --- |
-| `routes/` | Route modules, route-level data APIs và composition; không gom toàn bộ business logic vào route. |
+| `routes.ts` và `routes/` | Route config tường minh và route modules theo React Router framework mode; không gom toàn bộ business logic vào route. |
 | `pages/` | Màn hình phức tạp; có thể có `components/` riêng bên trong từng page. Không bắt buộc mỗi route có page riêng. |
 | `components/ui/` | UI primitives theo shadcn/ui. |
 | `components/` (ngoài `ui/`) | Component dùng chung giữa nhiều màn hình, không thuộc riêng một page. |
 | `hooks/` | Custom hooks cho UI state, interactions và TanStack Query. |
-| `services/` | Gọi backend qua API client; không chứa React rendering. |
+| `api/` | Typed HTTP API access (ví dụ `backtest.ts`, `client.ts`); không chứa React rendering hoặc business logic. |
 | `types/` | Types đặc thù UI; contract chia sẻ với backend đặt tại `packages/shared`. |
 
 Dùng React Router framework mode theo Tech Stack đã chọn [[1, Tech Stack]](#ref-1). Không bắt buộc một route module chỉ được render một page; có thể viết UI đơn giản ngay trong route module. Component đặc thù của một page nên colocate trong `pages/<Page>/components/`; chỉ chuyển lên `components/` khi thực sự được dùng chung giữa các page. Không tạo `components/common/` vì `components/` đã là nơi chứa component dùng chung. Khả năng tái sử dụng trong tương lai không phải lý do để chuyển component lên sớm.
@@ -89,7 +90,7 @@ Luồng thường gặp: Route → Middleware → Controller → Service → Rep
 
 ## Worker
 
-- `jobs/`: job handlers, nhận và validate job payload, điều phối execution và reporting.
+- `jobs/`: job execution handlers (ví dụ `backtest.handler.ts`), nhận và validate job payload, điều phối execution và reporting; phân biệt handler với job payload contract ở `packages/shared`.
 - `services/`: logic ứng dụng chỉ thuộc Worker.
 - `configs/`: cấu hình riêng của Worker.
 - Worker có thể gọi public API của `packages/engine` và `packages/shared`; không import trực tiếp `apps/api/src/**`.
