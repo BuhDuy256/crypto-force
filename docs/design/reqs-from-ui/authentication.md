@@ -53,15 +53,3 @@ Tab Sign in và Create account điều khiển được bằng phím mũi tên, 
 3. Từ bước này, prototype có hai link preview thay cho việc mở email:
    - **Mở link hợp lệ**: tới form Choose a new password, gồm New password (tối thiểu 8 ký tự) và Confirm (phải khớp). Lỗi hiện ngay khi gõ. Lưu thành công thì hiện "Password updated." và nút Sign in quay về form Sign in.
    - **Mở link đã hết hạn**: báo link hết hạn hoặc đã dùng; có **Send a new link** (quay lại bước nhập email) và **Back to sign in**.
-
-## Điểm UI chưa xác định
-
-| Vấn đề | Điều đã biết | Cần quyết định |
-| --- | --- | --- |
-| Điều kiện khóa sau nhiều lần sai | Prototype khóa ở lần sai thứ 3, kèm thông báo "đợi vài phút" | Số lần thử, thời gian khóa và cách mở khóa? |
-| Keep me signed in | Có checkbox, nhưng chưa thể hiện khác biệt về hành vi | Phiên có thời hạn bao lâu khi bật và khi tắt? |
-| Google sign-in thành công | Chỉ có nhánh lỗi | Google có tạo tài khoản mới nếu email chưa tồn tại không? Có cần bước Verify không? |
-| Phiên hết hạn khi đang dùng | Màn chặn có thông báo chung, chưa có thông báo riêng cho phiên hết hạn | Có cần thông báo "phiên đã hết hạn" riêng không? Dữ liệu đang nhập dở được xử lý thế nào? |
-| Đã đăng nhập mà mở Auth | Auth vẫn hiện form | Chuyển thẳng vào workspace hay hiện thông báo "đang đăng nhập với …"? |
-| Thời hạn link reset | Có trạng thái hết hạn | Link có hiệu lực bao lâu và dùng được mấy lần? |
-| Trigger demo | Lỗi sai thông tin được kích hoạt bằng password `wrongpass`; link reset dùng nút preview | Chỉ dùng cho prototype, không phải yêu cầu (**Inferred**) |

@@ -49,14 +49,3 @@ Trong prototype, trạng thái này được mở bằng link **Preview connecti
 Checklist "Get started: run the loop once" gồm ba bước: Create a strategy, Run a backtest, Start a Discovery search. Mỗi bước là link sang tab tương ứng.
 
 Một bước được đánh dấu Done khi người dùng lưu strategy hoặc composite, chạy một backtest, hoặc bắt đầu một phiên Search. **Hide** ẩn checklist vĩnh viễn trên trình duyệt đó.
-
-## Điểm UI chưa xác định
-
-| Vấn đề | Điều đã biết | Cần quyết định |
-| --- | --- | --- |
-| Chọn pair | Realtime chỉ có BTCUSDT; Search vẫn liệt kê ETHUSDT và SOLUSDT dẫn tới Realtime | Realtime có cần ô chọn pair không? Mọi chart dùng chung một pair hay mỗi chart một pair? |
-| Overlay | Chart chỉ có MA(20) | Overlay có cố định theo signal source, hay người dùng tự chọn? |
-| Tín hiệu khi strategy chỉ là mô tả | Badge BUY/SELL hiện với mọi source | Tín hiệu được tính realtime từ rules của strategy, hay chỉ minh họa? |
-| Load 1,000 past candles | Chỉ có toast | Dữ liệu tải thêm áp dụng cho một chart hay cho tất cả, và có giới hạn không? |
-| Thời điểm tính onboarding | Done dựa trên cờ lưu trong trình duyệt | Cờ này tính theo tài khoản hay theo thiết bị? Bước nào cũng có thể Hide riêng không? |
-| Mất kết nối khi Live tắt | Chưa thể hiện | Có báo mất kết nối khi người dùng đã tạm dừng live không? |

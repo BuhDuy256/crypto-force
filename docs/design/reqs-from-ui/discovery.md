@@ -89,18 +89,3 @@ Leaderboard xếp hạng candidate theo **Return**, **Win rate**, **Max DD** ho�
 Mỗi candidate hiện return, win rate, max drawdown, score, số trades, cùng một thanh so sánh return với max drawdown. Candidate dưới 50 trades được đánh dấu "few".
 
 **Re-test** mở Backtest với candidate đó được chọn sẵn; nếu Library có item cùng tên thì liên kết với item đó ([backtest.md](backtest.md#chọn-strategy-để-backtest)).
-
-## Điểm UI chưa xác định
-
-| Vấn đề | Điều đã biết | Cần quyết định |
-| --- | --- | --- |
-| Pause khi candidate đang backtest | UI có Pause | Candidate đang chạy được chạy xong hay bị hủy và chạy lại khi Resume? |
-| Search tạo candidate từ đâu | UI có phương thức search và Composite builder, nhưng không có liên kết giữa hai phần | Search dùng composite hiện tại trên builder, một strategy trong Library, hay toàn bộ building blocks? |
-| Leaderboard theo phiên | Leaderboard là dữ liệu cố định, không đổi theo phiên | Leaderboard thuộc từng phiên hay tích lũy? Phiên mới có xóa kết quả cũ không? Giữ bao nhiêu candidate? |
-| Lưu candidate | Chỉ có Re-test; không có action lưu candidate vào Library | Có cần lưu một candidate thành composite hoặc strategy không? |
-| Công thức Score | Chỉ có mô tả "combines return, max drawdown and win rate" | Trọng số và cách chuẩn hóa? |
-| Dữ liệu dùng để đánh giá | Search configuration không có pair, timeframe hay khoảng thời gian | Search chạy trên pair, timeframe và khoảng thời gian nào? |
-| Thời gian search khi Paused | Thời gian chỉ tính lúc Running | Thời gian Paused có tính vào giới hạn Search time không? (**Inferred**: không tính) |
-| Kết thúc khi không mở Discovery | Trạng thái kết thúc và thông báo chỉ được xử lý khi màn Discovery đang mở | Thông báo có phải gửi ngay cả khi người dùng ở màn hình khác không? (**Proposed**: có, giống Backtest) |
-| Một hay nhiều phiên | UI chỉ có một phiên | Có cho chạy nhiều phiên song song không? Có cần lịch sử các phiên không? |
-| Các loại lỗi | Chỉ có một trường hợp Failed | Những lỗi nào làm phiên Failed, và lỗi nào chỉ bỏ qua candidate? |

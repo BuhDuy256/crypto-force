@@ -42,11 +42,3 @@ Khi người dùng xóa tài khoản trong Settings, Landing hiện một thông
 ## Trang không tồn tại
 
 Trang 404 có **Go to Realtime**, **Back to home**, **Try again** (mở Realtime) và danh sách link nhanh tới các tab workspace. Nếu chưa đăng nhập, các link vào workspace sẽ gặp màn chặn đăng nhập.
-
-## Điểm UI chưa xác định
-
-| Vấn đề | Điều đã biết | Cần quyết định |
-| --- | --- | --- |
-| Link chân trang | Terms, Privacy Policy và Risk disclosure đều trỏ `#`; Documentation và System status ghi "planned"; Support và Social ghi "not configured" | Trang nào cần có ở bản đầu và nội dung lấy từ đâu? |
-| Ai thấy trang 404 | Trang có link vào workspace | Khách chưa đăng nhập vào URL không tồn tại thì thấy 404 hay được đưa về Landing? |
-| Try again trên 404 | Nút này mở Realtime | "Try again" có nên tải lại URL vừa lỗi thay vì mở Realtime không? |

@@ -130,19 +130,3 @@ Chart Price and trades có **Full screen**: chart phủ toàn màn hình với c
 Bảng Trades có phân trang: chọn 10, 25 hoặc 50 dòng mỗi trang; Previous và Next tự vô hiệu ở trang đầu và trang cuối; dòng đếm cập nhật theo trang. Đổi số dòng sẽ quay về trang 1.
 
 Ở tab Set up & run, nếu người dùng đổi cấu hình sau run gần nhất, banner "Inputs changed since this run" xuất hiện và kết quả bị làm mờ. Banner có **Run again** và **Revert inputs** (đưa form về cấu hình của run đang hiển thị).
-
-## Điểm UI chưa xác định
-
-| Vấn đề | Điều đã biết | Cần quyết định |
-| --- | --- | --- |
-| Position size | Phần Assumptions ghi "[to confirm with the engine, e.g. full capital per trade]" | Mỗi lệnh dùng bao nhiêu vốn? Có cho mở nhiều lệnh cùng lúc không? |
-| LONG và SHORT | Assumptions ghi "Both LONG and SHORT positions" | Áp dụng cho mọi strategy, hay theo rules của từng strategy? |
-| Thời lượng và tiến trình | Prototype chạy cố định khoảng 12 giây | Phần trăm tiến trình được tính theo tiêu chí nào? |
-| Các loại lỗi | Chỉ có lỗi ngày trước khi pair được niêm yết | Những lỗi khác (thiếu dữ liệu, timeout, rules không hợp lệ) hiển thị ra sao? Lỗi nào nên chặn ngay ở form? |
-| Run có 0 trade | Chưa có trạng thái riêng | Hiển thị là Completed với cảnh báo, hay một trạng thái khác? |
-| Cancel thất bại | Cancel luôn thành công sau khoảng ngắn | Nếu không hủy được thì báo thế nào, và run mới có được chạy không? |
-| Run sau khi Sign out | Run tiếp tục; kết quả có khi đăng nhập lại | Run chạy ở phía server hay chỉ trong trình duyệt? (Kiến trúc chưa chốt) |
-| Giữ Runs | Không giới hạn trong prototype | Giữ bao lâu, bao nhiêu run? Có cho xóa run không? |
-| Kết quả theo cấu hình | Mọi run Completed dùng chung một bộ kết quả mẫu | Chỉ là dữ liệu minh họa (**Inferred**) |
-| Ngày mặc định và "hôm nay" | Prototype cố định "hôm nay" là 14/11/2026 | "Hôm nay" tính theo time zone của người dùng hay UTC? |
-| Xuất trades | Bảng chỉ xem được trên màn hình | Có cần xuất danh sách trades ra file không? |

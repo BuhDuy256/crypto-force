@@ -95,13 +95,3 @@ Hai cách bảo vệ dữ liệu đang được dùng:
 Toast hiện ở góc dưới phải trong 5 giây, hoặc 8 giây nếu có Undo. Toast có thể kèm một link sang màn hình liên quan. Thao tác xóa, bỏ một phần cấu hình, hoặc xóa nội dung đều có Undo trong toast.
 
 Mọi màn hình workspace có dòng ghi chú rằng dữ liệu giá, backtest, tin tức và trạng thái tài khoản là minh họa.
-
-## Điểm UI chưa xác định
-
-| Vấn đề | Điều đã biết | Cần quyết định |
-| --- | --- | --- |
-| Phạm vi của "Leave without saving?" | Chỉ chặn link trong App header khi đang ở Settings | Link trong nội dung trang và nút Back của trình duyệt có cần chặn không? |
-| Khi nào thông báo được tạo | Backtest tạo thông báo khi kết thúc, Discovery tạo khi phiên kết thúc lúc màn Discovery đang mở | Thông báo có phụ thuộc tùy chọn trong Settings › Notifications không? Có cần thông báo qua email không? |
-| Thông báo mẫu | "Discovery found a better candidate" và "Extraction template updated" là dữ liệu cố định | Hai loại sự kiện này có thật không, và khi nào thì phát ra? |
-| Dữ liệu theo tài khoản | Library, Runs, thông báo và nháp đều lưu trong trình duyệt | Khi đăng nhập trên thiết bị khác, dữ liệu nào cần đồng bộ? |
-| Pair trong Search | Chọn ETHUSDT hoặc SOLUSDT vẫn mở Realtime như BTCUSDT | Realtime có cần nhận pair được chọn không ([realtime.md](realtime.md#cần-chốt))? |

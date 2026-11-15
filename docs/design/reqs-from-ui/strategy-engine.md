@@ -159,19 +159,3 @@ Composite builder nằm trên màn Discovery, cạnh leaderboard.
 5. **Backtest now** gửi cấu hình hiện tại trên builder sang Backtest, kể cả khi chưa lưu ([backtest.md](backtest.md#chọn-strategy-để-backtest)).
 
 Khi đang có phiên Search chạy, Composite builder vẫn dùng được; chỉ phần Search configuration bị khóa.
-
-## Điểm UI chưa xác định
-
-| Vấn đề | Điều đã biết | Cần quyết định |
-| --- | --- | --- |
-| Rules được sinh thế nào | Preview luôn là bộ rules mẫu | Hệ thống phân tích mô tả và link ra sao? Khi không chắc chắn thì hỏi lại người dùng hay đánh dấu giả định? |
-| Domain được hỗ trợ khi import | Prototype chỉ thành công với vài domain mẫu | Danh sách domain được hỗ trợ, và cách xử lý trang cần đăng nhập hoặc có paywall? |
-| Validation thật | Checks hiện là ví dụ | Những lỗi nào chặn việc lưu, lỗi nào chỉ là cảnh báo? |
-| Sửa rules trực tiếp | Chỉ sửa được qua mô tả, link và việc bỏ rule SHORT | Người dùng có được sửa tham số của từng rule hoặc sửa JSON không? |
-| Thêm tag | Có ô "Add tag" nhưng chưa có hành vi | Tag tự do hay chọn từ danh sách? Có giới hạn số lượng không? |
-| Version | Mỗi lần lưu khi sửa tăng patch | Có cần phân biệt minor và major (ví dụ đổi logic so với chỉ đổi tham số) không? |
-| Weights theo block | Phần weights luôn hiện ba dòng MA, RSI, Support / Resistance dù người dùng chọn block khác | Weights có đi theo đúng danh sách block đã chọn không? Tổng weights có phải bằng 1 không? |
-| Majority vote khi hòa | Rules ghi "ties hold" | Đây có phải quy tắc chính thức không? |
-| Tên composite | Tên tự sinh, chỉ đổi được bằng Rename trong Library | Có cho đặt tên ngay khi lưu không? |
-| Xóa item có run đang chạy | Chưa thể hiện | Có chặn xóa hay cho phép, và run đó hiển thị ra sao? |
-| Undo sau khi xóa | Undo có trong 8 giây | Sau đó có cách khôi phục nào khác không? |

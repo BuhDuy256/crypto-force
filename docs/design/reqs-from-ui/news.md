@@ -67,17 +67,3 @@ Panel **Sources & extraction** mặc định thu gọn; **Show details** mở ra
 
 - **How articles are extracted**: các bước trích xuất và lịch sử phiên bản template. **Restore** chuyển template đang dùng sang phiên bản đã chọn, có Undo.
 - **Self-healing**: switch bật/tắt, đề xuất template mới kèm tỷ lệ lỗi và **Apply now**. Phần này được gắn nhãn "Under review · not in current scope" và **View diff** bị vô hiệu. Chức năng self-healing chưa được xác nhận nằm trong phạm vi (**Confirmed**: ghi riêng để xem xét sau, không mở rộng).
-
-## Điểm UI chưa xác định
-
-| Vấn đề | Điều đã biết | Cần quyết định |
-| --- | --- | --- |
-| Source type và Assets | Form Crawl settings có Source type và Assets, nhưng đổi giá trị không ảnh hưởng tới feed | Source type lọc nguồn hay là cấu hình crawl? Assets có lọc feed không? |
-| Refresh every | Có lựa chọn 1–5 phút | Đây là chu kỳ crawl, hay chỉ là chu kỳ làm mới giao diện? |
-| Trạng thái crawl | Start/Stop chỉ giữ trong trang | Crawl chạy liên tục ở nền và giữ trạng thái giữa các phiên không? |
-| Cách tính sentiment | Có nhãn Positive, Neutral, Negative và điểm từ −1 tới +1 | Ngưỡng điểm cho từng nhãn, và nguồn tính điểm? |
-| Sentiment theo coin | Điều kiện dùng "sentiment 24 giờ của coin" | Sentiment 24 giờ được tổng hợp từ các bài thế nào (trung bình, có trọng số theo nguồn)? |
-| Link bài gốc | Drawer ghi chưa có link gốc | Có mở bài gốc không? Có lưu toàn văn không? |
-| Liên kết với pair | Tin gắn với coin (BTC, ETH, SOL), không phải pair | Một bài nhắc tới nhiều coin thì xử lý thế nào? Sentiment áp dụng cho mọi pair của coin đó không? |
-| Lịch sử tin | Feed chỉ có 24 giờ | Có cần xem tin cũ hơn, hoặc tìm theo từ khóa không? |
-| Template extraction | Restore và Apply có trong UI, không gắn với self-healing | Quản lý phiên bản template có thuộc phạm vi hiện tại không, hay đi cùng self-healing? |
