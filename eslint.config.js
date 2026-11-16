@@ -160,10 +160,19 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': restrictImports({ paths: [noEffectHooks, noCnPackage] }),
       'no-restricted-properties': ['error', ...noEffectProperties],
+      // React Router renders a thrown `data(..., { status })` in the route ErrorBoundary.
+      '@typescript-eslint/only-throw-error': [
+        'error',
+        { allow: [{ from: 'package', package: 'react-router', name: 'DataWithResponseInit' }] },
+      ],
     },
   },
   {
-    files: ['apps/web/app/components/**/*.{ts,tsx}', 'apps/web/app/pages/**/*.{ts,tsx}'],
+    files: [
+      'apps/web/app/components/**/*.{ts,tsx}',
+      'apps/web/app/layouts/**/*.{ts,tsx}',
+      'apps/web/app/pages/**/*.{ts,tsx}',
+    ],
     rules: {
       'no-restricted-imports': restrictImports({
         paths: [noEffectHooks, noCnPackage],

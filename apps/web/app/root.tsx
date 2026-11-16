@@ -7,9 +7,14 @@ import {
   Scripts,
   ScrollRestoration,
   isRouteErrorResponse,
+  useLocation,
 } from 'react-router';
 import type { Route } from './+types/root';
 import './app.css';
+import { LoadError } from './components/LoadError';
+import { SignInGate } from './components/SignInGate';
+import { Toaster } from './components/ui/sonner';
+import { authPath, destinationLabel } from './utils/auth-redirect';
 import onestLatinUrl from './assets/fonts/onest-latin.woff2?url';
 
 export const links: Route.LinksFunction = () => [
@@ -49,6 +54,8 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+      {/* Toast timing and position: workspace.md, Phản hồi dùng chung. */}
+      <Toaster position="bottom-right" duration={5000} />
     </QueryClientProvider>
   );
 }
@@ -58,6 +65,19 @@ export function HydrateFallback() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  const { pathname, search, hash } = useLocation();
+
+  // Thrown by the workspace layout middleware (routes/workspace-layout.tsx).
+  if (isRouteErrorResponse(error) && error.status === 401) {
+    return (
+      <SignInGate
+        screen={destinationLabel(pathname)}
+        signInHref={authPath('/sign-in', `${pathname}${search}${hash}`)}
+      />
+    );
+  }
+  if (isRouteErrorResponse(error) && error.status === 503) return <LoadError />;
+
   const title = isRouteErrorResponse(error) ? `${error.status} ${error.statusText}` : 'Error';
   const detail = import.meta.env.DEV && error instanceof Error ? error.stack : undefined;
 

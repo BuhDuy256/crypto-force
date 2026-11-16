@@ -9,6 +9,12 @@ export default [
     route('forgot-password', 'routes/forgot-password.tsx'),
     route('reset-password', 'routes/reset-password.tsx'),
   ]),
-  route('realtime', 'routes/realtime.tsx'),
+  layout('routes/workspace-layout.tsx', [
+    route('realtime', 'routes/realtime.tsx'),
+    route('strategy', 'routes/strategy.tsx'),
+    route('discovery', 'routes/discovery.tsx'),
+    route('backtest', 'routes/backtest.tsx'),
+    route('news', 'routes/news.tsx'),
+  ]),
   route('*', 'routes/not-found.tsx'),
 ] satisfies RouteConfig;

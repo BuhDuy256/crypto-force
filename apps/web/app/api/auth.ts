@@ -48,6 +48,11 @@ export async function getSession() {
   return unwrap(authClient.getSession());
 }
 
+/** Revokes the session on the server and clears the session cookie. */
+export async function signOut() {
+  return unwrap(authClient.signOut());
+}
+
 export async function getAuthConfig(): Promise<AuthConfig> {
   const response = await fetch('/api/auth-config');
   if (!response.ok) throw new AuthRequestError(response.status, undefined, response.statusText);
