@@ -1,6 +1,15 @@
+import type { AuthConfig } from '@crypto-force/shared';
 import { Router } from 'express';
+import { createAuthConfigRouter } from './auth-config.route';
 import { healthRouter } from './health.route';
 
-export const apiRouter = Router();
+interface ApiRouterDependencies {
+  authConfig: AuthConfig;
+}
 
-apiRouter.use('/health', healthRouter);
+export function createApiRouter({ authConfig }: ApiRouterDependencies) {
+  const apiRouter = Router();
+  apiRouter.use('/health', healthRouter);
+  apiRouter.use('/auth-config', createAuthConfigRouter(authConfig));
+  return apiRouter;
+}

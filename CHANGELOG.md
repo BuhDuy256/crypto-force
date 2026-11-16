@@ -5,6 +5,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 ## [Unreleased]
 
 ### Added
+- `apps/api` Increment 2: Better Auth mount tại `/api/auth/*` (email/password có xác minh email, reset password, Google OAuth tùy chọn, cookie session, rate limit Sign in 5 lần/15 phút theo IP lưu trong PostgreSQL). Thêm Drizzle schema và migration `0000_auth`, mailer Resend (in email ra console khi chưa cấu hình ở development), email Auth và `GET /api/auth-config` cho web biết Google có bật không.
 - `packages/shared`: Zod schema cho form Auth (sign in, sign up, forgot/reset password, `PASSWORD_MIN_LENGTH`) và `authConfigSchema`. Env schema của API thêm `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`; bắt buộc cấu hình Resend ở production và các cặp biến phải đặt cùng nhau.
 - `apps/web` Increment 1: landing page (`app/pages/Landing/`) dựng từ prototype gồm header có drawer cho mobile, Hero với form nhập ý tưởng chiến lược, biểu đồ backtest minh họa, Return vs Risk, How it works, FAQ, Limits và footer kèm disclaimer chỉ dùng cho nghiên cứu. Route `/` có meta SEO và social, root preload font Onest. Thêm route 404 (`*`, `noindex`), component `Logo` và các shadcn primitive `accordion`, `button`, `field`, `label`, `separator`, `textarea` (dependency `radix-ui`). Token `--container-page` (1640px) giúp landing và 404 có cùng độ rộng nội dung với các màn hình app.
 - Lint rule chặn import `cn` từ package npm `cn` (shadcn CLI resolve alias `utils` sai sang package này); message hướng dẫn dùng `~/utils/cn`.
