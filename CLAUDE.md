@@ -39,6 +39,7 @@ Chạy từ thư mục gốc; yêu cầu Node.js `>=22.22` (React Router 8) và 
 06. `pnpm build`: build mọi app (`tsup` cho API/Worker, `react-router build` cho Web).
 07. `pnpm db:generate` / `pnpm db:migrate`: sinh và áp dụng migration Drizzle (`apps/api/drizzle/`).
 08. Thêm dependency: `pnpm --filter @crypto-force/<web|api|worker|shared|engine> add <package>`.
+09. Knowledge graph của code (Graphify): cài CLI ngoài repo bằng `uv tool install graphifyy`, build lần đầu bằng `graphify extract . --code-only` (chỉ AST cục bộ, không gửi gì cho LLM ngoài). `graphify-out/` đã gitignore. Cách agent dùng graph nằm ở mục `graphify` bên dưới; dùng `graphify affected "<symbol>"` trước khi sửa symbol dùng chung (ví dụ schema trong `packages/shared`) để thấy tác động qua ranh giới workspace.
 
 ## Architecture
 
@@ -83,3 +84,14 @@ Tuân thủ [ `docs/CONTRIBUTING.md` ](docs/CONTRIBUTING.md) khi tạo hoặc ch
 02. Trước khi thực hiện task, đọc các Lesson Learned có Scope liên quan đến task trong `LESSONS.md`. Chỉ áp dụng bài học còn hiệu lực, bỏ qua bài học có `Status: Deprecated`.
 03. Dùng Skill `correct` ([`.claude/skills/correct/SKILL.md`](.claude/skills/correct/SKILL.md)) khi người dùng chỉ ra lỗi của agent hoặc khi cần thêm, review hay cập nhật Lesson Learned. Lesson Learned chỉ dành cho lỗi không chặn được bằng kiến trúc, type, lint hoặc test.
 04. Không tự thêm, sửa hoặc xóa Lesson Learned khi người dùng chưa chấp thuận.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- When graphify-out/graph.json exists, run `graphify query "<question>"` before your first grep, search or source-file read for a codebase question, and put this rule in every subagent prompt that explores code. Read raw files only for lines the graph or an earlier read already located. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. When the answer is under a Markdown heading, `graphify section "<heading>"` prints that section's text, so the .md need not be opened. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+- A committed graphify-out/graph.json is rewritten whole on every build, so a large diff to it in a pull request is expected. Do not flag it as churn or suggest skipping the graph rebuild or its hooks.
