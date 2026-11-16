@@ -3,9 +3,12 @@ import { useRef, useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router';
 import { Logo } from '~/components/Logo';
 import { Button } from '~/components/ui/button';
-import { sectionLinks } from '../sections';
+import { useIsSignedIn } from '~/hooks/useAuth';
+import { sectionLinks, WORKSPACE_HOME } from '../sections';
 
+/** Signed-in visitors get Open workspace in place of Sign in and Create account (public-pages.md). */
 export function LandingHeader() {
+  const signedIn = useIsSignedIn();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -35,16 +38,24 @@ export function LandingHeader() {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          <Button
-            asChild
-            variant="ghost"
-            className="hidden h-11 px-4 text-[15px] font-semibold text-foreground no-underline lg:flex"
-          >
-            <Link to="/sign-in">Sign in</Link>
-          </Button>
-          <Button asChild className="h-11 px-5 text-[15px] font-semibold no-underline">
-            <Link to="/sign-up">Create account</Link>
-          </Button>
+          {signedIn ? (
+            <Button asChild className="h-11 px-5 text-[15px] font-semibold no-underline">
+              <Link to={WORKSPACE_HOME}>Open workspace</Link>
+            </Button>
+          ) : (
+            <>
+              <Button
+                asChild
+                variant="ghost"
+                className="hidden h-11 px-4 text-[15px] font-semibold text-foreground no-underline lg:flex"
+              >
+                <Link to="/sign-in">Sign in</Link>
+              </Button>
+              <Button asChild className="h-11 px-5 text-[15px] font-semibold no-underline">
+                <Link to="/sign-up">Create account</Link>
+              </Button>
+            </>
+          )}
           <Button
             ref={menuButtonRef}
             type="button"
@@ -79,13 +90,15 @@ export function LandingHeader() {
               {link.label}
             </a>
           ))}
-          <Button
-            asChild
-            variant="outline"
-            className="mt-4 h-12 text-base font-semibold text-foreground no-underline"
-          >
-            <Link to="/sign-in">Sign in</Link>
-          </Button>
+          {!signedIn && (
+            <Button
+              asChild
+              variant="outline"
+              className="mt-4 h-12 text-base font-semibold text-foreground no-underline"
+            >
+              <Link to="/sign-in">Sign in</Link>
+            </Button>
+          )}
         </nav>
       )}
     </header>

@@ -1,5 +1,5 @@
 import type { SignInInput, SignUpInput } from '@crypto-force/shared';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import {
@@ -76,6 +76,22 @@ export function useSignOut() {
       toast.error('Couldn’t sign out. Check your connection and try again.');
     },
   });
+}
+
+/**
+ * Whether the browser has a session, for public pages that change their calls to action.
+ * Not cached across pages, so signing in or out elsewhere shows up on the next visit.
+ * While loading, or when the check fails, the page renders as signed out.
+ */
+export function useIsSignedIn() {
+  const { data } = useQuery({
+    queryKey: ['session'],
+    queryFn: getSession,
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+  });
+  return data != null;
 }
 
 /** Reads the current session on demand, e.g. after the user confirmed their email elsewhere. */

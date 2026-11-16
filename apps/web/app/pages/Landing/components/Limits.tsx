@@ -1,7 +1,8 @@
 import { Link } from 'react-router';
 import { Button } from '~/components/ui/button';
+import { useIsSignedIn } from '~/hooks/useAuth';
 import { cn } from '~/utils/cn';
-import { sectionContainer, sectionHeading } from '../sections';
+import { sectionContainer, sectionHeading, WORKSPACE_HOME } from '../sections';
 
 const limits = [
   ['It never places an order.', 'Everything is analysis and simulation on market data.'],
@@ -16,6 +17,7 @@ const limits = [
 ] as const;
 
 export function Limits() {
+  const signedIn = useIsSignedIn();
   return (
     <section id="limits" className="border-y bg-card">
       <div
@@ -36,15 +38,23 @@ export function Limits() {
           ))}
         </ul>
         <div className="flex flex-[1_1_100%] flex-wrap items-center gap-4">
-          <Button asChild className="h-[50px] px-6 text-base font-bold no-underline">
-            <Link to="/sign-up">Create account</Link>
-          </Button>
-          <Link
-            to="/sign-in"
-            className="inline-flex min-h-11 items-center text-[15px] font-semibold underline"
-          >
-            I already have an account
-          </Link>
+          {signedIn ? (
+            <Button asChild className="h-[50px] px-6 text-base font-bold no-underline">
+              <Link to={WORKSPACE_HOME}>Open workspace</Link>
+            </Button>
+          ) : (
+            <>
+              <Button asChild className="h-[50px] px-6 text-base font-bold no-underline">
+                <Link to="/sign-up">Create account</Link>
+              </Button>
+              <Link
+                to="/sign-in"
+                className="inline-flex min-h-11 items-center text-[15px] font-semibold underline"
+              >
+                I already have an account
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </section>

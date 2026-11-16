@@ -114,12 +114,28 @@ test.describe('signed in', () => {
     await page.getByRole('button', { name: new RegExp(user.email) }).click();
     await page.getByRole('menuitem', { name: 'Sign out' }).click();
     await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole('link', { name: 'Create account' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Open workspace' })).toHaveCount(0);
 
     const session = await page.request.get('/api/auth/get-session');
     expect(await session.json()).toBeNull();
 
     await page.goBack();
     await expect(page.getByRole('heading', { name: 'Sign in to open News' })).toBeVisible();
+  });
+
+  test('Landing offers Open workspace instead of Sign in and Create account', async ({ page }) => {
+    await signInNewUser(page);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+
+    const header = page.getByRole('banner');
+    await expect(header.getByRole('link', { name: 'Open workspace' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Create account' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Sign in' })).toHaveCount(0);
+
+    await header.getByRole('link', { name: 'Open workspace' }).click();
+    await expect(page).toHaveURL(/\/realtime$/);
   });
 
   test('a failed Sign out keeps the user signed in and says so', async ({ page }) => {

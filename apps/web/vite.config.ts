@@ -9,6 +9,9 @@ export default defineConfig({
   resolve: { tsconfigPaths: true },
   server: {
     port: 5173,
+    // Fail instead of moving to another port: Better Auth only trusts BETTER_AUTH_URL as origin,
+    // so a second dev server on 5174 would reject sign-out and sign-in with 403.
+    strictPort: true,
     // The browser only talks to our backend; it never calls Binance directly.
     proxy: {
       '/api': { target: apiTarget, changeOrigin: true, ws: true },

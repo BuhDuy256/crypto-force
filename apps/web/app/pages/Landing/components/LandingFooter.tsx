@@ -1,11 +1,13 @@
 import { Link } from 'react-router';
 import { Logo } from '~/components/Logo';
+import { useIsSignedIn } from '~/hooks/useAuth';
 import { cn } from '~/utils/cn';
-import { sectionContainer } from '../sections';
+import { sectionContainer, WORKSPACE_HOME } from '../sections';
 
 const footerLink = 'text-foreground no-underline hover:underline';
 
 export function LandingFooter() {
+  const signedIn = useIsSignedIn();
   return (
     <footer className="border-t">
       <div className={cn(sectionContainer, 'flex flex-wrap gap-x-12 gap-y-8 pt-10 pb-7')}>
@@ -27,9 +29,15 @@ export function LandingFooter() {
           <a href="#evidence" className={footerLink}>
             Return vs. risk
           </a>
-          <Link to="/sign-up" className={footerLink}>
-            Create account
-          </Link>
+          {signedIn ? (
+            <Link to={WORKSPACE_HOME} className={footerLink}>
+              Open workspace
+            </Link>
+          ) : (
+            <Link to="/sign-up" className={footerLink}>
+              Create account
+            </Link>
+          )}
         </nav>
         <nav aria-label="Resources" className="flex flex-[1_1_150px] flex-col gap-1 text-sm">
           <h2 className="m-0 mb-1 text-[17px] font-semibold">Resources</h2>
