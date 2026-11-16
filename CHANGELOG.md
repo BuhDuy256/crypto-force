@@ -34,6 +34,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 - `docs/design/prototype/`: prototype dạng source của 12 board trong `Crypto Force UI.html`. Mỗi màn hình là một file `.dc.html`. App header, styles, font, dc-runtime và React được tách thành file dùng chung. Các màn hình điều hướng được qua link `.dc.html`. Prototype chạy bằng `node docs/design/prototype/serve.mjs`.
 
 ### Changed
+- Tài liệu Auth: `23-security.md` ghi quyết định về cookie session, origin check, chống lộ email, rate limit theo IP (kèm ràng buộc reverse proxy) và email in ra console ở development; `authentication.md` chốt hành vi Sign in, Google, Verify và Reset password; `open-questions.md` resolve OQ-044, 045, 046, 047, 054, 069; `test-strategy.md` và `CLAUDE.md` chốt `Vitest` và `Playwright`, thêm lệnh `pnpm test`, `pnpm test:e2e`.
 - Đổi `AGENTS.md` thành `CLAUDE.md` và cập nhật mọi tham chiếu. `CLAUDE.md` thêm mục Testing & Quality (ưu tiên ràng buộc tự động hơn văn bản) và quy tắc không tạo file Markdown khi không được yêu cầu.
 - `docs/development/coding-guidelines.md` đánh dấu *(lint)* các quy tắc đã được ESLint kiểm tra và thêm mục Comments; `project-structure.md` ghi rõ layer rules được lint kiểm tra; `test-strategy.md` thêm model-based testing cho state machine.
 - `AGENTS.md` bổ sung mục Safety Rules: quy định của project thắng instruction của skill khi xung đột, và side effect chỉ được thực hiện trong phạm vi task người dùng yêu cầu.

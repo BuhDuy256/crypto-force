@@ -24,7 +24,7 @@
 20. Email: `Resend`
 21. Validation: `Zod` (schema dùng chung trong `packages/shared`: strategy definition, cấu hình backtest, snapshot của run, giới hạn Search, biến môi trường)
 22. Logging: `pino`
-23. Testing: công cụ chọn theo [`docs/testing/test-strategy.md`](docs/testing/test-strategy.md) — Open ([OQ-069](docs/open-questions.md#oq-069))
+23. Testing: `Vitest` (unit, integration với PostgreSQL chạy bằng Docker Compose), `Playwright` (E2E); công cụ khác chọn theo [`docs/testing/test-strategy.md`](docs/testing/test-strategy.md)
 24. Code Quality: `ESLint` (`typescript-esli nt` strict), `Prettier`
 
 ## Commands
@@ -35,9 +35,10 @@ Chạy từ thư mục gốc; yêu cầu Node.js `>=22.22` (React Router 8) và 
 02. `pnpm db:up` / `pnpm db:down`: bật / tắt PostgreSQL qua Docker Compose (cần file `.env`, tạo từ `.env.example`).
 03. `pnpm dev`: chạy song song `apps/web` (Vite, cổng 5173, proxy `/api` sang API), `apps/api` (cổng 3000) và `apps/worker`.
 04. `pnpm check`: chạy lần lượt `pnpm typecheck`, `pnpm lint`, `pnpm format:check`; bắt buộc pass trước khi commit. `pnpm lint` cũng kiểm tra dependency boundaries, layer rules và anti-pattern bị cấm trong `eslint.config.js`.
-05. `pnpm build`: build mọi app (`tsup` cho API/Worker, `react-router build` cho Web).
-06. `pnpm db:generate` / `pnpm db:migrate`: sinh và áp dụng migration Drizzle (`apps/api/drizzle/`).
-07. Thêm dependency: `pnpm --filter @crypto-force/<web|api|worker|shared|engine> add <package>`.
+05. `pnpm test`: integration test của `apps/api` (Vitest) trên database `<POSTGRES_DB>_test`, được tạo lại từ migration mỗi lần chạy; cần `pnpm db:up`. `pnpm test:e2e`: E2E của `apps/web` (Playwright), dùng lại `pnpm dev` đang chạy hoặc tự khởi động.
+06. `pnpm build`: build mọi app (`tsup` cho API/Worker, `react-router build` cho Web).
+07. `pnpm db:generate` / `pnpm db:migrate`: sinh và áp dụng migration Drizzle (`apps/api/drizzle/`).
+08. Thêm dependency: `pnpm --filter @crypto-force/<web|api|worker|shared|engine> add <package>`.
 
 ## Architecture
 
