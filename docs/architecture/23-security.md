@@ -15,6 +15,10 @@ Authentication dùng Better Auth với cookie session, email/password và Google
 | Lộ email đã đăng ký | Create account và Reset password trả cùng một response dù email đã có tài khoản hay chưa. Email được gửi nền để thời gian phản hồi không khác nhau |
 | Email chưa xác minh | Không đăng nhập được bằng password cho tới khi xác minh email |
 | Link xác minh và link reset | Hiệu lực 1 giờ; link reset chỉ dùng một lần. Đặt password mới thì thu hồi mọi session cũ |
+| Sign out | Web gọi `POST /api/auth/sign-out`; Better Auth xóa session trong database và xóa cookie. Sau đó web xóa cache dữ liệu của tài khoản trong trình duyệt. Nếu request thất bại, web giữ nguyên trạng thái đăng nhập để người dùng thử lại [[4, Sign out]](#ref-4) |
+| Màn hình workspace | Khi không có session, web hiện màn chặn và không render nội dung workspace [[4, Điều kiện đăng nhập]](#ref-4). Đây chỉ là lớp hiển thị; API vẫn tự kiểm session ở mọi endpoint cần đăng nhập |
+
+Rủi ro được chấp nhận: khi xóa session trong database bị lỗi, Better Auth chỉ ghi log, vẫn xóa cookie và trả thành công. Token đã bị sao chép trước đó vẫn dùng được tới khi session hết hạn. Rủi ro này chỉ xảy ra khi đồng thời mất token và database lỗi đúng lúc Sign out, và muốn xử lý phải can thiệp vào luồng nội bộ của Better Auth.
 
 ## Giới hạn số lần đăng nhập
 
@@ -36,3 +40,4 @@ Khi không có `RESEND_API_KEY` và `EMAIL_FROM`, API in nội dung email, gồm
 1. <a id="ref-1"></a>[Project: Crypto Force](../../CLAUDE.md)
 2. <a id="ref-2"></a>[Authentication](../design/prototype/docs/requirements/authentication.md)
 3. <a id="ref-3"></a>[Coding Guidelines](../development/coding-guidelines.md)
+4. <a id="ref-4"></a>[Workspace](../design/prototype/docs/requirements/workspace.md)
