@@ -25,13 +25,21 @@ const trades = [
     pnl: '−0.67',
     win: false,
   },
+  {
+    opened: '01 May, 15:50',
+    side: 'SHORT',
+    entry: '68,200.40',
+    exit: '67,350.30',
+    pnl: '+0.75',
+    win: true,
+  },
 ] as const;
 
 const metricCard = 'rounded-[10px] border bg-secondary px-4 py-3';
 
 export function BacktestPreview() {
   return (
-    <figure className="m-0 overflow-hidden rounded-[14px] border border-input/40 bg-card shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
+    <figure className="m-0 flex flex-1 flex-col overflow-hidden rounded-[14px] border border-input/40 bg-card shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
       <div
         aria-hidden="true"
         className="flex min-h-[46px] items-center gap-5 overflow-x-auto border-b px-5 text-[13px] whitespace-nowrap text-muted-foreground"
@@ -44,7 +52,7 @@ export function BacktestPreview() {
         <span className="font-semibold text-secondary-foreground/80">Backtest result</span>
         <span className="ml-auto rounded-md border px-2 py-0.5 text-xs">Example</span>
       </div>
-      <div className="flex flex-col gap-4 px-4 py-5 sm:px-6">
+      <div className="flex flex-1 flex-col gap-4 px-4 py-5 sm:px-6">
         <div className="text-[15px] font-semibold">
           MA Crossover · BTCUSDT 5m · 01 May – 15 May 2025
         </div>

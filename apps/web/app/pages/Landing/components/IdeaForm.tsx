@@ -15,7 +15,7 @@ export function IdeaForm() {
   const [idea, setIdea] = useState('');
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border bg-card p-5">
+    <div className="flex h-full flex-col gap-3 rounded-xl border bg-card p-5">
       <Field>
         <FieldLabel htmlFor="idea" className="font-bold">
           Describe a strategy
