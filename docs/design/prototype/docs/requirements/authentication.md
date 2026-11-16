@@ -2,7 +2,7 @@
 
 Đọc file này để biết các bước Sign in, Create account, Verify email, Reset password và người dùng được đưa tới đâu sau khi hoàn tất.
 
-Tất cả các bước nằm trên cùng một màn hình Auth. Chuyển bước không làm mất email đã nhập. Phiên đăng nhập trong prototype là phiên mô phỏng, không phải cơ chế bảo mật (**Confirmed**).
+Tất cả các bước nằm trên cùng một màn hình Auth. Chuyển bước không làm mất email đã nhập. Cookie session, giới hạn số lần đăng nhập và các biện pháp chống lộ email đã đăng ký được ghi trong Security [[1]](#ref-1).
 
 ## Chuyển tiếp sau khi đăng nhập
 
@@ -42,15 +42,15 @@ Sửa password sau một lần sai sẽ ẩn thông báo lỗi, trừ khi đang 
 | Lựa chọn | Thời hạn phiên |
 | --- | --- |
 | Bật (mặc định) | 7 ngày, tự gia hạn khi người dùng tiếp tục dùng ứng dụng |
-| Tắt | Kết thúc khi đóng trình duyệt |
+| Tắt | Kết thúc khi đóng trình duyệt: cookie session không có `Max-Age` hay `Expires`. Trình duyệt bật tính năng khôi phục phiên làm việc có thể giữ cookie này sau khi mở lại |
 
-**Continue with Google** (**Confirmed**): email chưa có tài khoản thì tạo tài khoản mới, không qua bước Verify vì Google đã xác minh email. Đăng nhập xong chuyển tới đích theo [quy tắc chuyển tiếp](#chuyển-tiếp-sau-khi-đăng-nhập). Người dùng đóng cửa sổ Google hoặc Google báo lỗi thì Auth hiện lỗi và giữ form email. Nút chỉ hiện khi môi trường đã cấu hình Google OAuth.
+**Continue with Google** (**Confirmed**): email chưa có tài khoản thì tạo tài khoản mới, không qua bước Verify vì Google đã xác minh email. Email đã có tài khoản email/password và đã xác minh thì Google được liên kết vào tài khoản đó. Tài khoản đó chưa xác minh email thì không đăng nhập: Auth báo email này đã được đăng ký và gợi ý Sign in bằng password hoặc Reset password. Chủ của hộp thư lấy lại được tài khoản qua Reset password. Đăng nhập xong chuyển tới đích theo [quy tắc chuyển tiếp](#chuyển-tiếp-sau-khi-đăng-nhập). Người dùng đóng cửa sổ Google hoặc Google báo lỗi thì Auth hiện lỗi và giữ form email. Nút chỉ hiện khi môi trường đã cấu hình Google OAuth.
 
 ## Create account và Verify email
 
 1. Người dùng chuyển sang tab Create account, nhập Full name, email, password (tối thiểu 8 ký tự) và tick xác nhận rằng Crypto Force chỉ mô phỏng, đồng thời đồng ý Terms và Privacy Policy.
 2. Thiếu một trong các điều kiện trên thì báo lỗi ngay tại trường tương ứng.
-3. Hợp lệ thì chuyển sang bước Check your email, hiện email vừa nhập. Email đã có tài khoản cũng đi tới bước này, để form không tiết lộ email nào đã đăng ký (**Confirmed**); chủ tài khoản nhận email báo rằng họ đã có tài khoản, kèm link Sign in và Reset password (**Proposed**).
+3. Hợp lệ thì chuyển sang bước Check your email, hiện email vừa nhập. Email đã có tài khoản cũng đi tới bước này, để form không tiết lộ email nào đã đăng ký (**Confirmed**); chủ tài khoản nhận email báo rằng họ đã có tài khoản, kèm link Sign in và Reset password (**Confirmed**).
 4. Link trong email xác minh tài khoản, ghi phiên đăng nhập trên trình duyệt mở link, rồi chuyển tới đích theo [quy tắc chuyển tiếp](#chuyển-tiếp-sau-khi-đăng-nhập) (**Confirmed**). Link hết hạn hoặc đã dùng thì Auth báo lỗi và cho gửi lại link.
 5. Ở bước Verify, người dùng có thể:
    - **Resend the link**: nút đổi thành "Sent again" và bị vô hiệu.
@@ -63,6 +63,10 @@ Tab Sign in và Create account điều khiển được bằng phím mũi tên, 
 
 1. Từ Sign in, người dùng chọn **Forgot password?**, nhập email và chọn Send reset link.
 2. Email sai định dạng thì báo lỗi. Email hợp lệ thì luôn hiện thông báo "If an account exists for …" để không tiết lộ email có tồn tại hay không.
-3. Link reset có hiệu lực 1 giờ và chỉ dùng được một lần (**Confirmed**). Prototype dùng hai link preview thay cho việc mở email:
-   - **Mở link hợp lệ**: tới form Choose a new password, gồm New password (tối thiểu 8 ký tự) và Confirm (phải khớp). Lỗi hiện ngay khi gõ. Lưu thành công thì hiện "Password updated." và nút Sign in quay về form Sign in. Mọi phiên đăng nhập cũ của tài khoản bị đăng xuất (**Confirmed**).
-   - **Mở link đã hết hạn**: báo link hết hạn hoặc đã dùng; có **Send a new link** (quay lại bước nhập email) và **Back to sign in**.
+3. Link reset có hiệu lực 1 giờ và chỉ dùng được một lần (**Confirmed**). Khi người dùng mở link trong email:
+   - **Link còn hiệu lực**: tới form Choose a new password, gồm New password (tối thiểu 8 ký tự) và Confirm (phải khớp). Lỗi hiện ngay khi gõ. Lưu thành công thì hiện "Password updated." và nút Sign in quay về form Sign in. Mọi phiên đăng nhập cũ của tài khoản bị đăng xuất (**Confirmed**).
+   - **Link hết hạn hoặc đã dùng**: báo link hết hạn hoặc đã dùng; có **Send a new link** (quay lại bước nhập email) và **Back to sign in**.
+
+## References
+
+1. <a id="ref-1"></a>[Security](../../../../architecture/23-security.md)

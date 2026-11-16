@@ -87,11 +87,8 @@ Tuân thủ [ `docs/CONTRIBUTING.md` ](docs/CONTRIBUTING.md) khi tạo hoặc ch
 
 ## graphify
 
-This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
-
-Rules:
-- When graphify-out/graph.json exists, run `graphify query "<question>"` before your first grep, search or source-file read for a codebase question, and put this rule in every subagent prompt that explores code. Read raw files only for lines the graph or an earlier read already located. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. When the answer is under a Markdown heading, `graphify section "<heading>"` prints that section's text, so the .md need not be opened. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
-- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
-- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
-- A committed graphify-out/graph.json is rewritten whole on every build, so a large diff to it in a pull request is expected. Do not flag it as churn or suggest skipping the graph rebuild or its hooks.
+01. Khi có `graphify-out/graph.json`, chạy `graphify query "<câu hỏi>"` trước lần grep hoặc đọc source đầu tiên cho mỗi câu hỏi về codebase. Chỉ đọc file thô ở những dòng mà graph hoặc lần đọc trước đã chỉ ra. Ghi quy tắc này vào prompt của mọi subagent khám phá code.
+02. Dùng `graphify path "<A>" "<B>"` cho quan hệ giữa hai symbol, `graphify explain "<concept>"` cho một khái niệm cụ thể. Trước khi sửa symbol dùng chung giữa các workspace (ví dụ schema trong `packages/shared`), chạy `graphify affected "<symbol>"` để biết nơi bị ảnh hưởng.
+03. Sau khi sửa code, chạy `graphify update .` để cập nhật graph (chỉ AST, không tốn API).
+04. Graph chỉ index code (`--code-only`). Không chạy `graphify extract` thiếu `--code-only` hoặc `graphify label`: chúng gửi nội dung `docs/` hoặc tên symbol cho LLM bên ngoài. Khi chạy `graphify cluster-only`, thêm `--no-label`.
+05. `graphify-out/` được gitignore, không commit và không cần review. Graph là công cụ điều hướng, không thay thế đọc code: kết quả `INFERRED` phải kiểm tra lại trên source trước khi dựa vào.

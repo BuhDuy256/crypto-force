@@ -95,6 +95,9 @@
 | <a id="oq-057"></a>OQ-057 | Email thông báo được gửi ngay hay gộp lại? Weekly research summary gồm nội dung gì? | Có toggle email nhưng chưa có luồng gửi | — | Low | [[10]](#ref-10) |
 | <a id="oq-058"></a>OQ-058 | Export data xuất những dữ liệu nào, định dạng gì, giao cho người dùng bằng cách nào? | Chỉ có toast | — | Low | [[10]](#ref-10) |
 | <a id="oq-059"></a>OQ-059 | Ảnh đại diện giới hạn định dạng, dung lượng, cách crop thế nào? | Chọn được file nhưng không lưu | — | Low | [[10]](#ref-10) |
+| <a id="oq-078"></a>OQ-078 | Giới hạn Sign in theo ngưỡng nào, đếm lần sai hay mọi lần bấm, và tính theo IP, theo tài khoản hay cả hai? | Prototype khóa sau 3 lần sai, đếm trong trình duyệt. Ngưỡng 5 request/15 phút theo IP là agent đề xuất ở Increment 2, không có nguồn requirement; code đếm mọi request, kể cả lần đăng nhập đúng. Mặc định của Better Auth ở production là 3 request/10 giây theo IP | Expected value của test khóa đăng nhập, cấu hình rate limit | Medium | [[9, Sign in]](#ref-9) [[15, Giới hạn số lần đăng nhập]](#ref-15) |
+| <a id="oq-079"></a>OQ-079 | Gửi link xác minh, gửi link reset và Create account được giới hạn bao nhiêu lần? Có cần giới hạn theo email để chặn việc spam email vào hộp thư người khác không? | Spec không nêu. Code dùng mặc định của Better Auth theo IP: gửi link xác minh và link reset 3 lần/60 giây, Create account 3 lần/10 giây; không giới hạn theo email | Test giới hạn gửi email, cấu hình rate limit | Medium | [[9, Create account và Verify email]](#ref-9) [[9, Reset password]](#ref-9) |
+| <a id="oq-080"></a>OQ-080 | Có chốt các hành vi chỉ có trong code dưới đây làm requirement không? | (1) Nội dung lỗi: email sai định dạng "That doesn’t look like an email address. Check for a missing @ or domain.", thiếu Full name "Enter your full name.", password ngắn "Use at least 8 characters.", chưa tick "Please confirm to create your account.", Confirm không khớp "The two passwords don’t match."; (2) Sign in và Create account báo lỗi khi bấm submit, Choose a new password báo ngay khi gõ; (3) Password tối đa 128 ký tự theo mặc định của Better Auth, Full name không giới hạn; (4) Tải lại trang Check your email thì quay về Create account vì email không còn; (5) Đang đăng nhập vẫn mở được link reset password; (6) Lỗi server hoặc mất mạng hiện thông báo chung kèm gợi ý thử lại | Expected value của E2E cho validation và luồng ngoại lệ | Medium | [[9]](#ref-9) |
 
 ## Workspace & Public pages
 
@@ -107,6 +110,7 @@
 | <a id="oq-065"></a>OQ-065 | "Try again" trên 404 có nên tải lại URL vừa lỗi thay vì mở Realtime không? | Nút này mở Realtime | — | Low | [[11]](#ref-11) |
 | <a id="oq-075"></a>OQ-075 | Khi tải hoặc làm mới dữ liệu thất bại (Library, Runs, News feed), màn hình nào giữ dữ liệu cũ và giữ trong bao lâu? Retry chỉ do người dùng bấm, hay hệ thống tự thử lại? | Prototype có pattern hiển thị cho lỗi tải, dữ liệu cũ được giữ lại và offline, kèm nút Retry; chưa có quy tắc retry | Xử lý lỗi API ở frontend | Low | [[14]](#ref-14) |
 | <a id="oq-076"></a>OQ-076 | Người dùng chọn theme sáng/tối thế nào: theo cài đặt hệ thống, tự chọn trong Settings, hay cả hai? Lựa chọn lưu theo tài khoản hay theo trình duyệt? | Prototype chỉ có theme tối và Settings không có tùy chọn theme. `apps/web` có token cho cả hai theme, mặc định là theme tối | UI chọn theme, lưu lựa chọn theme | Low | [[10]](#ref-10) |
+| <a id="oq-081"></a>OQ-081 | Kết quả backtest minh họa trên Landing lấy từ đâu: số cố định ghi rõ là minh họa, hay một sample run thật do `packages/engine` chạy trên dữ liệu lịch sử Binance rồi lưu thành snapshot tĩnh để prerender? Nếu dùng sample run thật thì chọn strategy, pair, timeframe, khoảng ngày, phí và slippage nào? | Landing đang hiển thị số cố định chuyển từ prototype (ví dụ +8.42%, 61.80%, 110 of 178 trades) kèm nhãn "Example" và caption nói đây không phải kết quả đã kiểm chứng. Đề xuất sample run thật chưa được chốt | Nội dung khối Backtest result trên Landing, nhãn "Example" | Low | [[11]](#ref-11) |
 
 ## Testing
 
@@ -132,6 +136,7 @@
 | <a id="oq-047"></a>OQ-047 | Link reset password có hiệu lực bao lâu và dùng được mấy lần? | Resolved | 1 giờ, dùng một lần; đặt password mới thì đăng xuất mọi phiên cũ | [[9, Reset password]](#ref-9) |
 | <a id="oq-054"></a>OQ-054 | Đã đăng nhập mà mở Auth thì chuyển thẳng vào workspace hay hiện "đang đăng nhập với …"? | Resolved | Chuyển thẳng tới đích theo quy tắc chuyển tiếp | [[9, Chuyển tiếp sau khi đăng nhập]](#ref-9) |
 | <a id="oq-069"></a>OQ-069 | Chốt công cụ testing nào trong danh sách Proposed? | Resolved | `Vitest` cho unit và integration test, `Playwright` cho E2E. Các công cụ còn lại vẫn là Proposed | [[7, Tech Stack]](#ref-7) [[2, Công cụ]](#ref-2) |
+| <a id="oq-077"></a>OQ-077 | Continue with Google bằng email đã có tài khoản email/password thì xử lý thế nào? Nếu tài khoản đó chưa xác minh email thì sao? | Resolved | Tài khoản đã xác minh thì liên kết Google vào tài khoản đó. Chưa xác minh thì không đăng nhập, Auth báo email đã được đăng ký và gợi ý Sign in hoặc Reset password | [[9, Sign in]](#ref-9) |
 
 ## References
 
@@ -149,3 +154,4 @@
 12. <a id="ref-12"></a>[CI/CD](development/cicd.md)
 13. <a id="ref-13"></a>[Project Brief](requirements/project-brief.md)
 14. <a id="ref-14"></a>[Crypto Force UI Prototype](design/prototype/README.md)
+15. <a id="ref-15"></a>[Security](architecture/23-security.md)
