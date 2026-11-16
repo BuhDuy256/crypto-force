@@ -15,6 +15,8 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check",
+    "test": "pnpm --filter @crypto-force/api test",
+    "test:e2e": "pnpm --filter @crypto-force/web test:e2e",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
     "db:generate": "pnpm --filter @crypto-force/api db:generate",
