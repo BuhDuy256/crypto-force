@@ -5,6 +5,8 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 ## [Unreleased]
 
 ### Added
+- `apps/web` Increment 1: landing page (`app/pages/Landing/`) dựng từ prototype gồm header có drawer cho mobile, Hero với form nhập ý tưởng chiến lược, biểu đồ backtest minh họa, Return vs Risk, How it works, FAQ, Limits và footer kèm disclaimer chỉ dùng cho nghiên cứu. Route `/` có meta SEO và social, root preload font Onest. Thêm route 404 (`*`, `noindex`), component `Logo` và các shadcn primitive `accordion`, `button`, `field`, `label`, `separator`, `textarea` (dependency `radix-ui`). Token `--container-page` (1640px) giúp landing và 404 có cùng độ rộng nội dung với các màn hình app.
+- Lint rule chặn import `cn` từ package npm `cn` (shadcn CLI resolve alias `utils` sai sang package này); message hướng dẫn dùng `~/utils/cn`.
 - CI trên GitHub Actions (`.github/workflows/ci.yml`): khi push lên `main` và với mọi pull request, chạy `pnpm install --frozen-lockfile`, `pnpm check` và `pnpm build`. `docs/development/cicd.md` mô tả pipeline.
 - Script `pnpm check` (typecheck, lint, format) và hook PostToolUse `.claude/hooks/lint-edited-file.mjs` chạy ESLint trên file agent vừa sửa, trả lỗi về agent để sửa ngay.
 - Lint rule chặn lỗi agent hay lặp lại: layer rules của API (routes/controllers không truy cập database, services không import Express hoặc database, repositories không import tầng trên), component/page của web không import `api/`, `useEffect`/`useLayoutEffect` chỉ dùng trong `app/hooks/`, cấm comment TODO/FIXME/HACK/XXX và `eslint-disable` thừa. Message của mỗi rule chỉ ra cách sửa.

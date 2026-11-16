@@ -10,6 +10,11 @@ import {
 } from 'react-router';
 import type { Route } from './+types/root';
 import './app.css';
+import onestLatinUrl from './assets/fonts/onest-latin.woff2?url';
+
+export const links: Route.LinksFunction = () => [
+  { rel: 'preload', href: onestLatinUrl, as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
+];
 
 export function Layout({ children }: { children: ReactNode }) {
   return (

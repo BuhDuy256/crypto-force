@@ -41,6 +41,13 @@ const noEffectHooks = {
     'Effects are only allowed inside app/hooks/. Derive values during render, load server state with TanStack Query or route loaders, and handle user actions in event handlers. To sync an imperative library (e.g. Lightweight Charts), write a named hook in app/hooks/.',
 };
 
+/** The shadcn CLI resolves the `utils` alias in components.json to the unrelated npm package `cn`. */
+const noCnPackage = {
+  name: 'cn',
+  message:
+    'Import cn from "~/utils/cn" (the project helper), not the npm package "cn". After `shadcn add`, fix the import and remove "cn" from apps/web/package.json.',
+};
+
 const noEffectProperties = ['useEffect', 'useLayoutEffect'].map((property) => ({
   object: 'React',
   property,
@@ -151,7 +158,7 @@ export default tseslint.config(
     files: ['apps/web/app/**/*.{ts,tsx}'],
     ignores: ['apps/web/app/hooks/**'],
     rules: {
-      'no-restricted-imports': restrictImports({ paths: [noEffectHooks] }),
+      'no-restricted-imports': restrictImports({ paths: [noEffectHooks, noCnPackage] }),
       'no-restricted-properties': ['error', ...noEffectProperties],
     },
   },
@@ -159,7 +166,7 @@ export default tseslint.config(
     files: ['apps/web/app/components/**/*.{ts,tsx}', 'apps/web/app/pages/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': restrictImports({
-        paths: [noEffectHooks],
+        paths: [noEffectHooks, noCnPackage],
         patterns: [
           {
             regex: '^~/api(/|$)|(^|/)api(/|$)',
