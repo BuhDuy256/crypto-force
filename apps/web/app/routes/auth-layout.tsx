@@ -32,7 +32,7 @@ export default function AuthLayout() {
   return (
     <div className="flex min-h-svh flex-col">
       <header className="border-b">
-        <div className="mx-auto flex max-w-300 items-center gap-6 px-4 py-3 sm:px-8">
+        <div className="mx-auto flex max-w-page items-center gap-6 px-4 py-3 sm:px-7">
           <Logo />
           <Link
             to="/"
@@ -46,7 +46,7 @@ export default function AuthLayout() {
       <main
         id="main"
         tabIndex={-1}
-        className="mx-auto flex w-full max-w-300 flex-1 flex-col px-5 pt-8 pb-16 sm:px-8 sm:pt-12 lg:justify-center"
+        className="mx-auto flex w-full max-w-page flex-1 flex-col px-4 pt-8 pb-16 sm:px-7 sm:pt-12 lg:justify-center"
       >
         <Outlet />
       </main>
