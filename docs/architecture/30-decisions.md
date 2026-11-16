@@ -35,7 +35,51 @@ Màn chặn đặt ở root vì spike trên React Router 8.5.1 cho thấy lỗi 
 - Status khác 401 và 503 từ loader con vẫn rơi vào phần hiển thị lỗi chung của root.
 - Nếu sau này bật SSR, phải xét lại quyết định này, vì middleware phía server chạy theo cách khác.
 
+## ADR-002: Mức bảo mật Authentication theo OWASP ASVS 5.0 L1 cộng một số mục L2
+
+**Status:** Accepted (2026-11-16)
+
+### Bối cảnh
+
+Crypto Force chỉ mô phỏng: không giữ tiền, không kết nối sàn và không đặt lệnh [[3]](#ref-3). Tài khoản chỉ bảo vệ dữ liệu nghiên cứu của người dùng, như strategy và kết quả backtest. Cần một mức chuẩn để quyết định yêu cầu bảo mật nào của Authentication và Session là bắt buộc, yêu cầu nào là rủi ro chấp nhận.
+
+### Quyết định
+
+- Nền là ASVS 5.0 L1 cho các chương V6 Authentication, V7 Session Management và các mục 3.3, 3.4, 3.5, 3.7 của V3 Web Frontend Security [[4]](#ref-4) [[5]](#ref-5) [[6]](#ref-6).
+- Thêm các mục L2 làm được bằng config, một middleware hoặc một hook nhỏ:
+  - thời hạn phiên tuyệt đối 30 ngày (7.3.2), và ghi rõ thời hạn phiên cùng số phiên đồng thời (7.1.1, 7.1.2);
+  - kiểm password đã bị lộ khi đăng ký và đặt password mới (6.2.12);
+  - header `X-Content-Type-Options`, `Referrer-Policy`, CSP `frame-ancestors` (3.4.4–3.4.6);
+  - nút Sign out trên mọi màn hình đã đăng nhập (7.4.4).
+- Hành vi cụ thể ghi trong Security [[2]](#ref-2).
+
+### Rủi ro chấp nhận
+
+| Rủi ro | Mục ASVS | Lý do chấp nhận |
+| --- | --- | --- |
+| Không có MFA | 6.3.3 (L2) | Mất tài khoản không gây thiệt hại tài chính |
+| Giới hạn đăng nhập chỉ theo IP; kẻ tấn công đổi IP liên tục vẫn thử được nhiều password cho một tài khoản | 6.3.1 | Giới hạn theo tài khoản cho phép người khác cố ý khóa tài khoản của người dùng |
+| Không có idle timeout | 7.3.1 (L2) | Đã có thời hạn tuyệt đối và Sign out |
+| Phần mềm quét email mở link xác minh trước người dùng thì phiên được tạo trên máy quét, người dùng phải tự Sign in | 3.5.3 | Link xác minh là GET; đổi sang bước xác nhận bằng POST tốn công hơn lợi ích ở mức này |
+| Xóa session ở DB lỗi khi Sign out thì token đã bị sao chép còn dùng được tới khi hết hạn | 7.4.1 | Phải đồng thời mất token và DB lỗi; xử lý phải can thiệp vào luồng nội bộ của Better Auth |
+| Không chặn password chứa từ theo ngữ cảnh (tên sản phẩm, email) | 6.1.2, 6.2.11 (L2) | Đã chặn password phổ biến và password đã bị lộ |
+| Cookie dùng tiền tố `__Secure-`, không phải `__Host-` | 3.3.3 (L2) | `__Secure-` đạt L1 |
+| Chưa có CSP đầy đủ | 3.4.3 (L2) | Làm riêng khi rà bảo mật toàn app |
+| Không báo cho người dùng khi đăng nhập đáng ngờ hoặc khi password đổi | 6.3.5, 6.3.7 (L3) | Ngoài mức đã chọn |
+| Thời gian phản hồi có thể khác nhau giữa email đã và chưa đăng ký | 6.3.8 (L3) | Nội dung và status đã giống nhau |
+| Chưa có xem và kết thúc từng phiên, xác thực lại trước khi đổi email | 7.5.1, 7.5.2 (L2) | Thuộc Settings, quyết ở increment đó |
+
+### Hệ quả
+
+- Mỗi mục L1 và L2 đã chọn phải có test trước khi phát hành.
+- Kiểm password đã bị lộ gọi API bên ngoài khi Create account và Reset password.
+- Phải nâng lên L2 đầy đủ nếu sau này lưu API key của sàn hoặc đặt lệnh thật.
+
 ## References
 
 1. <a id="ref-1"></a>[Workspace](../design/prototype/docs/requirements/workspace.md)
 2. <a id="ref-2"></a>[Security](23-security.md)
+3. <a id="ref-3"></a>[Project Brief](../requirements/project-brief.md)
+4. <a id="ref-4"></a>OWASP ASVS 5.0, V6 Authentication. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x15-V6-Authentication.md>
+5. <a id="ref-5"></a>OWASP ASVS 5.0, V7 Session Management. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x16-V7-Session-Management.md>
+6. <a id="ref-6"></a>OWASP ASVS 5.0, V3 Web Frontend Security. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x12-V3-Web-Frontend-Security.md>
