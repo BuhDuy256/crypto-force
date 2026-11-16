@@ -110,8 +110,10 @@ Luồng thường gặp: Route → Middleware → Controller → Service → Rep
 4. `packages/shared` không phụ thuộc vào `apps/*`; không import `packages/engine` chỉ để phục vụ UI contracts.
 5. Chỉ tạo abstraction, layer hoặc folder khi có trách nhiệm thực tế; không tạo pass-through layers chỉ để đủ sơ đồ.
 
+Các quy tắc 2, 3, 4 và ranh giới layer trong `apps/api` (Route/Controller không import `repositories/`, `database/`; Service không import Express, `database/`; Repository không import Express, `api/`, `services/`) được enforce bằng `no-restricted-imports` trong `eslint.config.js`. Khi thêm folder hoặc layer mới có ranh giới phụ thuộc, thêm rule tương ứng vào `eslint.config.js` cùng lúc.
+
 ## References
 
-1. <a id="ref-1"></a>[Project: Crypto Force](../../AGENTS.md)
+1. <a id="ref-1"></a>[Project: Crypto Force](../../CLAUDE.md)
 2. <a id="ref-2"></a>[Contributing to Documentation](../CONTRIBUTING.md)
 3. <a id="ref-3"></a>[Test Strategy](../testing/test-strategy.md)

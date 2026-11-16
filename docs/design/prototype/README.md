@@ -2,7 +2,7 @@
 
 Đọc file này để biết cách chạy prototype giao diện Crypto Force, tìm source của từng màn hình và chỉnh sửa chúng.
 
-Prototype chứa giao diện, dữ liệu mẫu và tương tác mô phỏng của 12 design board. Mỗi màn hình là một file đọc và sửa trực tiếp được, và các màn hình liên kết với nhau như một ứng dụng. Prototype là design reference, không phải production frontend: production frontend dùng stack trong `AGENTS.md` [[1, Tech Stack]](#ref-1) và không import code từ thư mục này.
+Prototype chứa giao diện, dữ liệu mẫu và tương tác mô phỏng của 12 design board. Mỗi màn hình là một file đọc và sửa trực tiếp được, và các màn hình liên kết với nhau như một ứng dụng. Prototype là design reference, không phải production frontend: production frontend dùng stack trong `CLAUDE.md` [[1, Tech Stack]](#ref-1) và không import code từ thư mục này.
 
 ## Chạy prototype
 
@@ -156,5 +156,5 @@ Prototype không gọi backend. Dữ liệu mẫu là literal trong logic của 
 
 ## References
 
-1. <a id="ref-1"></a>[Project: Crypto Force](../../../AGENTS.md)
+1. <a id="ref-1"></a>[Project: Crypto Force](../../../CLAUDE.md)
 2. <a id="ref-2"></a>[Crypto Force: hành vi sản phẩm theo UI](docs/requirements/README.md)

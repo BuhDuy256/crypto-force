@@ -59,4 +59,4 @@ rồi mở `http://127.0.0.1:4173/` để xem toàn bộ board xếp dọc, ho�
 * **Requirements first.** Đối chiếu với requirements và domain rules trước khi triển khai; không tự suy diễn khả năng sản phẩm.
 * **Review & improve.** Chủ động cải thiện usability, visual balance, information hierarchy và responsive behavior mà không tự thay đổi business logic.
 
-**Guiding principle:** The prototype is a design reference, not a source of truth for product requirements or implementation details. Production frontend dùng stack trong `AGENTS.md` và không import code từ `prototype/`.
+**Guiding principle:** The prototype is a design reference, not a source of truth for product requirements or implementation details. Production frontend dùng stack trong `CLAUDE.md` và không import code từ `prototype/`.

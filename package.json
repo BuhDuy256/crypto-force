@@ -14,6 +14,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
     "db:generate": "pnpm --filter @crypto-force/api db:generate",

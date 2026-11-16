@@ -64,7 +64,7 @@ Follow this format:
 <optional body explaining what and why>
 ```
 
-**Never add a `Co-Authored-By` trailer** or **any attribution to Claude or any other AI agent** or model (AGENTS.md "GitHub conventions").
+**Never add a `Co-Authored-By` trailer** or **any attribution to Claude or any other AI agent** or model (CLAUDE.md "GitHub conventions").
 
 Types:
 - `feat`: New feature

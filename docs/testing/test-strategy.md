@@ -62,7 +62,7 @@ Mức ưu tiên: **High** là sai thì kết quả hệ thống mất giá trị
 | Property-based | R-01, R-02, R-03, R-04 | Sinh ngẫu nhiên chuỗi nến và tham số, kiểm tra tính chất luôn đúng. Ví dụ: RSI ∈ [0, 100]; Max Drawdown ∈ [-100%, 0]; số trade đóng ≤ số tín hiệu BUY; Weighted với mọi weight bằng nhau cho cùng kết quả hướng với Majority Vote khi không hòa |
 | Golden / regression | R-02, R-03, R-05, R-06 | Lưu kết quả backtest của bộ dữ liệu cố định, mỗi lần sửa code so lại. Thay đổi golden file phải được review như thay đổi hành vi |
 | Extensibility | R-06 | Thêm một strategy giả (ví dụ `MACDStrategy` tối giản) chỉ qua `register(...)`, kiểm tra Combination, Backtest, Evaluation chạy được mà không sửa code khác [[1, §26]](#ref-1) |
-| State machine | R-08, R-09 | Kiểm tra mọi chuyển trạng thái hợp lệ và bị từ chối của phiên Search và run Backtest |
+| State machine | R-08, R-09 | Kiểm tra mọi chuyển trạng thái hợp lệ và bị từ chối của phiên Search và run Backtest. Dùng model-based testing: sinh ngẫu nhiên chuỗi lệnh (Start, Pause, Resume, Stop, worker crash), chạy song song trên implementation và trên model đơn giản của state machine, so trạng thái sau mỗi bước |
 | Integration với DB | R-05, R-09, R-13 | Snapshot cấu hình run, version strategy, job queue, session |
 | Contract | R-10 | Mọi payload qua REST, WebSocket và job đều được parse bằng schema dùng chung |
 | Resilience / fault injection | R-07, R-09, R-11 | Ngắt WebSocket giả lập Binance, kill worker giữa job, làm News provider trả lỗi; kiểm tra hệ thống khôi phục và các module khác vẫn chạy |
@@ -116,7 +116,7 @@ Tất cả là **Proposed**. Một loại test chỉ được thêm công cụ k
 | Công cụ | Dùng cho loại test | Rủi ro |
 | --- | --- | --- |
 | `Vitest` | Example-based unit, golden (snapshot), integration, contract, benchmark (`vitest bench`) | R-01 tới R-06, R-09, R-10, R-12 |
-| `fast-check` | Property-based | R-01 tới R-04 |
+| `fast-check` | Property-based, model-based state machine (`fc.commands`) | R-01 tới R-04, R-08, R-09 |
 | `Testcontainers` | Khởi tạo PostgreSQL sạch cho integration test | R-05, R-09, R-13 |
 | Mock WebSocket server tự viết (dùng `ws`) | Giả lập Binance, tạo mất kết nối | R-07 |
 | `Toxiproxy` | Tạo độ trễ, ngắt mạng giữa app và DB hoặc mock | R-07, R-09, R-11 |
@@ -136,4 +136,4 @@ Tất cả là **Proposed**. Một loại test chỉ được thêm công cụ k
 6. <a id="ref-6"></a>[Discovery](../design/prototype/docs/requirements/discovery.md)
 7. <a id="ref-7"></a>[Authentication](../design/prototype/docs/requirements/authentication.md)
 8. <a id="ref-8"></a>[Design](../design/README.md)
-9. <a id="ref-9"></a>[Project: Crypto Force](../../AGENTS.md)
+9. <a id="ref-9"></a>[Project: Crypto Force](../../CLAUDE.md)

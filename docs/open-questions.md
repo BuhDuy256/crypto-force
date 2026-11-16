@@ -141,7 +141,7 @@
 4. <a id="ref-4"></a>[Backtest](design/prototype/docs/requirements/backtest.md)
 5. <a id="ref-5"></a>[Realtime](design/prototype/docs/requirements/realtime.md)
 6. <a id="ref-6"></a>[Workspace](design/prototype/docs/requirements/workspace.md)
-7. <a id="ref-7"></a>[Project: Crypto Force](../AGENTS.md)
+7. <a id="ref-7"></a>[Project: Crypto Force](../CLAUDE.md)
 8. <a id="ref-8"></a>[News](design/prototype/docs/requirements/news.md)
 9. <a id="ref-9"></a>[Authentication](design/prototype/docs/requirements/authentication.md)
 10. <a id="ref-10"></a>[Settings](design/prototype/docs/requirements/settings.md)

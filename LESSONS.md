@@ -2,7 +2,7 @@
 
 Đọc file này để biết những lỗi đã gặp trong project Crypto Force và quy tắc cụ thể để tránh lặp lại các lỗi đó.
 
-File này là nguồn dữ liệu chính (single source of truth) cho Lesson Learned. Chỉ thêm hoặc sửa bài học khi người dùng đã chấp thuận, thông qua Skill `lesson-manager` (`.claude/skills/lesson-manager/SKILL.md`).
+File này là nguồn dữ liệu chính (single source of truth) cho Lesson Learned. Chỉ thêm hoặc sửa bài học khi người dùng đã chấp thuận, thông qua Skill `correct` (`.claude/skills/correct/SKILL.md`). Chỉ ghi bài học cho lỗi không chặn được bằng kiến trúc, type, lint hoặc test.
 
 ## Quy ước
 

@@ -5,6 +5,10 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 ## [Unreleased]
 
 ### Added
+- CI trên GitHub Actions (`.github/workflows/ci.yml`): khi push lên `main` và với mọi pull request, chạy `pnpm install --frozen-lockfile`, `pnpm check` và `pnpm build`. `docs/development/cicd.md` mô tả pipeline.
+- Script `pnpm check` (typecheck, lint, format) và hook PostToolUse `.claude/hooks/lint-edited-file.mjs` chạy ESLint trên file agent vừa sửa, trả lỗi về agent để sửa ngay.
+- Lint rule chặn lỗi agent hay lặp lại: layer rules của API (routes/controllers không truy cập database, services không import Express hoặc database, repositories không import tầng trên), component/page của web không import `api/`, `useEffect`/`useLayoutEffect` chỉ dùng trong `app/hooks/`, cấm comment TODO/FIXME/HACK/XXX và `eslint-disable` thừa. Message của mỗi rule chỉ ra cách sửa.
+- Ba skill vendor từ pstack (cursor/plugins, MIT): `correct`, `create-verification-skill`, `maintain-verification-skill`, kèm `LICENSE` và `UPSTREAM.md`. `correct` chặn lỗi của agent theo thứ tự kiến trúc → type → lint → test → tài liệu và quản lý Lesson Learned.
 - Bảy skill vendor trong `.claude/skills/`: `shadcn`, `react-best-practices`, `web-design-guidelines`, `playwright-cli`, `verification-before-completion`, `writing-plans` và `deliver-acceptance-criteria`. Mỗi skill đi kèm `LICENSE` và `UPSTREAM.md` ghi repository, commit ghim và các sửa đổi so với upstream. Sửa đổi đáng kể: `shadcn` đọc project context bằng lệnh `info --json` tường minh thay vì inject khi load và bỏ `allowed-tools`; `writing-plans` không còn ghi plan vào một đường dẫn mặc định trong repo; `web-design-guidelines` đọc guidelines từ bản local đã ghim.
 - `.claude/settings.json` bật hai plugin marketplace (`ui-design-review`, `auth-skills`), ghim theo commit của từng marketplace.
 - `apps/web` Foundation: design tokens lấy từ prototype trong `app/app.css`, gồm theme tối mặc định và theme sáng Proposed, cùng token `success`/`warning`/`info`. Font Onest và JetBrains Mono được self-host trong `app/assets/fonts/` (SIL OFL 1.1). Base styles gồm focus ring, link, selection và `prefers-reduced-motion`; thêm skip link "Skip to main content". Token `input` được nâng contrast lên ≥ 3:1. Thêm OQ-076 về cách chọn theme.
@@ -23,6 +27,8 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 - `docs/design/prototype/`: prototype dạng source của 12 board trong `Crypto Force UI.html`. Mỗi màn hình là một file `.dc.html`. App header, styles, font, dc-runtime và React được tách thành file dùng chung. Các màn hình điều hướng được qua link `.dc.html`. Prototype chạy bằng `node docs/design/prototype/serve.mjs`.
 
 ### Changed
+- Đổi `AGENTS.md` thành `CLAUDE.md` và cập nhật mọi tham chiếu. `CLAUDE.md` thêm mục Testing & Quality (ưu tiên ràng buộc tự động hơn văn bản) và quy tắc không tạo file Markdown khi không được yêu cầu.
+- `docs/development/coding-guidelines.md` đánh dấu *(lint)* các quy tắc đã được ESLint kiểm tra và thêm mục Comments; `project-structure.md` ghi rõ layer rules được lint kiểm tra; `test-strategy.md` thêm model-based testing cho state machine.
 - `AGENTS.md` bổ sung mục Safety Rules: quy định của project thắng instruction của skill khi xung đột, và side effect chỉ được thực hiện trong phạm vi task người dùng yêu cầu.
 - `eslint.config.js` bỏ qua `.claude/skills/shadcn/**` vì đây là code vendor, không phải code của project.
 - `.gitignore` bỏ qua thư mục làm việc `.playwright-cli/`.
@@ -46,6 +52,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 - Chốt Tech Stack trong `AGENTS.md`: bỏ các nhãn Proposed/Open, thêm Data tables, Market data, Sentiment, Auth (Better Auth), Email, Logging; PostgreSQL chạy bằng Docker Compose; mục Testing trỏ tới test strategy.
 
 ### Removed
+- Skill `lesson-manager`; skill `correct` thay thế vai trò quản lý Lesson Learned.
 - Mục **Điểm UI chưa xác định** trong `docs/design/reqs-from-ui/*.md`; nội dung chuyển vào `docs/open-questions.md`.
 - Hai file requirements `docs/requirements/functional-requirements.md` và `docs/requirements/non-functional-requirements.md`; yêu cầu chi tiết quy tụ về `project-brief.md`.
 - Năm ảnh mockup JPG trong `docs/design/` (`01-realtime`, `02-strategy-engine`, `03-discovery`, `04-backtest`, `05-new-crawler`), được thay bằng `UI.html`.

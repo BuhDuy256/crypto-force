@@ -20,7 +20,7 @@ pnpm dev
 - Web: <http://localhost:5173>
 - API: <http://localhost:3000/api/health>
 
-Các lệnh khác được liệt kê trong mục Commands của [`AGENTS.md`](AGENTS.md).
+Các lệnh khác được liệt kê trong mục Commands của [`CLAUDE.md`](CLAUDE.md).
 
 ## Cấu trúc
 

@@ -4,9 +4,10 @@
 
 ## Phạm vi và ưu tiên
 
-1. Tuân thủ Tech Stack trong `AGENTS.md` [[1, Tech Stack]](#ref-1), dependency boundaries trong `project-structure.md` [[2]](#ref-2) và Test Strategy trong `docs/testing/test-strategy.md` [[3]](#ref-3).
+1. Tuân thủ Tech Stack trong `CLAUDE.md` [[1, Tech Stack]](#ref-1), dependency boundaries trong `project-structure.md` [[2]](#ref-2) và Test Strategy trong `docs/testing/test-strategy.md` [[3]](#ref-3).
 2. Strict boundaries, flexible implementation: bảo vệ trách nhiệm từng layer nhưng không tạo class, interface, mapper, hook hay folder chỉ để đủ template.
 3. Không đưa workflow thực thi Agent vào file này. Ví dụ code chỉ minh họa conventions, không phải implementation bắt buộc.
+4. Quy tắc nào kiểm tra được bằng máy thì enforce trong `eslint.config.js` hoặc TypeScript; file này chỉ giải thích lý do và cách sửa. Các quy tắc đang được lint enforce được đánh dấu *(lint)*.
 
 ## Naming conventions
 
@@ -44,6 +45,13 @@ Các quy tắc sau kết hợp framework conventions với lựa chọn riêng c
 - Không dùng non-null assertion hoặc type assertion để thay thế validation; assertion chỉ khi có invariant đã được bảo đảm.
 - Function nên có trách nhiệm rõ ràng; tách phần thuần tính toán khỏi side effects khi có thể.
 
+## Comments
+
+- Code phải tự giải thích qua tên, type và cấu trúc. Comment chỉ dùng cho lý do (*why*) mà code không thể diễn đạt, ví dụ ràng buộc từ bên ngoài như giới hạn API của Binance.
+- Không dùng comment để giải thích hoặc hợp thức hóa một workaround. Sửa nguyên nhân gốc; nếu chưa sửa được thì báo lại trong task thay vì để lại comment.
+- Không để `TODO`, `FIXME`, `HACK`, `XXX` trong code *(lint)*. Việc còn dang dở ghi vào task tracker hoặc [`open-questions.md`](../open-questions.md).
+- Không dùng `eslint-disable` để lách rule; directive không còn tác dụng bị báo lỗi *(lint)*. Nếu một rule sai trong một ngữ cảnh cụ thể, sửa phạm vi của rule trong `eslint.config.js`.
+
 ## Contracts, validation và data representation
 
 - Validate untrusted input ở boundaries: HTTP request, WebSocket event, job payload, external provider response và environment variables bằng Zod khi phù hợp [[1, Tech Stack]](#ref-1).
@@ -54,7 +62,8 @@ Các quy tắc sau kết hợp framework conventions với lựa chọn riêng c
 
 ## Frontend: React, Router và server state
 
-- UI components tập trung render và user interactions; không gọi HTTP client hoặc Binance trực tiếp.
+- UI components tập trung render và user interactions; không gọi HTTP client hoặc Binance trực tiếp. File trong `components/` và `pages/` không import `api/` *(lint)*.
+- `useEffect` và `useLayoutEffect` chỉ được dùng trong `app/hooks/` *(lint)*. Effect là nguồn lỗi phổ biến (dependency sai, race condition, render thừa) và hầu hết trường hợp có cách tốt hơn: giá trị suy ra từ props/state thì tính trong lúc render; server state dùng TanStack Query hoặc route loader; phản hồi hành động người dùng đặt trong event handler. Trường hợp cần đồng bộ với thư viện imperative (ví dụ Lightweight Charts) hoặc subscription, viết một custom hook có tên rõ ràng trong `app/hooks/`.
 - HTTP API access tập trung trong `app/api/` với resource modules như `backtest.ts`; custom hooks hoặc React Router data APIs điều phối data loading. Không bắt buộc tạo custom hook chỉ để wrap một lệnh đơn giản.
 - TanStack Query quản lý server state, cache, invalidation và mutation khi phù hợp; không tự xây cache server state riêng [[1, Tech Stack]](#ref-1).
 - React Hook Form + Zod resolver cho forms; tránh định nghĩa validation trùng giữa form và shared contract.
@@ -68,9 +77,9 @@ Các quy tắc sau kết hợp framework conventions với lựa chọn riêng c
 
 - Route đăng ký endpoints và middleware; không chứa business logic.
 - Middleware xử lý validation/auth/error concerns; request đã parse phải được chuyển tiếp với dữ liệu đáng tin cậy thay vì cast `req.body` mù quáng.
-- Controller chuyển đổi HTTP input/output, gọi Service, chuyển lỗi đến error handling; không truy cập Repository trực tiếp.
-- Service thực hiện business logic và orchestration; không nhận/trả Express `Request` hoặc `Response`, không thực hiện SQL/Drizzle query trực tiếp.
-- Repository chỉ thực hiện data access; không chứa HTTP response formatting hoặc business rules.
+- Controller chuyển đổi HTTP input/output, gọi Service, chuyển lỗi đến error handling; không truy cập Repository trực tiếp *(lint)*.
+- Service thực hiện business logic và orchestration; không nhận/trả Express `Request` hoặc `Response`, không thực hiện SQL/Drizzle query trực tiếp *(lint)*.
+- Repository chỉ thực hiện data access; không chứa HTTP response formatting hoặc business rules *(lint: không import Express, `api/`, `services/`)*.
 - Dùng typed application/domain errors cho expected failures và centralized error middleware; không nuốt lỗi, không để internal details lộ ra response.
 - Dùng `pino` cho structured logging, correlation identifiers khi có request/job context; không log secrets, session cookies, tokens hoặc thông tin nhạy cảm [[1, Tech Stack]](#ref-1).
 
@@ -98,6 +107,6 @@ Các quy tắc sau kết hợp framework conventions với lựa chọn riêng c
 
 ## References
 
-1. <a id="ref-1"></a>[Project: Crypto Force](../../AGENTS.md)
+1. <a id="ref-1"></a>[Project: Crypto Force](../../CLAUDE.md)
 2. <a id="ref-2"></a>[Project Structure](project-structure.md)
 3. <a id="ref-3"></a>[Test Strategy](../testing/test-strategy.md)

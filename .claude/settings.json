@@ -1,4 +1,18 @@
 {
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/lint-edited-file.mjs",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  },
   "enabledPlugins": {
     "ui-design-review@rknall-custom-skills": true,
     "auth-skills@better-auth-agent-skills": true
