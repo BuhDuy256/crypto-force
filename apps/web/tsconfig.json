@@ -9,5 +9,5 @@
       "~/*": ["./app/*"]
     }
   },
-  "include": ["app", "*.ts", ".react-router/types/**/*"]
+  "include": ["app", "e2e", "*.ts", ".react-router/types/**/*"]
 }

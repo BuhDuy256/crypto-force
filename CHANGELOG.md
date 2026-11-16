@@ -5,6 +5,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 ## [Unreleased]
 
 ### Added
+- E2E test Playwright cho `apps/web` (`pnpm test:e2e`): luồng Create account → xác minh email → Sign in, lỗi khi gửi form trống và điều hướng tab bằng bàn phím.
 - `apps/web` Increment 2: các trang Auth dựng từ prototype (`app/pages/Auth/`): Sign in, Create account, Verify email, Forgot password, Reset password, kèm auth layout chuyển người đã đăng nhập tới đích, tham số `next` chỉ nhận đường dẫn nội bộ, error summary, tab điều khiển bằng bàn phím và nút Google chỉ hiện khi API bật Google. Thêm shadcn primitive `input`, `checkbox` và route tạm `/realtime` yêu cầu đăng nhập.
 - Integration test cho Auth của `apps/api` (Vitest, `pnpm test`) trên database `<POSTGRES_DB>_test` tạo lại từ migration mỗi lần chạy: không lộ email đã đăng ký, rate limit, cờ cookie, link reset dùng một lần, chặn callback URL ra ngoài.
 - `apps/api` Increment 2: Better Auth mount tại `/api/auth/*` (email/password có xác minh email, reset password, Google OAuth tùy chọn, cookie session, rate limit Sign in 5 lần/15 phút theo IP lưu trong PostgreSQL). Thêm Drizzle schema và migration `0000_auth`, mailer Resend (in email ra console khi chưa cấu hình ở development), email Auth và `GET /api/auth-config` cho web biết Google có bật không.
