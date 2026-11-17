@@ -81,3 +81,14 @@ Mỗi bài học theo mẫu:
 - **Examples:**
   - Before: `| SU-17: phiên chỉ được tạo ở lần mở link đầu tiên; … |`, không có bảng tiền tố.
   - After: bảng tiền tố có dòng `` | `CA` | Create account và Verify email | [[1, Create account và Verify email]](#ref-1) | `` và requirement là `| CA-17: … |`.
+
+### LL-006: Unverified Claims About Environment State
+
+- **Scope:** General
+- **Problem:** Agent ghi vào test plan rằng Google OAuth client cho localhost "chưa được xác nhận", rằng dev in email ra console nên test không gọi Resend, và rằng `better-auth` `^1.7.25` có thể tự lên version mới khi cài lại. Cả ba đều sai: `.env` đã có `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` và `RESEND_API_KEY`; `apps/api/src/services/mailer.ts` gửi qua Resend khi có key; `pnpm-lock.yaml` khóa version. Agent lấy trạng thái hiện tại từ tài liệu mô tả hành vi mong muốn và từ khai báo trong `package.json`, không từ nơi quyết định trạng thái. Phạm vi, rủi ro và estimate của plan sai, và plan phải sửa sau khi đã được duyệt.
+- **Rule:** Trước khi ghi một khẳng định về trạng thái môi trường (dịch vụ ngoài đã cấu hình chưa, công cụ đã cài chưa, version đang dùng, hành vi khi chạy local), kiểm tra nơi quyết định trạng thái đó và ghi nơi đó làm nguồn: `.env` (chỉ xem biến có giá trị hay không, không in giá trị), code đọc biến đó, `pnpm-lock.yaml`, file cấu hình CI. Tài liệu requirement và architecture mô tả hành vi mong muốn, không phải nguồn của trạng thái hiện tại. Khi không kiểm tra được, ghi "Chưa kiểm tra" kèm lý do, không ghi "chưa có" hay "chưa xác nhận".
+- **Examples:**
+  - Before: "Việc có Google OAuth client cho localhost chưa được xác nhận."
+  - After: "`.env` có `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `BETTER_AUTH_URL=http://localhost:5173`; chưa chạy thử luồng Google (EN-07)."
+  - Before: "`better-auth` khai báo `^1.7.25`, nên khi cài lại có thể lên version mới."
+  - After: "`pnpm-lock.yaml` khóa `better-auth@1.7.25`; CI cài bằng `--frozen-lockfile`."
