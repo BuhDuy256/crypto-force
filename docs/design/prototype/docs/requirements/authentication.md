@@ -7,8 +7,12 @@ Tất cả các bước nằm trên cùng một màn hình Auth. Chuyển bướ
 Quy tắc dùng chung cho mọi bước (**Confirmed**):
 
 - Email được bỏ khoảng trắng ở đầu và cuối, không phân biệt chữ hoa chữ thường. Địa chỉ có `+tag` (ví dụ `an+test@example.com`) là một địa chỉ riêng.
+- Email đúng định dạng khi có đúng một `@`, phần trước `@` không rỗng, phần domain có ít nhất một dấu chấm nằm giữa hai phần không rỗng, và không có khoảng trắng bên trong. Ví dụ sai định dạng: `an@example`, `an@@example.com`, `an example@example.com`.
 - Password dài 8 đến 128 ký tự, không bắt buộc chữ hoa, số hay ký tự đặc biệt. Password được kiểm đúng như người dùng nhập, không bị cắt bớt.
+- Độ dài của password và Full name được đếm theo Unicode code point, theo NIST SP 800-63B §5.1.1.2. Ví dụ: password gồm 8 emoji `😀` dài 8 ký tự.
+- Link và phiên hết hiệu lực tại đúng mốc thời hạn. Ví dụ: link hiệu lực 1 giờ mở đúng 3.600 giây sau khi gửi là link hết hạn.
 - Lỗi server hoặc mất mạng hiện thông báo chung kèm gợi ý thử lại, ví dụ "We couldn’t sign you in right now. Check your connection and try again." Câu này là ví dụ của Sign in; mỗi bước dùng câu riêng, miễn là có gợi ý thử lại.
+- Request gửi email bị chặn bởi giới hạn số lần (Create account, Resend the link, nút gửi lại link xác minh ở Sign in, Send reset link): Auth giữ nguyên bước hiện tại và hiện thông báo lỗi kèm gợi ý đợi rồi thử lại. Auth không chuyển sang Check your email hay "If an account exists for …", và nút Resend the link không đổi thành "Sent again". Câu cụ thể do mỗi bước chọn; nội dung giống nhau cho email đã và chưa đăng ký, vì giới hạn tính theo IP, không theo email. Giới hạn được ghi trong Security [[1, Giới hạn gửi email]](#ref-1).
 
 ## Chuyển tiếp sau khi đăng nhập
 
@@ -22,7 +26,7 @@ Mọi cách đăng nhập (Sign in, Create account → Verify email, Reset passw
 
 Khi có hành động đang chờ, Auth hiện một dòng báo trước đích đến. Đích đến chờ bị xóa khi đăng nhập thành công hoặc khi người dùng Sign out.
 
-Đích đến được truyền qua URL của Auth, và chỉ nhận đường dẫn nội bộ của ứng dụng. Đích trỏ ra ngoài ứng dụng bị bỏ qua và thay bằng Realtime (**Confirmed**). Người dùng đã đăng nhập mà mở Auth được chuyển thẳng tới đích theo quy tắc trên (**Confirmed**). Ngoại lệ là link reset password: link này vẫn mở được khi đang đăng nhập (xem [Reset password](#reset-password)).
+Đích đến được truyền qua URL của Auth, và chỉ nhận đường dẫn nội bộ của ứng dụng. Đích trỏ ra ngoài ứng dụng bị bỏ qua và thay bằng Realtime (**Confirmed**). Đích trỏ tới một route của Auth (`/sign-in`, `/sign-up`, `/sign-up/verify`, `/forgot-password`, `/reset-password`) cũng bị thay bằng Realtime, vì người đã đăng nhập mở Auth sẽ bị chuyển tiếp lại, tạo vòng lặp (**Confirmed**). Người dùng đã đăng nhập mà mở Auth được chuyển thẳng tới đích theo quy tắc trên (**Confirmed**). Ngoại lệ là link reset password: link này vẫn mở được khi đang đăng nhập (xem [Reset password](#reset-password)).
 
 ## Sign in
 
@@ -34,8 +38,8 @@ Khi có hành động đang chờ, Auth hiện một dòng báo trước đích 
 | Email trống | "Enter your email address." |
 | Email sai định dạng | "That doesn’t look like an email address. Check for a missing @ or domain." (**Confirmed**) |
 | Password trống | "Enter your password." |
-| Email và password không khớp | Báo lỗi kèm link Reset password. Tài khoản chỉ đăng nhập bằng Google mà nhập password cũng nhận thông báo này |
-| Email chưa được xác minh | Báo cần xác nhận email trước, kèm nút gửi lại link xác minh (**Confirmed**) |
+| Email và password không khớp | Báo lỗi kèm link Reset password. Tài khoản chỉ đăng nhập bằng Google mà nhập password cũng nhận thông báo này. Tài khoản chưa xác minh email mà nhập password sai cũng nhận thông báo này, để chỉ người biết password mới biết email đã đăng ký (**Confirmed**) |
+| Email chưa được xác minh và password đúng | Báo cần xác nhận email trước, kèm nút gửi lại link xác minh. Không ghi phiên đăng nhập (**Confirmed**) |
 | Từ cùng một địa chỉ IP, đã có 3 lần bấm Sign in được chấp nhận, và lần bấm mới cách lần được chấp nhận cuối dưới 10 giây. Mọi lần bấm đều được đếm, kể cả lần đúng. Bộ đếm về 0 khi người dùng ngưng bấm từ 10 giây trở lên | Tạm khóa: báo đợi giây lát rồi thử lại, hoặc reset password. Khóa hết sau 10 giây kể từ lần bấm được chấp nhận cuối. Lần bấm trong lúc khóa vẫn hiện thông báo khóa và không kéo dài thời gian khóa (**Confirmed**) |
 | Hợp lệ | Ghi phiên đăng nhập, rồi chuyển tới đích theo [quy tắc chuyển tiếp](#chuyển-tiếp-sau-khi-đăng-nhập) |
 
@@ -48,9 +52,11 @@ Sửa password sau một lần sai sẽ ẩn thông báo lỗi, trừ khi đang 
 | Lựa chọn | Thời hạn phiên |
 | --- | --- |
 | Bật (mặc định) | 7 ngày, tự gia hạn khi người dùng tiếp tục dùng ứng dụng, nhưng không quá 30 ngày kể từ lúc đăng nhập. Sau 30 ngày phải đăng nhập lại |
-| Tắt | Kết thúc khi đóng trình duyệt: cookie session không có `Max-Age` hay `Expires`. Trình duyệt bật tính năng khôi phục phiên làm việc có thể giữ cookie này sau khi mở lại |
+| Tắt | Kết thúc khi đóng trình duyệt: cookie session không có `Max-Age` hay `Expires`. Trình duyệt bật tính năng khôi phục phiên làm việc có thể giữ cookie này sau khi mở lại, nên phiên phía server hết hạn 1 ngày sau khi tạo và không tự gia hạn (**Confirmed**) |
 
-**Continue with Google** (**Confirmed**): email chưa có tài khoản thì tạo tài khoản mới, không qua bước Verify vì Google đã xác minh email. Email đã có tài khoản email/password và đã xác minh thì Google được liên kết vào tài khoản đó. Tài khoản đó chưa xác minh email thì không đăng nhập: Auth báo email này đã được đăng ký và gợi ý Sign in bằng password hoặc Reset password. Chủ của hộp thư lấy lại được tài khoản bằng cách Reset password **rồi** xác nhận email, vì Reset password không đánh dấu email là đã xác minh. Mỗi lần bấm nút, Google luôn hiện màn chọn tài khoản, vì Sign out chỉ kết thúc phiên Crypto Force, không đăng xuất khỏi Google. Đăng nhập xong chuyển tới đích theo [quy tắc chuyển tiếp](#chuyển-tiếp-sau-khi-đăng-nhập). Người dùng đóng cửa sổ Google hoặc Google báo lỗi thì Auth hiện lỗi và giữ form email. Nút chỉ hiện khi môi trường đã cấu hình Google OAuth.
+Phiên tạo bởi Continue with Google và bởi link xác minh email có thời hạn như lựa chọn Bật, vì hai luồng này không có lựa chọn Keep me signed in (**Confirmed**).
+
+**Continue with Google** (**Confirmed**): email chưa có tài khoản thì tạo tài khoản mới, không qua bước Verify vì Google đã xác minh email. Email đã có tài khoản email/password và đã xác minh thì Google được liên kết vào tài khoản đó. Email đã có tài khoản chỉ đăng nhập bằng Google nhưng liên kết với một tài khoản Google khác thì tài khoản Google mới cũng được liên kết vào tài khoản đó, và liên kết cũ được giữ. Tài khoản đó chưa xác minh email thì không đăng nhập: Auth báo email này đã được đăng ký và gợi ý Sign in bằng password hoặc Reset password. Chủ của hộp thư lấy lại được tài khoản bằng cách Reset password **rồi** xác nhận email, vì Reset password không đánh dấu email là đã xác minh. Mỗi lần bấm nút, Google luôn hiện màn chọn tài khoản, vì Sign out chỉ kết thúc phiên Crypto Force, không đăng xuất khỏi Google. Đăng nhập xong chuyển tới đích theo [quy tắc chuyển tiếp](#chuyển-tiếp-sau-khi-đăng-nhập). Người dùng đóng cửa sổ Google hoặc Google báo lỗi thì Auth hiện lỗi và giữ form email. Callback của Google không thuộc request Continue with Google đã bắt đầu ở cùng trình duyệt cũng được xử lý như Google báo lỗi: không tạo phiên, không liên kết tài khoản (xem Security [[1, Authentication]](#ref-1)). Nút chỉ hiện khi môi trường đã cấu hình Google OAuth.
 
 ## Create account và Verify email
 
@@ -59,7 +65,7 @@ Sửa password sau một lần sai sẽ ẩn thông báo lỗi, trừ khi đang 
 
    | Điều kiện | Phản hồi |
    | --- | --- |
-   | Full name trống | "Enter your full name." |
+   | Full name trống hoặc chỉ có khoảng trắng | "Enter your full name." |
    | Full name dài hơn 100 ký tự | "Use 100 characters or fewer." |
    | Email trống hoặc sai định dạng | Như [Sign in](#sign-in) |
    | Password ngắn hơn 8 ký tự | "Use at least 8 characters." |
@@ -68,7 +74,7 @@ Sửa password sau một lần sai sẽ ẩn thông báo lỗi, trừ khi đang 
    | Chưa tick xác nhận | "Please confirm to create your account." |
 
 3. Hợp lệ thì chuyển sang bước Check your email, hiện email vừa nhập. Email đã có tài khoản cũng đi tới bước này, để form không tiết lộ email nào đã đăng ký (**Confirmed**); chủ tài khoản nhận email báo rằng họ đã có tài khoản, kèm link Sign in và Reset password (**Confirmed**). Nếu tài khoản đó chưa xác minh email, email hướng dẫn Reset password rồi xác nhận email (**Confirmed**). Tải lại trang Check your email thì quay về Create account, vì email không được lưu trong URL (**Confirmed**).
-4. Link trong email xác minh tài khoản, ghi phiên đăng nhập trên trình duyệt mở link, rồi chuyển tới đích theo [quy tắc chuyển tiếp](#chuyển-tiếp-sau-khi-đăng-nhập) (**Confirmed**). Link hết hạn thì Auth báo lỗi và cho gửi lại link. Link còn hạn của email đã được xác minh trước đó không báo lỗi và không tạo phiên: Auth mở form Sign in, hoặc chuyển thẳng tới đích nếu trình duyệt đã có phiên (**Confirmed**).
+4. Link trong email xác minh tài khoản, ghi phiên đăng nhập trên trình duyệt mở link, rồi chuyển tới đích theo [quy tắc chuyển tiếp](#chuyển-tiếp-sau-khi-đăng-nhập) (**Confirmed**). Link hết hạn, hoặc token trong link bị sửa hay không hợp lệ, thì Auth báo lỗi và cho gửi lại link; không tạo phiên và trạng thái tài khoản không đổi (**Confirmed**). Link còn hạn của email đã được xác minh trước đó không báo lỗi và không tạo phiên: Auth mở form Sign in, hoặc chuyển thẳng tới đích nếu trình duyệt đã có phiên (**Confirmed**).
    - Phiên chỉ được tạo ở lần mở link đầu tiên. Nếu phần mềm quét email của hộp thư đã mở link trước, email vẫn được xác minh nhưng người dùng phải tự Sign in (**Confirmed**).
    - Trình duyệt đang đăng nhập bằng một tài khoản khác thì giữ nguyên phiên đó, không chuyển sang tài khoản vừa xác minh. Auth báo "{email} is verified. You’re still signed in as {email hiện tại}." (**Confirmed**).
 5. Ở bước Verify, người dùng có thể:
@@ -81,10 +87,11 @@ Tab Sign in và Create account điều khiển được bằng phím mũi tên, 
 ## Reset password
 
 1. Từ Sign in, người dùng chọn **Forgot password?**, nhập email và chọn Send reset link.
-2. Email sai định dạng thì báo lỗi như [Sign in](#sign-in). Email hợp lệ thì luôn hiện thông báo "If an account exists for …" để không tiết lộ email có tồn tại hay không.
-3. Link reset có hiệu lực 1 giờ và chỉ dùng được một lần (**Confirmed**). Link mang theo đích đến đang chờ, nên đăng nhập sau khi reset vẫn chuyển tới đúng đích (**Confirmed**). Link mở được cả khi trình duyệt đang đăng nhập (**Confirmed**). Khi người dùng mở link trong email:
-   - **Link còn hiệu lực**: tới form Choose a new password, gồm New password và Confirm. New password theo quy tắc password của Create account; Confirm không khớp thì báo "The two passwords don’t match."; Confirm để trống thì báo "Fill in both fields." Lỗi hiện ngay khi gõ (**Confirmed**). Lưu thành công thì hiện "Password updated." và nút Sign in quay về form Sign in. Mọi phiên đăng nhập của tài khoản bị đăng xuất, kể cả phiên trên trình duyệt đang mở link (**Confirmed**).
-   - **Link hết hạn hoặc đã dùng**: báo link hết hạn hoặc đã dùng; có **Send a new link** (quay lại bước nhập email) và **Back to sign in**.
+2. Email trống hoặc sai định dạng thì báo lỗi như [Sign in](#sign-in). Email hợp lệ thì luôn hiện thông báo "If an account exists for …" để không tiết lộ email có tồn tại hay không.
+3. Link reset có hiệu lực 1 giờ và chỉ dùng được một lần (**Confirmed**). Link được tính là đã dùng khi password được lưu; mở link mà chưa lưu thì mở lại vẫn tới form Choose a new password, vì phần mềm quét email có thể mở link trước người dùng (**Confirmed**). Gửi link mới không làm link cũ hết hiệu lực, vì email có thể tới không theo thứ tự gửi. Khi password được đặt lại bằng một link, mọi link reset còn hạn khác của tài khoản hết hiệu lực (**Confirmed**). Link mang theo đích đến đang chờ, nên đăng nhập sau khi reset vẫn chuyển tới đúng đích (**Confirmed**). Link mở được cả khi trình duyệt đang đăng nhập (**Confirmed**). Khi người dùng mở link trong email:
+   - **Link còn hiệu lực**: tới form Choose a new password, gồm New password và Confirm. New password theo quy tắc password của Create account; Confirm không khớp thì báo "The two passwords don’t match."; New password hoặc Confirm để trống thì báo "Fill in both fields." Lỗi hiện ngay khi gõ (**Confirmed**). Lưu thành công thì hiện "Password updated." và nút Sign in quay về form Sign in. Mọi phiên đăng nhập của tài khoản bị đăng xuất, kể cả phiên trên trình duyệt đang mở link (**Confirmed**).
+   - **Link hết hạn hoặc đã dùng**: báo link hết hạn hoặc đã dùng; có **Send a new link** (quay lại bước nhập email) và **Back to sign in**. Link có token bị sửa hoặc không hợp lệ cũng hiện màn này (**Confirmed**).
+   - **Link hết hạn hoặc đã dùng sau khi form đã mở**: người dùng bấm lưu trên form Choose a new password thì password không đổi và Auth hiện màn link hết hạn hoặc đã dùng (**Confirmed**).
 
 ## References
 
