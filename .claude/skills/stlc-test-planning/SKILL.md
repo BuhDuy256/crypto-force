@@ -21,6 +21,7 @@ The test plan serves four readers. The approver learns what the team will test a
 - The test object and its boundaries are known.
 - The people who approve the plan and who own each risk are known.
 - The constraints are known: time, people, environments, tools, budget.
+- Check each claim about the environment at its source. The sources are `.env` (only whether a variable has a value), the code that reads it, the lockfile, and the CI config. A requirement document gives the target behavior, not the current state.
 
 ## Steps
 
