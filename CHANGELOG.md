@@ -5,6 +5,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 ## [Unreleased]
 
 ### Added
+- TS-001 Phase 02 Test Planning (`docs/testing/test-scopes/TS-001-auth/02-planning/`), plan version 1.1 đã được product owner duyệt: 21 rủi ro sản phẩm (8 mức Cao) và 9 rủi ro dự án, test approach theo mức rủi ro với OWASP ASVS 5.0 ở mức ADR-002, entry, exit, suspension và resumption criteria, estimate three-point. Rủi ro dự án đáng chú ý: CI chưa chạy `pnpm test` và `pnpm test:e2e`; E2E dùng database dev và gọi Resend thật khi `.env` có `RESEND_API_KEY`.
 - Lesson Learned LL-005 (Undeclared Requirement ID Prefixes): mỗi tiền tố requirement ID ứng với một section của tài liệu nguồn, không đánh lại số của ID đã cấp, chỉ đổi tiền tố khi chưa có gì ngoài Phase 01 trỏ tới ID.
 - Check `pnpm check:docs` (`scripts/check-test-scope-ids.mjs`), chạy trong `pnpm check`: Requirement Readiness của mỗi test scope phải khai báo tiền tố requirement ID trong bảng Tiền tố, mọi ID dùng tiền tố đã khai báo, không tiền tố nào trùng với tiền tố ID của template STLC và không ID nào lặp lại. Template Readiness thêm bảng Tiền tố và tiêu chí Q1-07.
 - Quy ước thư mục test scope trong `docs/testing/test-scopes/` (`TS-XXX-<slug>`, copy thư mục phase khi phase bắt đầu, README tạo từ `stlc-template/scope-readme.md`) và test scope đầu tiên `TS-001-auth`: Phase 01 Requirement Analysis đạt, 84 requirement (81 Ready, 3 ngoài phạm vi), đối chiếu đủ 70 mục OWASP ASVS 5.0 L1 và L2 trong phạm vi.

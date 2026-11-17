@@ -18,7 +18,7 @@
 | Phase | Thư mục | Trạng thái | Kết luận |
 | --- | --- | --- | --- |
 | 01 Requirement Analysis | [01-requirement-analysis/](01-requirement-analysis/) | Đạt | [Requirement Readiness](01-requirement-analysis/output/01-requirement-readiness.md) |
-| 02 Test Planning | `02-planning/` | Chưa bắt đầu | |
+| 02 Test Planning | [02-planning/](02-planning/) | Đạt | [Test Plan](02-planning/output/01-test-plan.md) |
 | 03 Test Analysis & Design | `03-design/` | Chưa bắt đầu | |
 | 04 Test Implementation | `04-implementation/` | Chưa bắt đầu | |
 | 05 Test Execution | `05-execution/` | Chưa bắt đầu | |
