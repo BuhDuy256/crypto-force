@@ -90,7 +90,7 @@ Requirement ID có dạng `<tiền tố>-NN`. ID không đổi và không dùng 
 | CA-11: tab Sign in và Create account điều khiển bằng mũi tên, Home, End; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
 | CA-12: link xác minh hiệu lực 1 giờ; [[2]](#ref-2) `705a1ad` | Không có | — | — | Ready | Product owner |
 | CA-13: Full name tối đa 100 ký tự, password tối đa 128 ký tự; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
-| CA-14: password phổ biến hoặc đã bị lộ bị từ chối; [[1]](#ref-1) [[2]](#ref-2) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-14: password phổ biến hoặc đã bị lộ bị từ chối; API Pwned Passwords lỗi hoặc không phản hồi thì chỉ kiểm tra danh sách 3.000 password, chấp nhận và ghi log cảnh báo; [[1]](#ref-1) `705a1ad`, [[2]](#ref-2) `d6c0541` | Không có | RF-12 | — | Ready | Product owner |
 | CA-15: tải lại Check your email thì quay về Create account; [[1]](#ref-1) `705a1ad` | Không có | RF-01 | — | Ready | Product owner |
 | CA-16: email "đã có tài khoản" gửi tới tài khoản chưa xác minh hướng dẫn Reset password rồi xác nhận email; [[1]](#ref-1) `705a1ad` | Không có | RF-01 | — | Ready | Product owner |
 | CA-17: phiên chỉ được tạo ở lần mở link đầu tiên; link còn hạn của email đã xác minh không báo lỗi, không tạo phiên, mở Sign in hoặc tới thẳng đích nếu đã có phiên; [[1]](#ref-1) `705a1ad` | Không có | RF-01, RF-02 | — | Ready | Product owner |
@@ -185,7 +185,7 @@ Implementation không được dùng làm nguồn của expected behavior. Khi r
 ## References
 
 1. <a id="ref-1"></a>[Authentication](../../../../../design/prototype/docs/requirements/authentication.md) — commit `705a1ad`, 2026-11-17
-2. <a id="ref-2"></a>[Security](../../../../../architecture/23-security.md) — commit `705a1ad`, 2026-11-17
+2. <a id="ref-2"></a>[Security](../../../../../architecture/23-security.md) — commit `d6c0541`, 2026-11-17
 3. <a id="ref-3"></a>[Workspace](../../../../../design/prototype/docs/requirements/workspace.md) — commit `bd0ecff`, 2026-11-16
 4. <a id="ref-4"></a>[Crypto Force UI Prototype](../../../../../design/prototype/README.md) — commit `dbbaafe`, 2026-11-16
 5. <a id="ref-5"></a>[Architectural Decisions](../../../../../architecture/30-decisions.md) — commit `705a1ad`, 2026-11-17

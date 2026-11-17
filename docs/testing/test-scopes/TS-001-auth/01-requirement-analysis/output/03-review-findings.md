@@ -33,14 +33,15 @@ Mức độ (đề xuất của agent; product owner duyệt ngày 2026-11-17): 
 | RF-09 | Không có; Security `ac49066` | Anomaly: thiếu | ADR-002 chọn 7.1.2: "ghi rõ thời hạn phiên cùng số phiên đồng thời". Security không ghi số phiên đồng thời và hành vi khi đạt tối đa | Trung bình | Chấp nhận: không giới hạn số phiên đồng thời | Product owner | Thêm dòng Phiên đồng thời vào Security | Security tại `705a1ad`. Kiểm lại: thêm SS-08, Ready |
 | RF-10 | RP-05; `ac49066` | Anomaly: thiếu | Reset password chỉ nêu trường hợp Confirm không khớp, không nêu trường hợp Confirm để trống. Code hiện báo "Fill in both fields." (`packages/shared/src/schemas/auth.schema.ts`). Câu hỏi: có chốt hành vi này làm requirement không? | Thấp | Chấp nhận: chốt "Fill in both fields." khi Confirm để trống | Product owner | Ghi vào bước 3 của Reset password | Authentication tại `705a1ad`. Kiểm lại: RP-05 Ready |
 | RF-11 | Không có; ADR-002 `ac49066` | Anomaly: thiếu | Các mục L1 6.2.7, 6.3.2, 7.2.2, 7.2.3, 7.2.4, 3.4.2 chỉ được áp dụng qua câu "Nền là ASVS 5.0 L1" của ADR-002. Spec và Security không nêu hành vi quan sát được. Ví dụ 6.2.7: không tài liệu nào nói ô password cho dán và cho password manager điền | Thấp | Chấp nhận: dùng trực tiếp ASVS ID làm test basis cho 6 mục này | Product owner | Thêm 6 requirement dạng `ASVS-x.x.x` vào Requirement Readiness; ghi kết quả vào Baseline Comparison | Đã làm: 6 requirement Ready; 6 mục có kết quả Đủ |
+| RF-12 | CA-14; `705a1ad` | Anomaly: thiếu | Security yêu cầu Create account và Reset password từ chối password đã bị lộ theo API Pwned Passwords, một dịch vụ bên ngoài. Security không nêu hành vi khi API này lỗi hoặc không phản hồi. Ví dụ: người dùng nhập password đã bị lộ nhưng không có trong danh sách 3.000 password phổ biến, trong lúc API không phản hồi. Mặc định của plugin `haveIBeenPwned` trong Better Auth 1.7.25 là trả lỗi 500 | Cao | Chấp nhận: fail-open. API chỉ kiểm tra danh sách 3.000 password, chấp nhận password không có trong danh sách và ghi log cảnh báo | Product owner | Ghi hành vi vào dòng Password của Security | Security tại `d6c0541`. Kiểm lại: CA-14 Ready |
 
 Mỗi finding cần quyết định về trạng thái, người chịu trách nhiệm và hành động [[1, §3.2.2]](#ref-1). Question được ghi vào nơi quản lý câu hỏi mở; file này chỉ dẫn tới ID câu hỏi.
 
 ## 3. Kết quả review
 
-**Exit criteria của review:** Đạt. RF-01 đến RF-11 có quyết định của product owner ngày 2026-11-17; không còn finding mức Cao chưa xử lý.
+**Exit criteria của review:** Đạt. RF-01 đến RF-12 có quyết định của product owner ngày 2026-11-17; không còn finding mức Cao chưa xử lý.
 
-**Cần review lại:** Không. Các requirement bị ảnh hưởng đã được kiểm lại trên commit `705a1ad`.
+**Cần review lại:** Không. Các requirement bị ảnh hưởng đã được kiểm lại trên commit `705a1ad`, riêng CA-14 trên commit `d6c0541` của Security.
 
 ## 4. Tiêu chí đạt
 
@@ -51,7 +52,7 @@ Mỗi finding cần quyết định về trạng thái, người chịu trách n
 | Q3-03 | Mỗi finding dẫn tới requirement có version, có loại và có ví dụ cụ thể | — | Đạt |
 | Q3-04 | Mỗi finding có quyết định, owner và hành động; quyết định Từ chối có lý do | RC-04 | Đạt |
 | Q3-05 | Question được ghi ở nơi quản lý câu hỏi mở và dẫn bằng ID; nội dung không bị chép vào file này | RC-05 | Đạt: chưa có finding nào được chuyển thành câu hỏi mở |
-| Q3-06 | Finding đã sửa dẫn tới version mới của requirement và đã được kiểm tra lại trên version đó | — | Đạt: kiểm lại tại commit `705a1ad` |
+| Q3-06 | Finding đã sửa dẫn tới version mới của requirement và đã được kiểm tra lại trên version đó | — | Đạt: kiểm lại tại commit `705a1ad`; CA-14 tại commit `d6c0541` của Security |
 | Q3-07 | Exit criteria của review có kết quả đánh giá | — | Đạt |
 
 **Người review / ngày:** Product owner, 2026-11-17
@@ -60,7 +61,7 @@ Mỗi finding cần quyết định về trạng thái, người chịu trách n
 
 1. <a id="ref-1"></a>[ISTQB Certified Tester Foundation Level Syllabus v4.0.1](https://www.istqb.org/wp-content/uploads/2024/11/ISTQB_CTFL_Syllabus_v4.0.1.pdf) — v4.0.1, 2024-09-15
 2. <a id="ref-2"></a>[Authentication](../../../../../design/prototype/docs/requirements/authentication.md) — commit `705a1ad`, 2026-11-17
-3. <a id="ref-3"></a>[Security](../../../../../architecture/23-security.md) — commit `705a1ad`, 2026-11-17
+3. <a id="ref-3"></a>[Security](../../../../../architecture/23-security.md) — commit `d6c0541`, 2026-11-17
 4. <a id="ref-4"></a>[Workspace](../../../../../design/prototype/docs/requirements/workspace.md) — commit `bd0ecff`, 2026-11-16
 5. <a id="ref-5"></a>[Architectural Decisions](../../../../../architecture/30-decisions.md) — commit `705a1ad`, 2026-11-17
 6. <a id="ref-6"></a>[Test Strategy](../../../../../testing/test-strategy.md) — commit `705a1ad`, 2026-11-17

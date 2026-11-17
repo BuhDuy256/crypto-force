@@ -20,7 +20,7 @@
 | IN-03 | Nguồn gốc của từng tài liệu requirement | 02 | [[1]](#ref-1) [[4]](#ref-4) | Đã xác minh | Crypto Force UI Prototype ghi rằng hành vi sản phẩm của từng màn hình được mô tả trong `docs/requirements/`, tức là spec mô tả hành vi theo prototype. Code được viết theo spec | — |
 | IN-04 | Tiêu chí sẵn sàng đã thống nhất | 01, 03 | — | Đã xác minh | Product owner duyệt tiêu chí CR-01 đến CR-06 trong Requirement Readiness và thang mức độ của finding ngày 2026-11-17 | — |
 | IN-05 | Baseline độc lập | 02 | [[6]](#ref-6) [[7]](#ref-7) [[8]](#ref-8) | Đã xác minh | ID và mức lấy từ file gốc của OWASP ASVS 5.0 ngày 2026-11-17. Mức áp dụng là L1 cộng các mục L2 đã chọn theo ADR-002 [[5]](#ref-5) | — |
-| IN-06 | Người giữ requirement có thẩm quyền trả lời câu hỏi và duyệt thay đổi | 01, 03 | — | Đã xác minh | Product owner quyết định RF-01 đến RF-11 ngày 2026-11-17 | — |
+| IN-06 | Người giữ requirement có thẩm quyền trả lời câu hỏi và duyệt thay đổi | 01, 03 | — | Đã xác minh | Product owner quyết định RF-01 đến RF-12 ngày 2026-11-17 | — |
 | IN-07 | Nơi quản lý câu hỏi mở và quy ước ghi | 01, 03 | [[9]](#ref-9) | Đã xác minh | Open Questions có ID `OQ-xxx`, anchor theo ID và mục Resolved | — |
 | IN-08 | Implementation hiện có | 01 | `apps/api/src/configs/auth.ts`, `apps/web/app/api/auth.ts`, `packages/shared/src/schemas/auth.schema.ts` | Đã xác minh | Đọc tại commit `b4ca981` | — |
 | IN-09 | Ràng buộc nghiệp vụ, pháp lý hoặc quy định của domain | 02, 03 | [[5]](#ref-5) [[10]](#ref-10) | Đã xác minh | Sản phẩm không giữ tiền, không kết nối sàn và không đặt lệnh. ADR-002 dùng điều này làm căn cứ chọn mức ASVS | — |
