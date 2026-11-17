@@ -72,6 +72,7 @@ Use these only when the project has no template.
 - Each item in the applicable part of the baseline has a result: covered, partly covered, missing, or not applicable with a reason. At a level with selected items (for example "L1 plus selected L2 items"), each item of that higher level also has a result. An item that is not on the list is a gap in the comparison, not a decision.
 - Each "Ready" requirement has a version that test design can cite.
 - The requirement list agrees with the current version of each source. If a source changed after you set a status, list the requirements again from the new version, and check each status again. A behavior that a new version adds and that has no requirement ID is an omission.
+- The owner can accept a baseline item as a requirement without a change to a requirement source. Then the item has its own requirement ID in the readiness list, for example `ASVS-6.2.7`. Test design takes test conditions only from the readiness list.
 
 ## Anti-patterns
 
