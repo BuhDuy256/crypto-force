@@ -16,7 +16,7 @@
 
 | Criterion ID | Tiêu chí | Nguồn |
 | --- | --- | --- |
-| [RD-01] | [ví dụ: có ID duy nhất; expected behavior kiểm chứng được; không mâu thuẫn với requirement khác; có luồng thay thế và ngoại lệ; giá trị cụ thể có nguồn] | [[n]](#ref-n) |
+| [CR-01] | [ví dụ: có ID duy nhất; expected behavior kiểm chứng được; không mâu thuẫn với requirement khác; có luồng thay thế và ngoại lệ; giá trị cụ thể có nguồn] | [[n]](#ref-n) |
 
 ## 3. Trạng thái từng requirement
 

@@ -7,3 +7,5 @@
 | File | Subject |
 | --- | --- |
 | [test-strategy.md](test-strategy.md) | Phạm vi, rủi ro chất lượng, test levels, test types và công cụ đề xuất |
+| [stlc-template/](stlc-template/) | Template cho 6 phase của STLC và template README của test scope |
+| [test-scopes/README.md](test-scopes/README.md) | Quy ước tạo thư mục test scope, ID, và danh sách test scope |
