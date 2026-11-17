@@ -71,7 +71,7 @@ Mức ưu tiên: **High** là sai thì kết quả hệ thống mất giá trị
 | Security | R-13 | Kiểm tra các quy tắc Auth; quét dependency có lỗ hổng; quét lỗi web phổ biến (OWASP Top 10) |
 | Observability | R-15 | Kiểm tra trạng thái loop, số job lỗi, thời gian backtest được ghi log và truy vấn được |
 | E2E | R-05, R-08, R-14 | Các flow chính: tạo strategy → backtest → xem run; Start search → Leaderboard → Re-test |
-| Accessibility | R-16 | Quét tự động trên các màn hình chính; kiểm tra điều hướng bàn phím ở Leaderboard, drawer, tab Auth |
+| Accessibility | R-16 | Quét tự động trên các màn hình chính, kể cả trạng thái lỗi; test không đạt khi có vi phạm mức `serious` hoặc `critical`. Kiểm tra điều hướng bàn phím ở Leaderboard, drawer, tab Auth |
 | Visual regression | R-17 | So ảnh chụp các màn hình chính ở Desktop, Tablet, Mobile |
 
 ## Chiến lược theo module

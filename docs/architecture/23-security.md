@@ -17,9 +17,11 @@ Authentication dùng Better Auth với cookie session, email/password và Google
 | Link xác minh khi đang đăng nhập tài khoản khác | Không tạo phiên mới cho tài khoản vừa xác minh; giữ phiên hiện tại [[2, Create account và Verify email]](#ref-2) |
 | Origin và callback URL | Chỉ chấp nhận request và callback URL thuộc `BETTER_AUTH_URL`. Origin check luôn bật, kể cả khi `NODE_ENV=test` (Better Auth mặc định tắt check này trong test) |
 | Đích sau đăng nhập | Web chỉ nhận tham số `next` là đường dẫn nội bộ; URL tuyệt đối hoặc dạng `//host` bị thay bằng đích mặc định, để `next` không thành open redirect |
-| Lộ email đã đăng ký | Create account và Reset password trả cùng một response dù email đã có tài khoản hay chưa. Email được gửi nền để thời gian phản hồi không khác nhau |
+| Lộ email đã đăng ký | Create account và Reset password trả cùng một response (nội dung và status) dù email đã có tài khoản hay chưa. Email được gửi ở nền để giảm chênh lệch thời gian phản hồi; thời gian phản hồi vẫn có thể khác nhau, và đây là rủi ro chấp nhận [[5, ADR-002]](#ref-4) |
 | Email chưa xác minh | Không đăng nhập được bằng password cho tới khi xác minh email |
 | Link xác minh và link reset | Hiệu lực 1 giờ; link reset chỉ dùng một lần. Đặt password mới thì thu hồi mọi session cũ |
+| Phiên đồng thời | Không giới hạn số phiên đồng thời của một tài khoản; đây là mặc định của Better Auth. Người dùng chưa xem hay kết thúc được từng phiên [[5, ADR-002]](#ref-4) |
+| Google | Request bắt đầu Continue with Google (`/api/auth/sign-in/social`) dùng cùng giới hạn với Sign in. Callback của Google dùng giới hạn chung của Better Auth: 100 request trong 10 giây từ mỗi địa chỉ IP. Tài khoản Google được xác định theo provider và `sub`, không theo email. Luồng Google dùng redirect, không dùng popup hay `postMessage`. Phiên Crypto Force độc lập với phiên Google: Sign out không đăng xuất khỏi Google, và phiên Google kết thúc không làm kết thúc phiên Crypto Force |
 | Sign out | Web gọi `POST /api/auth/sign-out`; Better Auth xóa session trong database và xóa cookie. Sau đó web xóa cache dữ liệu của tài khoản trong trình duyệt. Nếu request thất bại, web giữ nguyên trạng thái đăng nhập để người dùng thử lại [[4, Sign out]](#ref-5) |
 | Màn hình workspace | Khi không có session, web hiện màn chặn và không render nội dung workspace [[4, Điều kiện đăng nhập]](#ref-5). Đây chỉ là lớp hiển thị; API vẫn tự kiểm session ở mọi endpoint cần đăng nhập |
 
@@ -27,7 +29,7 @@ Rủi ro được chấp nhận: khi xóa session trong database bị lỗi, Bet
 
 ## Giới hạn số lần đăng nhập
 
-`/api/auth/sign-in/email` dùng giới hạn mặc định của Better Auth: 3 request trong 10 giây từ mỗi địa chỉ IP, đếm mọi request kể cả lần đăng nhập đúng. Giới hạn này chặn script thử password liên tục nhưng gần như không ảnh hưởng người dùng gõ tay. Bộ đếm lưu trong bảng `rate_limit` của PostgreSQL nên không mất khi API khởi động lại. Giới hạn tính theo IP thay vì theo tài khoản, để người khác không thể cố ý nhập sai nhằm khóa tài khoản của một người dùng [[2, Sign in]](#ref-2). Kẻ tấn công đổi IP liên tục vẫn thử được nhiều password cho một tài khoản; đây là rủi ro chấp nhận ở mức hiện tại [[5, ADR-002]](#ref-4).
+`/api/auth/sign-in/email` dùng giới hạn mặc định của Better Auth: tối đa 3 request từ mỗi địa chỉ IP, đếm mọi request kể cả lần đăng nhập đúng. Bộ đếm về 0 khi request mới cách request được chấp nhận cuối từ 10 giây trở lên. Khi bị chặn, API trả 429 kèm header `X-Retry-After` là số giây còn lại tới 10 giây sau request được chấp nhận cuối; request bị chặn không kéo dài thời gian này. Giới hạn này chặn script thử password liên tục nhưng gần như không ảnh hưởng người dùng gõ tay. Bộ đếm lưu trong bảng `rate_limit` của PostgreSQL nên không mất khi API khởi động lại. Giới hạn tính theo IP thay vì theo tài khoản, để người khác không thể cố ý nhập sai nhằm khóa tài khoản của một người dùng [[2, Sign in]](#ref-2). Kẻ tấn công đổi IP liên tục vẫn thử được nhiều password cho một tài khoản; đây là rủi ro chấp nhận ở mức hiện tại [[5, ADR-002]](#ref-4).
 
 Better Auth lấy IP từ header `X-Forwarded-For` và chỉ tin header có đúng một địa chỉ. Ràng buộc khi deploy:
 
