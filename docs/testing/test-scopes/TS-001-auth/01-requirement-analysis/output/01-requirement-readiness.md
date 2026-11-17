@@ -107,6 +107,12 @@ Version trong cột đầu là commit của tài liệu nguồn.
 | SEC-08: header bảo mật trên mọi response API, `no-store` cho `/api/auth/*`; [[2]](#ref-2) `705a1ad` | Không có | — | — | Ready | Product owner |
 | SEC-09: gửi email lỗi thì chỉ ghi log, response giống khi gửi thành công; [[2]](#ref-2) `705a1ad` | Không có | RF-01 | — | Ready | Product owner |
 | SEC-10: điều kiện trước khi deploy public: giới hạn theo email, giới hạn tổng theo ngày, dọn tài khoản chưa xác minh; [[2]](#ref-2) `705a1ad` | — | — | — | Ngoài phạm vi | Product owner |
+| ASVS-6.2.7: ô password cho dán, cho trình duyệt và password manager điền; [[5, ADR-002]](#ref-5) `705a1ad`, [[9, 6.2.7]](#ref-9) | Không có | RF-11 | — | Ready | Product owner |
+| ASVS-6.3.2: không có tài khoản mặc định như root, admin, sa; [[5, ADR-002]](#ref-5) `705a1ad`, [[9, 6.3.2]](#ref-9) | Không có | RF-11 | — | Ready | Product owner |
+| ASVS-7.2.2: token phiên được sinh động, không phải secret tĩnh; [[5, ADR-002]](#ref-5) `705a1ad`, [[10, 7.2.2]](#ref-10) | Không có | RF-11 | — | Ready | Product owner |
+| ASVS-7.2.3: token phiên duy nhất, sinh bằng CSPRNG, ít nhất 128 bit entropy; [[5, ADR-002]](#ref-5) `705a1ad`, [[10, 7.2.3]](#ref-10) | Không có | RF-11 | — | Ready | Product owner |
+| ASVS-7.2.4: đăng nhập thì cấp token phiên mới và hủy token đang có; [[5, ADR-002]](#ref-5) `705a1ad`, [[10, 7.2.4]](#ref-10) | Không có | RF-11 | — | Ready | Product owner |
+| ASVS-3.4.2: `Access-Control-Allow-Origin` cố định hoặc kiểm theo allowlist; [[5, ADR-002]](#ref-5) `705a1ad`, [[11, 3.4.2]](#ref-11) | Không có | RF-11 | — | Ready | Product owner |
 | A11Y-01: lỗi form dưới trường, có `aria-describedby`, `aria-invalid`, focus trường lỗi đầu tiên, danh sách lỗi; [[4]](#ref-4) `dbbaafe` | Không có | — | — | Ready | Product owner |
 | A11Y-02: quét accessibility tự động 6 màn hình Auth (Sign in, Create account, Check your email, Forgot password, Choose a new password, trang link hết hạn), kể cả trạng thái lỗi; không đạt khi có vi phạm `serious` hoặc `critical`; [[6]](#ref-6) `705a1ad` | Không có | RF-05 | — | Ready | Product owner |
 
@@ -126,12 +132,12 @@ Product owner xác nhận ba requirement Ngoài phạm vi ngày 2026-11-17:
 
 | Trạng thái | Số requirement |
 | --- | --- |
-| Ready | 75 |
+| Ready | 81 |
 | Ready với giả định | 0 |
 | Chờ câu hỏi mở | 0 |
 | Chưa Ready | 0 |
 | Ngoài phạm vi | 3 |
-| **Tổng** | **78** |
+| **Tổng** | **84** |
 
 
 ## 4. Khác biệt giữa requirement và implementation
@@ -154,7 +160,7 @@ Implementation không được dùng làm nguồn của expected behavior. Khi r
 | ID | Tiêu chí | Điều kiện đầu vào | Kết quả |
 | --- | --- | --- | --- |
 | Q1-01 | Tài liệu requirement và tiêu chí sẵn sàng được ghi kèm version | RC-01, RC-02 | Đạt |
-| Q1-02 | Mỗi requirement trong phạm vi có một dòng ở mục 3; tổng ở bảng số lượng bằng số requirement trong tài liệu | RC-01 | Đạt: 78 dòng, tổng 78. Danh sách được lập lại từ commit `705a1ad` của tài liệu nguồn |
+| Q1-02 | Mỗi requirement trong phạm vi có một dòng ở mục 3; tổng ở bảng số lượng bằng số requirement trong tài liệu | RC-01 | Đạt: 84 dòng, tổng 84. Danh sách được lập lại từ commit `705a1ad` của tài liệu nguồn, gồm 6 mục ASVS L1 mà ADR-002 áp dụng nhưng spec không nêu hành vi (RF-11) |
 | Q1-03 | Requirement chỉ được ghi Ready khi đạt mọi tiêu chí; Ready với giả định có người giữ requirement chấp nhận | RC-02, RC-04 | Đạt |
 | Q1-04 | Requirement Chờ câu hỏi mở dẫn tới ID câu hỏi; nội dung câu hỏi không được chép vào file này | RC-05 | Đạt: không có requirement ở trạng thái này |
 | Q1-05 | Giá trị cụ thể trong requirement có nguồn; giá trị do người phân tích đề xuất được ghi lý do và được duyệt riêng từng giá trị | IN-06 | Đạt: giá trị của requirement Ready đều có trong tài liệu nguồn; danh sách màn hình của A11Y-02 có trong quyết định RF-05 |
@@ -172,3 +178,6 @@ Implementation không được dùng làm nguồn của expected behavior. Khi r
 6. <a id="ref-6"></a>[Test Strategy](../../../../../testing/test-strategy.md) — commit `705a1ad`, 2026-11-17
 7. <a id="ref-7"></a>[Open Questions](../../../../../open-questions.md) — commit `ac49066`, 2026-11-16
 8. <a id="ref-8"></a>[ISTQB Certified Tester Foundation Level Syllabus v4.0.1](https://www.istqb.org/wp-content/uploads/2024/11/ISTQB_CTFL_Syllabus_v4.0.1.pdf) — v4.0.1, 2024-09-15
+9. <a id="ref-9"></a>OWASP ASVS 5.0, V6 Authentication. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x15-V6-Authentication.md> — truy cập 2026-11-17
+10. <a id="ref-10"></a>OWASP ASVS 5.0, V7 Session Management. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x16-V7-Session-Management.md> — truy cập 2026-11-17
+11. <a id="ref-11"></a>OWASP ASVS 5.0, V3 Web Frontend Security. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x12-V3-Web-Frontend-Security.md> — truy cập 2026-11-17

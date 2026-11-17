@@ -14,7 +14,7 @@ Mức áp dụng gồm L1 và một số mục L2 được chọn. Vì vậy m�
 
 ## 2. Đối chiếu
 
-Requirement ID dẫn tới [Requirement Readiness](01-requirement-readiness.md). "ADR-002" nghĩa là mục được áp dụng qua câu "Nền là ASVS 5.0 L1" trong ADR-002; spec không nêu hành vi cụ thể, và test dùng trực tiếp ASVS ID làm test basis (quyết định RF-11).
+Requirement ID dẫn tới [Requirement Readiness](01-requirement-readiness.md). ID dạng `ASVS-x.x.x` là requirement lấy trực tiếp từ mục ASVS, vì ADR-002 áp dụng toàn bộ L1 nhưng spec không nêu hành vi cụ thể (quyết định RF-11).
 
 | Baseline item ID | Mức | Nội dung tóm tắt | Requirement IDs | Kết quả | Finding ID |
 | --- | --- | --- | --- | --- | --- |
@@ -27,14 +27,14 @@ Requirement ID dẫn tới [Requirement Readiness](01-requirement-readiness.md).
 | 6.2.4 | L1 | Từ chối 3.000 password phổ biến khi đăng ký và đổi password | SU-14 | Đủ | Không có |
 | 6.2.5 | L1 | Không ép quy tắc thành phần ký tự | CM-02 | Đủ | Không có |
 | 6.2.6 | L1 | Ô password che ký tự bằng `type=password` | SI-08 | Đủ | Không có |
-| 6.2.7 | L1 | Cho dán password và dùng password manager | ADR-002 | Đủ | RF-11 |
+| 6.2.7 | L1 | Cho dán password và dùng password manager | ASVS-6.2.7 | Đủ | RF-11 |
 | 6.2.8 | L1 | Kiểm password đúng như nhận được, không cắt bớt, không đổi hoa thường | CM-02 | Đủ | Không có |
 | 6.2.9 | L2 | Cho password dài ít nhất 64 ký tự | CM-02 | Đủ | Không có |
 | 6.2.10 | L2 | Không ép đổi password định kỳ. Spec không có luồng đổi định kỳ | CM-02 | Đủ | Không có |
 | 6.2.11 | L2 | Dùng danh sách từ theo ngữ cảnh để chặn password. Rủi ro chấp nhận trong ADR-002 | Không có | Không áp dụng | Không có |
 | 6.2.12 | L2 | Kiểm password đã bị lộ khi đăng ký và đổi password | SU-14 | Đủ | Không có |
 | 6.3.1 | L1 | Control chống brute force chạy đúng như tài liệu | SI-06 | Đủ | Không có |
-| 6.3.2 | L1 | Không có tài khoản mặc định (root, admin) | ADR-002 | Đủ | RF-11 |
+| 6.3.2 | L1 | Không có tài khoản mặc định (root, admin) | ASVS-6.3.2 | Đủ | RF-11 |
 | 6.3.3 | L2 | Bắt buộc MFA. Rủi ro chấp nhận trong ADR-002 | Không có | Không áp dụng | Không có |
 | 6.3.4 | L2 | Không có đường xác thực ngoài tài liệu; control nhất quán | GO-08 | Đủ | RF-07 |
 | 6.4.1 | L1 | Mã kích hoạt ngẫu nhiên, hết hạn nhanh | SU-12, RP-04 | Đủ | Không có |
@@ -57,9 +57,9 @@ Requirement ID dẫn tới [Requirement Readiness](01-requirement-readiness.md).
 | 7.1.2 | L2 | Ghi rõ số phiên đồng thời và hành vi khi đạt tối đa | SS-08 | Đủ | RF-09 |
 | 7.1.3 | L2 | Ghi rõ phiên liên kết với IdP: thời hạn và kết thúc phiên | GO-10 | Đủ | RF-07 |
 | 7.2.1 | L1 | Token phiên được kiểm ở backend tin cậy | SS-03 | Đủ | Không có |
-| 7.2.2 | L1 | Token phiên sinh động, không phải secret tĩnh | ADR-002 | Đủ | RF-11 |
-| 7.2.3 | L1 | Token tham chiếu duy nhất, sinh bằng CSPRNG, ít nhất 128 bit | ADR-002 | Đủ | RF-11 |
-| 7.2.4 | L1 | Đăng nhập thì cấp token mới, hủy token đang có | ADR-002 | Đủ | RF-11 |
+| 7.2.2 | L1 | Token phiên sinh động, không phải secret tĩnh | ASVS-7.2.2 | Đủ | RF-11 |
+| 7.2.3 | L1 | Token tham chiếu duy nhất, sinh bằng CSPRNG, ít nhất 128 bit | ASVS-7.2.3 | Đủ | RF-11 |
+| 7.2.4 | L1 | Đăng nhập thì cấp token mới, hủy token đang có | ASVS-7.2.4 | Đủ | RF-11 |
 | 7.3.1 | L2 | Idle timeout. Rủi ro chấp nhận trong ADR-002 | Không có | Không áp dụng | Không có |
 | 7.3.2 | L2 | Thời hạn phiên tuyệt đối | SS-05 | Đủ | Không có |
 | 7.4.1 | L1 | Phiên đã kết thúc không dùng lại được | SS-01 | Đủ | Không có |
@@ -76,7 +76,7 @@ Requirement ID dẫn tới [Requirement Readiness](01-requirement-readiness.md).
 | 3.3.3 | L2 | Cookie dùng tiền tố `__Host-`. Rủi ro chấp nhận trong ADR-002 | Không có | Không áp dụng | Không có |
 | 3.3.4 | L2 | Cookie phiên có `HttpOnly` | SEC-01 | Đủ | Không có |
 | 3.4.1 | L1 | Mọi response có `Strict-Transport-Security`, `max-age` ít nhất 1 năm | SEC-08 | Đủ | Không có |
-| 3.4.2 | L1 | `Access-Control-Allow-Origin` cố định hoặc theo allowlist | ADR-002 | Đủ | RF-11 |
+| 3.4.2 | L1 | `Access-Control-Allow-Origin` cố định hoặc theo allowlist | ASVS-3.4.2 | Đủ | RF-11 |
 | 3.4.3 | L2 | CSP đầy đủ. Rủi ro chấp nhận trong ADR-002 | Không có | Không áp dụng | Không có |
 | 3.4.4 | L2 | `X-Content-Type-Options: nosniff` | SEC-08 | Đủ | Không có |
 | 3.4.5 | L2 | `Referrer-Policy` chặn lộ dữ liệu qua Referer | SEC-08 | Đủ | Không có |
