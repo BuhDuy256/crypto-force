@@ -8,7 +8,7 @@
 | --- | --- |
 | Version / thời điểm chốt | 2026-11-17 (GMT+7) |
 | Phạm vi | Luồng Authentication của Crypto Force (SC-01 đến SC-09, SC-17 của Test Plan). Test level: Component, Component integration, System, System integration. Test type: Functional, Security, Usability, Reliability |
-| Test basis | Requirement Readiness [[1]](#ref-1) `6c7bbd7`: 81 requirement Ready; quyết định của 17 lỗi test basis ở Test Conditions mục 4.1 [[2]](#ref-2) |
+| Test basis | Requirement Readiness [[1]](#ref-1) `6c7bbd7`: 81 requirement Ready; quyết định của 17 lỗi test basis ở Test Conditions mục 4.1 [[2]](#ref-2), đã có trong Authentication và Security tại commit `c23d848` |
 | Test Plan | [[3]](#ref-3) version 1.1, commit `341584a` |
 | Snapshot test design | Branch `test/auth`: commit thêm thư mục `03-design/`, có parent là `6c7bbd7` |
 | Người thực hiện / người review | Người thực hiện: agent. Người review: product owner |
@@ -16,7 +16,7 @@
 
 ## 2. Truy vết theo test basis item
 
-Requirement có expected result một phần lấy từ quyết định của lỗi test basis ghi BD đó ở cột Phần thiếu: test basis chưa được sửa theo quyết định (TD-01).
+Requirement có expected result một phần lấy từ quyết định của lỗi test basis ghi BD đó ở cột Phần thiếu. Quyết định có trong Authentication và Security tại commit `c23d848`; cột Test basis item ghi version mà requirement được phân tích ở Phase 01.
 
 | Test basis item / version | Rủi ro | Test condition IDs | Test model IDs | Test case / charter IDs | Trạng thái | Phần thiếu |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -101,9 +101,9 @@ Requirement có expected result một phần lấy từ quyết định của l�
 | ASVS-3.4.2; ADR-002 `705a1ad` | Cao | COND-79 | MD-14 | TC-207, CHR-04 | Đã thiết kế | Không có |
 | A11Y-01; `dbbaafe` | Trung bình | COND-80 | MD-17 | TC-240 đến TC-243 | Đã thiết kế | Không có |
 | A11Y-02; Test Strategy `705a1ad` | Trung bình | COND-81 | MD-17 | TC-244, TC-245 | Đã thiết kế | Không có |
-| BD-15; Test Conditions mục 4.1 | Cao | COND-83 | MD-15, MD-16 | TC-232, CHR-02 | Đã thiết kế | Chưa có trong Security (TD-01) |
-| BD-16; Test Conditions mục 4.1 | Cao | COND-84 | MD-15, MD-16 | TC-231, CHR-03 | Đã thiết kế | Chưa có trong Security (TD-01) |
-| BD-17; Test Conditions mục 4.1 | Cao | COND-85 | MD-15, MD-16 | TC-230, CHR-03 | Đã thiết kế | Chưa có trong Security (TD-01) |
+| BD-15; Security `c23d848` | Cao | COND-83 | MD-15, MD-16 | TC-232, CHR-02 | Đã thiết kế | Không có |
+| BD-16; Security `c23d848` | Cao | COND-84 | MD-15, MD-16 | TC-231, CHR-03 | Đã thiết kế | Không có |
+| BD-17; Security `c23d848` | Cao | COND-85 | MD-15, MD-16 | TC-230, CHR-03 | Đã thiết kế | Không có |
 
 | Trạng thái | Định nghĩa |
 | --- | --- |
@@ -142,7 +142,6 @@ Mỗi dòng chỉ tính trên coverage item của một model. Không cộng cá
 
 | ID | Việc | Liên quan | Owner | Hạn | Nơi theo dõi |
 | --- | --- | --- | --- | --- | --- |
-| TD-01 | Sửa Authentication và Security theo 17 quyết định ở Test Conditions mục 4.1, gồm 3 requirement mới của BD-15, BD-16, BD-17; rồi ghi lại version của test basis trong Test Conditions và Test Cases | BD-01 đến BD-17; COND-83 đến COND-85 | Product owner | Trước khi bắt đầu Phase 05 | [Test Conditions](02-test-conditions.md) mục 4.1 |
 | TD-02 | Kiểm `Strict-Transport-Security` (ASVS 3.4.1) khi deploy, cùng với SEC-05 | MD-14-CI-33 | Product owner | Khi deploy lần đầu | [Test Conditions](02-test-conditions.md) mục 4.1 |
 | TD-03 | Đưa nút Sign out trên mọi màn hình workspace (ASVS 7.4.4) vào test scope của workspace | MD-14-CI-28; SC-14 | Product owner | Khi lập test scope của workspace | [Test Scopes](../../../README.md) |
 | TD-05 | Đối chiếu test hiện có trong `apps/api/test/auth.test.ts` và `apps/web/e2e/` với test case của file này; sửa hoặc thay test viết theo spec cũ | IN-07; Q4-05 | Agent | Phase 04 | `04-implementation/` |

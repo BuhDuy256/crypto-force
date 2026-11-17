@@ -7,7 +7,7 @@
 | Trường | Nội dung |
 | --- | --- |
 | Test model | [Test Models](03-test-models.md) [[1]](#ref-1), 18 model, 427 coverage item |
-| Test basis | Authentication [[2]](#ref-2) `705a1ad`, Security [[3]](#ref-3) `d6c0541`, Workspace [[4]](#ref-4) `bd0ecff`, Crypto Force UI Prototype [[5]](#ref-5) `dbbaafe`, Architectural Decisions [[6]](#ref-6) `705a1ad`, Test Strategy [[8]](#ref-8) `705a1ad`; quyết định của lỗi test basis ở Test Conditions mục 4.1 [[7]](#ref-7) |
+| Test basis | Authentication [[2]](#ref-2) `705a1ad`, Security [[3]](#ref-3) `d6c0541`, Workspace [[4]](#ref-4) `bd0ecff`, Crypto Force UI Prototype [[5]](#ref-5) `dbbaafe`, Architectural Decisions [[6]](#ref-6) `705a1ad`, Test Strategy [[8]](#ref-8) `705a1ad`; quyết định của lỗi test basis ở Test Conditions mục 4.1 [[7]](#ref-7), có trong Authentication và Security tại `c23d848` |
 | Nơi lưu | File này. Code test được viết ở Phase 04 trong `apps/api/test/`, `apps/web/e2e/` và test của `packages/shared` |
 
 ## 2. Test cases
