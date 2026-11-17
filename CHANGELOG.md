@@ -5,6 +5,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 ## [Unreleased]
 
 ### Added
+- Bộ template STLC trong `docs/testing/stlc-template/` cho 6 phase (Requirement Analysis, Test Planning, Test Analysis & Design, Test Implementation, Test Execution, Test Summary & Closure). Mỗi phase độc lập: một file input ghi thông tin cần có (đã xác minh hay giả định) và điều kiện bắt đầu, các file output tách theo kết quả, mỗi file có tiêu chí đạt dẫn về điều kiện đầu vào. Nội dung đối chiếu với ISTQB CTFL v4.0.1 và mục lục ISO/IEC/IEEE 29119-3:2021; áp dụng LL-003 (baseline độc lập) và LL-004 (giá trị đề xuất phải có nguồn).
 - E2E test Playwright cho `apps/web` (`pnpm test:e2e`): luồng Create account → xác minh email → Sign in, lỗi khi gửi form trống và điều hướng tab bằng bàn phím.
 - `apps/web` Increment 2: các trang Auth dựng từ prototype (`app/pages/Auth/`): Sign in, Create account, Verify email, Forgot password, Reset password, kèm auth layout chuyển người đã đăng nhập tới đích, tham số `next` chỉ nhận đường dẫn nội bộ, error summary, tab điều khiển bằng bàn phím và nút Google chỉ hiện khi API bật Google. Thêm shadcn primitive `input`, `checkbox` và route tạm `/realtime` yêu cầu đăng nhập.
 - Integration test cho Auth của `apps/api` (Vitest, `pnpm test`) trên database `<POSTGRES_DB>_test` tạo lại từ migration mỗi lần chạy: không lộ email đã đăng ký, rate limit, cờ cookie, link reset dùng một lần, chặn callback URL ra ngoài.
