@@ -72,3 +72,12 @@ Mỗi bài học theo mẫu:
 - **Examples:**
   - Before: "D3: Giới hạn Sign in 5 lần trong 15 phút theo IP (Recommended)."
   - After: "Giới hạn Sign in. Prototype: khóa sau 3 lần sai. Mặc định của Better Auth: 3 request/10 giây/IP. Agent đề xuất: 5 request/15 phút/IP, đếm mọi lần bấm, tức là khác prototype ở cách đếm. Lý do: …"
+
+### LL-005: Undeclared Requirement ID Prefixes
+
+- **Scope:** Testing
+- **Problem:** Agent đặt requirement ID theo nhóm chức năng (`SI`, `GO`, `SU`) nhưng không ghi tiền tố nghĩa là gì và lấy từ section nào của nguồn, nên người đọc thấy ID như đánh ngẫu nhiên. Tiền tố còn trùng với ID mà template STLC dùng cho đối tượng khác: requirement `SU` (Sign up) trùng `SU-01` (test suite), requirement `RD` (Redirect) trùng `RD-01` (tiêu chí sẵn sàng). Khi đó cùng một ID chỉ hai thứ khác nhau trong một test scope. `pnpm check:docs` chặn tiền tố chưa khai báo, tiền tố trùng template và ID trùng; quy tắc dưới đây là phần check không kiểm được.
+- **Rule:** Mỗi tiền tố ứng với đúng một nhóm requirement trong một section của tài liệu nguồn, và cột Nguồn của bảng tiền tố dẫn tới section đó. Không đánh lại số của ID đã cấp; requirement mới nhận số kế tiếp trong nhóm, kể cả khi thứ tự số không còn theo thứ tự của luồng. Chỉ được đổi tiền tố khi chưa có test case, defect hay tài liệu ngoài Phase 01 nào trỏ tới ID đó.
+- **Examples:**
+  - Before: `| SU-17: phiên chỉ được tạo ở lần mở link đầu tiên; … |`, không có bảng tiền tố.
+  - After: bảng tiền tố có dòng `` | `CA` | Create account và Verify email | [[1, Create account và Verify email]](#ref-1) | `` và requirement là `| CA-17: … |`.

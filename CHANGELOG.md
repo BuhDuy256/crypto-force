@@ -5,6 +5,7 @@ Mọi thay đổi đáng chú ý của dự án được ghi lại trong file n�
 ## [Unreleased]
 
 ### Added
+- Lesson Learned LL-005 (Undeclared Requirement ID Prefixes): mỗi tiền tố requirement ID ứng với một section của tài liệu nguồn, không đánh lại số của ID đã cấp, chỉ đổi tiền tố khi chưa có gì ngoài Phase 01 trỏ tới ID.
 - Check `pnpm check:docs` (`scripts/check-test-scope-ids.mjs`), chạy trong `pnpm check`: Requirement Readiness của mỗi test scope phải khai báo tiền tố requirement ID trong bảng Tiền tố, mọi ID dùng tiền tố đã khai báo, không tiền tố nào trùng với tiền tố ID của template STLC và không ID nào lặp lại. Template Readiness thêm bảng Tiền tố và tiêu chí Q1-07.
 - Quy ước thư mục test scope trong `docs/testing/test-scopes/` (`TS-XXX-<slug>`, copy thư mục phase khi phase bắt đầu, README tạo từ `stlc-template/scope-readme.md`) và test scope đầu tiên `TS-001-auth`: Phase 01 Requirement Analysis đạt, 84 requirement (81 Ready, 3 ngoài phạm vi), đối chiếu đủ 70 mục OWASP ASVS 5.0 L1 và L2 trong phạm vi.
 - 18 skill trong `.claude/skills/` theo ISTQB CTFL v4.0.1: 6 skill theo phase STLC (`stlc-*`), 9 skill về test technique kèm model và coverage criterion (`test-technique-*`), và 3 skill về risk analysis, estimation, defect classification. Template của project được ưu tiên hơn skill.
