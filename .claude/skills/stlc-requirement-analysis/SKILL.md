@@ -26,7 +26,7 @@ Before you start, check these items. If an item is missing, stop and report it.
 
 ## Steps
 
-1. **List the requirements in scope.** Give each requirement an ID and the version of its source. A requirement without an ID cannot have a traceable result.
+1. **List the requirements in scope.** Give each requirement an ID and the version of its source. A requirement without an ID cannot have a traceable result. Use one ID prefix for each group of requirements in one source section. Declare each prefix with its group and its source section before you use it. Do not use a prefix that the project templates use for other items, for example `SU` for test suites. One ID must not identify two different items. Do not renumber an ID after you give it. Give the next number to a new requirement.
 2. **Review each requirement against readiness criteria.** Use these default criteria when the project has none:
    - Complete: inputs, outputs, error behavior and constraints are stated.
    - Unambiguous: two readers get the same meaning. Flag vague words such as "fast", "user-friendly", "appropriate", "etc.", "and/or".

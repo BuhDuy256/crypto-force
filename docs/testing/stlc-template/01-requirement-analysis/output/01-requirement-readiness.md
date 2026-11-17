@@ -20,6 +20,12 @@
 
 ## 3. Trạng thái từng requirement
 
+| Tiền tố | Nhóm | Nguồn |
+| --- | --- | --- |
+| [ví dụ: SI] | [nhóm requirement, ví dụ: Sign in] | [[n, section của tài liệu nguồn]](#ref-n) |
+
+Requirement ID có dạng `<tiền tố>-NN`. Mỗi tiền tố ứng với một nhóm requirement trong một section của tài liệu nguồn. Requirement lấy trực tiếp từ một mục của baseline giữ số của mục gốc, ví dụ `ASVS-6.2.7`. Tiền tố không được trùng với tiền tố ID mà các template STLC dùng, ví dụ `SU` của test suite. ID không đổi và không dùng lại; requirement mới nhận số kế tiếp trong nhóm. `pnpm check` kiểm các quy tắc này.
+
 | Requirement ID / version | Tiêu chí chưa đạt | Finding IDs | Câu hỏi mở | Trạng thái | Owner |
 | --- | --- | --- | --- | --- | --- |
 | [ID; version] | [Criterion IDs; hoặc "Không có"] | [IDs] | [link `open-questions.md#oq-xxx`] | [trạng thái] | [tên] |
@@ -59,6 +65,7 @@ Implementation không được dùng làm nguồn của expected behavior. Khi r
 | Q1-04 | Requirement Chờ câu hỏi mở dẫn tới ID câu hỏi; nội dung câu hỏi không được chép vào file này | RC-05 | |
 | Q1-05 | Giá trị cụ thể trong requirement có nguồn; giá trị do người phân tích đề xuất được ghi lý do và được duyệt riêng từng giá trị | IN-06 | |
 | Q1-06 | Mọi khác biệt giữa requirement và implementation có quyết định của người giữ requirement hoặc dẫn tới câu hỏi mở | IN-08 | |
+| Q1-07 | Mọi tiền tố của requirement ID có trong bảng tiền tố ở mục 3, kèm nhóm và section nguồn; không tiền tố nào trùng với tiền tố ID của template STLC | — | |
 
 **Người review / ngày:** [tên, ngày]
 

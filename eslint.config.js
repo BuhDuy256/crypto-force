@@ -95,7 +95,7 @@ export default tseslint.config(
   },
 
   {
-    files: ['*.js', '**/*.config.{js,ts}', '.claude/hooks/*.mjs'],
+    files: ['*.js', '**/*.config.{js,ts}', '.claude/hooks/*.mjs', 'scripts/*.mjs'],
     ...tseslint.configs.disableTypeChecked,
   },
 
@@ -107,6 +107,7 @@ export default tseslint.config(
       '*.js',
       '**/*.config.{js,ts}',
       '.claude/hooks/*.mjs',
+      'scripts/*.mjs',
     ],
     languageOptions: { globals: globals.node },
   },
