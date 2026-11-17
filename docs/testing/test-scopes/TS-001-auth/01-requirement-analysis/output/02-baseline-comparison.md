@@ -24,7 +24,7 @@ Requirement ID dẫn tới [Requirement Readiness](01-requirement-readiness.md).
 | 6.2.1 | L1 | Password tối thiểu 8 ký tự | CM-02 | Đủ | Không có |
 | 6.2.2 | L1 | Người dùng đổi được password. Chức năng thuộc Settings, ngoài phạm vi TS-001 | Không có | Không áp dụng | Không có |
 | 6.2.3 | L1 | Đổi password cần password hiện tại. Chức năng thuộc Settings, ngoài phạm vi TS-001 | Không có | Không áp dụng | Không có |
-| 6.2.4 | L1 | Từ chối 3.000 password phổ biến khi đăng ký và đổi password | SU-14 | Đủ | Không có |
+| 6.2.4 | L1 | Từ chối 3.000 password phổ biến khi đăng ký và đổi password | CA-14 | Đủ | Không có |
 | 6.2.5 | L1 | Không ép quy tắc thành phần ký tự | CM-02 | Đủ | Không có |
 | 6.2.6 | L1 | Ô password che ký tự bằng `type=password` | SI-08 | Đủ | Không có |
 | 6.2.7 | L1 | Cho dán password và dùng password manager | ASVS-6.2.7 | Đủ | RF-11 |
@@ -32,12 +32,12 @@ Requirement ID dẫn tới [Requirement Readiness](01-requirement-readiness.md).
 | 6.2.9 | L2 | Cho password dài ít nhất 64 ký tự | CM-02 | Đủ | Không có |
 | 6.2.10 | L2 | Không ép đổi password định kỳ. Spec không có luồng đổi định kỳ | CM-02 | Đủ | Không có |
 | 6.2.11 | L2 | Dùng danh sách từ theo ngữ cảnh để chặn password. Rủi ro chấp nhận trong ADR-002 | Không có | Không áp dụng | Không có |
-| 6.2.12 | L2 | Kiểm password đã bị lộ khi đăng ký và đổi password | SU-14 | Đủ | Không có |
+| 6.2.12 | L2 | Kiểm password đã bị lộ khi đăng ký và đổi password | CA-14 | Đủ | Không có |
 | 6.3.1 | L1 | Control chống brute force chạy đúng như tài liệu | SI-06 | Đủ | Không có |
 | 6.3.2 | L1 | Không có tài khoản mặc định (root, admin) | ASVS-6.3.2 | Đủ | RF-11 |
 | 6.3.3 | L2 | Bắt buộc MFA. Rủi ro chấp nhận trong ADR-002 | Không có | Không áp dụng | Không có |
 | 6.3.4 | L2 | Không có đường xác thực ngoài tài liệu; control nhất quán | GO-08 | Đủ | RF-07 |
-| 6.4.1 | L1 | Mã kích hoạt ngẫu nhiên, hết hạn nhanh | SU-12, RP-04 | Đủ | Không có |
+| 6.4.1 | L1 | Mã kích hoạt ngẫu nhiên, hết hạn nhanh | CA-12, RP-04 | Đủ | Không có |
 | 6.4.2 | L1 | Không có gợi ý password hay câu hỏi bí mật. Spec không có hai chức năng này | SI-01–SI-12 | Đủ | Không có |
 | 6.4.3 | L2 | Reset password không vượt qua MFA. Không có MFA | Không có | Không áp dụng | Không có |
 | 6.4.4 | L2 | Mất yếu tố MFA thì phải xác minh danh tính. Không có MFA | Không có | Không áp dụng | Không có |
@@ -70,7 +70,7 @@ Requirement ID dẫn tới [Requirement Readiness](01-requirement-readiness.md).
 | 7.5.1 | L2 | Xác thực lại trước khi đổi email. Rủi ro chấp nhận trong ADR-002 | Không có | Không áp dụng | Không có |
 | 7.5.2 | L2 | Xem và kết thúc từng phiên. Rủi ro chấp nhận trong ADR-002 | Không có | Không áp dụng | Không có |
 | 7.6.1 | L2 | Thời hạn và kết thúc phiên giữa RP và IdP chạy đúng tài liệu | GO-10 | Đủ | RF-07 |
-| 7.6.2 | L2 | Tạo phiên cần người dùng đồng ý hoặc có thao tác rõ ràng. Rủi ro chấp nhận trong ADR-002 | SU-05, SU-17 | Không áp dụng | RF-08 |
+| 7.6.2 | L2 | Tạo phiên cần người dùng đồng ý hoặc có thao tác rõ ràng. Rủi ro chấp nhận trong ADR-002 | CA-05, CA-17 | Không áp dụng | RF-08 |
 | 3.3.1 | L1 | Cookie có `Secure`; cookie không dùng `__Host-` thì dùng `__Secure-` | SEC-01 | Đủ | Không có |
 | 3.3.2 | L2 | `SameSite` theo mục đích của cookie | SEC-01 | Đủ | Không có |
 | 3.3.3 | L2 | Cookie dùng tiền tố `__Host-`. Rủi ro chấp nhận trong ADR-002 | Không có | Không áp dụng | Không có |
@@ -83,7 +83,7 @@ Requirement ID dẫn tới [Requirement Readiness](01-requirement-readiness.md).
 | 3.4.6 | L2 | CSP `frame-ancestors` trên mọi response | SEC-08 | Đủ | Không có |
 | 3.5.1 | L1 | Request nhạy cảm không qua preflight được kiểm origin | SEC-02 | Đủ | Không có |
 | 3.5.2 | L1 | Chức năng dựa vào preflight không gọi được nếu bỏ preflight. Auth dùng origin check, không dựa vào preflight | Không có | Không áp dụng | Không có |
-| 3.5.3 | L1 | Chức năng nhạy cảm dùng method không an toàn (không dùng GET) | SU-05 | Một phần | RF-08 |
+| 3.5.3 | L1 | Chức năng nhạy cảm dùng method không an toàn (không dùng GET) | CA-05 | Một phần | RF-08 |
 | 3.5.4 | L2 | Các ứng dụng riêng nằm trên hostname riêng. Web và API là một ứng dụng, cùng origin qua proxy | Không có | Không áp dụng | Không có |
 | 3.5.5 | L2 | Bỏ message `postMessage` có origin không tin cậy. Luồng Google dùng redirect, không dùng `postMessage` | GO-05 | Không áp dụng | RF-07 |
 | 3.7.1 | L2 | Chỉ dùng công nghệ phía client được hỗ trợ và an toàn. Web chỉ dùng React, không dùng plugin | Không có | Không áp dụng | Không có |

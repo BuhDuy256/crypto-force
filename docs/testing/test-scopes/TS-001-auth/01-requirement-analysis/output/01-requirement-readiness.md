@@ -27,7 +27,20 @@ Spec không có requirement ID. ID trong file này do người phân tích gán 
 
 ## 3. Trạng thái từng requirement
 
-Version trong cột đầu là commit của tài liệu nguồn.
+| Tiền tố | Nhóm | Nguồn |
+| --- | --- | --- |
+| `RD` | Chuyển tiếp sau khi đăng nhập (redirect) | [[1, Chuyển tiếp sau khi đăng nhập]](#ref-1) |
+| `CM` | Quy tắc dùng chung cho mọi bước | [[1, Quy tắc dùng chung]](#ref-1) |
+| `SI` | Sign in | [[1, Sign in]](#ref-1) [[2, Giới hạn số lần đăng nhập]](#ref-2) |
+| `GO` | Continue with Google | [[1, Sign in]](#ref-1) [[2, Authentication]](#ref-2) |
+| `CA` | Create account và Verify email | [[1, Create account và Verify email]](#ref-1) |
+| `RP` | Reset password | [[1, Reset password]](#ref-1) |
+| `SS` | Phiên và Sign out | [[3, Điều kiện đăng nhập]](#ref-3) [[3, Sign out]](#ref-3) [[2, Authentication]](#ref-2) [[5, ADR-001]](#ref-5) |
+| `SEC` | Bảo mật: cookie, origin, rate limit, email, header | [[2]](#ref-2) |
+| `A11Y` | Accessibility | [[4, Lỗi form]](#ref-4) [[6]](#ref-6) |
+| `ASVS` | Mục ASVS L1 mà ADR-002 áp dụng nhưng spec không nêu hành vi; giữ số của mục gốc | [[5, ADR-002]](#ref-5) [[9]](#ref-9) [[10]](#ref-10) [[11]](#ref-11) |
+
+Requirement ID có dạng `<tiền tố>-NN`. ID không đổi và không dùng lại; requirement mới nhận số kế tiếp trong nhóm. Version trong cột đầu là commit của tài liệu nguồn.
 
 | Requirement ID / version | Tiêu chí chưa đạt | Finding IDs | Câu hỏi mở | Trạng thái | Owner |
 | --- | --- | --- | --- | --- | --- |
@@ -64,23 +77,23 @@ Version trong cột đầu là commit của tài liệu nguồn.
 | GO-08: bắt đầu Continue with Google dùng giới hạn của Sign in; callback của Google giới hạn 100 request/10 giây/IP; [[2]](#ref-2) `705a1ad` | Không có | RF-07 | — | Ready | Product owner |
 | GO-09: tài khoản Google được xác định theo provider và `sub`, không theo email; [[2]](#ref-2) `705a1ad` | Không có | RF-07 | — | Ready | Product owner |
 | GO-10: phiên Crypto Force độc lập với phiên Google; Sign out không đăng xuất Google; [[2]](#ref-2) `705a1ad` | Không có | RF-07 | — | Ready | Product owner |
-| SU-01: form gồm Full name, email, password, checkbox xác nhận; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
-| SU-02: lỗi tại trường khi bấm Create account; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
-| SU-03: hợp lệ thì tới Check your email, hiện email vừa nhập; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
-| SU-04: email đã có tài khoản cũng tới Check your email; chủ tài khoản nhận email "đã có tài khoản"; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
-| SU-05: link xác minh: xác minh, ghi phiên, chuyển tới đích; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
-| SU-06: link xác minh hết hạn thì báo lỗi và cho gửi lại link; [[1]](#ref-1) `705a1ad` | Không có | RF-02 | — | Ready | Product owner |
-| SU-07: Resend the link: nút thành "Sent again" và bị vô hiệu; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
-| SU-08: Use a different email: quay lại Create account; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
-| SU-09: I've confirmed: có phiên thì tới đích, chưa có thì Sign in với email điền sẵn; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
-| SU-10: nút I've confirmed ghi tên đích; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
-| SU-11: tab Sign in và Create account điều khiển bằng mũi tên, Home, End; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
-| SU-12: link xác minh hiệu lực 1 giờ; [[2]](#ref-2) `705a1ad` | Không có | — | — | Ready | Product owner |
-| SU-13: Full name tối đa 100 ký tự, password tối đa 128 ký tự; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
-| SU-14: password phổ biến hoặc đã bị lộ bị từ chối; [[1]](#ref-1) [[2]](#ref-2) `705a1ad` | Không có | — | — | Ready | Product owner |
-| SU-15: tải lại Check your email thì quay về Create account; [[1]](#ref-1) `705a1ad` | Không có | RF-01 | — | Ready | Product owner |
-| SU-16: email "đã có tài khoản" gửi tới tài khoản chưa xác minh hướng dẫn Reset password rồi xác nhận email; [[1]](#ref-1) `705a1ad` | Không có | RF-01 | — | Ready | Product owner |
-| SU-17: phiên chỉ được tạo ở lần mở link đầu tiên; link còn hạn của email đã xác minh không báo lỗi, không tạo phiên, mở Sign in hoặc tới thẳng đích nếu đã có phiên; [[1]](#ref-1) `705a1ad` | Không có | RF-01, RF-02 | — | Ready | Product owner |
+| CA-01: form gồm Full name, email, password, checkbox xác nhận; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-02: lỗi tại trường khi bấm Create account; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-03: hợp lệ thì tới Check your email, hiện email vừa nhập; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-04: email đã có tài khoản cũng tới Check your email; chủ tài khoản nhận email "đã có tài khoản"; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-05: link xác minh: xác minh, ghi phiên, chuyển tới đích; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-06: link xác minh hết hạn thì báo lỗi và cho gửi lại link; [[1]](#ref-1) `705a1ad` | Không có | RF-02 | — | Ready | Product owner |
+| CA-07: Resend the link: nút thành "Sent again" và bị vô hiệu; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-08: Use a different email: quay lại Create account; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-09: I've confirmed: có phiên thì tới đích, chưa có thì Sign in với email điền sẵn; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-10: nút I've confirmed ghi tên đích; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-11: tab Sign in và Create account điều khiển bằng mũi tên, Home, End; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-12: link xác minh hiệu lực 1 giờ; [[2]](#ref-2) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-13: Full name tối đa 100 ký tự, password tối đa 128 ký tự; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-14: password phổ biến hoặc đã bị lộ bị từ chối; [[1]](#ref-1) [[2]](#ref-2) `705a1ad` | Không có | — | — | Ready | Product owner |
+| CA-15: tải lại Check your email thì quay về Create account; [[1]](#ref-1) `705a1ad` | Không có | RF-01 | — | Ready | Product owner |
+| CA-16: email "đã có tài khoản" gửi tới tài khoản chưa xác minh hướng dẫn Reset password rồi xác nhận email; [[1]](#ref-1) `705a1ad` | Không có | RF-01 | — | Ready | Product owner |
+| CA-17: phiên chỉ được tạo ở lần mở link đầu tiên; link còn hạn của email đã xác minh không báo lỗi, không tạo phiên, mở Sign in hoặc tới thẳng đích nếu đã có phiên; [[1]](#ref-1) `705a1ad` | Không có | RF-01, RF-02 | — | Ready | Product owner |
 | RP-01: Forgot password?, nhập email, Send reset link; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
 | RP-02: email sai định dạng báo lỗi như Sign in; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
 | RP-03: email hợp lệ luôn hiện "If an account exists for …"; [[1]](#ref-1) `705a1ad` | Không có | — | — | Ready | Product owner |
@@ -147,8 +160,8 @@ Product owner xác nhận ba requirement Ngoài phạm vi ngày 2026-11-17:
 | SI-06; `705a1ad` | Tối đa 3 lần bấm từ một IP; bộ đếm về 0 sau 10 giây không bấm | Giới hạn riêng 5 lần trong 15 phút | `apps/api/src/configs/auth.ts:13`, `:86` tại `b4ca981` | Giữ requirement, implementation cần sửa ([OQ-078](../../../../../open-questions.md#oq-078)) |
 | GO-03; `705a1ad` | Tài khoản chưa xác minh: báo email đã đăng ký, gợi ý Sign in hoặc Reset password | Không có xử lý riêng cho lỗi `account_not_linked` trong `apps/` | grep tại `b4ca981` | Giữ requirement, implementation cần sửa ([OQ-077](../../../../../open-questions.md#oq-077)) |
 | GO-06; `705a1ad` | Luôn hiện màn chọn tài khoản | Không đặt `prompt=select_account` | `apps/api/src/configs/auth.ts:77–80` tại `b4ca981` | Giữ requirement, implementation cần sửa (spec ghi **Confirmed**) |
-| SU-13, CM-02; `705a1ad` | Full name tối đa 100, password tối đa 128 ký tự | Schema chỉ có giới hạn dưới | `packages/shared/src/schemas/auth.schema.ts` tại `b4ca981` | Giữ requirement, implementation cần sửa ([OQ-080](../../../../../open-questions.md#oq-080)) |
-| SU-14; `705a1ad` | Từ chối password phổ biến hoặc đã bị lộ | Không có kiểm tra nào | `apps/api/src/configs/auth.ts` tại `b4ca981` | Giữ requirement, implementation cần sửa ([[5, ADR-002]](#ref-5)) |
+| CA-13, CM-02; `705a1ad` | Full name tối đa 100, password tối đa 128 ký tự | Schema chỉ có giới hạn dưới | `packages/shared/src/schemas/auth.schema.ts` tại `b4ca981` | Giữ requirement, implementation cần sửa ([OQ-080](../../../../../open-questions.md#oq-080)) |
+| CA-14; `705a1ad` | Từ chối password phổ biến hoặc đã bị lộ | Không có kiểm tra nào | `apps/api/src/configs/auth.ts` tại `b4ca981` | Giữ requirement, implementation cần sửa ([[5, ADR-002]](#ref-5)) |
 | RP-08; `705a1ad` | Link reset mang theo đích chờ | `redirectTo: '/reset-password'` cố định | `apps/web/app/api/auth.ts:88` tại `b4ca981` | Giữ requirement, implementation cần sửa (spec ghi **Confirmed**) |
 | SEC-08; `705a1ad` | Header bảo mật và `no-store` | Không có header nào trong số đó | grep `nosniff` trong `apps/` tại `b4ca981` | Giữ requirement, implementation cần sửa ([[5, ADR-002]](#ref-5)) |
 | SS-05; `705a1ad` | Phiên bị từ chối sau 30 ngày | Chỉ có `expiresIn` 7 ngày và `updateAge` 1 ngày | `apps/api/src/configs/auth.ts:82` tại `b4ca981` | Giữ requirement, implementation cần sửa ([[5, ADR-002]](#ref-5)) |
@@ -165,6 +178,7 @@ Implementation không được dùng làm nguồn của expected behavior. Khi r
 | Q1-04 | Requirement Chờ câu hỏi mở dẫn tới ID câu hỏi; nội dung câu hỏi không được chép vào file này | RC-05 | Đạt: không có requirement ở trạng thái này |
 | Q1-05 | Giá trị cụ thể trong requirement có nguồn; giá trị do người phân tích đề xuất được ghi lý do và được duyệt riêng từng giá trị | IN-06 | Đạt: giá trị của requirement Ready đều có trong tài liệu nguồn; danh sách màn hình của A11Y-02 có trong quyết định RF-05 |
 | Q1-06 | Mọi khác biệt giữa requirement và implementation có quyết định của người giữ requirement hoặc dẫn tới câu hỏi mở | IN-08 | Đạt |
+| Q1-07 | Mọi tiền tố của requirement ID có trong bảng tiền tố ở mục 3, kèm nhóm và section nguồn; không tiền tố nào trùng với tiền tố ID của template STLC | — | Đạt: `pnpm check:docs` pass |
 
 **Người review / ngày:** Product owner, 2026-11-17
 
