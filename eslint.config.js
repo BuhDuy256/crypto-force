@@ -4,7 +4,7 @@ import prettier from 'eslint-config-prettier';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
-import { requirementPrefixes, templatePrefixes } from './scripts/test-scope-ids.mjs';
+import testware from './scripts/eslint-plugin-testware.mjs';
 
 /** Cross-package imports must go through public exports (docs/development/project-structure.md). */
 const noDeepPackageImports = {
@@ -64,65 +64,6 @@ const testFiles = [
   '**/*.spec.ts',
 ];
 const testwareDoc = 'See docs/development/coding-guidelines.md#testware.';
-
-/**
- * IDs of the STLC documents (PROC-01, MD-05, DR-07, SEC-04, TS-001 ...). TC-xxx stays allowed, and
- * so does an ID inside a file path, because a reader can open the path.
- */
-const stlcIdPattern = new RegExp(
-  `(?<![/\\w-])(?:${[...templatePrefixes().keys(), ...requirementPrefixes(), 'TS']
-    .filter((prefix) => prefix !== 'TC')
-    .join('|')})-\\d[\\w.-]*`,
-);
-const scopeInPath = /(^|[\\/])ts-?\d{3}([-_./\\]|$)/i;
-
-/** @type {import('eslint').ESLint.Plugin} */
-const testware = {
-  rules: {
-    'no-scope-in-path': {
-      meta: { type: 'problem', schema: [] },
-      create(context) {
-        return {
-          Program(node) {
-            const path = context.filename.replaceAll('\\', '/');
-            if (!scopeInPath.test(path)) return;
-            context.report({
-              node,
-              message: `This test file path names a test scope (${path}). Tests outlive one test scope: name the file and folder after the feature, e.g. apps/api/test/auth/session.test.ts. ${testwareDoc}`,
-            });
-          },
-        };
-      },
-    },
-    'no-stlc-ids': {
-      meta: { type: 'problem', schema: [] },
-      create(context) {
-        /** @param {import('estree').Node | import('estree').Comment} node @param {string} text */
-        const check = (node, text) => {
-          const match = stlcIdPattern.exec(text);
-          if (!match) return;
-          const loc = node.loc ?? undefined;
-          context.report({
-            ...(loc ? { loc } : { node: /** @type {import('estree').Node} */ (node) }),
-            message: `"${match[0]}" is an ID from the STLC documents. A reader of the test does not know it: say in plain words what the test checks and how. Keep only the test case ID (TC-xxx) at the start of the test title. ${testwareDoc}`,
-          });
-        };
-        return {
-          Program() {
-            for (const comment of context.sourceCode.getAllComments())
-              check(comment, comment.value);
-          },
-          Literal(node) {
-            if (typeof node.value === 'string') check(node, node.value);
-          },
-          TemplateElement(node) {
-            check(node, node.value.raw);
-          },
-        };
-      },
-    },
-  },
-};
 
 const noAppSourceInSystemTests = {
   regex: '^(\\.\\./)+app/|^~/|^@crypto-force/(web|api|worker)',
@@ -266,19 +207,25 @@ export default tseslint.config(
     },
   },
 
-  // Testware: long-lived names and comments a new maintainer can read.
+  // Testware: long-lived names a new maintainer can read, and checks that can fail.
   {
     files: testFiles,
     plugins: { testware },
     rules: {
       'testware/no-scope-in-path': 'error',
       'testware/no-stlc-ids': 'error',
+      'testware/no-implementation-oracle': 'error',
+      'testware/no-app-module-mocks': 'error',
+      'testware/exact-status-oracle': 'error',
+      'testware/no-app-constants': 'error',
     },
   },
-  // System tests: no app source.
+  // System tests: no app source. Playwright has no assertion count (Vitest uses
+  // expect.requireAssertions), so lint requires an expect() in each test body.
   {
     files: ['apps/web/e2e/**/*.ts'],
     rules: {
+      'testware/require-expect': 'error',
       'no-restricted-imports': restrictImports({ patterns: [noAppSourceInSystemTests] }),
     },
   },

@@ -8,6 +8,15 @@
 // Passwords) goes to the fakes in `support/outbound.ts`. Each test uses its own client IP, because
 // rate limits count requests per IP. Run with `pnpm test` after `pnpm db:up`.
 // Time: `controlClock` fixes `Date`; `t` in a test is seconds after the first request.
+// Restart: TC-003 and TC-005 run the real API as a process (`support/api-process.ts`), stop it and
+// start a new one, because a new auth server in the same process shares the memory of the old one.
+// These tests use the real clock, since the API processes cannot read the controlled clock.
+// A request that a limit lets through gets its normal answer (Test Cases section 2.1), so the tests
+// check that exact status: 401 for Sign in with a wrong password (as at t=0 in TC-001), 200 for
+// Create account, resend verification link and Send reset link. A blocked request gets 429.
+// The 200 comes from better-auth 1.7.25, not from a requirement: the product owner accepted it
+// as the status of that version only. Thus, the tests also check the effect of each request: an
+// accepted request sends its email or creates its account, and a blocked request does not.
 //
 // Expected results come from the test case whose ID (TC-xxx) starts each test title. The cases are
 // in docs/testing/test-scopes/TS-001-auth/03-design/output/04-test-cases.md. When a test fails, read its
@@ -30,6 +39,7 @@ import {
   uniqueEmail,
   WRONG_PASSWORD,
 } from '../support/harness';
+import { type ApiProcess, startApi } from '../support/api-process';
 
 const fresh = createIpPool(2);
 const nextIp = rateLimitIps('198.51.100');
@@ -49,8 +59,6 @@ afterEach(() => {
 afterAll(async () => {
   await pool.end();
 });
-
-const accepted = (response: Response) => response.status !== 429;
 
 /** One press of Sign in at `t`. Without an account the request is still counted. */
 async function pressSignIn(
@@ -109,15 +117,9 @@ describe('Sign in lock', () => {
     const t12 = await pressSignIn(h, ip, 12, right);
     expect(t12.status).toBe(200);
     expect(sessionSetCookie(t12)).toBeDefined();
-    expect(accepted(await pressSignIn(h, ip, 13))).toBe(true);
-    expect(accepted(await pressSignIn(h, ip, 14))).toBe(true);
+    expect((await pressSignIn(h, ip, 13)).status).toBe(401);
+    expect((await pressSignIn(h, ip, 14)).status).toBe(401);
     expect((await pressSignIn(h, ip, 15)).status).toBe(429);
-  });
-
-  it('TC-003 accepts the first press after an API restart', async () => {
-    const restarted = createHarness();
-    const response = await pressSignIn(restarted, nextIp(), 0);
-    expect(accepted(response)).toBe(true);
   });
 
   describe('TC-004 the counter returns to 0 after 10 seconds without a press', () => {
@@ -129,29 +131,83 @@ describe('Sign in lock', () => {
     for (const { row, first, after } of rows) {
       it(`row ${String(row)}: ${String(first.length)} press(es), pause, then 4 presses`, async () => {
         const results = await pressAll(nextIp(), [...first, ...after]);
-        const last = results.pop();
-        expect(results.map((response) => accepted(response))).toEqual(results.map(() => true));
-        expect(last?.status).toBe(429);
+        const accepted = new Array<number>(results.length - 1).fill(401);
+        expect(results.map((response) => response.status)).toEqual([...accepted, 429]);
       });
     }
   });
+});
+
+describe('Sign in lock across API restarts', () => {
+  const credentials = { email: 'nobody@example.test', password: WRONG_PASSWORD };
+  const running: ApiProcess[] = [];
+
+  async function start(port: number) {
+    const api = await startApi(port);
+    running.push(api);
+    return api;
+  }
+
+  afterEach(async () => {
+    await Promise.all(running.splice(0).map((api) => api.stop()));
+  });
+
+  /** Presses Sign in at each `t`: seconds after `origin` on the real clock (`performance.now`). */
+  async function pressAt(api: ApiProcess, ip: string, origin: number, times: number[]) {
+    const statuses: number[] = [];
+    for (const t of times) {
+      const wait = origin + t * 1000 - performance.now();
+      if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
+      statuses.push((await api.post('/sign-in/email', credentials, ip)).status);
+    }
+    return statuses;
+  }
+
+  // A process that has just started is the API right after a restart.
+  it('TC-003 accepts the first press after an API restart', async () => {
+    const api = await start(3991);
+    expect(await pressAt(api, nextIp(), performance.now(), [0])).toEqual([401]);
+  }, 60_000);
 
   describe('TC-005 the counter survives an API restart', () => {
     const rows = [
-      { row: 1, before: [0], after: [2, 3, 4], expected: [true, true, false] },
-      { row: 2, before: [0, 1], after: [3, 4], expected: [true, false] },
-      { row: 3, before: [0, 1, 2], after: [4], expected: [false] },
-      { row: 4, before: [0, 1, 2, 3], after: [5], expected: [false] },
+      { row: 1, before: [0], after: [2, 3, 4], beforeResult: [401], expected: [401, 401, 429] },
+      { row: 2, before: [0, 1], after: [3, 4], beforeResult: [401, 401], expected: [401, 429] },
+      { row: 3, before: [0, 1, 2], after: [4], beforeResult: [401, 401, 401], expected: [429] },
+      {
+        row: 4,
+        before: [0, 1, 2, 3],
+        after: [5],
+        beforeResult: [401, 401, 401, 429],
+        expected: [429],
+      },
     ];
-    for (const { row, before, after, expected } of rows) {
+    for (const { row, before, after, beforeResult, expected } of rows) {
       it(`row ${String(row)}`, async () => {
         const ip = nextIp();
-        for (const t of before) await pressSignIn(h, ip, t);
-        const restarted = createHarness();
-        const results: boolean[] = [];
-        for (const t of after) results.push(accepted(await pressSignIn(restarted, ip, t)));
-        expect(results).toEqual(expected);
-      });
+        const first = await start(3992);
+        const origin = performance.now();
+        expect(await pressAt(first, ip, origin, before)).toEqual(beforeResult);
+
+        await first.stop();
+        const restarted = await start(3993);
+        // When the new process is ready after the first `after` time, every later press moves by
+        // the same delay. The counter starts again only when 10 s pass after the previous press.
+        // Thus, the expected result stays the same while all presses are less than 10 s after the
+        // first press: then no gap between two presses reaches 10 s.
+        const delay = Math.max(0, (performance.now() - origin) / 1000 - (after[0] ?? 0));
+        const statuses = await pressAt(
+          restarted,
+          ip,
+          origin,
+          after.map((t) => t + delay),
+        );
+        const lastPress = (performance.now() - origin) / 1000;
+        expect(lastPress, 'the restart took too long: presses left the 10 s window').toBeLessThan(
+          9,
+        );
+        expect(statuses).toEqual(expected);
+      }, 60_000);
     }
   });
 });
@@ -159,13 +215,7 @@ describe('Sign in lock', () => {
 describe('Attempt limits', () => {
   it('TC-006 Sign in: presses 2 and 3 are accepted, presses 4 and 5 get 429', async () => {
     const results = await pressAll(nextIp(), [0, 1, 2, 3, 4]);
-    expect(results.map((response) => response.status === 429)).toEqual([
-      false,
-      false,
-      false,
-      true,
-      true,
-    ]);
+    expect(results.map((response) => response.status)).toEqual([401, 401, 401, 429, 429]);
   });
 
   describe('TC-007 Sign in: time of the 4th press', () => {
@@ -174,7 +224,7 @@ describe('Attempt limits', () => {
         const ip = nextIp();
         await pressAll(ip, [0, 1, 2]);
         const fourth = await pressSignIn(h, ip, 2 + d);
-        expect(accepted(fourth)).toBe(d >= 10);
+        expect(fourth.status).toBe(d >= 10 ? 401 : 429);
       });
     }
   });
@@ -186,7 +236,7 @@ describe('Attempt limits', () => {
         await pressAll(ip, [0, 1, 2]);
         expect((await pressSignIn(h, ip, 3)).status).toBe(429);
         const press = await pressSignIn(h, ip, 2 + d);
-        expect(accepted(press)).toBe(d >= 10);
+        expect(press.status).toBe(d >= 10 ? 401 : 429);
       });
     }
   });
@@ -196,15 +246,17 @@ describe('Attempt limits', () => {
     return h.call('/send-verification-email', { body: { email, callbackURL: '/sign-in' }, ip });
   }
 
-  it('TC-011 resend verification link: requests 4 and 5 get 429 and send no email', async () => {
+  it('TC-011 resend verification link: requests 1 to 3 each send a link, 4 and 5 get 429 and send none', async () => {
     const { email } = await createUnverifiedAccount(h, fresh);
     const ip = nextIp();
+    const sentAtStart = (await settleEmails(h.mailer, email)).length;
     const statuses: number[] = [];
     for (const t of [0, 1, 2]) statuses.push((await resendVerification(email, ip, t)).status);
     const sentBefore = (await settleEmails(h.mailer, email)).length;
     for (const t of [3, 4]) statuses.push((await resendVerification(email, ip, t)).status);
 
-    expect(statuses.map((status) => status === 429)).toEqual([false, false, false, true, true]);
+    expect(statuses).toEqual([200, 200, 200, 429, 429]);
+    expect(sentBefore - sentAtStart).toBe(3);
     expect((await settleEmails(h.mailer, email)).length).toBe(sentBefore);
   });
 
@@ -218,7 +270,7 @@ describe('Attempt limits', () => {
 
         const fourth = await resendVerification(email, ip, 2 + d);
         const sentAfter = (await settleEmails(h.mailer, email)).length;
-        expect(accepted(fourth)).toBe(d >= 60);
+        expect(fourth.status).toBe(d >= 60 ? 200 : 429);
         expect(sentAfter > sentBefore).toBe(d >= 60);
       });
     }
@@ -229,15 +281,17 @@ describe('Attempt limits', () => {
     return requestReset(h, email, ip);
   }
 
-  it('TC-013 reset link: requests 4 and 5 get 429 and send no email', async () => {
+  it('TC-013 reset link: requests 1 to 3 each send a link, 4 and 5 get 429 and send none', async () => {
     const account = await createVerifiedAccount(h, fresh);
     const ip = nextIp();
+    const sentAtStart = (await settleEmails(h.mailer, account.email)).length;
     const statuses: number[] = [];
     for (const t of [0, 1, 2]) statuses.push((await reset(account.email, ip, t)).status);
     const sentBefore = (await settleEmails(h.mailer, account.email)).length;
     for (const t of [3, 4]) statuses.push((await reset(account.email, ip, t)).status);
 
-    expect(statuses.map((status) => status === 429)).toEqual([false, false, false, true, true]);
+    expect(statuses).toEqual([200, 200, 200, 429, 429]);
+    expect(sentBefore - sentAtStart).toBe(3);
     expect((await settleEmails(h.mailer, account.email)).length).toBe(sentBefore);
   });
 
@@ -247,7 +301,12 @@ describe('Attempt limits', () => {
         const account = await createVerifiedAccount(h, fresh);
         const ip = nextIp();
         for (const t of [0, 1, 2]) await reset(account.email, ip, t);
-        expect(accepted(await reset(account.email, ip, 2 + d))).toBe(d >= 60);
+        const sentBefore = (await settleEmails(h.mailer, account.email)).length;
+
+        const fourth = await reset(account.email, ip, 2 + d);
+        const sentAfter = (await settleEmails(h.mailer, account.email)).length;
+        expect(fourth.status).toBe(d >= 60 ? 200 : 429);
+        expect(sentAfter > sentBefore).toBe(d >= 60);
       });
     }
   });
@@ -260,13 +319,14 @@ describe('Attempt limits', () => {
     });
   }
 
-  it('TC-015 Create account: requests 4 and 5 get 429 and create no account', async () => {
+  it('TC-015 Create account: requests 1 to 3 each create an account, 4 and 5 get 429 and create none', async () => {
     const ip = nextIp();
     const emails = [0, 1, 2, 3, 4].map(() => uniqueEmail('signup-limit'));
     const statuses: number[] = [];
     for (const [t, email] of emails.entries()) statuses.push((await signUp(email, ip, t)).status);
 
-    expect(statuses.map((status) => status === 429)).toEqual([false, false, false, true, true]);
+    expect(statuses).toEqual([200, 200, 200, 429, 429]);
+    for (const email of emails.slice(0, 3)) expect(await countUsers(email)).toBe(1);
     expect(await countUsers(emails[3] ?? '')).toBe(0);
     expect(await countUsers(emails[4] ?? '')).toBe(0);
   });
@@ -276,7 +336,10 @@ describe('Attempt limits', () => {
       it(`d = ${String(d)}`, async () => {
         const ip = nextIp();
         for (const t of [0, 1, 2]) await signUp(uniqueEmail('signup-limit'), ip, t);
-        expect(accepted(await signUp(uniqueEmail('signup-limit'), ip, 2 + d))).toBe(d >= 10);
+        const fourthEmail = uniqueEmail('signup-limit');
+        const fourth = await signUp(fourthEmail, ip, 2 + d);
+        expect(fourth.status).toBe(d >= 10 ? 200 : 429);
+        expect(await countUsers(fourthEmail)).toBe(d >= 10 ? 1 : 0);
       });
     }
   });

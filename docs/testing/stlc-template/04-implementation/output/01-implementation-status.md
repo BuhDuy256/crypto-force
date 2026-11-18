@@ -11,6 +11,7 @@
 | Test design được hiện thực hóa | [[n]](#ref-n) [version] |
 | Snapshot testware | [commit, tag hoặc version cố định] |
 | Build hoặc interface dùng để xác minh | [build; hoặc "Chưa có build", xác minh theo contract [[n]](#ref-n)] |
+| Dependency đã review | [`tên@version` của mỗi package có code được đọc thay cho test, ngày đọc, và nội dung đã review; hoặc "Không có". `pnpm check:docs` fail khi `pnpm-lock.yaml` không còn version ghi ở đây] |
 | Người thực hiện / người review | [tên hoặc vai trò] |
 | File chi tiết | [Procedures & Suites](02-procedures-and-suites.md), [Test Data](03-test-data.md), [Test Environment](04-test-environment.md) |
 

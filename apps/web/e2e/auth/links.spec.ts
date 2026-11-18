@@ -48,7 +48,7 @@ import {
 import { query } from '../environment';
 
 const chooseHeading = (page: Page) => page.getByRole('heading', { name: 'Choose a new password' });
-const expiredScreen = async (page: Page) => {
+const expectExpiredScreen = async (page: Page) => {
   await expect(page.getByRole('heading', { name: 'This link has expired' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Send a new link' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Back to sign in' })).toBeVisible();
@@ -134,7 +134,7 @@ test.describe('reset link', () => {
     const link = await resetLink(user.email);
     await expireResetLink(link);
     await page.goto(link);
-    await expiredScreen(page);
+    await expectExpiredScreen(page);
   });
 
   test('TC-064 a used link shows the expired-link screen', async ({ page }) => {
@@ -142,7 +142,7 @@ test.describe('reset link', () => {
     const link = await resetLink(user.email);
     await useResetLinkByApi(page, link, NEW_PASSWORD);
     await page.goto(link);
-    await expiredScreen(page);
+    await expectExpiredScreen(page);
   });
 
   test('TC-065 saving from a second tab after the link was used', async ({ page, context }) => {
@@ -155,7 +155,7 @@ test.describe('reset link', () => {
     await expect(passwordUpdated(page)).toBeVisible();
     await saveNewPassword(tab2, OTHER_PASSWORD);
 
-    await expiredScreen(tab2);
+    await expectExpiredScreen(tab2);
     expect(await passwordWorks(user.email, NEW_PASSWORD)).toBe(true);
     expect(await passwordWorks(user.email, OTHER_PASSWORD)).toBe(false);
   });
@@ -168,7 +168,7 @@ test.describe('reset link', () => {
     await expireResetLink(link);
     await saveNewPassword(page, NEW_PASSWORD);
 
-    await expiredScreen(page);
+    await expectExpiredScreen(page);
     expect(await passwordWorks(user.email, user.password)).toBe(true);
   });
 });
@@ -318,7 +318,7 @@ test.describe('verification link', () => {
   test('TC-146 a changed token in the reset link', async ({ page }) => {
     const user = await createVerifiedUser();
     await page.goto(tamperToken(await resetLink(user.email), 'path'));
-    await expiredScreen(page);
+    await expectExpiredScreen(page);
     expect(await passwordWorks(user.email, user.password)).toBe(true);
   });
 });

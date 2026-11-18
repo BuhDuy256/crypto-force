@@ -109,11 +109,18 @@ async function createGoogleOnlyAccount() {
 }
 
 describe('Google rate limits', () => {
-  const accepted = (response: Response) => response.status !== 429;
+  // A request that the limit lets through gets its normal answer, not just "not 429": Continue
+  // with Google answers 200 with the provider URL, and a callback with an unknown `state` redirects
+  // (302) back to Auth with an error, as in TC-232. A blocked request gets 429.
+  // The codes 200 and 302 come from better-auth 1.7.25, not from a requirement: the product owner
+  // accepted them as the status of that version only. Thus, the tests also check the part that the
+  // requirement gives: the provider URL, and the error in the redirect.
+  const PROVIDER = 'https://accounts.google.com';
 
   async function pressGoogle(clientIp: string, t: number) {
     clock.at(t);
-    return startGoogle(clientIp);
+    const start = await startGoogle(clientIp);
+    return { status: start.response.status, provider: start.url?.origin };
   }
 
   it('TC-009 presses 2 and 3 return the provider URL; presses 4 and 5 get 429', async () => {
@@ -121,16 +128,13 @@ describe('Google rate limits', () => {
     const results = [];
     for (const t of [0, 1, 2, 3, 4]) results.push(await pressGoogle(clientIp, t));
 
-    expect(results.map((item) => item.response.status === 429)).toEqual([
-      false,
-      false,
-      false,
-      true,
-      true,
+    expect(results).toEqual([
+      { status: 200, provider: PROVIDER },
+      { status: 200, provider: PROVIDER },
+      { status: 200, provider: PROVIDER },
+      { status: 429, provider: undefined },
+      { status: 429, provider: undefined },
     ]);
-    for (const item of results.slice(1, 3)) {
-      expect(item.url?.origin).toBe('https://accounts.google.com');
-    }
   });
 
   describe('TC-010 time of the 4th press', () => {
@@ -138,21 +142,31 @@ describe('Google rate limits', () => {
       it(`d = ${String(d)}`, async () => {
         const clientIp = nextIp();
         for (const t of [0, 1, 2]) await pressGoogle(clientIp, t);
-        expect(accepted((await pressGoogle(clientIp, 2 + d)).response)).toBe(d >= 10);
+        expect(await pressGoogle(clientIp, 2 + d)).toEqual(
+          d >= 10 ? { status: 200, provider: PROVIDER } : { status: 429, provider: undefined },
+        );
       });
     }
   });
 
   async function callback(clientIp: string, t: number) {
     clock.at(t);
-    return h.call('/callback/google?code=fake-code&state=unknown', { method: 'GET', ip: clientIp });
+    const response = await h.call('/callback/google?code=fake-code&state=unknown', {
+      method: 'GET',
+      ip: clientIp,
+    });
+    const toAuthWithError = /[?&]error=/.test(response.headers.get('location') ?? '');
+    return { status: response.status, toAuthWithError };
   }
+
+  const rejected = { status: 302, toAuthWithError: true };
+  const blocked = { status: 429, toAuthWithError: false };
 
   it('TC-017 callback: requests 99 and 100 are accepted, 101 and 102 get 429', async () => {
     const clientIp = nextIp();
-    const results: boolean[] = [];
-    for (let n = 1; n <= 102; n++) results.push(accepted(await callback(clientIp, (n * 5) / 102)));
-    expect(results.slice(98)).toEqual([true, true, false, false]);
+    const results = [];
+    for (let n = 1; n <= 102; n++) results.push(await callback(clientIp, (n * 5) / 102));
+    expect(results.slice(98)).toEqual([rejected, rejected, blocked, blocked]);
   });
 
   describe('TC-018 callback: time of request 101', () => {
@@ -160,21 +174,25 @@ describe('Google rate limits', () => {
       it(`d = ${String(d)}`, async () => {
         const clientIp = nextIp();
         for (let n = 1; n <= 100; n++) await callback(clientIp, (n * 2) / 100);
-        expect(accepted(await callback(clientIp, 2 + d))).toBe(d >= 10);
+        expect(await callback(clientIp, 2 + d)).toEqual(d >= 10 ? rejected : blocked);
       });
     }
   });
 
   it('TC-019 each endpoint has its own counter', async () => {
     const clientIp = nextIp();
+    const signIns: number[] = [];
     for (const t of [0, 1, 2]) {
       clock.at(t);
-      await h.call('/sign-in/email', {
+      const response = await h.call('/sign-in/email', {
         body: { email: 'nobody@example.test', password: 'Wrong-Horse-00' },
         ip: clientIp,
       });
+      signIns.push(response.status);
     }
-    expect(accepted((await pressGoogle(clientIp, 3)).response)).toBe(true);
+    // Each press reached the Sign in counter: it got the answer for wrong credentials, not 429.
+    expect(signIns).toEqual([401, 401, 401]);
+    expect(await pressGoogle(clientIp, 3)).toEqual({ status: 200, provider: PROVIDER });
   });
 });
 

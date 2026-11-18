@@ -5,7 +5,7 @@
 // in docs/testing/test-scopes/TS-001-auth/03-design/output/04-test-cases.md. When a test fails, read its
 // test case first: the test checks the requirement, not the current code.
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_DESTINATION, getSafeNext } from './auth-redirect';
+import { getSafeNext } from './auth-redirect';
 
 describe('`next` parameter', () => {
   it('TC-160 keeps a path inside the app', () => {
@@ -22,7 +22,6 @@ describe('`next` parameter', () => {
   ];
   for (const [label, next] of ignored) {
     it(`TC-160 opens Realtime for ${label}`, () => {
-      expect(DEFAULT_DESTINATION).toBe('/realtime');
       expect(getSafeNext(next)).toBe('/realtime');
     });
   }

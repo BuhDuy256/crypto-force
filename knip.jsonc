@@ -1,0 +1,8 @@
+// Configuration of `pnpm check:exports` (scripts/check-exports.mjs).
+{
+  "$schema": "https://unpkg.com/knip@6.44.1/schema.json",
+  // The plugin loads drizzle.config.ts, which needs DATABASE_URL. `pnpm check` runs without it.
+  "drizzle": false,
+  // shadcn/ui components are vendored; their exports are the public API of each component.
+  "ignore": ["apps/web/app/components/ui/**"],
+}

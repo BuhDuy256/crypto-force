@@ -48,6 +48,7 @@ Use these only when the project has no template.
 - Each passed run has its evidence.
 - Each fixed defect has a confirmation test result.
 - The execution status gives a cut-off time and a test object version.
+- You ran the `correct` skill in sweep mode on the changes of this phase. Each mistake class that it found has a check that stops it, or the user decided to accept it.
 
 ## Anti-patterns
 

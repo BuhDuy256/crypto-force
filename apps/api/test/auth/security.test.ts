@@ -14,9 +14,8 @@
 // Expected results come from the test case whose ID (TC-xxx) starts each test title. The cases are
 // in docs/testing/test-scopes/TS-001-auth/03-design/output/04-test-cases.md. When a test fails, read its
 // test case first: the test checks the requirement, not the current code.
-import { spawn } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { spawnApi } from '../support/api-process';
 import {
   APP_URL,
   countUsers,
@@ -39,14 +38,12 @@ import {
   sessionToken,
   settleEmails,
   signIn,
-  TEST_SECRET,
   uniqueEmail,
   waitForEmail,
   WRONG_PASSWORD,
 } from '../support/harness';
 import { resetOutbound, setGoogleProfile } from '../support/outbound';
 import { withFreshDatabase } from '../support/fresh-database';
-import { getTestDatabaseUrl } from '../test-database';
 
 const ip = createIpPool(7);
 let h: Harness;
@@ -368,25 +365,12 @@ describe('Security configuration', () => {
   });
 
   describe('TC-226 the API does not start in production without an email setting', () => {
-    const apiDir = fileURLToPath(new URL('../..', import.meta.url));
     const run = (env: Record<string, string>) =>
       new Promise<{ code: number | null; output: string }>((resolve) => {
-        const child = spawn(process.execPath, ['--import', 'tsx', 'src/index.ts'], {
-          cwd: apiDir,
-          env: {
-            PATH: process.env.PATH ?? '',
-            SYSTEMROOT: process.env.SYSTEMROOT ?? '',
-            NODE_ENV: 'production',
-            DATABASE_URL: getTestDatabaseUrl().testUrl,
-            API_PORT: '3999',
-            BETTER_AUTH_SECRET: TEST_SECRET,
-            BETTER_AUTH_URL: APP_URL,
-            ...env,
-          },
-        });
+        const child = spawnApi({ NODE_ENV: 'production', API_PORT: '3999', ...env });
         let output = '';
-        child.stdout.on('data', (chunk: Buffer) => (output += chunk.toString()));
-        child.stderr.on('data', (chunk: Buffer) => (output += chunk.toString()));
+        child.stdout?.on('data', (chunk: Buffer) => (output += chunk.toString()));
+        child.stderr?.on('data', (chunk: Buffer) => (output += chunk.toString()));
         const timer = setTimeout(() => child.kill(), 20_000);
         child.on('exit', (code) => {
           clearTimeout(timer);

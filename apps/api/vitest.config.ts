@@ -25,5 +25,7 @@ export default defineConfig({
     fileParallelism: false,
     sequence: { sequencer: AuthTestSequencer },
     env: { NODE_ENV: 'test' },
+    // A test without an assertion cannot fail; Vitest fails it.
+    expect: { requireAssertions: true },
   },
 });

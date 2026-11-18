@@ -6,7 +6,7 @@
 
 | Trường | Nội dung |
 | --- | --- |
-| Version / thời điểm chốt | 2026-11-17 (GMT+7) |
+| Version / thời điểm chốt | 2026-11-17 (GMT+7). Sửa ngày 2026-11-18, product owner duyệt: định nghĩa "Request được chấp nhận" ở Test Cases mục 2.1 đổi từ "Response không phải 429" sang response và tác dụng của từng endpoint (CH-07 ở Implementation Status của Phase 04). Version của test case không tăng, vì chưa có kết quả chạy chính thức nào ghi theo `v1` |
 | Phạm vi | Luồng Authentication của Crypto Force (SC-01 đến SC-09, SC-17 của Test Plan). Test level: Component, Component integration, System, System integration. Test type: Functional, Security, Usability, Reliability |
 | Test basis | Requirement Readiness [[1]](#ref-1) `6c7bbd7`: 81 requirement Ready; quyết định của 17 lỗi test basis ở Test Conditions mục 4.1 [[2]](#ref-2), đã có trong Authentication và Security tại commit `c23d848` |
 | Test Plan | [[3]](#ref-3) version 1.1, commit `341584a` |

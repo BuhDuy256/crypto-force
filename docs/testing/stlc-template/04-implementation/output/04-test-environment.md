@@ -24,6 +24,8 @@
 
 Cấu hình đã viết nhưng chưa được dựng thì ghi Không đạt, không ghi là môi trường đã hoạt động.
 
+Với mock, stub, driver, simulator: làm hỏng một lần hành vi mà thành phần thay thế (mutant hoặc lỗi đã biết), chạy test dùng thành phần đó, và ghi vào cột Cách kiểm tra `Kiểm bằng lỗi: <lỗi>; <test nào fail>`. Ví dụ: một driver "khởi động lại API" phải làm mất bộ đếm trong bộ nhớ; với mutant để bộ đếm trong bộ nhớ, test khởi động lại phải fail. Chưa làm bước này thì ghi Không đạt. `pnpm check:docs` kiểm tra điều này.
+
 ## 4. Khác biệt so với môi trường đích
 
 | Khác biệt | Env IDs | Ảnh hưởng tới kết quả test |
@@ -40,6 +42,7 @@ Cấu hình đã viết nhưng chưa được dựng thì ghi Không đạt, kh�
 | Q4-04 | Mỗi thành phần đã được kiểm tra bằng cách chạy thực tế và có evidence | — | |
 | Q4-05 | Khác biệt so với môi trường đích được ghi kèm ảnh hưởng | — | |
 | Q4-06 | Không có secrets trong file này | — | |
+| Q4-07 | Mỗi mock, stub, driver, simulator ghi Đạt có `Kiểm bằng lỗi:` | — | |
 
 **Người review / ngày:** [tên, ngày]
 

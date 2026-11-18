@@ -35,7 +35,9 @@ export function newTestUser(): TestUser {
 
 async function post(request: APIRequestContext, path: string, data: object) {
   const response = await request.post(path, { data, headers: { Origin: origin } });
-  expect(response.ok(), `${path} → ${response.status()}`).toBe(true);
+  // Setup, not a check of the test case: Better Auth answers 200 when it creates the account or
+  // the session.
+  expect(response.status(), `setup request ${path} failed`).toBe(200);
 }
 
 /** Creates a verified account and signs it in for the page's browser context. */

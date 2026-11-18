@@ -49,6 +49,7 @@ Use these only when the project has no template.
 - Each exit criterion has an actual value and a result.
 - Each residual risk has a decision from the risk owner, or is marked as waiting for one.
 - The recommendation states its limits.
+- You ran the `correct` skill in sweep mode on the changes of this phase. Each mistake class that it found has a check that stops it, or the user decided to accept it.
 
 ## Anti-patterns
 

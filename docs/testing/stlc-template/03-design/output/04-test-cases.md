@@ -16,7 +16,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [TC-01; v1] | [điều cần kiểm chứng] | [mức] | [IDs] | [trạng thái hệ thống và dữ liệu trước khi chạy] | [giá trị cụ thể; bước] | [kết quả cụ thể, quan sát được] | [[n]](#ref-n) [mục hoặc ID] | [DR, ER IDs] |
 
-Input và expected result ghi giá trị cụ thể, đủ để hai người chạy cùng test case cho ra cùng kết luận.
+Input và expected result ghi giá trị cụ thể, đủ để hai người chạy cùng test case cho ra cùng kết luận. Expected result ghi kết quả là gì, không chỉ ghi kết quả không là gì: "không phải 429" cũng đúng với response 500, nên test vẫn pass khi endpoint hỏng. Ghi response mà request nhận được khi qua kiểm tra, ví dụ "401" cho password sai, kèm nguồn. `pnpm check:docs` kiểm tra điều này.
 
 ## 3. Exploratory charters
 

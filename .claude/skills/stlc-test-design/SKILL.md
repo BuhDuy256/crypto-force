@@ -18,8 +18,9 @@ An error in a test model goes into every test case that comes from it. Thus, rev
 1. Project rules have priority. If the project has templates for this phase, use their structure, IDs and acceptance criteria. Use the default outputs in this skill only when the project has no template.
 2. Give a source for each requirement, value or decision. A source is a versioned document, a standard with its section number, or a tool output.
 3. Do not invent values. An expected result must come from the test basis. If the test basis does not give it, write "ORACLE NEEDED" and report a test basis defect.
-4. Do not change requirements. Do not write scripts or test data. Do not run tests.
-5. Report the facts. If a check fails or you skip a step, say so.
+4. An expected result tells what the result is. "Not 429" or "no error" is not an expected result: give the response that the request gets when it passes the check.
+5. Do not change requirements. Do not write scripts or test data. Do not run tests.
+6. Report the facts. If a check fails or you skip a step, say so.
 
 ## Entry check
 
@@ -35,7 +36,7 @@ An error in a test model goes into every test case that comes from it. Thus, rev
 4. **Build the test model.** Use the technique skill. Each element of the model must link to a source. An element with no source is a test basis defect.
 5. **Have the model reviewed.** A person who is not the author reviews it before test case design.
 6. **Derive coverage items.** Apply the rule of the coverage criterion that the test plan sets. Another person must get the same count. Give each coverage item an ID that shows its model, for example `MD-01-CI-03`.
-7. **Design test cases.** One test case covers one or more coverage items. Each test case has preconditions, inputs, actions, an expected result, and the IDs of its coverage items. Use one invalid input in each test case, so that one defect cannot hide another.
+7. **Design test cases.** One test case covers one or more coverage items. Each test case has preconditions, inputs, actions, an expected result, and the IDs of its coverage items. Use one invalid input in each test case, so that one defect cannot hide another. Some properties cannot be seen from outside the product, for example that a token generator uses a CSPRNG. For such a property, design a Review test case. A test of the output can check only its format.
 8. **Write exploratory charters** for areas that you cannot model. See `test-technique-experience-based`.
 9. **Record test data and environment requirements.** State what each test case needs. Do not create the data or the environment.
 10. **Write the design status last.** Show traceability from test basis to test case, the coverage of each model, and the work that remains.
@@ -73,11 +74,14 @@ Use these only when the project has no template.
 - The count of coverage items can be reproduced.
 - Each coverage item has at least one test case, or a recorded reason why not.
 - Each expected result comes from a source, or is marked "ORACLE NEEDED" with a reported defect.
+- You ran the `correct` skill in sweep mode on the changes of this phase. Each mistake class that it found has a check that stops it, or the user decided to accept it.
 
 ## Anti-patterns
 
 - You write test cases directly from the requirement, with no condition or model. Nobody can check coverage.
 - You take an expected result from the current behavior of the code.
+- An expected result that tells only what the result is not.
+- A dynamic test case for a property that only a review can show, for example the source of randomness.
 - You put many invalid inputs into one test case.
 - "Works correctly" as an expected result.
 

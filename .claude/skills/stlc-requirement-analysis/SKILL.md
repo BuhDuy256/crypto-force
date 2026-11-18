@@ -73,6 +73,7 @@ Use these only when the project has no template.
 - Each "Ready" requirement has a version that test design can cite.
 - The requirement list agrees with the current version of each source. If a source changed after you set a status, list the requirements again from the new version, and check each status again. A behavior that a new version adds and that has no requirement ID is an omission.
 - The owner can accept a baseline item as a requirement without a change to a requirement source. Then the item has its own requirement ID in the readiness list, for example `ASVS-6.2.7`. Test design takes test conditions only from the readiness list.
+- You ran the `correct` skill in sweep mode on the changes of this phase. Each mistake class that it found has a check that stops it, or the user decided to accept it.
 
 ## Anti-patterns
 

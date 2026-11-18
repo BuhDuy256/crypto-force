@@ -25,11 +25,22 @@ Các cụm sau có cùng nghĩa trong mọi test case:
 | Phiên được chấp nhận | `GET /api/auth/get-session` với cookie của phiên trả về session của đúng tài khoản |
 | Phiên bị từ chối | `GET /api/auth/get-session` với cookie của phiên trả về `null` |
 | `t` | Số giây tính từ request được chấp nhận đầu tiên của test case, theo đồng hồ điều khiển |
-| Request được chấp nhận | Response không phải 429 |
+| Request được chấp nhận | Request không bị giới hạn số lần: endpoint xử lý request như bình thường và trả response ứng với input, thay vì 429 của giới hạn. Cụm này không có nghĩa là request thành công: Sign in với password sai vẫn là request được chấp nhận. Response của từng endpoint ở bảng dưới |
 | Thông báo không khớp | Thông báo lỗi của SI-04, kèm link Reset password |
 | Màn link hết hạn | Màn báo link hết hạn hoặc đã dùng, có Send a new link và Back to sign in (RP-07) |
 | Lỗi link xác minh | Auth báo link xác minh lỗi và cho gửi lại link (CA-06) |
 | Tài khoản A, B | Tài khoản email/password đã xác minh, email duy nhất cho mỗi lần chạy, password `Correct-Horse-91` (DR-01) |
+
+Request được chấp nhận ở từng endpoint. Cột Tác dụng lấy từ test basis hoặc từ test case được dẫn. Status ở cột Status, trừ 401 của Sign in, không có trong test basis: đó là status của `better-auth@1.7.25`, được product owner chấp nhận ngày 2026-11-18 làm contract của riêng version này (CH-07 ở Implementation Status của Phase 04). Vì vậy test kiểm cả status lẫn tác dụng. Khi version `better-auth` đổi, kiểm lại các status này trước khi chạy test (SR-05, SR-06 của Entry/Exit Criteria).
+
+| Request | Status | Tác dụng | Nguồn |
+| --- | --- | --- | --- |
+| `POST /api/auth/sign-in/email`, password sai | 401 | Không có | `t`=0 của TC-001 |
+| `POST /api/auth/sign-in/social`, `provider: google` | 200 | Response có URL của provider | Tác dụng: TC-009; status: `better-auth@1.7.25` |
+| `GET /api/auth/callback/google`, `state` lạ | 302 | Chuyển về Auth kèm lỗi | Tác dụng: TC-232, BD-15 [[7]](#ref-7); status: `better-auth@1.7.25` |
+| `POST /api/auth/sign-up/email`, email chưa đăng ký | 200 | Tạo tài khoản | Tác dụng: [[2, Create account và Verify email]](#ref-2); status: `better-auth@1.7.25` |
+| `POST /api/auth/send-verification-email`, tài khoản chưa xác minh | 200 | Gửi một email xác minh | Tác dụng: [[2, Create account và Verify email]](#ref-2); status: `better-auth@1.7.25` |
+| `POST /api/auth/request-password-reset`, tài khoản đã có | 200 | Gửi một email reset | Tác dụng: [[2, Reset password]](#ref-2); status: `better-auth@1.7.25` |
 
 ### 2.2. Khóa Sign in (MD-01) và giới hạn số lần (MD-05)
 
@@ -288,7 +299,7 @@ Mỗi threat có control được phủ bởi test case của coverage item ở 
 | ID | Tiêu chí | Điều kiện đầu vào | Kết quả |
 | --- | --- | --- | --- |
 | Q4-01 | Mọi coverage item trong phạm vi target có ít nhất một test case phủ, hoặc được ghi là gap ở Design Status | RC-03 | Đạt: 421 trên 427 coverage item có test case. 6 item không có test case: 5 threat ở mục 2.10 và MD-14-CI-33 (Không test); xem Design Status mục 3 |
-| Q4-02 | Expected result của mỗi test case dẫn tới nguồn có version; không expected result nào lấy từ hành vi hiện tại của sản phẩm | RC-01 | Đạt: nguồn là test basis có commit, chuẩn ASVS, hoặc quyết định của BD ở Test Conditions mục 4.1 |
+| Q4-02 | Expected result của mỗi test case dẫn tới nguồn có version; không expected result nào lấy từ hành vi hiện tại của sản phẩm | RC-01 | Đạt: nguồn là test basis có commit, chuẩn ASVS, hoặc quyết định của BD ở Test Conditions mục 4.1. Ngoại lệ có người duyệt: status của request được chấp nhận ở mục 2.1 lấy từ `better-auth@1.7.25`, product owner chấp nhận ngày 2026-11-18 (CH-07); phần tác dụng vẫn lấy từ test basis |
 | Q4-03 | Precondition, input và expected result đủ cụ thể để hai người chạy cho cùng kết luận | — | Đạt, với một ngoại lệ có chủ đích: CM-03 (TC-142) và BD-02 (TC-021) không cố định câu thông báo, nên test kiểm có thông báo lỗi kèm gợi ý thử lại |
 | Q4-04 | Ưu tiên của test case lấy từ mức rủi ro của coverage item mà nó phủ | RC-02 | Đạt |
 | Q4-05 | Không có hai test case phủ cùng một tập coverage item mà không có lý do; test case tái sử dụng ghi rõ version gốc | IN-07 | Đạt: không có test case tái sử dụng. Test hiện có trong `apps/api/test/auth.test.ts` và `apps/web/e2e/` được đối chiếu ở Phase 04 |

@@ -66,6 +66,7 @@ Use these only when the project has no template.
 - Each criterion is measurable and has a source or an approved agent proposal.
 - The estimate shows its technique and its assumptions.
 - The approver approved the plan.
+- You ran the `correct` skill in sweep mode on the changes of this phase. Each mistake class that it found has a check that stops it, or the user decided to accept it.
 
 ## Anti-patterns
 

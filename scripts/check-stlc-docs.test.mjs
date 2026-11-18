@@ -1,0 +1,180 @@
+// Tests of scripts/check-stlc-docs.mjs. The bad rows come from the TS-001 documents before the
+// test quality audit. Run with `pnpm check:rules`.
+import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { test } from 'node:test';
+import {
+  ENVIRONMENT,
+  IMPLEMENTATION_STATUS,
+  TEST_CASES,
+  checkScopes,
+  negatedOracles,
+  staleReviews,
+  uncheckedSimulations,
+} from './check-stlc-docs.mjs';
+
+const componentHeader = [
+  '| Env ID | Thành phần | Version / cấu hình thực tế | Loại | Hành vi | Dựng và reset | Nơi truy cập | Owner |',
+  '| --- | --- | --- | --- | --- | --- | --- | --- |',
+];
+const readinessHeader = [
+  '| Env ID | Cách kiểm tra | Kết quả | Evidence / ngày |',
+  '| --- | --- | --- | --- |',
+];
+const restartDriver =
+  '| ENV-10 | Khởi động lại API | `createHarness()` lần hai | Driver | Mô phỏng: process API mới với bộ nhớ trống | Không cần reset | Trong process test | Agent |';
+const database =
+  '| ENV-01 | PostgreSQL | PostgreSQL 17.10 | Thật | N/A | Tạo lại mỗi lần chạy | localhost | Agent |';
+
+const mailerStub =
+  '| ENV-03 | Mailer | Mailer ghi vào bộ nhớ | Stub | Ghi email thay vì gửi | Xóa mỗi test | Trong process test | Agent |';
+const mailerCheck = '| ENV-03 | Test đọc được email đã gửi | Đạt | VF-02 |';
+const lock = ['  better-auth@1.7.25:', "  '@better-auth/utils@0.5.1':", '  zod@4.6.7:'].join('\n');
+/** @param {string} versions */
+const reviewed = (versions) => [
+  '| Trường | Nội dung |',
+  '| --- | --- |',
+  `| Dependency đã review | ${versions}. Nội dung đã review: nguồn ngẫu nhiên của token phiên |`,
+];
+
+/** @param {string[]} components @param {string[]} checks */
+const environment = (components, checks) => [
+  ...componentHeader,
+  ...components,
+  '',
+  ...readinessHeader,
+  ...checks,
+];
+
+test('a negated status as the definition of an accepted request (Test Cases before the audit)', () => {
+  const lines = ['| Request được chấp nhận | Response không phải 429 |'];
+  const [violation] = negatedOracles('cases.md', lines);
+  assert.equal(violation?.key, 'Request được chấp nhận');
+  assert.match(violation?.message ?? '', /"không phải 429" tells only what the result is not/);
+});
+
+test('negated statuses in other words', () => {
+  for (const cell of ['status khác 200', 'not 500', 'không là `404`']) {
+    assert.equal(negatedOracles('cases.md', [`| TC-001; v1 | ${cell} |`]).length, 1, cell);
+  }
+});
+
+test('an exact status and a negated non-status pass', () => {
+  const lines = [
+    '| TC-001; v1 | `t`=0: 401. `t`=3: 429, `X-Retry-After: 9`. `t`=5: không tạo phiên |',
+    '| TC-033; v1 | Token cũ không còn được chấp nhận; khác 2 phiên trước |',
+    'Ghi chú: response không phải 429 ở đoạn văn không nằm trong bảng.',
+  ];
+  assert.deepEqual(negatedOracles('cases.md', lines), []);
+});
+
+test('a restart driver that passed with no fault check (ENV-10 before the audit)', () => {
+  const lines = environment(
+    [restartDriver],
+    ['| ENV-10 | TC-005 tạo instance mới và đọc được bộ đếm từ database | Đạt | VF-02 |'],
+  );
+  const [violation] = uncheckedSimulations('env.md', lines);
+  assert.equal(violation?.key, 'ENV-10');
+  assert.equal(violation?.line, 7);
+  assert.match(violation?.message ?? '', /ENV-10 is a Driver and passed its readiness check/);
+});
+
+test('a driver with a fault check, a failed check and a real component pass', () => {
+  const lines = environment(
+    [restartDriver, database],
+    [
+      '| ENV-10 | Kiểm bằng lỗi: mutant M3 để bộ đếm trong bộ nhớ; TC-005 fail | Đạt | VF-10 |',
+      '| ENV-01 | Smoke pass | Đạt | VF-02 |',
+    ],
+  );
+  assert.deepEqual(uncheckedSimulations('env.md', lines), []);
+  const notReady = environment([restartDriver], ['| ENV-10 | Chưa kiểm | Không đạt | — |']);
+  assert.deepEqual(uncheckedSimulations('env.md', notReady), []);
+});
+
+/** @param {Record<string, string[]>} files @returns {string} */
+function scopesWith(files) {
+  const root = mkdtempSync(join(tmpdir(), 'stlc-docs-'));
+  for (const [path, lines] of Object.entries(files)) {
+    const file = join(root, path);
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, lines.join('\n'));
+  }
+  return root;
+}
+
+test('a new violation fails, and a known violation of TS-001 is skipped', () => {
+  const root = scopesWith({
+    // The definition before CH-07 was fixed. It is no longer in KNOWN, so it fails again.
+    [join('TS-001-auth', TEST_CASES)]: ['| Request được chấp nhận | Response không phải 429 |'],
+    [join('TS-001-auth', ENVIRONMENT)]: environment([mailerStub], [mailerCheck]),
+  });
+  const errors = checkScopes(root, lock);
+  assert.equal(errors.filter((error) => error.includes('"không phải 429"')).length, 1);
+  assert.equal(errors.filter((error) => error.includes('ENV-03 is a Stub')).length, 0);
+});
+
+test('a known violation that was fixed must leave the list', () => {
+  const root = scopesWith({
+    [join('TS-001-auth', ENVIRONMENT)]: [],
+  });
+  const errors = checkScopes(root, lock);
+  assert.ok(errors.some((error) => error.includes('"ENV-03" (TD-15) now follows')));
+});
+
+test('a partial pass and a real component with a note', () => {
+  const lines = environment(
+    [restartDriver, database.replace('| Thật |', '| Thật (Docker) |')],
+    [
+      '| ENV-10 | TC-005 đọc được bộ đếm | Đạt (một phần) | VF-02 |',
+      '| ENV-01 | Smoke pass | Đạt | VF-02 |',
+    ],
+  );
+  assert.deepEqual(
+    uncheckedSimulations('env.md', lines).map((violation) => violation.key),
+    ['ENV-10'],
+  );
+});
+
+test('decomposed Vietnamese text (NFD) is read like composed text', () => {
+  const lines = environment(
+    [restartDriver],
+    ['| ENV-10 | TC-005 đọc được bộ đếm | Đạt | VF-02 |'.normalize('NFD')],
+  );
+  assert.equal(uncheckedSimulations('env.md', lines).length, 1);
+});
+
+test('a review of the installed dependency versions passes', () => {
+  const lines = reviewed('`better-auth@1.7.25`, `@better-auth/utils@0.5.1`');
+  assert.deepEqual(staleReviews('status.md', lines, lock), []);
+});
+
+test('a review of a version that the lockfile no longer has fails', () => {
+  const upgraded = lock.replace('better-auth@1.7.25', 'better-auth@1.8.0');
+  const lines = reviewed('`better-auth@1.7.25`, `@better-auth/utils@0.5.1`');
+  const violations = staleReviews('status.md', lines, upgraded);
+  assert.deepEqual(
+    violations.map((violation) => [violation.key, violation.line]),
+    [['better-auth@1.7.25', 3]],
+  );
+  assert.match(violations[0]?.message ?? '', /better-auth@1\.7\.25 is not in pnpm-lock\.yaml/);
+});
+
+test('a scoped package name, a row with no version, and a scope with no review', () => {
+  const upgraded = lock.replace('@better-auth/utils@0.5.1', '@better-auth/utils@0.6.0');
+  const lines = reviewed('`@better-auth/utils@0.5.1`');
+  assert.equal(staleReviews('status.md', lines, upgraded)[0]?.key, '@better-auth/utils@0.5.1');
+  assert.equal(staleReviews('status.md', reviewed('chưa có'), lock).length, 1);
+  assert.deepEqual(staleReviews('status.md', reviewed('Không có'), lock), []);
+});
+
+test('the scope check reads the review row of Implementation Status', () => {
+  const root = scopesWith({
+    [join('TS-001-auth', IMPLEMENTATION_STATUS)]: reviewed('`better-auth@1.7.24`'),
+    [join('TS-001-auth', ENVIRONMENT)]: environment([mailerStub], [mailerCheck]),
+  });
+  const errors = checkScopes(root, lock);
+  assert.ok(errors.some((error) => error.includes('better-auth@1.7.24 is not in pnpm-lock.yaml')));
+});
