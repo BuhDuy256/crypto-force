@@ -24,7 +24,7 @@ Các quy tắc sau kết hợp framework conventions với lựa chọn riêng c
 | shadcn/ui primitive file | Giữ naming do CLI/config sinh ra, thường `kebab-case.tsx` | `components/ui/button.tsx` |
 | Shared Zod schema file | `kebab-case.schema.ts` | `backtest.schema.ts` |
 | Engine pure function file | `kebab-case.ts`, tên theo operation/domain | `simulate-trades.ts` |
-| Test file | `.test.ts` hoặc `.test.tsx` theo nội dung | `backtest.test.ts` |
+| Test file | `.test.ts` hoặc `.test.tsx` theo nội dung; E2E dùng `.spec.ts`. Tên theo tính năng, không theo test scope (xem [Testware](#testware)) | `backtest.test.ts`, `e2e/auth/links.spec.ts` |
 | Function, variable, property, schema symbol | `camelCase` | `createBacktest`, `runId`, `createBacktestSchema` |
 | Class, component, type, interface | `PascalCase` | `BacktestResult`, `MarketDataProvider` |
 | Constants | `camelCase` mặc định; `UPPER_SNAKE_CASE` cho giới hạn/hằng số bất biến có ý nghĩa đặc biệt | `defaultOptions`, `MAX_CANDIDATES` |
@@ -97,6 +97,16 @@ Các quy tắc sau kết hợp framework conventions với lựa chọn riêng c
 - Cleanup tài nguyên và xử lý cancellation/timeout ở các boundaries có kết nối, jobs hoặc streams.
 - Test hành vi quan sát được và contracts, không khóa chặt implementation details. Theo test levels, types và tools đã chốt/đề xuất trong Test Strategy; không tự coi các công cụ Proposed là quyết định cuối cùng [[3]](#ref-3).
 - Với tính toán engine, bao phủ edge cases, deterministic replay và golden regression; thay đổi golden results phải được review [[3, Rủi ro chất lượng]](#ref-3).
+
+## Testware
+
+Test sống lâu hơn một test scope: một test viết cho TS-001 sẽ còn chạy làm regression cho các thay đổi sau này. Người sửa test thường chưa đọc tài liệu STLC của scope đó.
+
+- Đặt tên file và thư mục test theo tính năng, không theo test scope: `apps/api/test/auth/session.test.ts`, không dùng `ts001-session.test.ts` *(lint: `testware/no-scope-in-path`)*.
+- Comment và chuỗi trong test không dùng ID làm việc của tài liệu STLC (`PROC-01`, `MD-05`, `DR-07`, `ER-06`, `SEC-04`, `TS-001`). Chỉ giữ test case ID (`TC-xxx`) ở đầu tên test, để truy vết kết quả về test case. ID nằm trong đường dẫn file vẫn được dùng *(lint: `testware/no-stlc-ids`)*.
+- Comment đầu mỗi file test nói: file kiểm hành vi gì, test chạy trên môi trường nào (fake nào, database nào, vì sao), cách chạy, và nơi có expected result. Một người chưa đọc tài liệu STLC phải sửa được file sau khi đọc comment này.
+- Test kiểm hành vi theo requirement, không theo code hiện tại. System test (`apps/web/e2e/`) không import source của app; expected value lấy từ requirement *(lint: `no-restricted-imports`)*.
+- Khi môi trường test không cho tạo một precondition mà người dùng thật tạo được, sửa môi trường test (biến môi trường, server thứ hai, database riêng), không sửa test để né. Ví dụ: kiểm màn Sign in khi chưa cấu hình Google bằng một server E2E chạy với biến Google trống, không giả response của API trong trình duyệt.
 
 ## Những điều không bắt buộc
 

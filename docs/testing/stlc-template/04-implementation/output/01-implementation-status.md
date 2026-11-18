@@ -41,9 +41,11 @@
 
 ## 3. Thay đổi so với test design
 
-| Change ID | Test case ID | Thay đổi | Lý do | Người xác nhận, ngày | Nguồn đã được cập nhật |
-| --- | --- | --- | --- | --- | --- |
-| [CH-01] | [ID] | [bước, dữ liệu, expected result hoặc phạm vi] | [lý do] | [tên, ngày] | [[n]](#ref-n) [hoặc "Chưa cập nhật"] |
+Mỗi dòng phải đọc được mà không cần mở file khác: người review thấy test design ghi gì, vì sao không làm được đúng như vậy, đã làm gì thay, và vì sao cách mới vẫn kiểm đúng expected result. Trước khi ghi một thay đổi, thử sửa môi trường test (biến môi trường, server thứ hai, database riêng) để làm đúng test design. Chỉ ghi thay đổi khi môi trường không sửa được, hoặc khi chính test design mâu thuẫn với test basis.
+
+| Change ID | Test case ID | Test design ghi | Vấn đề khi làm đúng như vậy | Thay đổi | Vì sao vẫn kiểm đúng expected result | Người xác nhận, ngày | Nguồn đã được cập nhật |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| [CH-01] | [ID] | [precondition hoặc bước, trích từ test case] | [điều gì chặn, kèm nguồn: test basis, công cụ hoặc môi trường] | [bước, dữ liệu hoặc precondition mới] | [hành vi nào vẫn được kiểm; phần nào không còn kiểm, nếu có] | [tên, ngày] | [[n]](#ref-n) [hoặc "Chưa cập nhật"] |
 
 Expected result chỉ thay đổi khi người có thẩm quyền về test design xác nhận, không thay đổi để khớp với hành vi hiện tại của sản phẩm. Ghi "Không có" nếu testware đúng với test design.
 

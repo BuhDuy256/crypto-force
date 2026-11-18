@@ -4,6 +4,7 @@ import prettier from 'eslint-config-prettier';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import { requirementPrefixes, templatePrefixes } from './scripts/test-scope-ids.mjs';
 
 /** Cross-package imports must go through public exports (docs/development/project-structure.md). */
 const noDeepPackageImports = {
@@ -54,6 +55,80 @@ const noEffectProperties = ['useEffect', 'useLayoutEffect'].map((property) => ({
   message: noEffectHooks.message,
 }));
 
+// Testware rules (docs/development/coding-guidelines.md#testware).
+const testFiles = [
+  'apps/*/test/**/*.ts',
+  'apps/web/e2e/**/*.ts',
+  'packages/*/test/**/*.ts',
+  '**/*.test.{ts,tsx}',
+  '**/*.spec.ts',
+];
+const testwareDoc = 'See docs/development/coding-guidelines.md#testware.';
+
+/**
+ * IDs of the STLC documents (PROC-01, MD-05, DR-07, SEC-04, TS-001 ...). TC-xxx stays allowed, and
+ * so does an ID inside a file path, because a reader can open the path.
+ */
+const stlcIdPattern = new RegExp(
+  `(?<![/\\w-])(?:${[...templatePrefixes().keys(), ...requirementPrefixes(), 'TS']
+    .filter((prefix) => prefix !== 'TC')
+    .join('|')})-\\d[\\w.-]*`,
+);
+const scopeInPath = /(^|[\\/])ts-?\d{3}([-_./\\]|$)/i;
+
+/** @type {import('eslint').ESLint.Plugin} */
+const testware = {
+  rules: {
+    'no-scope-in-path': {
+      meta: { type: 'problem', schema: [] },
+      create(context) {
+        return {
+          Program(node) {
+            const path = context.filename.replaceAll('\\', '/');
+            if (!scopeInPath.test(path)) return;
+            context.report({
+              node,
+              message: `This test file path names a test scope (${path}). Tests outlive one test scope: name the file and folder after the feature, e.g. apps/api/test/auth/session.test.ts. ${testwareDoc}`,
+            });
+          },
+        };
+      },
+    },
+    'no-stlc-ids': {
+      meta: { type: 'problem', schema: [] },
+      create(context) {
+        /** @param {import('estree').Node | import('estree').Comment} node @param {string} text */
+        const check = (node, text) => {
+          const match = stlcIdPattern.exec(text);
+          if (!match) return;
+          const loc = node.loc ?? undefined;
+          context.report({
+            ...(loc ? { loc } : { node: /** @type {import('estree').Node} */ (node) }),
+            message: `"${match[0]}" is an ID from the STLC documents. A reader of the test does not know it: say in plain words what the test checks and how. Keep only the test case ID (TC-xxx) at the start of the test title. ${testwareDoc}`,
+          });
+        };
+        return {
+          Program() {
+            for (const comment of context.sourceCode.getAllComments())
+              check(comment, comment.value);
+          },
+          Literal(node) {
+            if (typeof node.value === 'string') check(node, node.value);
+          },
+          TemplateElement(node) {
+            check(node, node.value.raw);
+          },
+        };
+      },
+    },
+  },
+};
+
+const noAppSourceInSystemTests = {
+  regex: '^(\\.\\./)+app/|^~/|^@crypto-force/(web|api|worker)',
+  message: `System tests check the app from outside: take expected values from the requirement, not from app source. If no user action reaches the state a test needs, change the test environment in apps/web/e2e/environment.ts. ${testwareDoc}`,
+};
+
 export default tseslint.config(
   {
     ignores: [
@@ -62,6 +137,9 @@ export default tseslint.config(
       '**/build/**',
       '**/.react-router/**',
       'apps/api/drizzle/**',
+      // Test reports (gitignored); Playwright copies its trace viewer scripts into them.
+      '**/playwright-report/**',
+      '**/test-results/**',
       'docs/**',
       // Vendored third-party skill (see its UPSTREAM.md); not project code.
       '.claude/skills/shadcn/**',
@@ -185,6 +263,23 @@ export default tseslint.config(
           },
         ],
       }),
+    },
+  },
+
+  // Testware: long-lived names and comments a new maintainer can read.
+  {
+    files: testFiles,
+    plugins: { testware },
+    rules: {
+      'testware/no-scope-in-path': 'error',
+      'testware/no-stlc-ids': 'error',
+    },
+  },
+  // System tests: no app source.
+  {
+    files: ['apps/web/e2e/**/*.ts'],
+    rules: {
+      'no-restricted-imports': restrictImports({ patterns: [noAppSourceInSystemTests] }),
     },
   },
 

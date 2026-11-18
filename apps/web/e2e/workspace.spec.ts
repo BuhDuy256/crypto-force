@@ -1,7 +1,5 @@
 // End-to-end checks for the workspace shell (docs/design/prototype/docs/requirements/workspace.md).
 import { expect, test } from '@playwright/test';
-import { WORKSPACE_TABS } from '../app/layouts/workspace/tabs';
-import { destinationLabel } from '../app/utils/auth-redirect';
 import {
   markEmailVerified,
   newTestUser,
@@ -11,12 +9,18 @@ import {
 } from './support';
 
 test.describe('signed out', () => {
-  for (const { to } of WORKSPACE_TABS) {
+  // Workspace screens and their names (docs/design/prototype/docs/requirements/workspace.md).
+  const screens = [
+    ['/realtime', 'Realtime'],
+    ['/strategy', 'Strategy Engine'],
+    ['/discovery', 'Discovery'],
+    ['/backtest', 'Backtest'],
+    ['/news', 'News'],
+  ] as const;
+  for (const [to, name] of screens) {
     test(`${to} shows the sign-in gate`, async ({ page }) => {
       await page.goto(to);
-      await expect(
-        page.getByRole('heading', { name: `Sign in to open ${destinationLabel(to)}` }),
-      ).toBeVisible();
+      await expect(page.getByRole('heading', { name: `Sign in to open ${name}` })).toBeVisible();
     });
   }
 

@@ -30,6 +30,8 @@ This phase makes the testware that execution needs. Each item must exist, have a
    - Make it deterministic: control time, random seeds, network and order.
    - Make each test independent of the others.
    - Keep the test case ID in the script name or metadata, for traceability.
+   - Test the behavior in the test basis, not the current code. If the environment cannot make a precondition that a real user can make, change the environment (a variable, a second server, a separate database). Do not change the step to go around it.
+   - If a step must still change, record it as a change from the test design. Each record tells what the test case says, what stops it, what the script does instead, and why the script still checks the expected result. A reviewer must understand the record without other files.
 4. **Build test suites and the execution schedule.** Put high-priority and high-risk tests first. Show dependencies between suites. Include the smoke suite that shows whether the build is testable.
 5. **Verify the testware.** Do a dry run on a known build:
    - The script runs to the end.
