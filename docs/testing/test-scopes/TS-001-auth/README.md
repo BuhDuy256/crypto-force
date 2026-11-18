@@ -20,7 +20,7 @@
 | 01 Requirement Analysis | [01-requirement-analysis/](01-requirement-analysis/) | Đạt | [Requirement Readiness](01-requirement-analysis/output/01-requirement-readiness.md) |
 | 02 Test Planning | [02-planning/](02-planning/) | Đạt | [Test Plan](02-planning/output/01-test-plan.md) |
 | 03 Test Analysis & Design | [03-design/](03-design/) | Đạt | [Test Design Status](03-design/output/01-design-status.md) |
-| 04 Test Implementation | `04-implementation/` | Chưa bắt đầu | |
+| 04 Test Implementation | [04-implementation/](04-implementation/) | Chờ review | [Implementation Status](04-implementation/output/01-implementation-status.md) |
 | 05 Test Execution | `05-execution/` | Chưa bắt đầu | |
 | 06 Test Summary & Closure | `06-report/` | Chưa bắt đầu | |
 

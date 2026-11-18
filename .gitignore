@@ -22,3 +22,6 @@ test-results/
 
 # Graphify output
 graphify-out/
+
+# E2E server consoles (contain one-time auth links)
+apps/web/.e2e-output/

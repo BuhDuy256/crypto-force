@@ -1,31 +1,22 @@
-﻿// Helpers shared by E2E specs. They reach into the dev database because a browser test cannot open
+﻿// Helpers shared by E2E specs. They reach into the E2E database (e2e/environment.ts) because a browser test cannot open
 // an inbox, and because every test needs its own session without tripping the sign-in rate limit.
 import { randomUUID } from 'node:crypto';
-import { existsSync } from 'node:fs';
 import { expect, type APIRequestContext, type Page } from '@playwright/test';
-import pg from 'pg';
+import { query } from './environment';
 
-const envFile = new URL('../../../.env', import.meta.url);
 const origin = 'http://localhost:5173';
-
-async function query(sql: string, params: unknown[] = []) {
-  if (!process.env.DATABASE_URL && existsSync(envFile)) process.loadEnvFile(envFile);
-  const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
-  await client.connect();
-  try {
-    await client.query(sql, params);
-  } finally {
-    await client.end();
-  }
-}
 
 export function markEmailVerified(email: string) {
   return query('UPDATE "user" SET email_verified = true WHERE email = $1', [email]);
 }
 
-/** Sign-in is limited per IP (23-security.md); tests all come from 127.0.0.1. */
+/**
+ * Sign-in is limited per IP (23-security.md); these tests send no x-forwarded-for, so the server
+ * counts them as 127.0.0.1. Only that bucket is cleared: the auth specs run in parallel, each with
+ * its own IP, and need their counters.
+ */
 export function resetRateLimits() {
-  return query('DELETE FROM rate_limit');
+  return query(`DELETE FROM rate_limit WHERE key LIKE '127.0.0.1|%' OR key LIKE 'no-trusted-ip|%'`);
 }
 
 export interface TestUser {

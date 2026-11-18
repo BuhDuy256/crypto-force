@@ -144,7 +144,6 @@ Mỗi dòng chỉ tính trên coverage item của một model. Không cộng cá
 | --- | --- | --- | --- | --- | --- |
 | TD-02 | Kiểm `Strict-Transport-Security` (ASVS 3.4.1) khi deploy, cùng với SEC-05 | MD-14-CI-33 | Product owner | Khi deploy lần đầu | [Test Conditions](02-test-conditions.md) mục 4.1 |
 | TD-03 | Đưa nút Sign out trên mọi màn hình workspace (ASVS 7.4.4) vào test scope của workspace | MD-14-CI-28; SC-14 | Product owner | Khi lập test scope của workspace | [Test Scopes](../../../README.md) |
-| TD-05 | Đối chiếu test hiện có trong `apps/api/test/auth.test.ts` và `apps/web/e2e/` với test case của file này; sửa hoặc thay test viết theo spec cũ | IN-07; Q4-05 | Agent | Phase 04 | `04-implementation/` |
 | TD-06 | Quyết định một trong hai việc: thêm requirement log bảo mật cho Sign in và Reset password, hoặc ghi việc thiếu log là rủi ro chấp nhận trong ADR-002. Nếu thêm requirement, thêm test condition và test case cho TH-29 | MD-16-CI-29 (TH-29) | Product owner | Trước khi deploy public | [Test Conditions](02-test-conditions.md) mục 4.1 |
 
 ## 5. Tiêu chí đạt

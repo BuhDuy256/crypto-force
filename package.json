@@ -16,7 +16,7 @@
     "format:check": "prettier . --check",
     "check": "pnpm typecheck && pnpm lint && pnpm check:docs && pnpm format:check",
     "check:docs": "node scripts/check-test-scope-ids.mjs",
-    "test": "pnpm --filter @crypto-force/api test",
+    "test": "pnpm -r --no-bail --workspace-concurrency=1 --filter @crypto-force/shared --filter @crypto-force/web --filter @crypto-force/api test",
     "test:e2e": "pnpm --filter @crypto-force/web test:e2e",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",

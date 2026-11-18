@@ -35,7 +35,7 @@ Chạy từ thư mục gốc; yêu cầu Node.js `>=22.22` (React Router 8) và 
 02. `pnpm db:up` / `pnpm db:down`: bật / tắt PostgreSQL qua Docker Compose (cần file `.env`, tạo từ `.env.example`).
 03. `pnpm dev`: chạy song song `apps/web` (Vite, cổng 5173, proxy `/api` sang API), `apps/api` (cổng 3000) và `apps/worker`.
 04. `pnpm check`: chạy lần lượt `pnpm typecheck`, `pnpm lint`, `pnpm format:check`; bắt buộc pass trước khi commit. `pnpm lint` cũng kiểm tra dependency boundaries, layer rules và anti-pattern bị cấm trong `eslint.config.js`.
-05. `pnpm test`: integration test của `apps/api` (Vitest) trên database `<POSTGRES_DB>_test`, được tạo lại từ migration mỗi lần chạy; cần `pnpm db:up`. `pnpm test:e2e`: E2E của `apps/web` (Playwright), dùng lại `pnpm dev` đang chạy hoặc tự khởi động.
+05. `pnpm test`: component test của `packages/shared` và `apps/web`, rồi integration test của `apps/api` (Vitest) trên database `<POSTGRES_DB>_test`. Database này được tạo lại từ migration mỗi lần chạy; cần `pnpm db:up`. `pnpm test:e2e`: E2E của `apps/web` (Playwright). Lệnh này tự khởi động hai server E2E theo `apps/web/e2e/environment.ts`: một server có Google (cổng 5173, API 3000), một server không có Google (cổng 5174, API 3001). Mỗi server có database riêng và in email ra console thay vì gửi. Dừng `pnpm dev` trước khi chạy `pnpm test:e2e`, vì server E2E cần các cổng này.
 06. `pnpm build`: build mọi app (`tsup` cho API/Worker, `react-router build` cho Web).
 07. `pnpm db:generate` / `pnpm db:migrate`: sinh và áp dụng migration Drizzle (`apps/api/drizzle/`).
 08. Thêm dependency: `pnpm --filter @crypto-force/<web|api|worker|shared|engine> add <package>`.
