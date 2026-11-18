@@ -96,7 +96,7 @@ Requirement có expected result một phần lấy từ quyết định của l�
 | ASVS-6.2.7; ADR-002 `705a1ad` | Cao | COND-74 | MD-14 | TC-202 | Đã thiết kế | Không có |
 | ASVS-6.3.2; ADR-002 `705a1ad` | Trung bình | COND-75 | MD-14 | TC-204 | Đã thiết kế | Không có |
 | ASVS-7.2.2; ADR-002 `705a1ad` | Trung bình | COND-76 | MD-14 | TC-205 | Đã thiết kế | Không có |
-| ASVS-7.2.3; ADR-002 `705a1ad` | Trung bình | COND-77 | MD-14 | TC-206 | Đã thiết kế | Không có |
+| ASVS-7.2.3; ADR-002 `705a1ad` | Trung bình | COND-77 | MD-14 | TC-206, TC-209 | Đã thiết kế | Không có |
 | ASVS-7.2.4; ADR-002 `705a1ad` | Cao | COND-78 | MD-02, MD-14, MD-16 | TC-033 | Đã thiết kế | Không có |
 | ASVS-3.4.2; ADR-002 `705a1ad` | Cao | COND-79 | MD-14 | TC-207, CHR-04 | Đã thiết kế | Không có |
 | A11Y-01; `dbbaafe` | Trung bình | COND-80 | MD-17 | TC-240 đến TC-243 | Đã thiết kế | Không có |

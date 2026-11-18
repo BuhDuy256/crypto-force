@@ -33,13 +33,8 @@ export const FAULT_CHECK = 'Kiểm bằng lỗi:';
  * Violations that existed when the check was added. Each one has a debt item in Implementation
  * Status. The check fails when a listed violation is gone, so that the list only gets shorter.
  */
-export const KNOWN = [
-  { scope: 'TS-001-auth', key: 'ENV-03', debt: 'TD-15' },
-  { scope: 'TS-001-auth', key: 'ENV-04', debt: 'TD-15' },
-  { scope: 'TS-001-auth', key: 'ENV-05', debt: 'TD-15' },
-  { scope: 'TS-001-auth', key: 'ENV-06', debt: 'TD-15' },
-  { scope: 'TS-001-auth', key: 'ENV-12', debt: 'TD-15' },
-];
+/** @type {{ scope: string, key: string, debt: string }[]} */
+export const KNOWN = [];
 
 /**
  * @typedef {{ file: string, line: number, key: string, message: string }} Violation
@@ -125,8 +120,17 @@ export function staleReviews(file, lines, lockText) {
   });
 }
 
-/** @param {string} scopesDir @param {string} [lockText] @returns {string[]} */
-export function checkScopes(scopesDir, lockText = readFileSync(LOCKFILE, 'utf8')) {
+/**
+ * @param {string} scopesDir
+ * @param {string} [lockText]
+ * @param {{ scope: string, key: string, debt: string }[]} [knownList] violations to skip (KNOWN)
+ * @returns {string[]}
+ */
+export function checkScopes(
+  scopesDir,
+  lockText = readFileSync(LOCKFILE, 'utf8'),
+  knownList = KNOWN,
+) {
   const errors = [];
   for (const entry of readdirSync(scopesDir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
@@ -143,7 +147,7 @@ export function checkScopes(scopesDir, lockText = readFileSync(LOCKFILE, 'utf8')
       if (!existsSync(file)) continue;
       found.push(...check(file, readFileSync(file, 'utf8').split(/\r?\n/)));
     }
-    const known = KNOWN.filter((item) => item.scope === scope);
+    const known = knownList.filter((item) => item.scope === scope);
     for (const violation of found) {
       if (known.some((item) => item.key === violation.key)) continue;
       errors.push(`${violation.file}:${String(violation.line)}: ${violation.message}`);

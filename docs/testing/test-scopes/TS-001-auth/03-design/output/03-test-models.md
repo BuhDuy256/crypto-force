@@ -678,7 +678,7 @@ Checklist là 40 mục có kết quả Đủ hoặc Một phần ở Baseline Co
 | MD-14-CI-20 | 7.1.3; L2 | Review tài liệu: Security dòng Google; hành vi: MD-13-CI-27 |
 | MD-14-CI-21 | 7.2.1; L1 | MD-02-CI-03 |
 | MD-14-CI-22 | 7.2.2; L1 | Hai lần Sign in cùng tài khoản cho hai token khác nhau |
-| MD-14-CI-23 | 7.2.3; L1 | Token của mọi phiên tạo trong một lần chạy test là khác nhau; độ dài và bảng ký tự của token cho ít nhất 128 bit |
+| MD-14-CI-23 | 7.2.3; L1 | Token của mọi phiên tạo trong một lần chạy test là khác nhau; độ dài và bảng ký tự của token cho ít nhất 128 bit (TC-206). Token lấy từ CSPRNG, kiểm bằng review code của dependency vì test không phân biệt được CSPRNG với bộ đếm (TC-209) |
 | MD-14-CI-24 | 7.2.4; L1 | MD-02-CI-04, MD-02-CI-05 |
 | MD-14-CI-25 | 7.3.2; L2 | MD-02-CI-09, MD-07-CI-13 đến MD-07-CI-15 |
 | MD-14-CI-26 | 7.4.1; L1 | MD-02-CI-10 |

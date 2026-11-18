@@ -28,7 +28,7 @@ Mọi dữ liệu được sinh trong test. Không có bộ dữ liệu nào t�
 | DA-09; v1 | DR-09 | TC-160 | `/backtest`, `https://evil.example/`, `//evil.example`, `/\evil.example`, `javascript:alert(1)`, `/sign-in`, không có `next` | Đã tồn tại trong code test | Không cần | Không có | Agent |
 | DA-10; v1 | DR-10 | TC-094, TC-095, TC-098, TC-144 | Full name `N` lặp 0, 1, 2, 99, 100, 101, 102 lần; `😀` lặp 51, 101 lần; 3 khoảng trắng; `An Nguyen` | Đã tồn tại trong code test | Không cần | Không có | Agent |
 | DA-11; v1 | DR-11 | Như DR-11 | 7 giá trị email của MD-11; ` an@example.com `, `An@Example.com`, `an+test@example.com`; email mới `<label>-<UUID>@example.com`; `none@example.test` không có tài khoản | Đã tồn tại trong code test | Email mới sinh trong mỗi test | Không có | Agent |
-| DA-12; v1 | DR-12 | TC-195 đến TC-198 | Tài khoản Google của product owner; hộp thư của chủ tài khoản Resend với `+tag` mới cho mỗi lần chạy | Chưa tạo; product owner chuẩn bị ở session thủ công | Tài khoản Crypto Force tạo trong session được xóa sau session (PROC-17) | Không có | Product owner |
+| DA-12; v1 | DR-12 | TC-195 đến TC-198, TC-103 phần S | Tài khoản Google của product owner (TC-103 dùng email của tài khoản này để Create account, không xác minh); hộp thư của chủ tài khoản Resend với `+tag` mới cho mỗi lần chạy | Chưa tạo; product owner chuẩn bị ở session thủ công | Tài khoản Crypto Force tạo trong session được xóa sau session (PROC-17) | Không có | Product owner |
 
 Không có password, token hay dữ liệu cá nhân thật trong code test và trong file này. Password của DR-01 là giá trị tự đặt; `BETTER_AUTH_SECRET` được đọc từ `.env` khi chạy và không được ghi ra.
 

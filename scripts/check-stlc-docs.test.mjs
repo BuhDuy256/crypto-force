@@ -105,13 +105,16 @@ function scopesWith(files) {
   return root;
 }
 
-test('a new violation fails, and a known violation of TS-001 is skipped', () => {
+// The known list of these tests, so that they do not depend on the real KNOWN list.
+const knownList = [{ scope: 'TS-001-auth', key: 'ENV-03', debt: 'TD-99' }];
+
+test('a new violation fails, and a known violation is skipped', () => {
   const root = scopesWith({
-    // The definition before CH-07 was fixed. It is no longer in KNOWN, so it fails again.
+    // The definition before CH-07 was fixed. It is not in the known list, so it fails.
     [join('TS-001-auth', TEST_CASES)]: ['| Request được chấp nhận | Response không phải 429 |'],
     [join('TS-001-auth', ENVIRONMENT)]: environment([mailerStub], [mailerCheck]),
   });
-  const errors = checkScopes(root, lock);
+  const errors = checkScopes(root, lock, knownList);
   assert.equal(errors.filter((error) => error.includes('"không phải 429"')).length, 1);
   assert.equal(errors.filter((error) => error.includes('ENV-03 is a Stub')).length, 0);
 });
@@ -120,8 +123,8 @@ test('a known violation that was fixed must leave the list', () => {
   const root = scopesWith({
     [join('TS-001-auth', ENVIRONMENT)]: [],
   });
-  const errors = checkScopes(root, lock);
-  assert.ok(errors.some((error) => error.includes('"ENV-03" (TD-15) now follows')));
+  const errors = checkScopes(root, lock, knownList);
+  assert.ok(errors.some((error) => error.includes('"ENV-03" (TD-99) now follows')));
 });
 
 test('a partial pass and a real component with a note', () => {

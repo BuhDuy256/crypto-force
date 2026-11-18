@@ -6,7 +6,7 @@
 
 | Trường | Nội dung |
 | --- | --- |
-| Mục tiêu | Tạo testware cho 165 test case và 4 exploratory charter của Phase 03, để Phase 05 chạy được Component, Component integration, System và System integration của Authentication |
+| Mục tiêu | Tạo testware cho 165 test case và 4 exploratory charter của Phase 03 (con số khi bắt đầu Phase 04; ngày 2026-11-18 thành 166, Implementation Status mục 1), để Phase 05 chạy được Component, Component integration, System và System integration của Authentication |
 | Phạm vi | Phạm vi của Test Design [[1]](#ref-1): SC-01 đến SC-09, SC-17. Test level: Component, Component integration, System (tự động); System integration, review và exploratory (thủ công) |
 | Đối tượng hoặc interface dự kiến | Code tại `b4ca981`; `git log b4ca981..HEAD -- apps packages` không có commit. API: endpoint của `better-auth@1.7.25` dưới `/api/auth`, `/api/auth-config`. UI: label, role và text của các trang Auth tại `b4ca981` |
 | Thời gian dự kiến | Bắt đầu 2026-11-17 (GMT+7); không có hạn kết thúc (Test Plan AS-02) |
@@ -26,7 +26,7 @@
 | IN-08 | Testware có thể tái sử dụng | 02, 03 | `apps/api/test/auth.test.ts`, `apps/api/test/global-setup.ts`, `apps/api/test/test-database.ts`, `apps/web/e2e/auth.spec.ts`, `apps/web/e2e/support.ts` tại `b4ca981` | Đã xác minh | `global-setup.ts` và `test-database.ts` dùng lại, đã chạy thử (SU-01). `auth.test.ts` và `auth.spec.ts` viết theo spec cũ (ví dụ giới hạn Sign in 5 lần trong 15 phút) nên được thay bằng file `ts001-*` (Design Status TD-05). `support.ts` thuộc test workspace, được sửa để dùng database E2E và không xóa cả bảng `rate_limit` | — |
 | IN-09 | Cách tiếp cận manual hoặc automated, framework, quy ước viết và nơi lưu testware | 02 | [[4, §4]](#ref-4) [[4, §8]](#ref-4) | Đã xác minh | Vitest cho Component và Component integration, Playwright cho System; System integration, review và exploratory là thủ công. Code test trong `apps/api/test/`, `apps/web/e2e/`, `packages/shared/test/`, `apps/web/app/**/*.test.ts`; tên test bắt đầu bằng Test case ID | — |
 | IN-10 | Ràng buộc khi chạy | 02 | [[4, §6]](#ref-4) [[6]](#ref-6) | Đã xác minh | Test tự động không gọi Google, Resend, Pwned Passwords thật (AS-06). E2E dùng database riêng (PJ-03), `RESEND_API_KEY` trống (PJ-09). Integration test chạy tuần tự trên một database | — |
-| IN-11 | Quy ước ghi kết quả và evidence mà testware phải xuất ra | 02 | Đề xuất của agent, theo Test Approach mục 7 [[4, §7]](#ref-4) | Giả định | Chưa có quy ước của dự án. Agent đề xuất: output của Vitest (`--reporter=json` khi cần), Playwright HTML report và `test-results/results.json`, trace và screenshot khi fail, kèm commit và version `better-auth` (EN-03). Product owner chưa duyệt | Ảnh hưởng Q2-04. Testware vẫn chạy được; nếu product owner đổi quy ước ở Phase 05, chỉ cần đổi reporter trong config. Product owner xử lý, trước Phase 05 |
+| IN-11 | Quy ước ghi kết quả và evidence mà testware phải xuất ra | 02 | Đề xuất của agent, theo Test Approach mục 7 [[4, §7]](#ref-4) | Đã xác minh | Quy ước: output của Vitest (`--reporter=json` khi cần), Playwright HTML report và `test-results/results.json`, trace và screenshot khi fail, kèm commit và version `better-auth` (EN-03). Agent chốt ngày 2026-11-18 theo ủy quyền của product owner: product owner duyệt báo cáo Phase 04 và giao agent tự chốt các quyết định không đổi cách vận hành dự án | — |
 | IN-12 | Người có thẩm quyền trả lời câu hỏi về test design và expected result | 01 | [[2]](#ref-2) | Đã xác minh | Product owner review và duyệt Phase 03 | — |
 
 ## 3. Điều kiện bắt đầu
@@ -38,17 +38,17 @@
 | RC-03 | Mỗi test case trong phạm vi có yêu cầu data và môi trường, hoặc được ghi là chưa có | IN-02, IN-05, IN-06 | Đạt (Test Cases Q4-06) | — |
 | RC-04 | Test sẽ được automated có điểm truy cập đã xác định từ contract hoặc build hiện có | IN-07 | Đạt | — |
 | RC-05 | Testware tái sử dụng đã được chạy thử trên version hiện tại, không chỉ giả định tương thích | IN-08 | Đạt: SU-01 dùng `global-setup.ts`, SU-11 dùng server E2E mới | — |
-| RC-06 | Quy ước ghi kết quả và evidence đã thống nhất trước khi viết script | IN-11 | Không đạt | Script vẫn viết được vì reporter nằm ở config. Q2-04 không đạt cho tới khi product owner duyệt quy ước (TD-07) |
+| RC-06 | Quy ước ghi kết quả và evidence đã thống nhất trước khi viết script | IN-11 | Đạt muộn: quy ước được chốt ngày 2026-11-18, sau khi script đã viết. Testware đã xuất đúng các file của quy ước, nên không phải sửa script (TD-07) | — |
 
 ## 4. Kết luận sẵn sàng
 
-**Trạng thái:** Sẵn sàng một phần
+**Trạng thái:** Sẵn sàng
 
-RC-01 đạt cho mọi test case. RC-06 không đạt, nhưng chỉ ảnh hưởng cách lưu evidence, không ảnh hưởng nội dung script.
+RC-01 đến RC-06 đạt. RC-06 đạt muộn (ngày 2026-11-18), và không làm thay đổi script.
 
 **Phần được phép làm:** Toàn bộ phạm vi
 
-**Người quyết định / ngày:** Agent đề xuất, 2026-11-17; chờ product owner xác nhận
+**Người quyết định / ngày:** Agent đề xuất, 2026-11-17; product owner duyệt báo cáo Phase 04, 2026-11-18
 
 ## References
 

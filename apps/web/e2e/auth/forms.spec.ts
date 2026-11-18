@@ -126,6 +126,16 @@ test.describe('form fields', () => {
     });
   }
 
+  test('TC-133 spaces around the email are removed: Sign in opens the same account', async ({
+    page,
+  }) => {
+    const user = await createVerifiedUser();
+    await page.goto('/sign-in');
+    await fillSignIn(page, ` ${user.email} `, user.password);
+    await expect(realtimeHeading(page)).toBeVisible();
+    expect(await sessionEmail(page.request)).toBe(user.email);
+  });
+
   test('TC-134 Sign in password', async ({ page }) => {
     await page.goto('/sign-in');
     await fillSignIn(page, 'an@example.com', '');
@@ -567,14 +577,5 @@ test.describe('Auth flows', () => {
     await expect(checkEmailHeading(page)).toBeVisible();
     await page.reload();
     await expect(createHeading(page)).toBeVisible();
-  });
-});
-
-test.describe('Google decision table (UI)', () => {
-  test('TC-103 S part is blocked: the fake provider cannot answer the server-side code exchange', () => {
-    test.skip(
-      true,
-      'Blocked: the fake Google cannot answer the code exchange that the API server makes. apps/api/test/auth/google.test.ts covers the API part.',
-    );
   });
 });
