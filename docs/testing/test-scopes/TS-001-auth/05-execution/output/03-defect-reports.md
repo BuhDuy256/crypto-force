@@ -293,7 +293,7 @@ Chưa có bản sửa nào. Khi một defect được sửa, thêm dòng cho def
 
 ## References
 
-1. <a id="ref-1"></a>[Authentication](../../../../../design/prototype/docs/requirements/authentication.md) — commit `c23d848`, 2026-11-17
+1. <a id="ref-1"></a>[Authentication](../../../../../UCs/authentication.md) — commit `c23d848`, khi đó tại `docs/design/prototype/docs/requirements/authentication.md`, 2026-11-17
 2. <a id="ref-2"></a>[Security](../../../../../architecture/23-security.md) — commit `c23d848`, 2026-11-17
 3. <a id="ref-3"></a>[Test Cases](../../03-design/output/04-test-cases.md) — commit `497541d`, 2026-11-17, với các bản `v2` ngày 2026-11-18
 4. <a id="ref-4"></a>[Implementation Status](../../04-implementation/output/01-implementation-status.md) — mục 4.1, 2026-11-19

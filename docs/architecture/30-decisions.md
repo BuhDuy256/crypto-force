@@ -8,7 +8,7 @@
 
 ### Bối cảnh
 
-Mọi màn hình workspace chỉ mở được khi có phiên. Khi không có phiên, màn hình hiện lời mời đăng nhập ngay tại URL đó, và đăng nhập xong thì quay lại đúng màn hình [[1, Điều kiện đăng nhập]](#ref-1). Lớp chặn này chỉ phục vụ hiển thị; API vẫn tự kiểm phiên ở từng request [[2]](#ref-2).
+Mọi màn hình workspace chỉ mở được khi có phiên. Khi không có phiên, màn hình hiện lời mời đăng nhập ngay tại URL đó, và đăng nhập xong thì quay lại đúng màn hình [[1, Phiên và Sign out]](#ref-1). Lớp chặn này chỉ phục vụ hiển thị; API vẫn tự kiểm phiên ở từng request [[2]](#ref-2).
 
 Web chạy ở chế độ SPA, nên phiên được kiểm ở trình duyệt bằng `GET /api/auth/get-session`. Loader của từng màn hình không được chạy khi chưa có phiên, vì nó sẽ gọi API và nhận lỗi 401 hàng loạt.
 
@@ -78,9 +78,9 @@ Crypto Force chỉ mô phỏng: không giữ tiền, không kết nối sàn và
 
 ## References
 
-1. <a id="ref-1"></a>[Workspace](../design/prototype/docs/requirements/workspace.md)
+1. <a id="ref-1"></a>[Authentication](../UCs/authentication.md)
 2. <a id="ref-2"></a>[Security](23-security.md)
-3. <a id="ref-3"></a>[Project Brief](../requirements/project-brief.md)
+3. <a id="ref-3"></a>[Project Brief](../UCs/sources/project-brief.md)
 4. <a id="ref-4"></a>OWASP ASVS 5.0, V6 Authentication. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x15-V6-Authentication.md>
 5. <a id="ref-5"></a>OWASP ASVS 5.0, V7 Session Management. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x16-V7-Session-Management.md>
 6. <a id="ref-6"></a>OWASP ASVS 5.0, V3 Web Frontend Security. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x12-V3-Web-Frontend-Security.md>

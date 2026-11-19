@@ -48,7 +48,7 @@
 
 1. <a id="ref-1"></a>[Test Plan](../../02-planning/output/01-test-plan.md) — version 1.1, commit `341584a`, 2026-11-17
 2. <a id="ref-2"></a>[Requirement Readiness](../../01-requirement-analysis/output/01-requirement-readiness.md) — commit `6c7bbd7`, 2026-11-17
-3. <a id="ref-3"></a>[Authentication](../../../../../design/prototype/docs/requirements/authentication.md) — commit `705a1ad`, 2026-11-17
+3. <a id="ref-3"></a>[Authentication](../../../../../UCs/authentication.md) — commit `705a1ad`, khi đó tại `docs/design/prototype/docs/requirements/authentication.md`, 2026-11-17
 4. <a id="ref-4"></a>[Security](../../../../../architecture/23-security.md) — commit `d6c0541`, 2026-11-17
 5. <a id="ref-5"></a>[Workspace](../../../../../design/prototype/docs/requirements/workspace.md) — commit `bd0ecff`, 2026-11-16
 6. <a id="ref-6"></a>[Crypto Force UI Prototype](../../../../../design/prototype/README.md) — commit `dbbaafe`, 2026-11-16

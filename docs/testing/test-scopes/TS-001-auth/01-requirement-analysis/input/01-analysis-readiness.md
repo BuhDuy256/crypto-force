@@ -46,7 +46,7 @@
 
 ## References
 
-1. <a id="ref-1"></a>[Authentication](../../../../../design/prototype/docs/requirements/authentication.md) — commit `705a1ad`, 2026-11-17
+1. <a id="ref-1"></a>[Authentication](../../../../../UCs/authentication.md) — commit `705a1ad`, khi đó tại `docs/design/prototype/docs/requirements/authentication.md`, 2026-11-17
 2. <a id="ref-2"></a>[Security](../../../../../architecture/23-security.md) — commit `705a1ad`, 2026-11-17
 3. <a id="ref-3"></a>[Workspace](../../../../../design/prototype/docs/requirements/workspace.md) — commit `bd0ecff`, 2026-11-16
 4. <a id="ref-4"></a>[Crypto Force UI Prototype](../../../../../design/prototype/README.md) — commit `dbbaafe`, 2026-11-16
@@ -55,5 +55,5 @@
 7. <a id="ref-7"></a>OWASP ASVS 5.0, V7 Session Management. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x16-V7-Session-Management.md> — truy cập 2026-11-17
 8. <a id="ref-8"></a>OWASP ASVS 5.0, V3 Web Frontend Security. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x12-V3-Web-Frontend-Security.md> — truy cập 2026-11-17
 9. <a id="ref-9"></a>[Open Questions](../../../../../open-questions.md) — commit `ac49066`, 2026-11-16
-10. <a id="ref-10"></a>[Project Brief](../../../../../requirements/project-brief.md) — commit `16608e5`, 2026-11-15
+10. <a id="ref-10"></a>[Project Brief](../../../../../UCs/sources/project-brief.md) — commit `16608e5`, 2026-11-15
 11. <a id="ref-11"></a>[Test Strategy](../../../../../testing/test-strategy.md) — commit `705a1ad`, 2026-11-17

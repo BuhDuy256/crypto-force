@@ -1,6 +1,6 @@
 # Crypto Force
 
-Nền tảng xây dựng, backtest và tìm kiếm chiến lược giao dịch crypto. Mô tả bài toán nằm trong [`docs/requirements/project-brief.md`](docs/requirements/project-brief.md); toàn bộ tài liệu bắt đầu từ [`docs/README.md`](docs/README.md).
+Nền tảng xây dựng, backtest và tìm kiếm chiến lược giao dịch crypto. Mô tả bài toán nằm trong [`docs/UCs/sources/project-brief.md`](docs/UCs/sources/project-brief.md); toàn bộ tài liệu bắt đầu từ [`docs/README.md`](docs/README.md).
 
 ## Yêu cầu
 
@@ -32,4 +32,4 @@ Các lệnh khác được liệt kê trong mục Commands của [`CLAUDE.md`](C
 | `packages/shared` | Zod schemas và contracts dùng chung |
 | `packages/engine` | Strategy & backtest engine thuần TypeScript, không I/O |
 
-Trách nhiệm và dependency boundaries của từng workspace: [`docs/development/project-structure.md`](docs/development/project-structure.md).
+Trách nhiệm và dependency boundaries của từng workspace: [`docs/conventions/project-structure.md`](docs/conventions/project-structure.md).

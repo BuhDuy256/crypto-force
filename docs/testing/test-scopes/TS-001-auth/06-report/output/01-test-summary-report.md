@@ -210,7 +210,7 @@ Recommendation này không vượt phạm vi bằng chứng: nó dựa trên k�
 ## References
 
 1. <a id="ref-1"></a>[Test Plan](../../02-planning/output/01-test-plan.md) — version 1.1, 2026-11-17
-2. <a id="ref-2"></a>[Authentication](../../../../../design/prototype/docs/requirements/authentication.md) — commit `c23d848`, 2026-11-17
+2. <a id="ref-2"></a>[Authentication](../../../../../UCs/authentication.md) — commit `c23d848`, khi đó tại `docs/design/prototype/docs/requirements/authentication.md`, 2026-11-17
 3. <a id="ref-3"></a>[Security](../../../../../architecture/23-security.md) — commit `c23d848`, 2026-11-17
 4. <a id="ref-4"></a>[Workspace](../../../../../design/prototype/docs/requirements/workspace.md) — commit `bd0ecff`, 2026-11-16
 5. <a id="ref-5"></a>[Architectural Decisions](../../../../../architecture/30-decisions.md) — commit `705a1ad`, 2026-11-17

@@ -6,26 +6,18 @@ Workspace gồm năm tab chính (Realtime, Strategy Engine, Discovery, Backtest,
 
 ## Điều kiện đăng nhập
 
-Landing và Auth là public. Mọi màn hình workspace yêu cầu đăng nhập (**Confirmed**).
+Landing và Auth là public; mọi màn hình workspace yêu cầu đăng nhập. Màn chặn khi chưa có phiên, màn chặn khi phiên kết thúc trong lúc màn hình đang mở, và Sign out được mô tả trong Authentication [[1, Phiên và Sign out]](#ref-1).
 
-1. Người dùng chưa đăng nhập mở thẳng một màn hình workspace.
-2. Màn hình hiện màn chặn phủ toàn bộ viewport: "Sign in to open {tên màn hình}", kèm **Sign in to continue** và **Back to home**.
-3. Chọn Sign in to continue sẽ ghi nhớ màn hình đó, mở Auth, rồi quay lại màn hình đó sau khi đăng nhập ([authentication.md](authentication.md#chuyển-tiếp-sau-khi-đăng-nhập)).
-
-Dữ liệu được chuyển sang trước khi người dùng bị chặn (ví dụ strategy được gửi sang Backtest) chỉ được dùng sau khi đã đăng nhập, nên không bị mất khi đi qua màn chặn.
-
-Phiên có thể kết thúc trong lúc một màn hình workspace đang mở: Sign out ở tab khác, đặt password mới, hoặc phiên hết hạn. Khi người dùng chuyển màn hình hoặc quay lại tab đó, màn chặn hiện ngay tại màn hình đang mở, và Sign in to continue đưa người dùng về đúng màn hình đó (**Confirmed**). Dữ liệu đang nhập dở khi phiên kết thúc là [OQ-053](../../../../open-questions.md#oq-053).
+Dữ liệu được chuyển sang trước khi người dùng bị chặn (ví dụ strategy được gửi sang Backtest) chỉ được dùng sau khi đã đăng nhập, nên không bị mất khi đi qua màn chặn. Dữ liệu đang nhập dở khi phiên kết thúc là [OQ-053](../../../../open-questions.md#oq-053).
 
 Trong prototype, trình duyệt chưa có dữ liệu phiên được coi là đã đăng nhập với hồ sơ mẫu, để canvas hiện được các màn hình workspace. Muốn xem trạng thái chưa đăng nhập thì phải Sign out một lần.
 
 ## Sign out
 
-Sign out nằm trong menu tài khoản và trong drawer mobile. Sign out xóa phiên, xóa đích đến đang chờ, xóa dữ liệu của tài khoản đã tải trong trình duyệt và mở Landing.
+Sign out nằm trong menu tài khoản và trong drawer mobile. Kết quả của Sign out và trường hợp không gửi được yêu cầu được mô tả trong Authentication [[1, Phiên và Sign out]](#ref-1). Workspace thêm hai hộp thoại trước khi Sign out:
 
 | Điều kiện | Phản hồi |
 | --- | --- |
-| Không có backtest đang chạy | Sign out ngay |
-| Không gửi được yêu cầu Sign out (mất mạng, lỗi server) | Người dùng vẫn đăng nhập và ở lại màn hình hiện tại. Toast báo Sign out chưa thành công để người dùng thử lại (**Confirmed**) |
 | Có backtest đang chạy | Hộp thoại "A backtest is still running" báo rằng sign out không dừng backtest đó, kết quả sẽ có trong Runs khi đăng nhập lại. Chọn **Stay signed in** hoặc **Sign out anyway** |
 | Settings có thay đổi chưa lưu | Hộp thoại "Leave without saving?" hiện trước ([quy tắc bên dưới](#rời-trang-khi-còn-thay-đổi-chưa-lưu)) |
 
@@ -96,3 +88,7 @@ Hai cách bảo vệ dữ liệu đang được dùng:
 ## Phản hồi dùng chung
 
 Toast hiện ở góc dưới phải trong 5 giây, hoặc 8 giây nếu có Undo. Toast có thể kèm một link sang màn hình liên quan. Thao tác xóa, bỏ một phần cấu hình, hoặc xóa nội dung đều có Undo trong toast.
+
+## References
+
+1. <a id="ref-1"></a>[Authentication](../../../../UCs/authentication.md)
