@@ -1,6 +1,7 @@
 import { PASSWORD_MIN_LENGTH, type ApiEnv } from '@crypto-force/shared';
 import { betterAuth } from 'better-auth';
 import { APIError, createAuthMiddleware } from 'better-auth/api';
+import { setSessionCookie } from 'better-auth/cookies';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { and, eq, like } from 'drizzle-orm';
 import type { Logger } from 'pino';
@@ -137,13 +138,31 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
           });
         }
       }),
-      // Signing in again must revoke the session that the request still carries (ASVS 7.2.4).
       after: createAuthMiddleware(async (ctx) => {
-        if (ctx.path !== '/sign-in/email' || !ctx.context.newSession) return;
+        const newSession = ctx.context.newSession;
+        if (!newSession) return;
         const { name } = ctx.context.authCookies.sessionToken;
         const oldToken = await ctx.getSignedCookie(name, ctx.context.secret);
-        if (oldToken && oldToken !== ctx.context.newSession.session.token) {
+        if (!oldToken || oldToken === newSession.session.token) return;
+
+        // Signing in again must revoke the session that the request still carries (ASVS 7.2.4).
+        if (ctx.path === '/sign-in/email') {
           await ctx.context.internalAdapter.deleteSession(oldToken);
+          return;
+        }
+
+        // A verification link opened while another account is signed in keeps that session
+        // (authentication.md, Create account step 4). The Auth screen names both emails.
+        if (ctx.path === '/verify-email') {
+          const current = await ctx.context.internalAdapter.findSession(oldToken);
+          if (!current || current.session.expiresAt <= new Date()) return;
+          if (current.user.id === newSession.user.id) return;
+          await ctx.context.internalAdapter.deleteSession(newSession.session.token);
+          await setSessionCookie(ctx, current);
+          const callback = typeof ctx.query?.callbackURL === 'string' ? ctx.query.callbackURL : '/';
+          const target = new URL(callback, env.BETTER_AUTH_URL);
+          target.searchParams.set('verified', newSession.user.email);
+          throw ctx.redirect(`${target.pathname}${target.search}`);
         }
       }),
     },

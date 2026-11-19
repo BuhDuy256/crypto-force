@@ -25,7 +25,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 | DEF-06 | Không kiểm danh sách password phổ biến và Pwned Passwords; không ghi cảnh báo khi API lỗi | Product | Major / Cao | Fixed | RUN-012 |
 | DEF-07 | API đếm độ dài password theo UTF-16 thay vì code point | Product | Minor / Trung bình | Open | RUN-012 |
 | DEF-08 | Schema form không giới hạn password 128 ký tự và Full name 100 ký tự | Product | Minor / Trung bình | Open | RUN-012, RUN-013 |
-| DEF-09 | Mở link xác minh của B khi đang đăng nhập A chuyển phiên sang B, không có thông báo | Product | Major / Cao | Open | RUN-013 |
+| DEF-09 | Mở link xác minh của B khi đang đăng nhập A chuyển phiên sang B, không có thông báo | Product | Major / Cao | Fixed | RUN-013 |
 | DEF-10 | Link xác minh lỗi: không có cách gửi lại link; khi có phiên thì không có thông báo lỗi | Product | Minor / Trung bình | Open | RUN-013 |
 | DEF-11 | Form Forgot password và Choose a new password không có danh sách lỗi | Product | Minor / Trung bình | Open | RUN-013 |
 | DEF-12 | New password trống báo "Use at least 8 characters." thay vì "Fill in both fields." | Product | Trivial / Thấp | Open | RUN-013 |
@@ -156,6 +156,7 @@ Mỗi report dưới đây ghi phần riêng: test case, expected (nguồn), act
 | Actual | Lượt chạy này chỉ đo: không thấy thông báo "is verified. You’re still signed in as …" (`getByRole(...)` not found, EV-013); các assertion về phiên ở bước sau không chạy vì test dừng ở assertion đầu. Việc phiên chuyển sang B và không có thông báo lấy từ mục 4.1 (dry run `b4ca981`), chưa đo lại ở `7cdb0f5` |
 | Severity | Major: người dùng đổi tài khoản mà không biết |
 | Tham chiếu | MD-04-CI-02 |
+| Bản sửa | Commit `fix(auth): keep the current session when another account verifies` trên branch `fix/auth-major-defects`: hook `after` của `/verify-email` xóa phiên mới của B, đặt lại cookie phiên A và thêm `verified={email của B}` vào URL đích; Auth hiện thông báo và nút đi tiếp. Tham số `verified` chỉ đổi text hiển thị, không đổi phiên. TC-071 pass |
 
 ### DEF-10: Link xác minh lỗi không có cách gửi lại và thiếu thông báo khi có phiên
 

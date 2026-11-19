@@ -1,7 +1,8 @@
 import { ArrowLeftIcon } from 'lucide-react';
-import { Link, Outlet, redirect, useRouteLoaderData } from 'react-router';
+import { Link, Outlet, redirect, useLoaderData, useRouteLoaderData } from 'react-router';
 import { getAuthConfig, getSession } from '~/api/auth';
 import { Logo } from '~/components/Logo';
+import { VerifiedWhileSignedInPage } from '~/pages/Auth/VerifiedWhileSignedInPage';
 import { getSafeNext } from '~/utils/auth-redirect';
 import type { Route } from './+types/auth-layout';
 
@@ -11,11 +12,20 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
     getSession().catch(() => null),
     getAuthConfig().catch(() => ({ google: false })),
   ]);
+  const next = getSafeNext(url.searchParams.get('next'));
+  // A verification link of another account keeps the current session; Auth names both emails.
+  const verified = url.searchParams.get('verified');
+  if (session && verified && verified !== session.user.email) {
+    return {
+      googleEnabled: config.google,
+      verifiedNotice: { verifiedEmail: verified, currentEmail: session.user.email, next },
+    };
+  }
   // Signed-in users skip Auth (OQ-054), except when they open a password reset link.
   if (session && url.pathname !== '/reset-password') {
-    return redirect(getSafeNext(url.searchParams.get('next')));
+    return redirect(next);
   }
-  return { googleEnabled: config.google };
+  return { googleEnabled: config.google, verifiedNotice: null };
 }
 
 /** Auth configuration for the child routes of this layout. */
@@ -29,6 +39,7 @@ export function meta(): Route.MetaDescriptors {
 }
 
 export default function AuthLayout() {
+  const { verifiedNotice } = useLoaderData<typeof clientLoader>();
   return (
     <div className="flex min-h-svh flex-col">
       <header className="border-b">
@@ -48,7 +59,7 @@ export default function AuthLayout() {
         tabIndex={-1}
         className="mx-auto flex w-full max-w-page flex-1 flex-col px-4 pt-8 pb-16 sm:px-7 sm:pt-12 lg:justify-center"
       >
-        <Outlet />
+        {verifiedNotice ? <VerifiedWhileSignedInPage {...verifiedNotice} /> : <Outlet />}
       </main>
     </div>
   );
