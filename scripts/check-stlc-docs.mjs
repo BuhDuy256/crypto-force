@@ -1,5 +1,5 @@
 // Checks four rules of the STLC documents that let a test pass when the product is wrong
-// (docs/development/coding-guidelines.md#testware):
+// (docs/conventions/testware.md):
 // 1. An expected result in Test Cases tells what the result is, not only what it is not
 //    ("không phải 429" also passes for a 500).
 // 2. Each mock, stub or driver in Test Environment that passed its readiness check was checked
@@ -56,7 +56,7 @@ export const REPORT_PHASE = {
 };
 export const REVIEWED = 'Dependency đã review';
 const LOCKFILE = resolve(import.meta.dirname, '..', 'pnpm-lock.yaml');
-const GUIDE = 'docs/development/coding-guidelines.md#testware';
+const GUIDE = 'docs/conventions/testware.md';
 /** `better-auth@1.7.25`, `@better-auth/utils@0.5.1` */
 const PACKAGE_VERSION = /`((?:@[\w.-]+\/)?[\w.-]+)@(\d+\.\d+\.\d+[\w.-]*)`/g;
 /** A package key of the lockfile: `  better-auth@1.7.25:` or `  '@better-auth/utils@0.5.1':`. */

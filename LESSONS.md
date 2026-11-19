@@ -2,7 +2,7 @@
 
 Đọc file này để biết những lỗi đã gặp trong project Crypto Force và quy tắc cụ thể để tránh lặp lại các lỗi đó.
 
-File này là nguồn dữ liệu chính (single source of truth) cho Lesson Learned. Chỉ thêm hoặc sửa bài học khi người dùng đã chấp thuận, thông qua Skill `correct` (`.claude/skills/correct/SKILL.md`). Chỉ ghi bài học cho lỗi không chặn được bằng kiến trúc, type, lint hoặc test.
+File này là nguồn dữ liệu chính (single source of truth) cho Lesson Learned. Chỉ thêm hoặc sửa bài học khi người dùng đã chấp thuận, thông qua Skill `correct` (`.agents/skills/correct/SKILL.md`). Chỉ ghi bài học cho lỗi trong quá trình làm việc mà nhìn file kết quả không thấy được, và không chặn được bằng kiến trúc, type, lint hoặc test. Quy tắc kiểm được trên file kết quả thuộc [Conventions](docs/conventions/README.md).
 
 ## Quy ước
 
@@ -29,6 +29,7 @@ Mỗi bài học theo mẫu:
 ### LL-001: Ambiguous References
 
 - **Scope:** Documentation
+- **Status:** Deprecated — quy tắc là convention của file tài liệu, nay nằm trong [Nhắc tới đối tượng](docs/conventions/docs.md#nhắc-tới-đối-tượng); `review-change` kiểm.
 - **Problem:** Tài liệu dùng các cụm như "đề xuất của nhóm", "cách tiếp cận này", "cơ chế trên", "phương án đã chọn" hoặc "hệ thống xử lý phù hợp" mà không xác định chúng chỉ đến điều gì. Người đọc phải tự đoán đối tượng, dễ hiểu sai quyết định hoặc hành vi đang được mô tả, và không thể kiểm tra nội dung.
 - **Rule:** Mọi câu phải xác định rõ đối tượng, hành động hoặc quyết định được đề cập. Khi nhắc đến một quyết định, giải pháp hoặc hành vi, nêu nội dung cụ thể hoặc tham chiếu đến nơi đã định nghĩa. Áp dụng cho toàn bộ tài liệu, kể cả heading, bảng, bullet và chú thích hình. Được phép dùng cụm như "cơ chế này" hoặc "phương án trên" khi đối tượng đã được xác định rõ trong ngữ cảnh gần nhất; chỉ viết lại khi người đọc phải suy đoán.
 - **Examples:** (chỉ minh họa cách viết, không phải quyết định kiến trúc của Crypto Force)
@@ -45,6 +46,7 @@ Mỗi bài học theo mẫu:
 ### LL-002: Process Notes in Document Content
 
 - **Scope:** Documentation
+- **Status:** Deprecated — quy tắc là convention của file tài liệu, nay nằm trong [Chỉ ghi nội dung của chủ đề](docs/conventions/docs.md#chỉ-ghi-nội-dung-của-chủ-đề).
 - **Problem:** Agent chèn vào tài liệu các ghi chú về quá trình chỉnh sửa, chẳng hạn nội dung được chuyển từ đâu, vì sao được sắp xếp lại, hoặc trạng thái "chưa chuẩn hoá". Những ghi chú này giống log thay đổi, không giúp người đọc hiểu chủ đề của tài liệu, và sẽ lỗi thời ngay sau khi task kết thúc.
 - **Rule:** Tài liệu chỉ chứa nội dung về chủ đề của nó. Không ghi vào file nguồn gốc, lịch sử chỉnh sửa, lý do sắp xếp hoặc trạng thái hoàn thiện của nội dung. Những thông tin này chỉ báo cáo trong câu trả lời gửi người dùng. Không thêm câu dẫn hoặc disclaimer mà người dùng không yêu cầu, trừ khi câu đó cung cấp thông tin người đọc cần để hiểu đúng nội dung.
 - **Examples:**
@@ -76,6 +78,7 @@ Mỗi bài học theo mẫu:
 ### LL-005: Undeclared Requirement ID Prefixes
 
 - **Scope:** Testing
+- **Status:** Deprecated — quy tắc là convention của file tài liệu, nay nằm trong [ID](docs/conventions/docs.md#id); `pnpm check:stlc` kiểm tiền tố trong test scope; `pnpm check:docs` kiểm tiền tố chưa khai báo và ID lặp trong `docs/UCs/`.
 - **Problem:** Agent đặt requirement ID theo nhóm chức năng (`SI`, `GO`, `SU`) nhưng không ghi tiền tố nghĩa là gì và lấy từ section nào của nguồn, nên người đọc thấy ID như đánh ngẫu nhiên. Tiền tố còn trùng với ID mà template STLC dùng cho đối tượng khác: requirement `SU` (Sign up) trùng `SU-01` (test suite), requirement `RD` (Redirect) trùng `RD-01` (tiêu chí sẵn sàng). Khi đó cùng một ID chỉ hai thứ khác nhau trong một test scope. `pnpm check:docs` chặn tiền tố chưa khai báo, tiền tố trùng template và ID trùng; quy tắc dưới đây là phần check không kiểm được.
 - **Rule:** Mỗi tiền tố ứng với đúng một nhóm requirement trong một section của tài liệu nguồn, và cột Nguồn của bảng tiền tố dẫn tới section đó. Không đánh lại số của ID đã cấp; requirement mới nhận số kế tiếp trong nhóm, kể cả khi thứ tự số không còn theo thứ tự của luồng. Chỉ được đổi tiền tố khi chưa có test case, defect hay tài liệu ngoài Phase 01 nào trỏ tới ID đó.
 - **Examples:**

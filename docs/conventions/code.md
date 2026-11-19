@@ -1,12 +1,12 @@
 # Coding Guidelines
 
-Đọc file này để biết các quy tắc viết code, phân chia trách nhiệm và xử lý dữ liệu khi implement Crypto Force.
+Đọc file này để biết các quy tắc viết code production, phân chia trách nhiệm và xử lý dữ liệu khi implement Crypto Force.
 
 ## Phạm vi và ưu tiên
 
-1. Tuân thủ Tech Stack trong `CLAUDE.md` [[1, Tech Stack]](#ref-1), dependency boundaries trong `project-structure.md` [[2]](#ref-2) và Test Strategy trong `docs/testing/test-strategy.md` [[3]](#ref-3).
+1. Tuân thủ Tech Stack trong `AGENTS.md` [[1, Tech Stack]](#ref-1), dependency boundaries trong `project-structure.md` [[2]](#ref-2) và Test Strategy trong `docs/testing/test-strategy.md` [[3]](#ref-3).
 2. Strict boundaries, flexible implementation: bảo vệ trách nhiệm từng layer nhưng không tạo class, interface, mapper, hook hay folder chỉ để đủ template.
-3. Không đưa workflow thực thi Agent vào file này. Ví dụ code chỉ minh họa conventions, không phải implementation bắt buộc.
+3. Không đưa workflow thực thi của agent vào file này; workflow thuộc tầng Skill [[4]](#ref-4). Ví dụ code chỉ minh họa conventions, không phải implementation bắt buộc.
 4. Quy tắc nào kiểm tra được bằng máy thì enforce trong `eslint.config.js` hoặc TypeScript; file này chỉ giải thích lý do và cách sửa. Các quy tắc đang được lint enforce được đánh dấu *(lint)*.
 
 ## Naming conventions
@@ -24,7 +24,7 @@ Các quy tắc sau kết hợp framework conventions với lựa chọn riêng c
 | shadcn/ui primitive file | Giữ naming do CLI/config sinh ra, thường `kebab-case.tsx` | `components/ui/button.tsx` |
 | Shared Zod schema file | `kebab-case.schema.ts` | `backtest.schema.ts` |
 | Engine pure function file | `kebab-case.ts`, tên theo operation/domain | `simulate-trades.ts` |
-| Test file | `.test.ts` hoặc `.test.tsx` theo nội dung; E2E dùng `.spec.ts`. Tên theo tính năng, không theo test scope (xem [Testware](#testware)) | `backtest.test.ts`, `e2e/auth/links.spec.ts` |
+| Test file | `.test.ts` hoặc `.test.tsx` theo nội dung; E2E dùng `.spec.ts`. Tên theo tính năng, không theo test scope (xem [Testware](testware.md)) | `backtest.test.ts`, `e2e/auth/links.spec.ts` |
 | Function, variable, property, schema symbol | `camelCase` | `createBacktest`, `runId`, `createBacktestSchema` |
 | Class, component, type, interface | `PascalCase` | `BacktestResult`, `MarketDataProvider` |
 | Constants | `camelCase` mặc định; `UPPER_SNAKE_CASE` cho giới hạn/hằng số bất biến có ý nghĩa đặc biệt | `defaultOptions`, `MAX_CANDIDATES` |
@@ -98,23 +98,6 @@ Các quy tắc sau kết hợp framework conventions với lựa chọn riêng c
 - Test hành vi quan sát được và contracts, không khóa chặt implementation details. Theo test levels, types và tools đã chốt/đề xuất trong Test Strategy; không tự coi các công cụ Proposed là quyết định cuối cùng [[3]](#ref-3).
 - Với tính toán engine, bao phủ edge cases, deterministic replay và golden regression; thay đổi golden results phải được review [[3, Rủi ro chất lượng]](#ref-3).
 
-## Testware
-
-Test sống lâu hơn một test scope: một test viết cho TS-001 sẽ còn chạy làm regression cho các thay đổi sau này. Người sửa test thường chưa đọc tài liệu STLC của scope đó.
-
-- Đặt tên file và thư mục test theo tính năng, không theo test scope: `apps/api/test/auth/session.test.ts`, không dùng `ts001-session.test.ts` *(lint: `testware/no-scope-in-path`)*.
-- Comment và chuỗi trong test không dùng ID làm việc của tài liệu STLC (`PROC-01`, `MD-05`, `DR-07`, `ER-06`, `SEC-04`, `TS-001`). Chỉ giữ test case ID (`TC-xxx`) ở đầu tên test, để truy vết kết quả về test case. ID nằm trong đường dẫn file vẫn được dùng *(lint: `testware/no-stlc-ids`)*.
-- Comment đầu mỗi file test nói: file kiểm hành vi gì, test chạy trên môi trường nào (fake nào, database nào, vì sao), cách chạy, và nơi có expected result. Một người chưa đọc tài liệu STLC phải sửa được file sau khi đọc comment này.
-- Test kiểm hành vi theo requirement, không theo code hiện tại. System test (`apps/web/e2e/`) không import source của app; expected value lấy từ requirement *(lint: `no-restricted-imports`)*.
-- Ở test có import code của app (Component, Component integration), expected value là literal lấy từ test case hoặc requirement. Không lấy expected value từ hằng số, cấu hình hay hàm của code đang được test, và không assert giá trị của một hằng số hay cấu hình thay cho hành vi. Khi code sai, expected value lấy từ code cũng sai theo, nên test vẫn pass *(lint: `testware/no-implementation-oracle`)*. Input cũng vậy: giá trị biên (ví dụ số lần thử tối đa) viết thành literal từ test case, không import hằng số của app như `SIGN_IN_RATE_LIMIT` *(lint: `testware/no-app-constants`)*. Code production không export hằng số, hàm hay type mà không module production nào import: export chỉ để test dùng làm test bám vào cấu trúc của module. Test hành vi qua hàm public của module *(`pnpm check:exports`, knip)*.
-- Không thay module của app bằng mock (`vi.mock`, `vi.doMock`, `vi.spyOn` trên module trong `src/` hoặc `app/`). Mock như vậy chép cách code chia module: test fail khi chỉ sắp xếp lại code, và pass khi module thật hỏng. Chỉ thay boundary: truyền fake qua tham số (mailer, logger, clock), hoặc thêm fake cho host trong `apps/api/test/support/outbound.ts` *(lint: `testware/no-app-module-mocks`)*.
-- Assert đúng status mà test case cho input đó, kèm body hoặc side effect khi test case có ghi. Không assert "status khác 429" hay một khoảng status: response 500 cũng khác 429 *(lint: `testware/exact-status-oracle`)*. Khi requirement không cho status mà status lấy từ thư viện (ví dụ 200 của Better Auth), test design ghi status đó là contract của version thư viện, có người duyệt. Test kiểm thêm tác dụng mà requirement cho, ví dụ email được gửi hay tài khoản được tạo, vì thư viện có thể trả status đúng mà không làm việc đó *(review: skill `review-change`)*. Mỗi test Vitest phải có ít nhất một assertion *(Vitest `expect.requireAssertions`; mỗi package chạy Vitest phải bật option này trong `vitest.config.ts`: `pnpm check:rules`)*. Playwright không đếm assertion, nên mỗi test E2E phải có `expect()` trong thân test, hoặc gọi helper có tên bắt đầu bằng `expect` (ví dụ `expectExpiredScreen`) *(lint: `testware/require-expect`)*.
-- Khi môi trường test mô phỏng một sự kiện (khởi động lại, trình duyệt thứ hai, đóng tab), bản mô phỏng phải làm mất đúng trạng thái mà sự kiện thật làm mất. Ví dụ: khởi động lại API là chạy process mới (`apps/api/test/support/api-process.ts`), không phải tạo object mới trong cùng process, vì thư viện có thể giữ trạng thái trong biến của module. Trước khi dùng một mock, stub hoặc driver, người viết test làm hỏng một lần hành vi mà thành phần đó thay thế, rồi chạy test dùng thành phần đó. Test phải fail. Comment đầu file test ghi lỗi đã thử và test đã fail *(review: skill `review-change`)*. Tên test và comment chỉ nói điều mà assertion kiểm được *(review: skill `review-change`)*.
-- Mỗi test chạy được riêng và chạy được theo mọi thứ tự. Test không dùng chung dữ liệu có thể thay đổi với test khác. Mỗi test tạo dữ liệu riêng, ví dụ một user hoặc một IP riêng. Một mock phải trả được lỗi khi test cần lỗi. Một mock luôn trả thành công làm test không fail được *(review: skill `review-change`)*.
-- Test không phụ thuộc vào thời gian thật. Test điều khiển thời gian bằng fake clock hoặc bằng clock truyền qua tham số. Test chờ theo điều kiện (`expect.poll`, `toBeVisible`), không chờ một số giây cố định (`page.waitForTimeout`, `setTimeout`). Khi máy chậm, test chờ cố định có thể fail mà sản phẩm không sai *(lint: `testware/no-real-time-wait`)*. Khi test cần điều khiển đồng hồ của một process API riêng, truyền file đồng hồ cho process đó (`startApi(port, clockFile)`, `apps/api/test/support/file-clock.ts`). Lint không thấy được timeout quá ngắn hoặc thời gian thật nằm trong code sản phẩm *(review: skill `review-change`)*.
-- Khi một tính chất chỉ kiểm được bằng đọc code của dependency, ví dụ token được sinh từ CSPRNG, test tự động không thay được việc đọc code đó: một bộ đếm cũng tạo được token không trùng. Ghi kết quả là review, kèm file và dòng đã đọc, không ghi là test đã chứng minh. Ghi version đã đọc ở dòng `Dependency đã review` của Implementation Status, dạng `` `tên@version` `` *(`pnpm check:stlc` fail khi `pnpm-lock.yaml` không còn version đó)*.
-- Khi môi trường test không cho tạo một precondition mà người dùng thật tạo được, sửa môi trường test (biến môi trường, server thứ hai, database riêng), không sửa test để né. Ví dụ: kiểm màn Sign in khi chưa cấu hình Google bằng một server E2E chạy với biến Google trống, không giả response của API trong trình duyệt.
-
 ## Những điều không bắt buộc
 
 - Không bắt buộc mỗi API endpoint phải có đủ Controller, Service, Repository và Mapper nếu một layer không có trách nhiệm thực tế.
@@ -124,6 +107,7 @@ Test sống lâu hơn một test scope: một test viết cho TS-001 sẽ còn c
 
 ## References
 
-1. <a id="ref-1"></a>[Project: Crypto Force](../../CLAUDE.md)
+1. <a id="ref-1"></a>[Project: Crypto Force](../../AGENTS.md)
 2. <a id="ref-2"></a>[Project Structure](project-structure.md)
 3. <a id="ref-3"></a>[Test Strategy](../testing/test-strategy.md)
+4. <a id="ref-4"></a>[Conventions](README.md)

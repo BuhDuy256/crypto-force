@@ -22,7 +22,7 @@ Included: `SKILL.md`.
 
 - Original: "Last, keep a table in the agent instruction file that pairs each rule with what enforces it."
 - Reason: `CLAUDE.md` must not duplicate conventions already defined in the Development Guide (`CLAUDE.md` Coding Conventions 03), and Lesson Learned entries require user approval.
-- Change: rules and their enforcement live in `docs/development/coding-guidelines.md` (marked *(lint)*); unenforceable judgment calls outside code conventions become Lesson Learned entries.
+- Change: rules and their enforcement live in the convention files in `docs/conventions/` (marked *(lint)* or *(check-docs)*); process mistakes that the output file does not show become Lesson Learned entries.
 - Impact: none on the method.
 
 ### 3. Model invocation and single-correction path

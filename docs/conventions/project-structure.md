@@ -8,7 +8,7 @@
 2. `apps/web` và `apps/api` tổ chức theo layer; frontend cho phép colocate component đặc thù trong từng page. `packages/engine` tổ chức theo domain.
 3. Strict boundaries, flexible implementation: trách nhiệm và dependency là constraints; không bắt buộc tạo mọi folder, layer hoặc file trước khi có nhu cầu.
 4. Không import source nội bộ của app khác. Cross-package imports phải đi qua public exports của package; không import sâu vào private internals.
-5. Cấu trúc source không bắt buộc trùng với cấu trúc tài liệu `docs/architecture/` [[2, Architecture Documentation]](#ref-2).
+5. Cấu trúc source không bắt buộc trùng với cấu trúc tài liệu `docs/architecture/` [[2, Phạm vi của `docs/architecture/`]](#ref-2).
 
 ## Cấu trúc tham chiếu
 
@@ -114,6 +114,6 @@ Các quy tắc 2, 3, 4 và ranh giới layer trong `apps/api` (Route/Controller 
 
 ## References
 
-1. <a id="ref-1"></a>[Project: Crypto Force](../../CLAUDE.md)
-2. <a id="ref-2"></a>[Contributing to Documentation](../CONTRIBUTING.md)
+1. <a id="ref-1"></a>[Project: Crypto Force](../../AGENTS.md)
+2. <a id="ref-2"></a>[Architecture Documentation](architecture.md)
 3. <a id="ref-3"></a>[Test Strategy](../testing/test-strategy.md)

@@ -34,7 +34,7 @@ jobs:
 
   # Component and integration tests (`pnpm test`) on PostgreSQL. Each test must be able to fail, so
   # a red test blocks the merge; do not skip a test to make this job pass
-  # (docs/development/coding-guidelines.md#testware).
+  # (docs/conventions/testware.md).
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 20

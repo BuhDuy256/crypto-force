@@ -6,7 +6,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import testware from './scripts/eslint-plugin-testware.mjs';
 
-/** Cross-package imports must go through public exports (docs/development/project-structure.md). */
+/** Cross-package imports must go through public exports (docs/conventions/project-structure.md). */
 const noDeepPackageImports = {
   group: ['@crypto-force/*/src', '@crypto-force/*/src/**'],
   message:
@@ -28,7 +28,7 @@ const restrictImports = ({ patterns = [], paths = [] } = {}) => [
   { paths, patterns: [noDeepPackageImports, noAppImports, ...patterns] },
 ];
 
-const layerDoc = 'See docs/development/project-structure.md#api-layer-based.';
+const layerDoc = 'See docs/conventions/project-structure.md#api-layer-based.';
 
 const noDatabaseAccess = {
   regex: '(^|/)(database|repositories)(/|$)|^drizzle-orm',
@@ -55,7 +55,7 @@ const noEffectProperties = ['useEffect', 'useLayoutEffect'].map((property) => ({
   message: noEffectHooks.message,
 }));
 
-// Testware rules (docs/development/coding-guidelines.md#testware).
+// Testware rules (docs/conventions/testware.md).
 const testFiles = [
   'apps/*/test/**/*.ts',
   'apps/web/e2e/**/*.ts',
@@ -63,7 +63,7 @@ const testFiles = [
   '**/*.test.{ts,tsx}',
   '**/*.spec.ts',
 ];
-const testwareDoc = 'See docs/development/coding-guidelines.md#testware.';
+const testwareDoc = 'See docs/conventions/testware.md.';
 
 const noAppSourceInSystemTests = {
   regex: '^(\\.\\./)+app/|^~/|^@crypto-force/(web|api|worker)',
@@ -133,7 +133,7 @@ export default tseslint.config(
     languageOptions: { globals: globals.node },
   },
 
-  // API layers (docs/development/project-structure.md#api-layer-based)
+  // API layers (docs/conventions/project-structure.md#api-layer-based)
   {
     files: ['apps/api/src/api/routes/**/*.ts', 'apps/api/src/api/controllers/**/*.ts'],
     rules: { 'no-restricted-imports': restrictImports({ patterns: [noDatabaseAccess] }) },
@@ -202,7 +202,7 @@ export default tseslint.config(
           {
             regex: '^~/api(/|$)|(^|/)api(/|$)',
             message:
-              'UI components must not call the HTTP API directly. Load data in a route loader or a hook in app/hooks/ and pass it down. See docs/development/coding-guidelines.md#frontend-react-router-và-server-state.',
+              'UI components must not call the HTTP API directly. Load data in a route loader or a hook in app/hooks/ and pass it down. See docs/conventions/code.md#frontend-react-router-và-server-state.',
           },
         ],
       }),

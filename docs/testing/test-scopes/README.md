@@ -27,7 +27,7 @@ test-scopes/
 4. Khi nhiều test scope dùng chung một test plan, chỉ một test scope có thư mục `02-planning/`. Các test scope khác link tới thư mục đó trong `README.md`.
 5. ID trong file (ví dụ `IN-01`, `RC-02`, `MD-01`, `MD-01-CI-03`) chỉ có hiệu lực trong test scope chứa file đó. Khi tham chiếu tới ID của test scope khác, thêm ID của test scope làm prefix, ví dụ `TS-001/MD-01`.
 6. Requirement ID do người phân tích đặt ở Phase 01. Mỗi tiền tố được khai báo trong bảng tiền tố của Requirement Readiness, kèm nhóm và section của tài liệu nguồn. Tiền tố không được trùng với tiền tố ID mà các template STLC dùng, vì cùng một ID sẽ chỉ hai thứ khác nhau trong một test scope. *(check: `pnpm check:stlc`)*
-7. Thư mục test scope chỉ chứa tài liệu. Code test nằm trong các workspace theo [Project Structure](../../development/project-structure.md); test log và tool report link tới code test và evidence.
+7. Thư mục test scope chỉ chứa tài liệu. Code test nằm trong các workspace theo [Project Structure](../../conventions/project-structure.md); test log và tool report link tới code test và evidence.
 
 ## Phase, template và skill
 

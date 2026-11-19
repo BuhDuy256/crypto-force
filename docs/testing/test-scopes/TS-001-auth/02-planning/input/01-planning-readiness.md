@@ -51,7 +51,7 @@ Mọi điều kiện ở mục 3 đạt. Một thông tin ở mục 2 là Chưa 
 2. <a id="ref-2"></a>[Test Strategy](../../../../test-strategy.md) — commit `705a1ad`, 2026-11-17
 3. <a id="ref-3"></a>[Project: Crypto Force](../../../../../../CLAUDE.md) — commit `bf86629`, 2026-11-16
 4. <a id="ref-4"></a>[Security](../../../../../architecture/23-security.md) — commit `705a1ad`, 2026-11-17
-5. <a id="ref-5"></a>[Project Structure](../../../../../development/project-structure.md) — commit `dbbaafe`, 2026-11-16
+5. <a id="ref-5"></a>[Project Structure](../../../../../conventions/project-structure.md) — commit `dbbaafe`, 2026-11-16
 6. <a id="ref-6"></a>[Architectural Decisions](../../../../../architecture/30-decisions.md) — commit `705a1ad`, 2026-11-17
 7. <a id="ref-7"></a>`apps/api/src/configs/auth.ts`, `apps/api/package.json`, `apps/web/playwright.config.ts` — commit `b4ca981`
 8. <a id="ref-8"></a>OWASP ASVS 5.0, V6 Authentication. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x15-V6-Authentication.md> — truy cập 2026-11-17

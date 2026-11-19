@@ -1,5 +1,5 @@
 // Fails when production code exports a value or a type that no production module imports
-// (docs/development/coding-guidelines.md#testware). Such an export is often there only for a test,
+// (docs/conventions/testware.md). Such an export is often there only for a test,
 // and the test then checks the structure of the module instead of its behavior. Uses knip in
 // production mode, which does not count imports from tests. Configuration: knip.jsonc.
 import { spawnSync } from 'node:child_process';
@@ -22,7 +22,7 @@ if (result.status !== 0) {
       'function of the module instead, with the expected value from the test case, e.g.',
       "expect(getSafeNext('//evil.example')).toBe('/realtime'). If the export is a public API of a",
       'vendored package, add its folder to "ignore" in knip.jsonc with the reason.',
-      'See docs/development/coding-guidelines.md#testware.',
+      'See docs/conventions/testware.md.',
     ].join('\n'),
   );
   process.exit(result.status ?? 1);
