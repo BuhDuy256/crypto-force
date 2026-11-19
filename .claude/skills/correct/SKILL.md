@@ -38,12 +38,12 @@ Keep the rules and their enforcement in `docs/development/coding-guidelines.md`:
 `LESSONS.md` is the single source of truth for Lesson Learned entries; its `Quy ước` section defines the template, IDs, Scope values, and `Status: Deprecated`. Read it before proposing anything.
 
 - **Never write to `LESSONS.md` until the user has approved the exact content.** Present the full entry (or the changed parts of an existing one, with its ID) and wait.
-- Write lessons only to `LESSONS.md`, never to `CLAUDE.md`. Do not turn existing `CLAUDE.md` conventions into lessons unless the user asks.
+- Write lessons only to `LESSONS.md`, never to `AGENTS.md`. Do not turn existing `AGENTS.md` conventions into lessons unless the user asks.
 - Prefer amending an existing lesson over adding a duplicate. A rule must be specific and verifiable, not so broad that it removes useful flexibility.
 - When a lesson that is already in `LESSONS.md` is violated again, it is a repeat: look again for a level 1-3 fix before strengthening the text.
 - When a mistake can no longer happen because a higher level now prevents it, propose marking the lesson `Status: Deprecated — <what enforces it now>`.
 - After an approved write, show the change with `git diff -- LESSONS.md`.
 
-To review `LESSONS.md`, check each lesson for duplication or conflict (with other lessons or `CLAUDE.md`), vague or unverifiable rules, missing Problem/Rule/examples, a mistake that a level 1-3 check now prevents, and fit with the current project. Report a table of ID, issue, and proposed change; edit nothing until approved.
+To review `LESSONS.md`, check each lesson for duplication or conflict (with other lessons or `AGENTS.md`), vague or unverifiable rules, missing Problem/Rule/examples, a mistake that a level 1-3 check now prevents, and fit with the current project. Report a table of ID, issue, and proposed change; edit nothing until approved.
 
 **Reply:** each class with its evidence, the level you picked, and why a higher level didn't work.

@@ -325,3 +325,79 @@ tester.run('no-app-module-mocks: a template literal path', rule('no-app-module-m
     },
   ],
 });
+
+tester.run('no-real-time-wait', rule('no-real-time-wait'), {
+  valid: [
+    {
+      name: 'a guard timer that kills a process (security.test.ts)',
+      filename: apiTest,
+      code: `const timer = setTimeout(() => child.kill(), 20_000);`,
+    },
+    {
+      name: 'a wait for a condition',
+      filename: e2eTest,
+      code: `await expect(page.getByText('Sent')).toBeVisible();`,
+    },
+    {
+      name: 'one turn of the event loop',
+      filename: apiTest,
+      code: `await new Promise((resolve) => setImmediate(resolve));`,
+    },
+    {
+      name: 'a guard timer with a named callback',
+      filename: apiTest,
+      code: `const timer = setTimeout(killChild, 20_000);`,
+    },
+    {
+      name: 'a guard timer inside a promise that rejects (api-process.ts)',
+      filename: apiTest,
+      code: `await new Promise((resolve, reject) => { const timer = setTimeout(() => { reject(new Error('no start')); }, 30_000); });`,
+    },
+  ],
+  invalid: [
+    {
+      name: 'a fixed wait in Playwright (links.spec.ts TC-189 before the fix)',
+      filename: e2eTest,
+      code: `await page.waitForTimeout(2_000);`,
+      errors: [{ message: /waits a fixed time on the real clock/ }],
+    },
+    {
+      name: 'a sleep until a time on the real clock (rate-limit.test.ts TC-005 before the fix)',
+      filename: apiTest,
+      code: `if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));`,
+      errors: [{ message: /waits a fixed time on the real clock/ }],
+    },
+    {
+      name: 'a sleep with a callback that resolves',
+      filename: apiTest,
+      code: `await new Promise((resolve) => { setTimeout(() => { resolve(); }, 200); });`,
+      errors: [{ message: /waits a fixed time on the real clock/ }],
+    },
+    {
+      name: 'resolve with an argument',
+      filename: apiTest,
+      code: `await new Promise((done) => setTimeout(() => done(undefined), 200));`,
+      errors: [{ message: /waits a fixed time on the real clock/ }],
+    },
+    {
+      name: 'globalThis.setTimeout',
+      filename: apiTest,
+      code: `await new Promise((resolve) => globalThis.setTimeout(resolve, 200));`,
+      errors: [{ message: /waits a fixed time on the real clock/ }],
+    },
+    {
+      name: 'a namespace import of timers/promises',
+      filename: apiTest,
+      code: `import * as timers from 'node:timers/promises';
+        await timers.setTimeout(200);`,
+      errors: [{ message: /waits a fixed time on the real clock/ }],
+    },
+    {
+      name: 'setTimeout from timers/promises',
+      filename: apiTest,
+      code: `import { setTimeout as sleep } from 'node:timers/promises';
+        await sleep(200);`,
+      errors: [{ message: /waits a fixed time on the real clock/ }],
+    },
+  ],
+});

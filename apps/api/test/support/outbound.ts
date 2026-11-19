@@ -104,8 +104,8 @@ async function stubFetch(input: Parameters<typeof fetch>[0], init?: RequestInit)
       case 'unavailable':
         return new Response('Service Unavailable', { status: 503 });
       case 'no-answer':
-        await new Promise((resolve) => setTimeout(resolve, 10_000));
-        return new Response(pwnedRangeBody(prefix, []), { status: 200 });
+        // A server that never answers: the promise never settles.
+        return new Promise<Response>(() => undefined);
       case 'pwned':
         return new Response(pwnedRangeBody(prefix, pwnedList), { status: 200 });
       case 'clean':

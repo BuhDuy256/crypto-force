@@ -474,6 +474,111 @@ const requireExpect = {
   },
 };
 
+const realTimeWaitMessage = `This test waits a fixed time on the real clock. On a slow machine the wait is too short and the test fails, or a check for "nothing happened" passes too early. Wait for a condition instead (expect(...).toBeVisible(), expect.poll, vi.waitFor), or control the clock (controlClock, a clock file for an API process). ${testwareDoc}`;
+
+/**
+ * The name of the function that `node` calls, or of `node` itself: `resolve` for `resolve`,
+ * `resolve()` and `resolve(undefined)`.
+ * @param {import('estree').Node | null | undefined} node
+ */
+const calledName = (node) => {
+  if (node?.type === 'Identifier') return node.name;
+  if (node?.type === 'CallExpression' && node.callee.type === 'Identifier') return node.callee.name;
+  return undefined;
+};
+
+/** The name that a callback of `setTimeout` calls when its body is one call. */
+const callbackTarget = (/** @type {import('estree').Node | undefined} */ callback) => {
+  if (callback?.type === 'Identifier') return callback.name;
+  if (callback?.type !== 'ArrowFunctionExpression' && callback?.type !== 'FunctionExpression')
+    return undefined;
+  const { body } = callback;
+  if (body.type !== 'BlockStatement') return calledName(body);
+  const [only] = body.body;
+  return body.body.length === 1 && only?.type === 'ExpressionStatement'
+    ? calledName(only.expression)
+    : undefined;
+};
+
+/** `setTimeout`, `globalThis.setTimeout` or `timers.setTimeout`. */
+const isSetTimeout = (/** @type {import('estree').Node} */ callee) =>
+  (callee.type === 'Identifier' && callee.name === 'setTimeout') ||
+  (callee.type === 'MemberExpression' &&
+    callee.property.type === 'Identifier' &&
+    callee.property.name === 'setTimeout');
+
+/**
+ * A sleep: `waitForTimeout(...)`, `setTimeout` from `timers/promises`, or `setTimeout` whose
+ * callback only resolves the promise around it (`new Promise((resolve) => setTimeout(resolve, ms))`).
+ * A `setTimeout` that does other work (a guard timer that kills a process) is not a sleep.
+ * @type {import('eslint').Rule.RuleModule}
+ */
+const noRealTimeWait = {
+  meta: { type: 'problem', schema: [] },
+  create(context) {
+    /** Local names of `setTimeout` from `timers/promises`, and of the module namespace. */
+    /** @type {Set<string>} */
+    const promiseTimers = new Set();
+    /** @type {Set<string>} */
+    const promiseTimerModules = new Set();
+    /** Names of the `resolve` parameters of the `new Promise` executors around the node. */
+    /** @type {string[]} */
+    const resolvers = [];
+    /** @param {import('estree').NewExpression} node */
+    const executorResolve = (node) => {
+      if (node.callee.type !== 'Identifier' || node.callee.name !== 'Promise') return undefined;
+      const executor = node.arguments[0];
+      if (executor?.type !== 'ArrowFunctionExpression' && executor?.type !== 'FunctionExpression')
+        return undefined;
+      const param = executor.params[0];
+      return param?.type === 'Identifier' ? param.name : undefined;
+    };
+    return {
+      ImportDeclaration(node) {
+        if (!/^(node:)?timers\/promises$/.test(String(node.source.value))) return;
+        for (const specifier of node.specifiers) {
+          if (
+            specifier.type === 'ImportNamespaceSpecifier' ||
+            specifier.type === 'ImportDefaultSpecifier'
+          )
+            promiseTimerModules.add(specifier.local.name);
+          else if (
+            specifier.imported.type === 'Identifier' &&
+            specifier.imported.name === 'setTimeout'
+          )
+            promiseTimers.add(specifier.local.name);
+        }
+      },
+      NewExpression(node) {
+        const name = executorResolve(node);
+        if (name !== undefined) resolvers.push(name);
+      },
+      'NewExpression:exit'(node) {
+        if (executorResolve(node) !== undefined) resolvers.pop();
+      },
+      CallExpression(node) {
+        const { callee } = node;
+        if (callee.type === 'MemberExpression' && callee.property.type === 'Identifier') {
+          const fromPromiseTimers =
+            callee.object.type === 'Identifier' && promiseTimerModules.has(callee.object.name);
+          if (callee.property.name === 'waitForTimeout' || fromPromiseTimers) {
+            context.report({ node, message: realTimeWaitMessage });
+            return;
+          }
+        }
+        if (callee.type === 'Identifier' && promiseTimers.has(callee.name)) {
+          context.report({ node, message: realTimeWaitMessage });
+          return;
+        }
+        if (!isSetTimeout(callee)) return;
+        const target = callbackTarget(node.arguments[0]);
+        if (target !== undefined && resolvers.includes(target))
+          context.report({ node, message: realTimeWaitMessage });
+      },
+    };
+  },
+};
+
 /** @type {import('eslint').ESLint.Plugin} */
 export default {
   rules: {
@@ -524,5 +629,6 @@ export default {
     'exact-status-oracle': exactStatusOracle,
     'no-app-constants': noAppConstants,
     'require-expect': requireExpect,
+    'no-real-time-wait': noRealTimeWait,
   },
 };

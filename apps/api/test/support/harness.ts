@@ -186,18 +186,27 @@ export async function getSession(h: Harness, cookie: string, ip?: string) {
   return { response, body: (await response.json()) as SessionBody | null };
 }
 
+/** Waits until email number `count` with `subject` was sent to `to`, and returns it. */
 export async function waitForEmail(mailer: MemoryMailer, to: string, subject: string, count = 1) {
-  for (let attempt = 0; attempt < 100; attempt++) {
-    const found = mailer.to(to).filter((item) => item.subject.includes(subject));
-    if (found.length >= count) return found[count - 1] as EmailMessage;
-    await new Promise((resolve) => setTimeout(resolve, 20));
-  }
-  throw new Error(`Email "${subject}" #${String(count)} was not sent to ${to}`);
+  return vi.waitFor(
+    () => {
+      const found = mailer.to(to).filter((item) => item.subject.includes(subject))[count - 1];
+      if (found === undefined)
+        throw new Error(`Email "${subject}" #${String(count)} was not sent to ${to}`);
+      return found;
+    },
+    { timeout: 10_000, interval: 20 },
+  );
 }
 
-/** Waits long enough for a background send to finish, then returns what was sent. */
+/**
+ * Returns what was sent to `to` after the background sends of the requests so far are done.
+ * better-auth 1.7.25 calls the email hooks with `runInBackgroundOrAwait`, which awaits them when no
+ * background handler is set. The hooks call the mailer before the response, so the message is
+ * already in `mailer.sent`. One turn of the event loop lets a failed send log its error.
+ */
 export async function settleEmails(mailer: MemoryMailer, to: string) {
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  await new Promise((resolve) => setImmediate(resolve));
   return mailer.to(to);
 }
 

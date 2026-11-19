@@ -377,7 +377,10 @@ test.describe('Reset password flows', () => {
     await authForm(page).email.fill('none@example.test');
     await authForm(page).sendReset.click();
     await expect(page.getByText('If an account exists for none@example.test')).toBeVisible();
-    await page.waitForTimeout(2_000);
+    // The API sends reset emails in the background. A reset for an existing account, sent after
+    // this request, is a marker: when its email arrives, an email for this request has had time
+    // to arrive too.
+    await resetLink((await createVerifiedUser()).email);
     expect(emailsTo('none@example.test')).toEqual([]);
   });
 
