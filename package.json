@@ -18,7 +18,7 @@
     "check:exports": "node scripts/check-exports.mjs",
     "check:docs": "node scripts/check-docs.mjs",
     "check:stlc": "node --test scripts/check-stlc-docs.test.mjs && node scripts/check-test-scope-ids.mjs && node scripts/check-stlc-docs.mjs",
-    "check:rules": "node --test scripts/eslint-plugin-testware.test.mjs scripts/vitest-configs.test.mjs scripts/check-docs.test.mjs",
+    "check:rules": "node --test scripts/eslint-plugin-testware.test.mjs scripts/vitest-configs.test.mjs scripts/mock-boundaries.test.mjs scripts/check-docs.test.mjs",
     "test": "pnpm -r --no-bail --workspace-concurrency=1 --filter @crypto-force/shared --filter @crypto-force/web --filter @crypto-force/api test",
     "test:e2e": "pnpm --filter @crypto-force/web test:e2e",
     "db:up": "docker compose up -d postgres",

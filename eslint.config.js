@@ -282,5 +282,35 @@ export default tseslint.config(
     },
   },
 
+  {
+    files: ['apps/web/app/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            ':matches(ImportDeclaration, ExportNamedDeclaration, ExportAllDeclaration)[source.value=/^msw($|\\/)/], ImportExpression[source.value=/^msw($|\\/)/]',
+          message:
+            'Keep MSW imports in apps/web/mocks/. Call the HTTP API through app/api/. See docs/conventions/code.md#http-mocking.',
+        },
+      ],
+    },
+  },
+  {
+    files: ['apps/web/app/**/*.{ts,tsx}'],
+    ignores: ['apps/web/app/entry.client.tsx'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            ':matches(ImportDeclaration, ExportNamedDeclaration, ExportAllDeclaration)[source.value=/(^|\\/)(mocks|msw)($|\\/)/], ImportExpression[source.value=/(^|\\/)(mocks|msw)($|\\/)/], CallExpression[callee.name="require"] > Literal.arguments[value=/(^|\\/)(mocks|msw)($|\\/)/]',
+          message:
+            'Do not import mocks or MSW into application code. Load data through app/api/; only entry.client.tsx starts mocks. See docs/conventions/code.md#http-mocking.',
+        },
+      ],
+    },
+  },
+
   prettier,
 );

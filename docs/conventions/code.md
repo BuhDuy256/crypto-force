@@ -73,6 +73,14 @@ Các quy tắc sau kết hợp framework conventions với lựa chọn riêng c
 - Không đưa component lên `components/` chỉ vì *có thể* tái sử dụng sau này; chỉ di chuyển khi có nhu cầu chia sẻ thực tế và trách nhiệm của component vẫn phù hợp.
 - Route modules có thể render UI đơn giản; tách `pages/` cho màn hình phức tạp. Không bắt buộc mỗi route có page riêng [[2, Web: layer-based và page colocation]](#ref-2).
 
+## HTTP mocking
+
+- Mock response backend khi phát triển UI bằng MSW tại ranh giới HTTP. Không đặt response giả trong page, hook hoặc `app/api/`; không thay hàm API bằng hàm trả fixture. Vị trí và dependency boundaries nằm tại [Development HTTP mocks](project-structure.md#development-http-mocks).
+- Request/response contract dùng schema tại `packages/shared`. Fixture phải được kiểm tra theo schema response tương ứng; handler khớp method và endpoint cụ thể, không dùng catch-all che endpoint thật.
+- `VITE_API_MOCKING=true` trong `.env` ở repository root bật mock khi chạy development. Mặc định tắt. `app/entry.client.tsx` chỉ dynamic import browser mocks khi `import.meta.env.DEV` và cờ bằng `true`, rồi đợi worker sẵn sàng trước khi hydrate React Router. Lỗi khởi động mock phải hiện thành lỗi, không âm thầm chuyển nguồn dữ liệu.
+- Request không có handler đi đến backend thật. Khi tắt mock, mọi request đi đến backend thật; endpoint chưa có có thể trả lỗi HTTP hoặc lỗi kết nối và UI hiển thị error state. Không fallback sang mock khi API lỗi.
+- Handler chỉ dành cho endpoint chưa tích hợp. Khi endpoint thật sẵn sàng, xóa handler và fixture không còn dùng; page và hook giữ cách gọi HTTP. Khi không còn handler, xóa `mocks/`, nhánh bootstrap, cờ môi trường, Vite middleware và dependency MSW. Production build guard vẫn bảo vệ khỏi mock code bị đưa lại vào bundle.
+
 ## Backend: responsibilities
 
 - Route đăng ký endpoints và middleware; không chứa business logic.

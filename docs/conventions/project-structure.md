@@ -29,6 +29,7 @@ apps/
       contexts/
       types/            # UI-only types
       utils/
+    mocks/              # Development HTTP handlers, fixtures và MSW bootstrap
   api/
     src/
       api/
@@ -74,6 +75,14 @@ packages/
 | `types/` | Types đặc thù UI; contract chia sẻ với backend đặt tại `packages/shared`. |
 
 Dùng React Router framework mode theo Tech Stack đã chọn [[1, Tech Stack]](#ref-1). Không bắt buộc một route module chỉ được render một page; có thể viết UI đơn giản ngay trong route module. Component đặc thù của một page nên colocate trong `pages/<Page>/components/`; chỉ chuyển lên `components/` khi thực sự được dùng chung giữa các page. Không tạo `components/common/` vì `components/` đã là nơi chứa component dùng chung. Khả năng tái sử dụng trong tương lai không phải lý do để chuyển component lên sớm.
+
+## Development HTTP mocks
+
+`apps/web/mocks/` chứa MSW handlers (`handlers.ts`), dữ liệu giả trong `fixtures/` khi có nhu cầu, browser bootstrap (`browser.ts`) và Vite middleware phục vụ worker script chỉ trong development (`vite.ts`). Đây là code hỗ trợ development, không phải layer nghiệp vụ. Fixtures phục vụ test vẫn nằm trong phạm vi test tương ứng.
+
+Luồng dữ liệu của ứng dụng là Page → query hook hoặc route loader → `app/api/` → HTTP. MSW chặn HTTP request có handler; request không có handler tiếp tục đến backend thật. Page, component, hook và API module không import mock, kể cả bằng dynamic import hoặc re-export *(lint)*. Chỉ `app/entry.client.tsx` được khởi động browser mocks; `vite.config.ts` tích hợp dev middleware.
+
+Quy tắc bật mock, contracts và chuyển sang backend thật nằm tại [HTTP mocking](code.md#http-mocking). Production build từ chối chunk chứa module trong `mocks/`, MSW runtime hoặc worker asset.
 
 ## API: layer-based
 
