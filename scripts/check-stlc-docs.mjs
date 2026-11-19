@@ -1,4 +1,4 @@
-// Checks three rules of the STLC documents that let a test pass when the product is wrong
+// Checks four rules of the STLC documents that let a test pass when the product is wrong
 // (docs/development/coding-guidelines.md#testware):
 // 1. An expected result in Test Cases tells what the result is, not only what it is not
 //    ("không phải 429" also passes for a 500).
@@ -7,6 +7,8 @@
 // 3. A review of dependency code that a test cannot replace (for example, the random source of
 //    session tokens) is for the versions that pnpm-lock.yaml installs. The row "Dependency đã
 //    review" of Implementation Status gives the versions that the review read.
+// 4. The conclusion of Execution Readiness follows the definition of the template: "Sẵn sàng một
+//    phần" needs RC-01 and RC-05 fully met, and "Sẵn sàng" needs every RC fully met.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -15,6 +17,12 @@ import { SCOPES_DIR, tableRows } from './test-scope-ids.mjs';
 export const TEST_CASES = '03-design/output/04-test-cases.md';
 export const ENVIRONMENT = '04-implementation/output/04-test-environment.md';
 export const IMPLEMENTATION_STATUS = '04-implementation/output/01-implementation-status.md';
+export const READINESS = '05-execution/input/01-execution-readiness.md';
+export const EXECUTION_OUTPUTS = [
+  '05-execution/output/01-execution-status.md',
+  '05-execution/output/02-test-log.md',
+  '05-execution/output/03-defect-reports.md',
+];
 export const REVIEWED = 'Dependency đã review';
 const LOCKFILE = resolve(import.meta.dirname, '..', 'pnpm-lock.yaml');
 const GUIDE = 'docs/development/coding-guidelines.md#testware';
@@ -25,6 +33,7 @@ const LOCK_KEY = /^ {2}'?((?:@[\w.-]+\/)?[\w.-]+@[^'\s(:]+)/;
 
 /** "không phải 429", "khác 200", "not 500": a status that the result must not have. */
 const NEGATED_STATUS = /(?:không phải|không là|khác|\bnot)\s+`?[1-5]\d{2}\b/i;
+const RC_ROW = /^\|\s*(RC-\d+)\s*\|/;
 const COMPONENT_HEADER = /^\|\s*Env ID\s*\|\s*Thành phần\s*\|/;
 const READINESS_HEADER = /^\|\s*Env ID\s*\|\s*Cách kiểm tra\s*\|/;
 export const FAULT_CHECK = 'Kiểm bằng lỗi:';
@@ -76,6 +85,76 @@ export function uncheckedSimulations(file, lines) {
         line: start + 3 + index,
         key: id,
         message: `${id} is a ${kind} and passed its readiness check, but the check does not show that the ${kind} fails like the real component. A ${kind} that keeps the state the real event loses lets a test pass when the product is wrong. Break the behavior once (a mutant or a known defect), run the tests that use ${id}, and write "${FAULT_CHECK} <the fault>; <which test failed>" in the readiness check. If you did not do this, write "Không đạt". See ${GUIDE}.`,
+      },
+    ];
+  });
+}
+
+/** "Đạt" with no "một phần" or "Không đạt" in the cell. @param {string} result */
+const fullyMet = (result) => result.startsWith('Đạt') && !/một phần|Không đạt/.test(result);
+
+/**
+ * Results of the RC rows in Execution Readiness. @param {string[]} lines
+ * @returns {Map<string, string>}
+ */
+export function readinessResults(lines) {
+  return new Map(
+    lines.flatMap((text) => {
+      const id = RC_ROW.exec(text)?.[1];
+      return id ? [[id, (text.split('|')[4] ?? '').normalize('NFC').trim()]] : [];
+    }),
+  );
+}
+
+/**
+ * A criterion of a Phase 05 output that is "Đạt" while an RC in its input column is not fully
+ * met. The template says: when the input condition is not met, the criterion is not met.
+ * @param {string} file @param {string[]} lines @param {Map<string, string>} rc
+ * @returns {Violation[]}
+ */
+export function criteriaWithUnmetInput(file, lines, rc) {
+  return lines.flatMap((text, index) => {
+    const cells = text.split('|').map((cell) => cell.normalize('NFC').trim());
+    const id = cells[1] ?? '';
+    if (!/^Q\d-\d+$/.test(id) || !fullyMet(cells[4] ?? '')) return [];
+    const unmet = [...(cells[3] ?? '').matchAll(/RC-\d+/g)]
+      .map(([ref]) => ref)
+      .filter((ref) => rc.has(ref) && !fullyMet(rc.get(ref) ?? ''));
+    if (unmet.length === 0) return [];
+    return [
+      {
+        file,
+        line: index + 1,
+        key: id,
+        message: `${id} is "Đạt", but its input condition ${unmet.join(', ')} is not fully met in Execution Readiness. The template says a criterion is not met when its input condition is not met. Write "Đạt một phần" or "Không đạt" with the part that the input condition affects, or make ${unmet.join(', ')} met with a source. See docs/testing/stlc-template/05-execution/README.md.`,
+      },
+    ];
+  });
+}
+
+/** @param {string} file @param {string[]} lines @returns {Violation[]} */
+export function readinessConclusion(file, lines) {
+  const at = lines.findIndex((text) => text.startsWith('**Trạng thái:**'));
+  if (at < 0) return [];
+  const conclusion = (lines[at] ?? '')
+    .replace('**Trạng thái:**', '')
+    .normalize('NFC')
+    .trim()
+    .replace(/[.\s]+$/, '');
+  const partial = conclusion === 'Sẵn sàng một phần';
+  if (!partial && conclusion !== 'Sẵn sàng') return [];
+  const needed = partial ? ['RC-01', 'RC-05'] : null;
+  return lines.flatMap((text) => {
+    const id = RC_ROW.exec(text)?.[1];
+    if (!id || (needed && !needed.includes(id))) return [];
+    const result = (text.split('|')[4] ?? '').normalize('NFC').trim();
+    if (fullyMet(result) || result.startsWith('N/A')) return [];
+    return [
+      {
+        file,
+        line: lines.indexOf(text) + 1,
+        key: id,
+        message: `The conclusion is "${conclusion}", but ${id} is not fully met ("${result.slice(0, 40)}"). The template gives "Sẵn sàng một phần" only when RC-01 and RC-05 are met, and "Sẵn sàng" only when every RC is met. Write "Chưa sẵn sàng", or make ${id} met with a source. See docs/testing/stlc-template/05-execution/input/01-execution-readiness.md section 4.`,
       },
     ];
   });
@@ -141,11 +220,21 @@ export function checkScopes(
       [TEST_CASES, negatedOracles],
       [ENVIRONMENT, uncheckedSimulations],
       [IMPLEMENTATION_STATUS, (file, lines) => staleReviews(file, lines, lockText)],
+      [READINESS, readinessConclusion],
     ];
     for (const [document, check] of checks) {
       const file = join(scopesDir, scope, document);
       if (!existsSync(file)) continue;
       found.push(...check(file, readFileSync(file, 'utf8').split(/\r?\n/)));
+    }
+    const readiness = join(scopesDir, scope, READINESS);
+    if (existsSync(readiness)) {
+      const rc = readinessResults(readFileSync(readiness, 'utf8').split(/\r?\n/));
+      for (const document of EXECUTION_OUTPUTS) {
+        const file = join(scopesDir, scope, document);
+        if (!existsSync(file)) continue;
+        found.push(...criteriaWithUnmetInput(file, readFileSync(file, 'utf8').split(/\r?\n/), rc));
+      }
     }
     const known = knownList.filter((item) => item.scope === scope);
     for (const violation of found) {

@@ -34,7 +34,7 @@
 | ID | Điều kiện | Thông tin liên quan | Kết quả | Ảnh hưởng nếu không đạt |
 | --- | --- | --- | --- | --- |
 | RC-01 | Build cần kiểm thử đã được xác định và triển khai vào môi trường test; build đang chạy khớp build ghi nhận | IN-01, IN-05, IN-06 | Đạt cho RUN-010 đến RUN-015 (`7cdb0f5`, working tree không sửa). Đạt một phần cho RUN-001 đến RUN-009: chạy trên working tree của product owner, HEAD khi ghi là `b35a791` | Kết quả RUN-001 đến RUN-009 còn hiệu lực cho `7cdb0f5` khi không có thay đổi code sản phẩm giữa hai commit (`git log b35a791..7cdb0f5 -- apps packages` không có commit). Owner: agent |
-| RC-02 | Testware và expected result dùng cùng version với test basis | IN-02, IN-03 | Đạt, trừ TC-200: ghi Security `d6c0541`, không phải `c23d848` (DV-03) | Kết quả TC-200 đúng cho `c23d848`. Owner: agent sửa nguồn của test case hoặc product owner xác nhận |
+| RC-02 | Testware và expected result dùng cùng version với test basis | IN-02, IN-03 | Đạt một phần: đạt cho mọi test case trừ TC-200; ghi Security `d6c0541`, không phải `c23d848` (DV-03) | Kết quả TC-200 đúng cho `c23d848`. Owner: agent sửa nguồn của test case hoặc product owner xác nhận |
 | RC-03 | Môi trường và test data được kiểm thực tế | IN-06, IN-07 | Đạt: smoke pass, ENV-09 và DA-12 dùng thật ở PROC-17 | |
 | RC-04 | Mỗi test instance có đủ testware, dữ liệu, cấu hình, hoặc đánh dấu chưa chạy được kèm lý do | IN-03, IN-04, IN-07 | Đạt một phần: 166 test case có testware. Exploratory CHR-01 đến CHR-04 cần product owner | CHR-01 đến CHR-04 Not Run (Execution Status mục 2.3). Owner: product owner |
 | RC-05 | Quy ước ghi kết quả và quy trình xử lý defect đã thống nhất trước lượt chạy đầu tiên | IN-08, IN-09 | Đạt một phần: quy ước ghi kết quả có từ Phase 04 (TD-07). Quy trình defect (IN-09) chưa có người đặt priority. File này lập sau RUN-001 đến RUN-009 | Defect chưa có priority. Owner: product owner |
@@ -42,11 +42,11 @@
 
 ## 4. Kết luận sẵn sàng
 
-**Trạng thái:** Sẵn sàng một phần.
+**Trạng thái:** Chưa sẵn sàng.
 
-Mọi điều kiện ở mục 3 chưa đạt đầy đủ, và IN-04 và IN-09 còn ở trạng thái Giả định, nên không thể kết luận Sẵn sàng. Phần tự động và review chạy được vì RC-01 đạt cho mọi lượt chạy đó, và quy ước ghi kết quả đủ để so các lượt chạy. Phần chưa đạt: RC-05 (chưa có priority của defect), RC-04 (exploratory), RC-02 (nguồn của TC-200).
+Theo định nghĩa của template, "Sẵn sàng một phần" cần RC-01 và RC-05 đều đạt. RC-01 đạt cho RUN-010 đến RUN-015 nhưng RC-05 chỉ đạt một phần (chưa có người đặt priority; file này lập sau lượt chạy đầu tiên). Vì vậy kết luận là Chưa sẵn sàng. Các lượt chạy vẫn diễn ra: đây là sai lệch DV-07 (bắt đầu khi RC-05 chưa đạt). Người có thẩm quyền chưa quyết định cho sai lệch này. Các điều kiện khác chưa đạt: IN-04 và IN-09 là Giả định, RC-04 (exploratory), RC-02 (nguồn của TC-200).
 
-**Phần được phép chạy:** SU-01, SU-11, SU-04, SU-13, SU-21 (đã chạy ở PROC-17), SU-22. SU-23 (exploratory) chạy được sau khi product owner chọn thời điểm.
+**Phần được phép chạy:** chưa có quyết định của product owner. Các suite SU-01, SU-11, SU-04, SU-13, SU-21 và SU-22 đã chạy (DV-07). SU-23 (exploratory) chưa chạy.
 
 **Người quyết định / ngày:** agent đánh giá, 2026-11-19. Product owner chưa xác nhận kết luận này.
 

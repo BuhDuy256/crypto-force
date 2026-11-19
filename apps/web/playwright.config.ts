@@ -1,6 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 import { APP_ORIGIN, E2E_SERVERS, originOf } from './e2e/environment';
 
+// `--list` runs no test. The html and json reporters would still replace the report and the
+// results.json of the last run, which are evidence (TS-001 Test Log, DV-08).
+const listing = process.argv.includes('--list');
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
@@ -9,11 +13,13 @@ export default defineConfig({
   // Several workers share one dev server; screens can take longer than the 5 s default.
   expect: { timeout: 10_000 },
   timeout: 60_000,
-  reporter: [
-    ['list'],
-    ['html', { open: 'never' }],
-    ['json', { outputFile: 'test-results/results.json' }],
-  ],
+  reporter: listing
+    ? [['list']]
+    : [
+        ['list'],
+        ['html', { open: 'never' }],
+        ['json', { outputFile: 'test-results/results.json' }],
+      ],
   use: {
     baseURL: APP_ORIGIN,
     trace: 'retain-on-failure',

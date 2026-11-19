@@ -1,4 +1,4 @@
-# Test Execution Status
+| TD-23 | Đã xử lý ngày 2026-11-19: product owner duyệt kết luận TC-200 và TC-209 || TD-22 | Đã xử lý ngày 2026-11-19: product owner chọn Security `c23d848` cho TC-200 (DV-03) || TD-21 | Đã xử lý ngày 2026-11-19: product owner duyệt nguyên nhân Product và severity; priority đặt theo severity, theo ủy quyền của product owner |# Test Execution Status
 
 Đọc file này để biết trạng thái hiện hành của các test TS-001 tại thời điểm chốt 2026-11-19 08:25, kết quả nào còn hiệu lực, và việc gì còn phải làm. File này chỉ ghi sự thật về lượt chạy. Nó không kết luận exit criteria, không chấp nhận rủi ro và không quyết định release.
 
@@ -24,19 +24,19 @@
 | Kết quả hiện hành | Kết quả của lượt chạy hợp lệ gần nhất trên build đang đánh giá. RUN-003 và RUN-004 (Blocked) được RUN-008 và RUN-009 thay; RUN-005 và RUN-006 (Inconclusive) được RUN-007 thay |
 | Exploratory session | Đếm riêng theo charter |
 
-Hai smoke test (RUN-010, RUN-011) là điều kiện vào của suite, không phải test case, nên không tính ở mục 2.2. Tổng Playwright 161 test gồm test của workspace (không thuộc TS-001; 15 test theo VF-03) và test smoke.
+Mục 2.2 chỉ đếm test của TS-001. Không đếm hai smoke test (điều kiện vào của suite: 1 trong 160 test của `apps/api`, 1 trong 161 test Playwright) và 15 test workspace (`workspace.spec.ts`, không thuộc TS-001; tất cả pass). Vì vậy 152 + 141 − 17 = 276 test tự động Passed. Số này đã sửa sau review độc lập: bản đầu đếm 299 và 368.
 
 ### 2.2. Số lượng theo trạng thái
 
 | Trạng thái | Số instance | Instance IDs hoặc query |
 | --- | --- | --- |
-| Passed | 299 | RUN-012: 152 test; RUN-013: 141 test; thủ công và review: TC-195, 196, 197, 198, 200, 209 (6) |
+| Passed | 282 | RUN-012: 152 test, trừ 1 smoke API (151); RUN-013: 141 test, trừ 1 smoke và 15 test workspace (125); thủ công và review: TC-195, 196, 197, 198, 200, 209 (6) |
 | Failed | 69 | RUN-012: 48 test; RUN-013: 20 test; TC-103 phần S (1). Danh sách ở Test Log mục 2.4 |
 | Blocked | 0 | |
 | Not Run | 0 test instance | Xem mục 2.3 cho exploratory |
 | Skipped | 0 | |
-| Inconclusive | 0 | |
-| **Tổng** | **368** | Không so được với inventory theo ID instance (Q1-02, IN-04) |
+| Inconclusive | 0 | RUN-015 (TC-200) Inconclusive đã được RUN-016 thay |
+| **Tổng** | **351** | Không so được với inventory theo ID instance (Q1-02, IN-04) |
 | Exploratory session đã thực hiện / dự kiến | 0 / 4 | CHR-01 đến CHR-04 |
 
 Tính theo test case: 166 test case, 122 Passed (116 chỉ có test tự động Passed, TC-195 đến TC-198, TC-200, TC-209) và 44 Failed (một test case Failed khi có ít nhất một dòng dữ liệu Failed):
@@ -49,9 +49,9 @@ Một test case Passed ở đây nghĩa là mọi test của nó Passed. Phần 
 
 | Instance ID | Trạng thái | Lý do | Blocker / Defect ID | Owner / dự kiến chạy |
 | --- | --- | --- | --- | --- |
-| CHR-01 (PROC-19), CHR-02 (PROC-20), CHR-03 (PROC-21), CHR-04 (PROC-22) | Not Run | Exploratory cần product owner chạy 60 phút mỗi session và ghi debrief; chưa có lịch | Không có | Product owner; chưa có ngày |
+| CHR-01 (PROC-19), CHR-02 (PROC-20), CHR-03 (PROC-21), CHR-04 (PROC-22) | Not Run | Product owner hoãn vô thời hạn ngày 2026-11-19 (tin nhắn trong session) | Không có | Product owner; chưa có ngày |
 | TC-197, TC-198 | Passed, evidence yếu | Evidence là dòng database và lời của product owner (EV-006, EV-007); không có log hay video; DV-01 (địa chỉ không có `+tag`) | Không có | Giữ Passed; product owner có thể bổ sung evidence |
-| TC-200, TC-209 | Passed, chờ duyệt | PROC-18 yêu cầu product owner duyệt kết luận review | Không có | Product owner |
+| TC-200, TC-209 | Passed, product owner duyệt 2026-11-19 | PROC-18 yêu cầu product owner duyệt kết luận; TC-200 đúng cho Security `c23d848` (DV-03) | Không có | Product owner |
 
 ## 3. Truy vết tới coverage item
 
@@ -72,7 +72,7 @@ Bảng theo test model, không theo từng coverage item. Test Log và Implement
 | MD-11 Form và kết quả Sign in | 17 | TC-135 (DEF-12), TC-138 (DEF-01), TC-141 (DEF-13), TC-145 (DEF-10) | Không |
 | MD-12 | 1 | Không có | Có |
 | MD-13 Luồng Auth và Google, Resend | 30 | TC-175 (DEF-01), TC-183 (DEF-14), TC-184 (DEF-15), TC-187 (DEF-16) | Không |
-| MD-14 ASVS | 10 | Không có | Có; TC-200 và TC-209 chờ product owner duyệt |
+| MD-14 ASVS | 10 | Không có | Có: TC-200 và TC-209 Passed, product owner duyệt; DV-03 chọn `c23d848` |
 | MD-15 Cấu hình bảo mật | 13 | TC-227 (DEF-17), TC-230 (DEF-18) | Không |
 | MD-17 Accessibility | 7 | TC-242, TC-243 (DEF-11) | Không |
 | MD-18 Đích sau Sign in | 1 | Không có | Có |
@@ -96,8 +96,10 @@ Mọi kết quả Failed ở RUN-012 và RUN-013 chỉ đúng cho `7cdb0f5`. Khi
 | --- | --- | --- | --- | --- | --- |
 | DV-01 đến DV-02 | Sai lệch của PROC-17: địa chỉ TC-197 không có `+tag`; không có tab `accounts.google.com` riêng | 2026-11-19 07:16 – 07:56 | Không có tiêu chí | TC-196, TC-197; Test Log mục 2.3 | Product owner chạy; chưa có quyết định ghi lại |
 | DV-03 | TC-200 ghi Security `d6c0541`; review dùng `c23d848` | 2026-11-19 08:14 | Không có tiêu chí | TC-200 đúng cho `c23d848` | Chưa có (TD-22) |
-| DV-04 | TC-200 kiểm UI bằng source, không mở giao diện | 2026-11-19 08:14 | Không có tiêu chí | TC-200 mục 6.4.2 | Chưa có (TD-23) |
+| DV-04 | RUN-015 kiểm UI bằng source, không mở giao diện; RUN-016 (08:55) mở giao diện và thay kết quả | 2026-11-19 08:14 – 08:55 | Không có tiêu chí | RUN-015 mục 6.4.2 | Đã xử lý bằng RUN-016 |
 | DV-05 | Ghi kết quả theo suite, không theo từng test instance | 2026-11-19 08:10 – 08:22 | Không có tiêu chí | RUN-012, RUN-013 | Chưa có |
+| DV-07 | Execution Readiness là Chưa sẵn sàng (RC-05 chỉ đạt một phần) khi các lượt chạy bắt đầu | 2026-11-19 07:15 | RC-05 | Mọi lượt chạy | Chưa có |
+| DV-08 | `playwright test --list` ghi đè `results.json` và báo cáo HTML của RUN-013 | 2026-11-19 08:38 | Không có tiêu chí | EV-013 chỉ còn output console và ảnh chụp (EV-017) | Chưa có |
 | DV-06 | `--workers=2` cho SU-13 vì máy thiếu bộ nhớ | 2026-11-19 08:15 – 08:22 | Không có tiêu chí | RUN-013 | Chưa có |
 | DV-07 | File Readiness lập sau lượt chạy đầu tiên | 2026-11-19 | RC-05 | RUN-001 đến RUN-009 | Chưa có |
 | — | Không có tạm dừng: smoke RUN-010 và RUN-011 pass, SR-01 không áp dụng | | | | |
@@ -110,10 +112,13 @@ Số TD tiếp nối Implementation Status (TD-19 là số cuối).
 
 | ID | Việc | Liên quan | Owner | Hạn | Nơi theo dõi |
 | --- | --- | --- | --- | --- | --- |
-| TD-20 | Chạy exploratory CHR-01 đến CHR-04 (60 phút mỗi session, session sheet, debrief), hoặc ghi lý do không chạy | CHR-01 đến CHR-04; EX-07 | Product owner | Chưa có | Mục 2.3 |
+| TD-20 | Exploratory CHR-01 đến CHR-04: product owner hoãn vô thời hạn ngày 2026-11-19. EX-07 chưa đạt khi các session chưa chạy; Phase 06 phải ghi điều này là rủi ro còn lại hoặc quyết định của product owner | CHR-01 đến CHR-04; EX-07 | Product owner | Hoãn vô thời hạn | Mục 2.3 |
 | TD-21 | Triage DEF-01 đến DEF-19: đặt priority, xác nhận nguyên nhân Product hay đổi requirement (EX-06) | DEF-01 đến DEF-19 | Product owner | Chưa có | [Defect Reports](03-defect-reports.md) |
 | TD-22 | Sửa nguồn của TC-200 (`d6c0541` thành `c23d848`) hoặc xác nhận chọn `c23d848` | TC-200; DV-03 | Agent (sửa), product owner (xác nhận) | Trước Phase 06 | Mục 5 |
-| TD-23 | Duyệt kết luận PROC-18; quyết định có cần chụp UI cho 6.4.2 (DV-04) | TC-200, TC-209 | Product owner | Chưa có | Test Log RUN-014, RUN-015 |
+| TD-23 | Product owner duyệt kết luận TC-200 và TC-209. Phần chạy lại TC-200 với giao diện đã xong (RUN-016) | TC-200, TC-209 | Product owner | Chưa có | Test Log RUN-014 đến RUN-016 |
+| TD-26 | Đã xử lý ngày 2026-11-19: mỗi defect report có "Các bước tái hiện" riêng. Còn lại: một người khác chạy lại từng report (Defect Reports Q3-02) | DEF-01 đến DEF-19 | Agent | 2026-11-19 | Defect Reports |
+| TD-27 | Đã chạy `correct` sweep ngày 2026-11-19: thêm check `readinessConclusion` và `criteriaWithUnmetInput` vào `scripts/check-stlc-docs.mjs`, LL-007 vào `LESSONS.md`, và chặn `--list` ghi đè kết quả Playwright | Phase 05 | Agent | 2026-11-19 | `scripts/check-stlc-docs.mjs`, `LESSONS.md` |
+| TD-28 | Đã xử lý: `apps/web/playwright.config.ts` không dùng reporter `html` và `json` khi chạy `--list`, nên lệnh này không ghi đè kết quả của lần chạy trước (kiểm: mốc thời gian của `results.json` không đổi sau `--list`). Vẫn phải chép `test-results/` và `playwright-report/` trước khi chạy test lần sau (Procedures & Suites mục 5) | RUN-013; DV-08 | Agent | 2026-11-19 | `apps/web/playwright.config.ts` |
 | TD-24 | Lập inventory theo ID instance, hoặc chấp nhận đếm theo test của tool | IN-04; Q1-02 | Agent | Trước Phase 06 | Readiness IN-04 |
 | TD-25 | Bổ sung evidence cho RUN-008 và RUN-009 (log, video), nếu product owner muốn | TC-197, TC-198 | Product owner | Chưa có | Test Log Q2-07 |
 | TD-16 | Điều tra test chập chờn: lưu output của lần fail; RUN-012 và RUN-013 không có test chập chờn, mỗi test chạy một lần | TC-017, TC-021 dòng 3 | Agent | Trước khi CI chặn merge | Implementation Status mục 4 |
@@ -124,11 +129,11 @@ Số TD tiếp nối Implementation Status (TD-19 là số cuối).
 
 | ID | Tiêu chí | Điều kiện đầu vào | Kết quả |
 | --- | --- | --- | --- |
-| Q1-01 | Thời điểm chốt và build được ghi rõ; kết quả từ nhiều build không bị gộp chung | RC-01 | Đạt: hai build (`b35a791`, `7cdb0f5`) được ghi riêng ở mục 1 và mục 4 |
-| Q1-02 | Mỗi instance trong inventory có đúng một kết quả hiện hành; tổng ở mục 2.2 bằng số instance trong inventory | IN-04, RC-04 | Không đạt: không có bảng instance theo ID; tổng 368 đếm theo test của tool (TD-24) |
+| Q1-01 | Thời điểm chốt và build được ghi rõ; kết quả từ nhiều build không bị gộp chung | RC-01 | Đạt một phần: RUN-001 đến RUN-009 chạy trên working tree của product owner, nên RC-01 chỉ đạt một phần cho các lượt đó. hai build (`b35a791`, `7cdb0f5`) được ghi riêng ở mục 1 và mục 4 |
+| Q1-02 | Mỗi instance trong inventory có đúng một kết quả hiện hành; tổng ở mục 2.2 bằng số instance trong inventory | IN-04, RC-04 | Không đạt: không có bảng instance theo ID; tổng 351 đếm theo test của tool (TD-24) |
 | Q1-03 | Mọi instance chưa có kết luận có lý do và owner ở mục 2.3 | — | Đạt |
 | Q1-04 | Coverage item chỉ được ghi là đã kiểm chứng khi mọi instance bắt buộc đã Passed và không còn anomaly chưa giải quyết liên quan | IN-11 | Đạt một phần: mục 3 theo test model, không theo từng coverage item |
-| Q1-05 | Kết quả trên build cũ có căn cứ còn hiệu lực, hoặc đã được đưa vào danh sách chạy lại | RC-01 | Đạt: mục 4 |
+| Q1-05 | Kết quả trên build cũ có căn cứ còn hiệu lực, hoặc đã được đưa vào danh sách chạy lại | RC-01 | Đạt một phần: mục 4 ghi căn cứ hiệu lực; RUN-001 đến RUN-009 chạy trên working tree của product owner, nên RC-01 chỉ đạt một phần cho các lượt đó |
 | Q1-06 | Mỗi lần bắt đầu khi entry criteria chưa đạt, tạm dừng hoặc tiếp tục đều dẫn tới tiêu chí áp dụng và người quyết định | IN-10, IN-12, RC-06 | Đạt một phần: các sai lệch ở mục 5 chưa có người quyết định |
 | Q1-07 | Mọi việc còn lại có owner và nơi theo dõi | — | Đạt |
 

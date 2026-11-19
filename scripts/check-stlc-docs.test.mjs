@@ -10,7 +10,10 @@ import {
   IMPLEMENTATION_STATUS,
   TEST_CASES,
   checkScopes,
+  criteriaWithUnmetInput,
   negatedOracles,
+  readinessConclusion,
+  readinessResults,
   staleReviews,
   uncheckedSimulations,
 } from './check-stlc-docs.mjs';
@@ -180,4 +183,62 @@ test('the scope check reads the review row of Implementation Status', () => {
   });
   const errors = checkScopes(root, lock);
   assert.ok(errors.some((error) => error.includes('better-auth@1.7.24 is not in pnpm-lock.yaml')));
+});
+
+// The first version of the TS-001 Execution Readiness: RC-05 "Đạt một phần" with the conclusion
+// "Sẵn sàng một phần". The template needs RC-01 and RC-05 met for that conclusion.
+test('readiness: "Sẵn sàng một phần" with RC-05 only partly met fails', () => {
+  const lines = [
+    '| RC-01 | Build đã xác định | IN-01 | Đạt | |',
+    '| RC-05 | Quy ước ghi kết quả đã thống nhất | IN-08 | Đạt một phần: thiếu priority | |',
+    '**Trạng thái:** Sẵn sàng một phần.',
+  ];
+  const found = readinessConclusion('readiness.md', lines);
+  assert.deepEqual(
+    found.map((violation) => violation.key),
+    ['RC-05'],
+  );
+  assert.match(found[0]?.message ?? '', /Chưa sẵn sàng/);
+});
+
+test('readiness: "Chưa sẵn sàng", or RC-01 and RC-05 met, passes', () => {
+  const rows = [
+    '| RC-01 | Build | IN-01 | Đạt: commit ghi | |',
+    '| RC-03 | Môi trường | IN-06 | Đạt một phần | |',
+    '| RC-05 | Quy ước | IN-08 | Đạt | |',
+  ];
+  assert.deepEqual(readinessConclusion('r.md', [...rows, '**Trạng thái:** Chưa sẵn sàng.']), []);
+  assert.deepEqual(
+    readinessConclusion('r.md', [...rows, '**Trạng thái:** Sẵn sàng một phần.']),
+    [],
+  );
+});
+
+test('readiness: "Sẵn sàng" needs every RC met', () => {
+  const rows = [
+    '| RC-01 | Build | IN-01 | Đạt | |',
+    '| RC-04 | Instance | IN-03 | Đạt một phần | |',
+  ];
+  const found = readinessConclusion('r.md', [...rows, '**Trạng thái:** Sẵn sàng']);
+  assert.deepEqual(
+    found.map((violation) => violation.key),
+    ['RC-04'],
+  );
+});
+
+// Q2-01 of the TS-001 Test Log was "Đạt" while its input RC-05 was "Đạt một phần".
+test('criteria: "Đạt" with an input RC that is only partly met fails', () => {
+  const rc = readinessResults([
+    '| RC-01 | Build | IN-01 | Đạt | |',
+    '| RC-05 | Quy ước | IN-08 | Đạt một phần: thiếu priority | |',
+  ]);
+  const lines = [
+    '| Q2-01 | Mỗi lượt chạy xác định instance | RC-05 | Đạt |',
+    '| Q2-03 | Build khớp | RC-01 | Đạt |',
+    '| Q2-04 | Có phân tích | RC-05 | Đạt một phần: thiếu priority |',
+  ];
+  assert.deepEqual(
+    criteriaWithUnmetInput('log.md', lines, rc).map((violation) => violation.key),
+    ['Q2-01'],
+  );
 });

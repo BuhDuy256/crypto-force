@@ -92,3 +92,14 @@ Mỗi bài học theo mẫu:
   - After: "`.env` có `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `BETTER_AUTH_URL=http://localhost:5173`; chưa chạy thử luồng Google (EN-07)."
   - Before: "`better-auth` khai báo `^1.7.25`, nên khi cài lại có thể lên version mới."
   - After: "`pnpm-lock.yaml` khóa `better-auth@1.7.25`; CI cài bằng `--frozen-lockfile`."
+
+### LL-007: Result Reports That Claim More Than the Evidence
+
+- **Scope:** Testing
+- **Problem:** Execution Status của TS-001 ghi 299 Passed và 368 instance, nhưng số này gồm 2 smoke test và 15 test workspace không thuộc TS-001. TC-200 ghi Passed trong khi ASVS 6.4.2 chỉ được đọc từ source, không mở giao diện. Khi thêm bullet mới vào CHANGELOG, bullet cũ vẫn nói "Chưa có Execution Readiness, Execution Status và Defect Reports". Hai reviewer độc lập bắt cả ba lỗi, agent tác giả không thấy.
+- **Rule:** (1) Trước khi ghi một tổng số, liệt kê tên test thuộc phạm vi và loại test ngoài phạm vi; ghi công thức kèm số loại trừ. (2) Chỉ ghi `Passed` cho một test case khi evidence chứng minh từng điều trong expected result. Phần chỉ đọc source hoặc tìm từ khóa thì ghi `Inconclusive`, hoặc ghi rõ phần chưa kiểm. (3) Sau khi thêm một kết quả mới, tìm trong tài liệu các câu cũ mà kết quả đó làm sai và sửa chúng trong cùng thay đổi.
+- **Examples:**
+  - Before: "299 Passed (152 + 141 + 6)".
+  - After: "276 test tự động của TS-001 (152 + 141 − 2 smoke − 15 workspace) và 6 test case thủ công".
+  - Before: "TC-200 Passed" khi 6.4.2 chỉ đọc `SignUpPage.tsx`.
+  - After: "TC-200 Inconclusive: 6.4.2 chỉ đọc source" cho tới khi mở giao diện thật.
