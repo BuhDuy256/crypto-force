@@ -20,7 +20,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 | DEF-01 | Sign in khóa sau 5 lần trong 15 phút, không phải 3 lần trong 10 giây; UI không hiện thông báo khóa | Product | Major / Cao | Fixed | RUN-012, RUN-013 |
 | DEF-02 | Sign in lại khi đang có phiên không hủy token cũ | Product | Major / Cao | Fixed | RUN-012 |
 | DEF-03 | Không có thời hạn tuyệt đối 30 ngày của phiên | Product | Major / Cao | Fixed | RUN-012 |
-| DEF-04 | Phiên và link reset còn được chấp nhận đúng tại thời điểm hết hạn | Product | Minor / Trung bình | Open | RUN-012 |
+| DEF-04 | Phiên và link reset còn được chấp nhận đúng tại thời điểm hết hạn | Product | Minor / Trung bình | Fixed | RUN-012 |
 | DEF-05 | Đặt password bằng một link reset không làm các link reset khác hết hiệu lực | Product | Major / Cao | Fixed | RUN-012 |
 | DEF-06 | Không kiểm danh sách password phổ biến và Pwned Passwords; không ghi cảnh báo khi API lỗi | Product | Major / Cao | Fixed | RUN-012 |
 | DEF-07 | API đếm độ dài password theo UTF-16 thay vì code point | Product | Minor / Trung bình | Open | RUN-012 |
@@ -301,3 +301,4 @@ Chưa có bản sửa nào. Khi một defect được sửa, thêm dòng cho def
 6. <a id="ref-6"></a>[Test Log](02-test-log.md) — mục 2.4
 
 | Bản sửa | Commit `fix(api): add security headers to every API response` trên branch `fix/auth-major-defects`: middleware `securityHeaders` đặt `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer` và CSP `frame-ancestors 'none'` cho mọi response. TC-227 pass |
+| Bản sửa | Commit `fix(auth): end sessions and reset links at their limit` trên branch `fix/auth-major-defects`: hook `before` xóa phiên của cookie khi `expiresAt <= now`; token reset được lưu với `expiresAt` sớm hơn 1 ms. Giới hạn 30 ngày của DEF-03 dùng đúng mốc 30 ngày. TC-046, TC-047, TC-050 pass |

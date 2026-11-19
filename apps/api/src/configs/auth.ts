@@ -23,6 +23,9 @@ const PASSWORD_COMPROMISED_MESSAGE =
 
 const SIGN_IN_RATE_LIMIT = { window: 10, max: 3 };
 
+/** The last accepted moment of a limit that ends at `end`. */
+const endBefore = (end: Date) => new Date(end.getTime() - 1);
+
 type AuthEnv = Pick<
   ApiEnv,
   | 'NODE_ENV'
@@ -103,15 +106,27 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
       session: {
         update: {
           // The daily extension must not move the end of a session past its absolute limit.
-          // The session ends at the limit, so the last accepted moment is 1 ms before it.
           after: async (updated) => {
-            const end = new Date(updated.createdAt.getTime() + SESSION_ABSOLUTE_LIMIT_MS - 1);
+            const end = new Date(updated.createdAt.getTime() + SESSION_ABSOLUTE_LIMIT_MS);
             if (updated.expiresAt <= end) return;
             await db
               .update(sessionTable)
               .set({ expiresAt: end })
               .where(eq(sessionTable.id, updated.id));
           },
+        },
+      },
+      verification: {
+        // Better Auth accepts a reset link until `expiresAt < now`, so a request at exactly the
+        // limit is accepted. The spec ends the link at the limit (authentication.md, Reset
+        // password): store the end 1 ms earlier.
+        create: {
+          before: (data) =>
+            Promise.resolve(
+              data.identifier.startsWith('reset-password:')
+                ? { data: { ...data, expiresAt: endBefore(data.expiresAt) } }
+                : undefined,
+            ),
         },
       },
     },
@@ -123,6 +138,17 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
     hooks: {
       // Create account and Reset password reject common and breached passwords.
       before: createAuthMiddleware(async (ctx) => {
+        // Better Auth accepts a session until `expiresAt < now`; the spec ends it at `expiresAt`
+        // (security.md, sessions). Remove a session that has reached its end before the request.
+        const { name } = ctx.context.authCookies.sessionToken;
+        const token = await ctx.getSignedCookie(name, ctx.context.secret);
+        if (token) {
+          const current = await ctx.context.internalAdapter.findSession(token);
+          if (current && current.session.expiresAt.getTime() <= Date.now()) {
+            await ctx.context.internalAdapter.deleteSession(token);
+          }
+        }
+
         const body = ctx.body as { password?: unknown; newPassword?: unknown } | undefined;
         const password =
           ctx.path === '/sign-up/email'
