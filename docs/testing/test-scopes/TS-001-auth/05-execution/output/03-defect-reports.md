@@ -29,7 +29,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 | DEF-10 | Link xác minh lỗi: không có cách gửi lại link; khi có phiên thì không có thông báo lỗi | Product | Minor / Trung bình | Open | RUN-013 |
 | DEF-11 | Form Forgot password và Choose a new password không có danh sách lỗi | Product | Minor / Trung bình | Open | RUN-013 |
 | DEF-12 | New password trống báo "Use at least 8 characters." thay vì "Fill in both fields." | Product | Trivial / Thấp | Fixed | RUN-013 |
-| DEF-13 | Google trả lỗi thì email đã nhập ở form Sign in bị mất | Product | Minor / Trung bình | Open | RUN-013 |
+| DEF-13 | Google trả lỗi thì email đã nhập ở form Sign in bị mất | Product | Minor / Trung bình | Fixed | RUN-013 |
 | DEF-14 | Email "You already have an account" gửi cho tài khoản chưa xác minh không hướng dẫn xác nhận email | Product | Minor / Trung bình | Open | RUN-013 |
 | DEF-15 | Tải lại Check your email vẫn ở Check your email | Product | Minor / Trung bình | Fixed | RUN-013 |
 | DEF-16 | Reset password bắt đầu từ màn chặn Backtest mở Realtime sau Sign in | Product | Minor / Trung bình | Open | RUN-013 |
@@ -306,3 +306,4 @@ Chưa có bản sửa nào. Khi một defect được sửa, thêm dòng cho def
 | Bản sửa | Commit `fix(shared): limit password and full name length in the form schemas` trên branch `fix/auth-major-defects`: schema dùng chung giới hạn password 8 đến 128 code point và Full name tối đa 100 code point, kèm thông báo theo spec. Test schema TC-090 đến TC-098 và E2E TC-095, TC-098 pass |
 | Bản sửa | Commit `fix(shared): ask to fill both fields when the new password is empty` trên branch `fix/auth-major-defects`: `resetPasswordSchema` kiểm New password trống trước và báo "Fill in both fields.". TC-135 pass |
 | Bản sửa | Commit `fix(web): return to Create account when Check your email is reloaded` trên branch `fix/auth-major-defects`: route `sign-up/verify` đọc email một lần rồi xóa `history.state` bằng hook `useClearHistoryState`, nên tải lại trang thì quay về Create account. TC-184 pass |
+| Bản sửa | Commit `fix(web): keep the typed email when Google sign-in fails` trên branch `fix/auth-major-defects`: nút Continue with Google lưu email đang nhập vào `sessionStorage` của tab; khi Google trả lỗi, Sign in điền lại email đó rồi xóa giá trị đã lưu. Email không được đưa vào URL. TC-141 pass |

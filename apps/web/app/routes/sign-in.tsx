@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router';
 import { SignInPage } from '~/pages/Auth/SignInPage';
 import { emailFromState } from '~/utils/auth-redirect';
+import { takeEmailAfterGoogle } from '~/utils/google-email';
 import { useAuthLayoutData } from './auth-layout';
 
 export function meta() {
@@ -11,6 +13,8 @@ export default function SignInRoute() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const { googleEnabled } = useAuthLayoutData();
+  const returnedFromGoogle = searchParams.get('provider') === 'google';
+  const [emailAfterGoogle] = useState(() => (returnedFromGoogle ? takeEmailAfterGoogle() : ''));
 
   return (
     <SignInPage
@@ -18,9 +22,9 @@ export default function SignInRoute() {
       key={location.key}
       googleEnabled={googleEnabled}
       next={searchParams.get('next')}
-      initialEmail={emailFromState(location.state)}
+      initialEmail={emailFromState(location.state) || emailAfterGoogle}
       returnedError={searchParams.get('error')}
-      returnedFromGoogle={searchParams.get('provider') === 'google'}
+      returnedFromGoogle={returnedFromGoogle}
     />
   );
 }

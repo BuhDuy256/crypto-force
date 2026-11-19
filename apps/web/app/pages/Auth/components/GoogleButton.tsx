@@ -2,6 +2,7 @@ import { Loader2Icon } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { useGoogleSignIn } from '~/hooks/useAuth';
 import { authPath, getSafeNext } from '~/utils/auth-redirect';
+import { saveEmailBeforeGoogle } from '~/utils/google-email';
 import { FormAlert } from './FormAlert';
 
 function GoogleMark() {
@@ -31,9 +32,11 @@ interface GoogleButtonProps {
   next: string | null;
   /** Google redirected back with an error. */
   returnedWithError: boolean;
+  /** Email typed in the form, shown again if Google returns an error. */
+  email?: string;
 }
 
-export function GoogleButton({ next, returnedWithError }: GoogleButtonProps) {
+export function GoogleButton({ next, returnedWithError, email = '' }: GoogleButtonProps) {
   const google = useGoogleSignIn();
   // A successful call navigates away, so `isSuccess` also means "waiting for Google".
   const waiting = google.isPending || google.isSuccess;
@@ -46,6 +49,7 @@ export function GoogleButton({ next, returnedWithError }: GoogleButtonProps) {
         disabled={waiting}
         aria-busy={waiting}
         onClick={() => {
+          saveEmailBeforeGoogle(email);
           google.mutate({
             callbackURL: getSafeNext(next),
             errorCallbackURL: authPath('/sign-in', next, { provider: 'google' }),

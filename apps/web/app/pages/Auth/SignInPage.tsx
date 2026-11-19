@@ -111,7 +111,9 @@ export function SignInPage({
         aria-labelledby={tabId('signin')}
         className="flex flex-col gap-6"
       >
-        {googleEnabled && <GoogleButton next={next} returnedWithError={returnedFromGoogle} />}
+        {googleEnabled && (
+          <GoogleButton next={next} returnedWithError={returnedFromGoogle} email={email} />
+        )}
 
         <form noValidate onSubmit={(event) => void onSubmit(event)} className="flex flex-col gap-4">
           <ErrorSummary
