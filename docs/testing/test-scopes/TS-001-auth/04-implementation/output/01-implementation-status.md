@@ -12,7 +12,7 @@
 | Snapshot testware | Branch `test/auth`, commit chứa thư mục `04-implementation/` |
 | Build hoặc interface dùng để xác minh | Code tại `b4ca981` (`git log b4ca981..HEAD -- apps packages` không có commit); `better-auth@1.7.25`. Ngày 2026-11-18, `SIGN_IN_RATE_LIMIT` (`apps/api/src/configs/auth.ts`) và `DEFAULT_DESTINATION` (`apps/web/app/utils/auth-redirect.ts`) bỏ từ khóa `export`, vì không module production nào import chúng (`pnpm check:exports`). `pnpm build` trước và sau thay đổi cho `apps/api/dist/index.js` và `apps/web/build` giống từng byte; chỉ `index.js.map` khác, vì file này chứa source |
 | Dependency đã review | `better-auth@1.7.25`, `@better-auth/core@1.7.25`, `@better-auth/utils@0.5.1`, đọc ngày 2026-11-18. Nội dung đã review, cần làm lại khi một version đổi: status của request được chấp nhận (Test Cases mục 2.1, CH-07); nguồn ngẫu nhiên của token phiên (TC-209); requirement viết theo hành vi của Better Auth (SR-06 của Entry/Exit Criteria). `pnpm check:docs` fail khi `pnpm-lock.yaml` không còn một version ở đây |
-| Người thực hiện / người review | Người thực hiện: agent. Người review: product owner. Ngày 2026-11-18, product owner duyệt báo cáo Phase 04, xác nhận CH-02, CH-03, CH-05, CH-06, và giao agent tự chốt các quyết định không đổi cách vận hành dự án. Các quyết định agent chốt theo ủy quyền này ghi "theo ủy quyền của product owner" |
+| Người thực hiện / người review | Người thực hiện: agent. Người review: product owner. Ngày 2026-11-18, product owner duyệt báo cáo Phase 04, xác nhận CH-02, CH-03, CH-05, CH-06, và giao agent tự chốt các quyết định không đổi cách vận hành dự án. Ngày 2026-11-19, sau báo cáo cuối của agent (gồm CH-09 đến CH-11, TD-17), product owner duyệt Phase 04 (tin nhắn của product owner trong session, không có bản ghi khác). Các quyết định agent chốt theo ủy quyền này ghi "theo ủy quyền của product owner" |
 | File chi tiết | [Procedures & Suites](02-procedures-and-suites.md), [Test Data](03-test-data.md), [Test Environment](04-test-environment.md) |
 
 ## 2. Mức sẵn sàng theo test case
@@ -94,7 +94,7 @@ Test case có phần CI và phần S được tính là một dòng. "Sẵn sàn
 | TC-100; v1 | MD-08-CI-01 | PROC-05 | SU-03 | DA-03, DA-04 | ENV-01, ENV-04 | Sẵn sàng | Không có |
 | TC-101; v1 | MD-08-CI-02 | PROC-05 | SU-03 | DA-04 | ENV-01, ENV-03, ENV-04 | Sẵn sàng | Không có |
 | TC-102; v1 | MD-08-CI-03 | PROC-05 | SU-03 | DA-01, DA-04 | ENV-01, ENV-04 | Sẵn sàng | Không có |
-| TC-103; v2 | MD-08-CI-04 | PROC-05, PROC-17 | SU-03, SU-21 | DA-02, DA-04, DA-12 | ENV-01, ENV-04, ENV-09 | Đã tạo, chưa xác minh | Phần CI sẵn sàng. Phần S chạy thủ công ở PROC-17 với Google thật (CH-11); DA-12 và ENV-09 chưa kiểm tra (EN-07); TD-09 |
+| TC-103; v2 | MD-08-CI-04 | PROC-05, PROC-17 | SU-03, SU-21 | DA-02, DA-04, DA-12 | ENV-01, ENV-04, ENV-09 | Sẵn sàng | Phần CI sẵn sàng. Phần S chạy thủ công ở PROC-17 với Google thật (CH-11); DA-12 và ENV-09 đã kiểm tra ngày 2026-11-19. Phần S Failed ở RUN-007 vì thông báo (mục 4.1, TD-19) |
 | TC-104; v1 | MD-08-CI-05 | PROC-05 | SU-03 | DA-03, DA-04 | ENV-01, ENV-04 | Sẵn sàng | Không có |
 | TC-110; v1 | MD-09-CI-01, MD-09-CI-06 | PROC-04 | SU-03 | DA-01, DA-06, DA-08 | ENV-01, ENV-05 | Sẵn sàng | Không có |
 | TC-111; v1 | MD-09-CI-02, MD-09-CI-07 | PROC-04 | SU-03 | DA-01, DA-06, DA-08 | ENV-01, ENV-05 | Sẵn sàng | Không có |
@@ -152,10 +152,10 @@ Test case có phần CI và phần S được tính là một dòng. "Sẵn sàn
 | TC-192; v1 | MD-13-CI-23 | PROC-06 | SU-03 | DA-01 | ENV-01, ENV-03 | Sẵn sàng | Fail trên mutant M21 (VF-12). CH-03 |
 | TC-193; v1 | MD-13-CI-24 | PROC-12 | SU-12 | DA-01 | ENV-02, ENV-07 | Sẵn sàng | Không có |
 | TC-194; v1 | MD-13-CI-25 | PROC-12 | SU-12 | DA-01 | ENV-02, ENV-07, ENV-12 | Sẵn sàng | Không có |
-| TC-195; v1 | MD-13-CI-26 | PROC-17 | SU-21 | DA-12 | ENV-09 | Đã tạo, chưa xác minh | DA-12 và ENV-09 chưa kiểm tra (EN-07); TD-09 |
-| TC-196; v1 | MD-13-CI-27 | PROC-17 | SU-21 | DA-12 | ENV-09 | Đã tạo, chưa xác minh | DA-12 và ENV-09 chưa kiểm tra (EN-07); TD-09 |
-| TC-197; v1 | MD-13-CI-28 | PROC-17 | SU-21 | DA-12 | ENV-09 | Đã tạo, chưa xác minh | DA-12 và ENV-09 chưa kiểm tra (EN-07); TD-09 |
-| TC-198; v1 | MD-13-CI-29 | PROC-17 | SU-21 | DA-12 | ENV-09 | Đã tạo, chưa xác minh | DA-12 và ENV-09 chưa kiểm tra (EN-07); TD-09 |
+| TC-195; v1 | MD-13-CI-26 | PROC-17 | SU-21 | DA-12 | ENV-09 | Sẵn sàng | Passed ở RUN-001 (Phase 05) |
+| TC-196; v1 | MD-13-CI-27 | PROC-17 | SU-21 | DA-12 | ENV-09 | Sẵn sàng | Passed ở RUN-002 (Phase 05) |
+| TC-197; v1 | MD-13-CI-28 | PROC-17 | SU-21 | DA-12 | ENV-09 | Sẵn sàng | Passed ở RUN-008 (Phase 05), sau khi dùng email của chủ tài khoản Resend, không có `+tag` (DV-01; RUN-003 Blocked) |
+| TC-198; v1 | MD-13-CI-29 | PROC-17 | SU-21 | DA-12 | ENV-09 | Sẵn sàng | Passed ở RUN-009 (Phase 05) |
 | TC-199; v1 | MD-13-CI-30 | PROC-05 | SU-03 | DA-02, DA-04, DA-08 | ENV-01, ENV-03, ENV-04 | Sẵn sàng | Không có |
 | TC-200; v1 | MD-14-CI-01, MD-14-CI-02, MD-14-CI-10, MD-14-CI-16, MD-14-CI-18, MD-14-CI-19, MD-14-CI-20 | PROC-18 | SU-22 | — | — | Sẵn sàng | Không có |
 | TC-201; v1 | MD-14-CI-05 | PROC-04 | SU-03 | DA-05 | ENV-01, ENV-05 | Sẵn sàng | Không có |
@@ -199,8 +199,8 @@ Test case có phần CI và phần S được tính là một dòng. "Sẵn sàn
 
 | Trạng thái | Số test case |
 | --- | --- |
-| Sẵn sàng | 161 (12 trong số này được chấp nhận bằng review, TD-08) |
-| Đã tạo, chưa xác minh | 5, đều thủ công: TC-195 đến TC-198, phần S của TC-103; chờ DA-12 và ENV-09 (TD-09) |
+| Sẵn sàng | 166 (12 trong số này được chấp nhận bằng review, TD-08) |
+| Đã tạo, chưa xác minh | 0 |
 | Một phần | 0 |
 | Chưa triển khai | 0 |
 | Bị chặn | 0 |
@@ -233,10 +233,10 @@ TD-01 đến TD-06 thuộc Design Status. Số tiếp theo bắt đầu từ TD-
 
 | ID | Việc | Test case liên quan | Owner | Hạn | Nơi theo dõi |
 | --- | --- | --- | --- | --- | --- |
-| TD-09 | Chuẩn bị tài khoản Google test và hộp thư Resend (DA-12), kiểm EN-07 (ENV-09), rồi chạy PROC-17 | TC-195 đến TC-198, TC-103 phần S | Product owner | Phase 05 | [Procedures & Suites](02-procedures-and-suites.md) mục 2.3 |
 | TD-13 | Ghi defect report ở Phase 05 cho dấu hiệu lỗi sản phẩm của dry run, sau khi chạy chính thức | Xem mục 4.1 | Agent | Phase 05 | `05-execution/` |
 | TD-16 | Tìm nguyên nhân của test fail không ổn định khi chạy cả bộ. Ghi nhận trước ngày 2026-11-18 tối: (1) 1 test API chưa rõ tên fail thêm ở 1 lần chạy (VF-10); (2) TC-021 dòng 3 fail 1 lần khi chạy cả bộ E2E; (3) TC-017 fail 1 lần trong 9 lần chạy nhóm giới hạn Google (VF-11). Nội dung lỗi của cả ba lần chưa được lưu. Chạy lại ngày 2026-11-18 tối, không tái hiện được: 5 lần chạy toàn bộ `apps/api` cho cùng một danh sách 39 test fail (đều là dấu hiệu lỗi sản phẩm ở mục 4.1); 15 lần chạy nhóm giới hạn Google pass 11/11. Lượt chạy toàn bộ SU-12 ngày 2026-11-19 (VF-13) cũng không tái hiện: TC-021 dòng 3 pass, và mọi test fail đều thuộc mục 4.1. Kết quả này chưa loại được lỗi: với tỉ lệ 1/9 của TC-017, xác suất 15 lần liên tiếp không fail khoảng 17%. Việc còn lại: khi một test fail mà lần chạy lại pass, lưu output của lần fail vào evidence theo quy ước của Procedures & Suites mục 5, rồi điều tra từ output đó. Cần đóng việc này trước khi job `test` và `e2e` của CI chặn merge, vì một job đôi khi đỏ mà không có lỗi làm người đọc bỏ qua kết quả đỏ | TC-021, TC-017, chưa rõ test API | Agent | Trước khi CI chặn merge | `.github/workflows/ci.yml`; evidence của Phase 05 |
 | TD-18 | Kiểm bằng lỗi phần S của ENV-04 (route Google giả) và link xác minh ký lại của ENV-06, sau khi lỗi sản phẩm của TC-141 và TC-072 được sửa. Hiện hai test này fail vì lỗi sản phẩm, nên mutant không cho thấy pass chuyển sang fail | TC-141, TC-072 | Agent | Lần chạy regression đầu tiên sau khi sửa TC-141, TC-072 | Test Environment mục 3 |
+| TD-19 | Thêm kiểm tra thông báo hiển thị cho TC-103: E2E mở `/sign-in?provider=google&error=account_not_linked` và kiểm thông báo "email đã đăng ký" và gợi ý Sign in hoặc Reset password; siết phần CI của TC-103 nếu có thể. Làm sau khi lỗi AN-02 được sửa, để test fail trước và pass sau | TC-103 | Agent | Trước khi CI chặn merge | [Test Log](../../05-execution/output/02-test-log.md) AN-02 |
 
 Design Status TD-05 (đối chiếu test hiện có với test case) đã xong ở phase này: `apps/api/test/auth.test.ts` và `apps/web/e2e/auth.spec.ts` viết theo spec cũ và được thay bằng các file `ts001-*`.
 
@@ -264,6 +264,7 @@ Dry run chạy trên `b4ca981`. Các test case dưới đây fail vì hành vi c
 | Reset password bắt đầu từ màn chặn Backtest mở Realtime sau Sign in | TC-187 |
 | Response của API không có `X-Content-Type-Options`, `Referrer-Policy`, CSP `frame-ancestors` | TC-227 |
 | Trang có token reset không đặt `Referrer-Policy: no-referrer` | TC-230 |
+| Google với email của tài khoản chưa xác minh: Auth hiện thông báo chung "Google sign-in didn't finish…" thay vì báo email đã đăng ký và gợi ý Sign in hoặc Reset password. Phần CI của TC-103 chỉ kiểm `error=` trong URL nên không bắt được | TC-103 phần S (RUN-007, Phase 05) |
 
 **Điều kiện cần kiểm tra lại khi chạy test:** version `better-auth` khác `1.7.25` (SR-05; helper `expiredVerificationLink` dựa vào định dạng token của version này); text, label hoặc role trên các trang Auth thay đổi; cổng 5173 bận vì `pnpm dev` đang chạy; Docker Desktop và PostgreSQL chưa bật.
 
@@ -271,6 +272,7 @@ Dry run chạy trên `b4ca981`. Các test case dưới đây fail vì hành vi c
 
 | ID | Việc | Kết quả | Ngày đóng |
 | --- | --- | --- | --- |
+| TD-09 | Chuẩn bị Google test và hộp thư Resend (DA-12), kiểm ENV-09, chạy PROC-17 | Product owner chạy PROC-17 ngày 2026-11-19 ([Test Log](../../05-execution/output/02-test-log.md)): TC-195, TC-196, TC-197 (RUN-008), TC-198 (RUN-009) Passed. TC-197 và TC-198 đầu tiên Blocked (BL-01): Resend ở chế độ test (`EMAIL_FROM=onboarding@resend.dev`) chỉ gửi tới email của chủ tài khoản Resend; chạy lại với email đó thì gửi được. TC-103 phần S: RUN-005 và RUN-006 Inconclusive vì setup sai (AN-01); RUN-007 Failed vì thông báo của Auth (AN-02, mục 4.1, TD-19). Kết quả này thuộc Phase 05, không thay đổi trạng thái testware | 2026-11-19 |
 | TD-07 | Quy ước ghi kết quả và evidence (IN-11) | Agent chốt theo ủy quyền của product owner: dùng quy ước đã đề xuất (Procedures & Suites mục 5). Testware đã xuất đúng các file này, nên không đổi script. IN-11, RC-06 và Q2-04 đạt | 2026-11-18 |
 | TD-08 | Xác minh 33 test case tự động chưa từng thấy fail | 19 test case ưu tiên Cao: mỗi test case fail trên một mutant nhắm đúng hành vi của nó (M7 đến M20, W21, W22; VF-12), trừ dòng 1 của TC-232 (không có mutant một lỗi nào không tương đương). 14 test case ưu tiên Trung bình: review assertion với expected result; thêm mutant cho 3 test case có lỗi dễ cài (TC-192: M21, TC-224: M22, TC-206: M23), 11 test case còn lại được chấp nhận bằng review. Sau review độc lập, thêm M9b (dòng 2 của TC-042, fail) M25 (phần CI của TC-133, fail) và M15b (dòng 1 của TC-040, fail); hai mutant sau chạy ngày 2026-11-19 (TD-17). Trong lúc làm, sửa helper so body của TC-185, TC-192, TC-229: body không phải JSON được so bằng text, và request với mailer hoạt động phải được 200 (status của `better-auth@1.7.25`, bảng ở Test Cases mục 2.1). Thiếu điều kiện 200 thì hai response 500 rỗng giống nhau làm test pass; mutant M26 (Send reset link luôn lỗi) làm điều kiện này fail | 2026-11-18 |
 | TD-10 | Expected result ở CI của TC-133 và TC-204 | TC-133: dòng khoảng trắng chuyển sang S (CH-09). TC-204: expected result theo quy tắc định dạng email của test basis (CH-10). Hai test giờ pass trên `b4ca981`, nên dòng "API trả 400" bị bỏ khỏi mục 4.1 | 2026-11-18 |
@@ -286,12 +288,12 @@ Dry run chạy trên `b4ca981`. Các test case dưới đây fail vì hành vi c
 | --- | --- | --- | --- |
 | Q1-01 | Version của test design và snapshot testware được ghi rõ | RC-02 | Đạt |
 | Q1-02 | Mỗi test case trong phạm vi có một dòng ở mục 2; tổng ở bảng số lượng bằng số test case trong phạm vi | IN-01, IN-02 | Đạt: 166 dòng |
-| Q1-03 | Test case chỉ được ghi Sẵn sàng khi procedure, data và môi trường liên quan đều đạt tiêu chí của file 02, 03, 04 | — | Đạt cho 161 test case Sẵn sàng: data và môi trường của chúng đã kiểm tra (DA-01 đến DA-11, ENV-01 đến ENV-08, ENV-10 đến ENV-13). 12 test case trong số đó được chấp nhận bằng review assertion thay cho mutant (TD-08, mục 4.2) |
-| Q1-04 | Mọi thay đổi expected result có người xác nhận; không expected result nào được đổi để khớp hành vi hiện tại | RC-01, IN-12 | Đạt. Hai thay đổi expected result. CH-07: "không phải 429" thành response và tác dụng của từng endpoint (Test Cases mục 2.1), product owner xác nhận. CH-10: TC-204 theo quy tắc định dạng email của test basis, agent chốt theo ủy quyền của product owner; product owner chưa xem CH-10, và CH-10 được nêu trong báo cáo để product owner xác nhận hoặc bác. Cả hai lấy phần tác dụng từ test basis; status lấy từ `better-auth@1.7.25` là contract của riêng version đó, nên expected result không chỉ khớp hành vi hiện tại. Các CH khác đổi bước, môi trường, test level hoặc cách so, không đổi expected result; CH-01 và CH-04 đã hủy |
-| Q1-05 | Mọi test case chưa Sẵn sàng có phần thiếu được mô tả và có việc tương ứng ở mục 4 | — | Đạt: 5 test case thủ công chờ TD-09 |
+| Q1-03 | Test case chỉ được ghi Sẵn sàng khi procedure, data và môi trường liên quan đều đạt tiêu chí của file 02, 03, 04 | — | Đạt cho 166 test case Sẵn sàng: data và môi trường của chúng đã kiểm tra (DA-01 đến DA-12, ENV-01 đến ENV-13; DA-12 và ENV-09 ngày 2026-11-19 trong session PROC-17). 12 test case trong số đó được chấp nhận bằng review assertion thay cho mutant (TD-08, mục 4.2) |
+| Q1-04 | Mọi thay đổi expected result có người xác nhận; không expected result nào được đổi để khớp hành vi hiện tại | RC-01, IN-12 | Đạt. Hai thay đổi expected result. CH-07: "không phải 429" thành response và tác dụng của từng endpoint (Test Cases mục 2.1), product owner xác nhận. CH-10: TC-204 theo quy tắc định dạng email của test basis, agent chốt theo ủy quyền của product owner; product owner duyệt CH-10 cùng báo cáo cuối ngày 2026-11-19 (tin nhắn trong session, không có bản ghi khác). Cả hai lấy phần tác dụng từ test basis; status lấy từ `better-auth@1.7.25` là contract của riêng version đó, nên expected result không chỉ khớp hành vi hiện tại. Các CH khác đổi bước, môi trường, test level hoặc cách so, không đổi expected result; CH-01 và CH-04 đã hủy |
+| Q1-05 | Mọi test case chưa Sẵn sàng có phần thiếu được mô tả và có việc tương ứng ở mục 4 | — | Đạt: không còn test case chưa Sẵn sàng |
 | Q1-06 | Điều kiện cần kiểm tra lại khi chạy test được ghi, hoặc ghi "Không có" | — | Đạt |
 
-**Người review / ngày:** Product owner duyệt báo cáo Phase 04, 2026-11-18. Thay đổi sau lần duyệt đó (CH-09 đến CH-11, mục 4.2) do agent chốt theo ủy quyền và chưa được review
+**Người review / ngày:** Product owner duyệt báo cáo Phase 04, 2026-11-18, và duyệt Phase 04 sau báo cáo cuối, 2026-11-19. Báo cáo cuối nêu CH-09 đến CH-11 (mục 4.2); việc duyệt gồm các thay đổi này. Chưa có review độc lập cho phần ghi kết quả TD-17
 
 ## References
 

@@ -28,7 +28,7 @@ Mọi dữ liệu được sinh trong test. Không có bộ dữ liệu nào t�
 | DA-09; v1 | DR-09 | TC-160 | `/backtest`, `https://evil.example/`, `//evil.example`, `/\evil.example`, `javascript:alert(1)`, `/sign-in`, không có `next` | Đã tồn tại trong code test | Không cần | Không có | Agent |
 | DA-10; v1 | DR-10 | TC-094, TC-095, TC-098, TC-144 | Full name `N` lặp 0, 1, 2, 99, 100, 101, 102 lần; `😀` lặp 51, 101 lần; 3 khoảng trắng; `An Nguyen` | Đã tồn tại trong code test | Không cần | Không có | Agent |
 | DA-11; v1 | DR-11 | Như DR-11 | 7 giá trị email của MD-11; ` an@example.com `, `An@Example.com`, `an+test@example.com`; email mới `<label>-<UUID>@example.com`; `none@example.test` không có tài khoản | Đã tồn tại trong code test | Email mới sinh trong mỗi test | Không có | Agent |
-| DA-12; v1 | DR-12 | TC-195 đến TC-198, TC-103 phần S | Tài khoản Google của product owner (TC-103 dùng email của tài khoản này để Create account, không xác minh); hộp thư của chủ tài khoản Resend với `+tag` mới cho mỗi lần chạy | Chưa tạo; product owner chuẩn bị ở session thủ công | Tài khoản Crypto Force tạo trong session được xóa sau session (PROC-17) | Không có | Product owner |
+| DA-12; v1 | DR-12 | TC-195 đến TC-198, TC-103 phần S | Tài khoản Google của product owner (TC-103 dùng email của tài khoản này để Create account, không xác minh); hộp thư của chủ tài khoản Resend với `+tag` mới cho mỗi lần chạy | Đã dùng ngày 2026-11-19 (session PROC-17). Resend gửi được tới địa chỉ gốc của chủ tài khoản, không có `+tag`; dạng `+tag` chưa thử | Tài khoản Crypto Force tạo trong session được xóa sau session (PROC-17) | Không có | Product owner |
 
 Không có password, token hay dữ liệu cá nhân thật trong code test và trong file này. Password của DR-01 là giá trị tự đặt; `BETTER_AUTH_SECRET` được đọc từ `.env` khi chạy và không được ghi ra.
 
@@ -45,14 +45,14 @@ Không có password, token hay dữ liệu cá nhân thật trong code test và 
 | DA-07 | Request của mỗi test case vào bucket riêng | CI: TC-006 thấy 3 lần đầu được chấp nhận trên IP mới. S: TC-021 và các test chạy song song không nhận 429 ngoài dự kiến | Đạt | VF-02, VF-03; 2026-11-17 |
 | DA-08 | Link đọc được từ console; link hết hạn bị từ chối | S: SU-11 mở link từ console. TC-062 thấy màn link hết hạn sau khi đặt `expires_at` | Đạt | VF-03; 2026-11-17 |
 | DA-09 đến DA-11 | Giá trị đúng như test case | Review với Test Cases | Đạt | VF-01; 2026-11-17 |
-| DA-12 | — | Chưa kiểm tra: dữ liệu thuộc session thủ công của product owner ở Phase 05 | Không đạt | — |
+| DA-12 | Session PROC-17, 2026-11-19 | Tài khoản Google test chọn được ở Google; email của chủ tài khoản Resend nhận được thư xác minh và thư reset (RUN-008, RUN-009 ở Test Log) | Đạt | [Test Log](../../05-execution/output/02-test-log.md) |
 
 ## 4. Tiêu chí đạt
 
 | ID | Tiêu chí | Điều kiện đầu vào | Kết quả |
 | --- | --- | --- | --- |
-| Q3-01 | Mỗi yêu cầu test data có bộ dữ liệu tương ứng, hoặc được ghi là thiếu ở Implementation Status | RC-03 | Đạt: DR-01 đến DR-11 có DA tương ứng; DA-12 ghi ở Implementation Status TD-09 |
-| Q3-02 | Đặc tính của mỗi bộ dữ liệu đã được kiểm tra theo yêu cầu và có evidence | IN-05 | Đạt cho DA-01 đến DA-11. DA-12 chưa kiểm tra |
+| Q3-01 | Mỗi yêu cầu test data có bộ dữ liệu tương ứng, hoặc được ghi là thiếu ở Implementation Status | RC-03 | Đạt: DR-01 đến DR-12 có DA tương ứng |
+| Q3-02 | Đặc tính của mỗi bộ dữ liệu đã được kiểm tra theo yêu cầu và có evidence | IN-05 | Đạt cho DA-01 đến DA-12 |
 | Q3-03 | Cách khởi tạo, reset và cô lập được ghi và đã chạy thử | IN-05 | Đạt |
 | Q3-04 | Dữ liệu chỉ có generator được đánh dấu rõ, và bước chạy generator có trong runbook | — | Đạt: generator chạy trong test, không có bước riêng; runbook ở Procedures & Suites mục 5 |
 | Q3-05 | Dữ liệu có thời hạn được ghi hạn dùng | — | Đạt: DA-02, DA-08 |
