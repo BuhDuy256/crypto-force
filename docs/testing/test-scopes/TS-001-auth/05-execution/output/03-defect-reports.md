@@ -35,7 +35,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 | DEF-16 | Reset password bắt đầu từ màn chặn Backtest mở Realtime sau Sign in | Product | Minor / Trung bình | Fixed | RUN-013 |
 | DEF-17 | Response của API không có `X-Content-Type-Options`, `Referrer-Policy`, CSP `frame-ancestors` | Product | Minor / Trung bình | Fixed | RUN-013 |
 | DEF-18 | Trang có token reset không đặt `Referrer-Policy: no-referrer` | Product | Major / Cao | Fixed | RUN-013 |
-| DEF-19 | Google với email của tài khoản chưa xác minh: Auth hiện thông báo chung thay vì báo email đã đăng ký | Product | Minor / Trung bình | Open | RUN-007 (AN-02) |
+| DEF-19 | Google với email của tài khoản chưa xác minh: Auth hiện thông báo chung thay vì báo email đã đăng ký | Product | Minor / Trung bình | Fixed | RUN-007 (AN-02) |
 
 Hai anomaly không phải defect nằm ở Test Log mục 2.1: BL-01 (Resend chế độ test, nguyên nhân Environment) và AN-01 (setup sai, nguyên nhân Test). Hai ghi chú để quyết định sau, chưa phải defect: khi Resend từ chối gửi, Auth vẫn hiện "Check your email" (Test Log mục 2.1); TC-200 và TC-209 ghi nguồn không khớp ở DV-03 (Test Log mục 2.3).
 
@@ -310,3 +310,4 @@ Chưa có bản sửa nào. Khi một defect được sửa, thêm dòng cho def
 | Bản sửa | Commit `fix(web): offer a new verification link when a link fails` trên branch `fix/auth-major-defects`: thông báo lỗi link xác minh trên Sign in có nút Send a new link (gửi lại tới email trong form); `auth-layout` không chuyển hướng khi Sign in mang lỗi của link, nên lỗi vẫn hiện khi trình duyệt có phiên. TC-072, TC-078, TC-145 pass |
 | Bản sửa | Commit `fix(web): keep the pending destination through password reset` trên branch `fix/auth-major-defects`: Forgot password gửi `redirectTo` là `/reset-password?next=…`; nút Sign in sau khi lưu password mang theo `next`. TC-187 pass |
 | Bản sửa | Commit `fix(auth): explain how to confirm the email in the existing-account email` trên branch `fix/auth-major-defects`: email "You already have a Crypto Force account" gửi cho tài khoản chưa xác minh có thêm hướng dẫn: Reset password, Sign in rồi chọn "Resend the link" để xác nhận email. TC-182, TC-183 pass |
+| Bản sửa | Commit `fix(web): tell the user the email has an account when Google cannot link it` trên branch `fix/auth-major-defects`: khi Google trả `error=account_not_linked`, Sign in báo email đã có tài khoản, gợi ý Sign in bằng password hoặc Reset password (có link Reset password). Đã kiểm tay trên trình duyệt với URL của RUN-007; chưa chạy lại với Google thật |

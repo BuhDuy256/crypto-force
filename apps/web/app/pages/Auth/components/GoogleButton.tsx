@@ -1,4 +1,5 @@
 import { Loader2Icon } from 'lucide-react';
+import { Link } from 'react-router';
 import { Button } from '~/components/ui/button';
 import { useGoogleSignIn } from '~/hooks/useAuth';
 import { authPath, getSafeNext } from '~/utils/auth-redirect';
@@ -32,11 +33,21 @@ interface GoogleButtonProps {
   next: string | null;
   /** Google redirected back with an error. */
   returnedWithError: boolean;
+  /** The `error` code of that redirect, when there is one. */
+  returnedErrorCode?: string | null;
   /** Email typed in the form, shown again if Google returns an error. */
   email?: string;
 }
 
-export function GoogleButton({ next, returnedWithError, email = '' }: GoogleButtonProps) {
+export function GoogleButton({
+  next,
+  returnedWithError,
+  returnedErrorCode = null,
+  email = '',
+}: GoogleButtonProps) {
+  // The Google email belongs to an email/password account that is not linked (for example, an
+  // unverified one): tell the user to use that account (authentication.md, Sign in with Google).
+  const emailTaken = returnedWithError && returnedErrorCode === 'account_not_linked';
   const google = useGoogleSignIn();
   // A successful call navigates away, so `isSuccess` also means "waiting for Google".
   const waiting = google.isPending || google.isSuccess;
@@ -60,7 +71,20 @@ export function GoogleButton({ next, returnedWithError, email = '' }: GoogleButt
         {waiting ? <Loader2Icon className="animate-spin" aria-hidden="true" /> : <GoogleMark />}
         {waiting ? 'Waiting for Google…' : 'Continue with Google'}
       </Button>
-      {(returnedWithError || google.isError) && (
+      {emailTaken && (
+        <FormAlert tone="error" role="alert">
+          This email already has an account. Sign in with your email and password, or reset your
+          password.
+          <Link
+            to={authPath('/forgot-password', next)}
+            state={{ email }}
+            className="font-semibold underline"
+          >
+            Reset password
+          </Link>
+        </FormAlert>
+      )}
+      {((returnedWithError && !emailTaken) || google.isError) && (
         <FormAlert tone="error" role="alert">
           Google sign-in didn’t finish. It may have been cancelled or blocked. Try again, or use
           your email below.
