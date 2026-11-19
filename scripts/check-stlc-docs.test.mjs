@@ -1,5 +1,5 @@
 // Tests of scripts/check-stlc-docs.mjs. The bad rows come from the TS-001 documents before the
-// test quality audit. Run with `pnpm check:rules`.
+// test quality audit. Run with `pnpm check:stlc`.
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
