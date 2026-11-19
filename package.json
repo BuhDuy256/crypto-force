@@ -23,7 +23,9 @@
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
     "db:generate": "pnpm --filter @crypto-force/api db:generate",
-    "db:migrate": "pnpm --filter @crypto-force/api db:migrate"
+    "db:migrate": "pnpm --filter @crypto-force/api db:migrate",
+    "skills:sync": "node scripts/sync-skills.mjs",
+    "skills:check": "node scripts/sync-skills.mjs --check"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

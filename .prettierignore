@@ -9,3 +9,5 @@ apps/api/drizzle/
 docs/
 *.md
 .claude/
+.agents/
+.codex/skills/

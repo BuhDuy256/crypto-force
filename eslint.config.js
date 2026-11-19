@@ -84,6 +84,8 @@ export default tseslint.config(
       'docs/**',
       // Vendored third-party skill (see its UPSTREAM.md); not project code.
       '.claude/skills/shadcn/**',
+      '.agents/skills/**',
+      '.codex/skills/**',
     ],
   },
 
