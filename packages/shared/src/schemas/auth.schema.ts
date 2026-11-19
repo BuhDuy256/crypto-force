@@ -2,6 +2,11 @@ import { z } from 'zod';
 
 /** Minimum password length, enforced by the auth server and by every auth form. */
 export const PASSWORD_MIN_LENGTH = 8;
+/** Maximum password length, enforced by the auth server and by every auth form. */
+export const PASSWORD_MAX_LENGTH = 128;
+
+/** Length in Unicode code points, the unit of every length rule (authentication.md). */
+export const codePointLength = (value: string) => Array.from(value).length;
 
 const emailSchema = z
   .string()

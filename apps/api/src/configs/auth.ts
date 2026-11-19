@@ -1,4 +1,9 @@
-import { PASSWORD_MIN_LENGTH, type ApiEnv } from '@crypto-force/shared';
+import {
+  codePointLength,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  type ApiEnv,
+} from '@crypto-force/shared';
 import { betterAuth } from 'better-auth';
 import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { setSessionCookie } from 'better-auth/cookies';
@@ -65,7 +70,10 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: true,
+      // Better Auth counts UTF-16 code units; the hook below checks code points. A password of
+      // 128 code points has at most 256 code units, so these limits never reject a valid one.
       minPasswordLength: PASSWORD_MIN_LENGTH,
+      maxPasswordLength: PASSWORD_MAX_LENGTH * 2,
       resetPasswordTokenExpiresIn: HOUR,
       revokeSessionsOnPasswordReset: true,
       // A new password makes every other reset link of the account invalid (BD-07a).
@@ -157,6 +165,19 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
               ? body?.newPassword
               : undefined;
         if (typeof password !== 'string') return;
+        const length = codePointLength(password);
+        if (length < PASSWORD_MIN_LENGTH) {
+          throw new APIError('BAD_REQUEST', {
+            code: 'PASSWORD_TOO_SHORT',
+            message: `Use at least ${String(PASSWORD_MIN_LENGTH)} characters.`,
+          });
+        }
+        if (length > PASSWORD_MAX_LENGTH) {
+          throw new APIError('BAD_REQUEST', {
+            code: 'PASSWORD_TOO_LONG',
+            message: `Use ${String(PASSWORD_MAX_LENGTH)} characters or fewer.`,
+          });
+        }
         if (await isRejectedPassword(password, logger)) {
           throw new APIError('BAD_REQUEST', {
             code: 'PASSWORD_COMPROMISED',
