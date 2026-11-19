@@ -4,7 +4,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router';
 import { Button } from '~/components/ui/button';
 import { Checkbox } from '~/components/ui/checkbox';
-import { useSignUp } from '~/hooks/useAuth';
+import { AuthRequestError, useSignUp } from '~/hooks/useAuth';
 import { authPath } from '~/utils/auth-redirect';
 import { ACCOUNT_PANEL_ID, AccountTabs, tabId } from './components/AccountTabs';
 import { AuthField, PasswordField } from './components/AuthField';
@@ -136,7 +136,10 @@ export function SignUpPage({ googleEnabled, next, initialEmail }: SignUpPageProp
 
           {signUp.isError && (
             <FormAlert tone="error" role="alert">
-              We couldn’t create your account right now. Check your connection and try again.
+              {signUp.error instanceof AuthRequestError &&
+              signUp.error.code === 'PASSWORD_COMPROMISED'
+                ? signUp.error.message
+                : 'We couldn’t create your account right now. Check your connection and try again.'}
             </FormAlert>
           )}
 

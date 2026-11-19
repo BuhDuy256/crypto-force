@@ -22,7 +22,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 | DEF-03 | Không có thời hạn tuyệt đối 30 ngày của phiên | Product | Major / Cao | Fixed | RUN-012 |
 | DEF-04 | Phiên và link reset còn được chấp nhận đúng tại thời điểm hết hạn | Product | Minor / Trung bình | Open | RUN-012 |
 | DEF-05 | Đặt password bằng một link reset không làm các link reset khác hết hiệu lực | Product | Major / Cao | Fixed | RUN-012 |
-| DEF-06 | Không kiểm danh sách password phổ biến và Pwned Passwords; không ghi cảnh báo khi API lỗi | Product | Major / Cao | Open | RUN-012 |
+| DEF-06 | Không kiểm danh sách password phổ biến và Pwned Passwords; không ghi cảnh báo khi API lỗi | Product | Major / Cao | Fixed | RUN-012 |
 | DEF-07 | API đếm độ dài password theo UTF-16 thay vì code point | Product | Minor / Trung bình | Open | RUN-012 |
 | DEF-08 | Schema form không giới hạn password 128 ký tự và Full name 100 ký tự | Product | Minor / Trung bình | Open | RUN-012, RUN-013 |
 | DEF-09 | Mở link xác minh của B khi đang đăng nhập A chuyển phiên sang B, không có thông báo | Product | Major / Cao | Open | RUN-013 |
@@ -122,6 +122,7 @@ Mỗi report dưới đây ghi phần riêng: test case, expected (nguồn), act
 | Actual | Password phổ biến và password đã lộ được chấp nhận (`expected true to be false`, EV-012). TC-113 và TC-114 fail vì log không có dòng cảnh báo (mục 4.1) |
 | Severity | Major: người dùng đặt được password nằm trong danh sách đã lộ |
 | Tham chiếu | MD-09-CI-01, 02, 04, 05, 06, 07, 09, 10 (TC-112 pass) |
+| Bản sửa | Commit `fix(auth): reject common and breached passwords` trên branch `fix/auth-major-defects`: hook `before` của `/sign-up/email` và `/reset-password` kiểm danh sách 3.000 password (SecLists `5e1dc9c`) và API Pwned Passwords với giới hạn 3 giây; API lỗi thì ghi một cảnh báo và chỉ dùng danh sách. Không dùng plugin `haveIBeenPwned` vì plugin từ chối request khi API lỗi và không có timeout. Form Create account và Choose a new password hiện thông báo lỗi. TC-110, TC-111, TC-113, TC-114 pass |
 
 ### DEF-07: API đếm độ dài password theo UTF-16
 

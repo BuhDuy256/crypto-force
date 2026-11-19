@@ -1,6 +1,6 @@
 import { PASSWORD_MIN_LENGTH, type ApiEnv } from '@crypto-force/shared';
 import { betterAuth } from 'better-auth';
-import { createAuthMiddleware } from 'better-auth/api';
+import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { and, eq, like } from 'drizzle-orm';
 import type { Logger } from 'pino';
@@ -8,6 +8,7 @@ import type { Database } from '../database/client';
 import * as schema from '../database/schema/index';
 import { session as sessionTable, verification } from '../database/schema/index';
 import type { AuthEmails } from '../services/auth-email.service';
+import { isRejectedPassword } from '../services/password-check.service';
 
 const HOUR = 60 * 60;
 const DAY = 24 * HOUR;
@@ -15,6 +16,10 @@ const DAY = 24 * HOUR;
 const SESSION_ABSOLUTE_LIMIT_MS = 30 * DAY * 1000;
 
 /** Sign-in attempts allowed per IP address within the window (authentication.md, Sign in). */
+/** Error text for a common or breached password (authentication.md, Create account). */
+const PASSWORD_COMPROMISED_MESSAGE =
+  'This password is too common or has appeared in a data breach. Choose a different one.';
+
 const SIGN_IN_RATE_LIMIT = { window: 10, max: 3 };
 
 type AuthEnv = Pick<
@@ -115,6 +120,23 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
       customRules: { '/sign-in/email': SIGN_IN_RATE_LIMIT },
     },
     hooks: {
+      // Create account and Reset password reject common and breached passwords.
+      before: createAuthMiddleware(async (ctx) => {
+        const body = ctx.body as { password?: unknown; newPassword?: unknown } | undefined;
+        const password =
+          ctx.path === '/sign-up/email'
+            ? body?.password
+            : ctx.path === '/reset-password'
+              ? body?.newPassword
+              : undefined;
+        if (typeof password !== 'string') return;
+        if (await isRejectedPassword(password, logger)) {
+          throw new APIError('BAD_REQUEST', {
+            code: 'PASSWORD_COMPROMISED',
+            message: PASSWORD_COMPROMISED_MESSAGE,
+          });
+        }
+      }),
       // Signing in again must revoke the session that the request still carries (ASVS 7.2.4).
       after: createAuthMiddleware(async (ctx) => {
         if (ctx.path !== '/sign-in/email' || !ctx.context.newSession) return;

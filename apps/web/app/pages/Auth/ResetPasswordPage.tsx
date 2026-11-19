@@ -92,7 +92,9 @@ export function ResetPasswordPage({ token }: { token: string | null }) {
         />
         {reset.isError && (
           <FormAlert tone="error" role="alert">
-            We couldn’t save your new password right now. Try again.
+            {reset.error instanceof AuthRequestError && reset.error.code === 'PASSWORD_COMPROMISED'
+              ? reset.error.message
+              : 'We couldn’t save your new password right now. Try again.'}
           </FormAlert>
         )}
         <Button
