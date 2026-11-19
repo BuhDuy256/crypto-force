@@ -13,5 +13,5 @@ export default function ResetPasswordRoute() {
   const [searchParams] = useSearchParams();
   // The auth server redirects here with `?token=` for a valid link, or `?error=` otherwise.
   const token = searchParams.get('error') ? null : searchParams.get('token');
-  return <ResetPasswordPage token={token} />;
+  return <ResetPasswordPage token={token} next={searchParams.get('next')} />;
 }

@@ -37,7 +37,10 @@ export function useResendVerification() {
 }
 
 export function useRequestPasswordReset() {
-  return useMutation({ mutationFn: (email: string) => requestPasswordReset(email) });
+  return useMutation({
+    mutationFn: ({ email, redirectTo }: { email: string; redirectTo: string }) =>
+      requestPasswordReset(email, redirectTo),
+  });
 }
 
 export function useResetPassword() {

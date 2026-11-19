@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { Link } from 'react-router';
 import { Button } from '~/components/ui/button';
 import { AuthRequestError, useResetPassword } from '~/hooks/useAuth';
+import { authPath } from '~/utils/auth-redirect';
 import { PasswordField } from './components/AuthField';
 import { FormAlert } from './components/FormAlert';
 import { AuthHeading } from './components/NextNote';
@@ -33,7 +34,7 @@ function ExpiredLink() {
 }
 
 /** `token` comes from the reset link; `null` means the link was invalid or expired. */
-export function ResetPasswordPage({ token }: { token: string | null }) {
+export function ResetPasswordPage({ token, next }: { token: string | null; next: string | null }) {
   const reset = useResetPassword();
   const form = useForm<ResetPasswordInput>({
     resolver: zodResolver(resetPasswordSchema),
@@ -56,7 +57,7 @@ export function ResetPasswordPage({ token }: { token: string | null }) {
         <FormAlert tone="success" role="status">
           Password updated. You’ve been signed out on every device; sign in with your new password.
         </FormAlert>
-        <Link to="/sign-in" className={linkButtonClass}>
+        <Link to={authPath('/sign-in', next)} className={linkButtonClass}>
           Sign in
         </Link>
       </section>

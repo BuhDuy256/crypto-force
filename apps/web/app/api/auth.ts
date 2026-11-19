@@ -84,8 +84,9 @@ export async function resendVerificationEmail(email: string, callbackURL: string
   return unwrap(authClient.sendVerificationEmail({ email, callbackURL }));
 }
 
-export async function requestPasswordReset(email: string) {
-  return unwrap(authClient.requestPasswordReset({ email, redirectTo: '/reset-password' }));
+/** `redirectTo` is the reset form; it carries the pending destination (`next`). */
+export async function requestPasswordReset(email: string, redirectTo: string) {
+  return unwrap(authClient.requestPasswordReset({ email, redirectTo }));
 }
 
 export async function resetPassword(token: string, newPassword: string) {

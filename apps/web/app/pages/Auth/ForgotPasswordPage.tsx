@@ -25,7 +25,7 @@ export function ForgotPasswordPage({ next, initialEmail }: ForgotPasswordPagePro
   const { errors } = form.formState;
 
   const onSubmit = form.handleSubmit((input) => {
-    request.mutate(input.email);
+    request.mutate({ email: input.email, redirectTo: authPath('/reset-password', next) });
   });
 
   return (
