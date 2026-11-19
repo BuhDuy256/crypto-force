@@ -1,15 +1,15 @@
 # Test Log
 
-Đọc file này để biết session thủ công PROC-17 của TS-001 ngày 2026-11-19 đã diễn ra thế nào: chạy gì, trên build nào, kết quả thực tế so với expected result, và evidence đi kèm. File này mới ghi một session. Phase 05 mới có file này: chưa có Execution Readiness, Execution Status và Defect Reports.
+Đọc file này để biết các lượt chạy của TS-001 ngày 2026-11-19: session thủ công PROC-17 (RUN-001 đến RUN-009), lượt chạy tự động SU-01, SU-11, SU-04, SU-13 (RUN-010 đến RUN-013) và hai review PROC-18 (RUN-014, RUN-015). Mỗi lượt ghi build, kết quả thực tế so với expected result và evidence. Chưa có exploratory session (mục 3).
 
 ## 1. Phạm vi
 
 | Trường | Nội dung |
 | --- | --- |
-| Đối tượng được kiểm thử | Commit `b35a791` (HEAD khi ghi), `better-auth@1.7.25`. Server là `pnpm dev` của product owner với `.env` gốc (Google OAuth thật, Resend thật). Từ `b4ca981` đến `b35a791`, `git diff --stat b4ca981 HEAD -- apps/api/src apps/web/app packages` ghi 8 file đổi: `apps/api/src/configs/auth.ts` và `apps/web/app/utils/auth-redirect.ts` (mỗi file chỉ bỏ `export` của một hằng số), `apps/web/app/api/.gitkeep`, cấu hình test của `packages/shared` (`package.json`, `tsconfig.json`, `vitest.config.ts`) và hai file test. Tác giả đọc diff của hai file `.ts` và không thấy đổi hành vi; chưa đọc diff của file cấu hình |
-| Khoảng thời gian ghi | 2026-11-19 07:15:45 – 07:18:19 (UTC+7) |
-| Nguồn kết quả tự động | Không có. Đây là session thủ công |
-| Nơi lưu evidence | EV-001 và EV-002 nằm trong file này. EV-003 là video trên máy của product owner, không lưu trong repo (mục 4) |
+| Đối tượng được kiểm thử | RUN-001 đến RUN-009: commit `b35a791` (HEAD khi ghi), `better-auth@1.7.25`. Server là `pnpm dev` của product owner với `.env` gốc (Google OAuth thật, Resend thật). Từ `b4ca981` đến `b35a791`, `git diff --stat b4ca981 HEAD -- apps/api/src apps/web/app packages` ghi 8 file đổi: `apps/api/src/configs/auth.ts` và `apps/web/app/utils/auth-redirect.ts` (mỗi file chỉ bỏ `export` của một hằng số), `apps/web/app/api/.gitkeep`, cấu hình test của `packages/shared` (`package.json`, `tsconfig.json`, `vitest.config.ts`) và hai file test. Tác giả đọc diff của hai file `.ts` và không thấy đổi hành vi; chưa đọc diff của file cấu hình. RUN-010 đến RUN-015: commit `7cdb0f5` (EN-03: `git rev-parse HEAD`), `better-auth@1.7.25`, working tree không có file đã sửa (`git status --short` chỉ có `HANDOFF.md` và `skills-lock.json` chưa theo dõi). Từ `b35a791` đến `7cdb0f5` chỉ có commit tài liệu và kết quả |
+| Khoảng thời gian ghi | 2026-11-19 07:15:45 – 07:18:19 (PROC-17, UTC+7); 07:33 – 07:56 (PROC-17 chạy lại); 08:10:38 – 08:22:50 (RUN-010 đến RUN-013) |
+| Nguồn kết quả tự động | RUN-010 đến RUN-013: output của Vitest và Playwright, chạy bởi agent trên máy của product owner (Windows 11, Docker Desktop, PostgreSQL của `pnpm db:up`). Lệnh nằm ở mục 2 |
+| Nơi lưu evidence | EV-001 và EV-002 nằm trong file này. EV-003 là video trên máy của product owner, không lưu trong repo (mục 4). EV-010 đến EV-013 là output thô trong thư mục `evidence/` cạnh `output/` |
 
 Thời gian trong video: 00:00 là 07:15:45.
 
@@ -25,9 +25,15 @@ Người thực hiện: product owner. Agent đọc log server, database và vid
 | RUN-004 | TC-198; v1 | Forgot password cho tài khoản Google-only #2 (không phải tài khoản của TC-197) | `b35a791` | Product owner; 07:17:50 | Expected: email tới hộp thư; link mở form Choose a new password. Actual: Auth hiện "If an account exists for …, a reset link is on its way". Database có token reset hạn 1 giờ. Server ghi cùng lỗi Resend 403. Không có email; không mở được link | Blocked | EV-001, EV-002, EV-003 (02:05–02:30) | BL-01 |
 | RUN-005 | TC-103 phần S; v2 | Create account với `…@gmail.comj`; Google test #1 có email `…@gmail.com` | `b35a791` | Product owner; 07:16:22 và 07:16:40 | Expected: không có phiên; không liên kết; Auth báo email đã đăng ký, gợi ý Sign in bằng password hoặc Reset password. Actual: Google tạo tài khoản mới đã xác minh và mở Realtime. Hai email khác nhau (`gmail.comj` và `gmail.com`), nên chưa có tài khoản chưa xác minh trùng email với Google. Setup không khớp bước 5 của PROC-17 | Inconclusive | EV-002, EV-003 | AN-01 |
 | RUN-006 | TC-103 phần S; v2 | Create account bằng đúng email của Google test #1; tài khoản Crypto Force của email này đã có (U2, đã xác minh, tạo ở RUN-001 và chưa bị xóa) | `b35a791` | Product owner; khoảng 07:33:12 – 07:34:10 | Expected: như RUN-005, với một tài khoản chưa xác minh trùng email Google. Actual: Create account hiện "Check your email"; database không có user mới. Continue with Google, chọn Google test #1, mở Realtime với phiên của U2; Sign out. Không có tài khoản chưa xác minh nên không phải kịch bản TC-103 | Inconclusive | EV-004, EV-008 | AN-01 |
-| RUN-007 | TC-103 phần S; v2 | Database đã xóa. Create account bằng đúng email của Google test #1 (tạo U unverified lúc 07:37:20), không mở link xác minh, không bấm "I've confirmed". Rồi Continue with Google, chọn Google test #1 | `b35a791` | Product owner; 07:37:04 – 07:37:40 | Expected: không có phiên; không liên kết; Auth báo email đã đăng ký, gợi ý Sign in bằng password hoặc Reset password. Actual: không có phiên (`session` 0 dòng) và không liên kết (U chỉ có account `credential`, EV-009). Trang quay về `/sign-in?provider=google&error=account_not_linked` với thông báo chung "Google sign-in didn't finish. It may have been cancelled or blocked. Try again, or use your email below.". Không có thông báo email đã đăng ký, không gợi ý Reset password | Failed | EV-005, EV-009 | AN-02 |
+| RUN-007 | TC-103 phần S; v2 | Database đã xóa. Create account bằng đúng email của Google test #1 (tạo U unverified lúc 07:37:20), không mở link xác minh, không bấm "I've confirmed". Rồi Continue with Google, chọn Google test #1 | `b35a791` | Product owner; 07:37:04 – 07:37:40 | Expected: không có phiên; không liên kết; Auth báo email đã đăng ký, gợi ý Sign in bằng password hoặc Reset password. Actual: không có phiên (`session` 0 dòng) và không liên kết (U chỉ có account `credential`, EV-009). Trang quay về `/sign-in?provider=google&error=account_not_linked` với thông báo chung "Google sign-in didn't finish. It may have been cancelled or blocked. Try again, or use your email below.". Không có thông báo email đã đăng ký, không gợi ý Reset password | Failed | EV-005, EV-009 | AN-02 (DEF-19) |
 | RUN-008 | TC-197; v1 | Create account bằng email của chủ tài khoản Resend, địa chỉ gốc không có `+tag` (`EMAIL_FROM=onboarding@resend.dev`); database đã xóa user cũ của email này | `b35a791` | Product owner; 07:52:21 – 07:52:56 | Expected: email tới hộp thư; link xác minh được tài khoản. Lệch so với test case: địa chỉ không có `+tag` (DV-01). Actual: email tới và sau khi mở link, trang mở Realtime (chỉ có lời product owner; không có log hay video). Database: user tạo 07:52:21, `email_verified = true` lúc 07:52:56 (35 giây sau); chỉ có account `credential`. Database chứng minh link xác minh đã được dùng; không chứng minh email tới hộp thư hay trang Realtime. Bảng `session` lúc 07:54 có 0 dòng, nên chưa kiểm được phiên bằng database | Passed | EV-006 | Không có |
 | RUN-009 | TC-198; v1 | Tài khoản của RUN-008 (email của chủ tài khoản Resend) | `b35a791` | Product owner; khoảng 07:54 – 07:55:33 | Expected: email tới hộp thư; link mở form Choose a new password. Actual: email tới và link hoạt động (chỉ có lời product owner; không có log hay video; form Choose a new password không được ghi lại). Database: không còn dòng `reset-password` trong `verification` (token đã dùng); account `credential` của user này cập nhật lúc 07:55:33, tức là password đã được đổi, nên link reset đã được dùng và form đã được gửi. Sau đó `session` có 0 dòng | Passed | EV-007 | Không có |
+| RUN-010 | SU-01 (PROC-00 phần CI); smoke API | `pnpm --filter @crypto-force/api exec vitest run test/smoke.test.ts`; ENV-01; DA-01 | `7cdb0f5` | Agent; 08:10:38 – 08:10:48 | Expected: tạo tài khoản, xác minh email, Sign in chạy được (EN-04). Actual: 1 test, 1 pass | Passed | EV-010 | Không có |
+| RUN-011 | SU-11 (PROC-00 phần S); smoke E2E | `pnpm --filter @crypto-force/web exec playwright test e2e/smoke.spec.ts --workers=1`; ENV-02, ENV-07 | `7cdb0f5` | Agent; 08:10:56 – 08:12:03 | Expected: "create an account, confirm the email, then sign in" pass (EN-05). Actual: 1 test, 1 pass (1,1 phút) | Passed | EV-011 | Không có |
+| RUN-012 | SU-04 (PROC-01 đến PROC-09); `pnpm test` | ENV-01, ENV-13; database `_test` tạo lại từ migration | `7cdb0f5` | Agent; 08:12:09 – 08:14:46 | Expected: mọi test pass (expected result của từng TC ở Test Cases). Actual: `packages/shared` 33 test, 24 pass, 9 fail; `apps/web` 7 test, 7 pass; `apps/api` 160 test, 121 pass, 39 fail. Tổng 200 test, 152 pass, 48 fail, 0 skip. 48 test fail thuộc 28 test case: TC-001, 002, 004 đến 008, 020, 033, 036, 046, 047, 049, 050, 068, 090 đến 098, 110, 111, 113, 114. Chi tiết ở mục 2.4 | Failed (48 test); phần còn lại Passed | EV-012 | DEF-01 đến DEF-08 (mục 2.4) |
+| RUN-013 | SU-13 (PROC-11 đến PROC-16, test workspace); `playwright test` | Hai server E2E (ENV-07); `--workers=2` vì máy 16 GB còn khoảng 2,5 GB trống; không có `pnpm dev` | `7cdb0f5` | Agent; 08:15:11 – 08:22:50 | Expected: mọi test pass. Actual: 161 test, 141 pass, 20 fail, 0 skip (7,6 phút). 20 test fail thuộc 17 test case: TC-071, 072, 078, 095, 098, 135, 138, 141, 145, 175, 183, 184, 187, 227, 230, 242, 243. Chi tiết ở mục 2.4 | Failed (20 test); phần còn lại Passed | EV-013 | DEF-01, DEF-08 đến DEF-18 (mục 2.4) |
+| RUN-014 | TC-209; v1 (PROC-18) | Review code trong `node_modules`, version trong `pnpm-lock.yaml`: `better-auth@1.7.25`, `@better-auth/core@1.7.25`, `@better-auth/utils@0.5.1` | `7cdb0f5` | Agent; khoảng 08:13 | Expected: token phiên lấy từ CSPRNG, không đoán trước được. Actual: `createSession` đặt `token: generateId(32)` (`better-auth/dist/db/internal-adapter.mjs:304`); không có `overrideAll` ở route nào trong `better-auth/dist/api` (grep không có kết quả). `generateId` gọi `createRandomStringGenerator("a-z", "A-Z", "0-9")` (`@better-auth/core/dist/utils/id.mjs`). Hàm này lấy byte từ `crypto.getRandomValues` (`@better-auth/utils/dist/random.mjs:31`), bỏ byte từ 248 trở lên (dòng 23, 35), nên 62 ký tự có xác suất bằng nhau. `apps/api/src/configs/auth.ts` không có `generateId`, `databaseHooks` hay `overrideAll` (grep không có kết quả). Khớp bản review ngày 2026-11-18 (TD-14); version không đổi | Passed (chờ product owner duyệt kết luận, PROC-18) | EV-014 | Không có |
+| RUN-015 | TC-200; v1 (PROC-18) | Security tại `c23d848` (khác `d6c0541` mà TC-200 ghi, DV-03); UI đọc từ source tại `7cdb0f5` | `7cdb0f5` | Agent; khoảng 08:14 | Expected: Security mô tả 6.1.1, 6.1.3, 7.1.1, 7.1.2, 7.1.3; không luồng nào bắt đổi password theo thời gian (6.2.10); ba màn không có gợi ý password hay câu hỏi bí mật (6.4.2). Actual: xem bảng EV-015 ở mục 4. Cả 7 mục là Có | Passed (chờ product owner duyệt kết luận; DV-03, DV-04) | EV-015 | Không có |
 
 | Trạng thái | Định nghĩa |
 | --- | --- |
@@ -59,9 +65,39 @@ Các bước này không thuộc PROC-17 và không phải một lượt chạy 
 | 07:17:46 | Sign in bằng email và password của tài khoản Google-only #2 | 401, thông báo chung như trên | Có |
 | 07:17:50 | Forgot password cho tài khoản #2 | Thông báo chung "If an account exists …"; token hạn 1 giờ (08:17:50) | Có |
 
+### 2.4. Phân tích test Failed của RUN-012 và RUN-013
+
+Mỗi test fail được đối chiếu với dấu hiệu lỗi sản phẩm ở Implementation Status mục 4.1, ghi từ dry run trên `b4ca981`. Testware đã được kiểm ở Phase 04: build tham chiếu VF-04 cho PROC-01 pass khi giới hạn đúng test basis, và các mutant ở Procedures & Suites mục 6. Từng test fail trong RUN-012 và RUN-013 trùng với một dấu hiệu ở mục 4.1; không có test fail ngoài danh sách đó. Hai bộ số khớp lượt dry run: `apps/api` 39 fail, `packages/shared` 9 fail, SU-12 20 fail. Nguyên nhân của mọi dòng dưới đây được xếp là Product (lỗi sản phẩm); chưa ai xác nhận từng lỗi là lỗi sản phẩm hay requirement cần đổi. Mỗi lỗi có một defect report ở [Defect Reports](03-defect-reports.md).
+
+| Defect | Run | Test fail (số test) |
+| --- | --- | --- |
+| DEF-01 | RUN-012 | TC-001 (1), TC-002 (1), TC-004 dòng 1 và 3 (2), TC-005 dòng 1 đến 4 (4), TC-006 (1), TC-007 d = 8, 9 (2), TC-008 d = 8, 9, 10, 11 (4), TC-020 (1) |
+| DEF-01 | RUN-013 | TC-138 (1), TC-175 (1) |
+| DEF-02 | RUN-012 | TC-033 dòng 1 đến 4 (4) |
+| DEF-03 | RUN-012 | TC-036 (1), TC-049 tại 30 ngày + 0 s và + 1 s (2) |
+| DEF-04 | RUN-012 | TC-046 tại 3.600 s (1), TC-047 tại 7 ngày (1), TC-050 tại 1 ngày (1) |
+| DEF-05 | RUN-012 | TC-068 (1) |
+| DEF-06 | RUN-012 | TC-110, TC-111, TC-113, TC-114, mỗi test case 2 dòng (8) |
+| DEF-07 | RUN-012 | TC-096 tại 4 và 65 emoji (2), TC-097 tại 4 và 65 emoji (2) |
+| DEF-08 | RUN-012 | `packages/shared`: TC-090 và TC-091 (2), TC-092 và TC-093 (2), TC-094 và TC-095 (2), TC-096 (1), TC-097 (1), TC-098 (1) |
+| DEF-08 | RUN-013 | TC-095 tại 101 và 102 ký tự (2), TC-098 tại 101 emoji (1) |
+| DEF-09 | RUN-013 | TC-071 (1) |
+| DEF-10 | RUN-013 | TC-072 (1), TC-078 dòng 1 và 2 (2), TC-145 (1) |
+| DEF-11 | RUN-013 | TC-242 (1), TC-243 (1) |
+| DEF-12 | RUN-013 | TC-135 dòng 1 (1) |
+| DEF-13 | RUN-013 | TC-141 dòng 1 và 2 (2) |
+| DEF-14 | RUN-013 | TC-183 (1) |
+| DEF-15 | RUN-013 | TC-184 (1) |
+| DEF-16 | RUN-013 | TC-187 (1) |
+| DEF-17 | RUN-013 | TC-227 (1) |
+| DEF-18 | RUN-013 | TC-230 (1) |
+| DEF-19 | RUN-007 | TC-103 phần S (1) |
+
+Cộng RUN-012: 39 + 9 = 48 test. Cộng RUN-013: 20 test. Không retry (Procedures & Suites mục 3). Các test nằm trong TD-16 không fail ở hai lượt này: TC-021 dòng 3 và TC-017 pass. Việc này không loại được lỗi chập chờn: mỗi test chỉ chạy một lần trong đợt này.
+
 ## 3. Exploratory session
 
-Không có session nào trong đợt này.
+Không có session nào trong đợt này. CHR-01 đến CHR-04 (PROC-19 đến PROC-22) cần product owner; chưa chạy (Execution Status mục 2.3).
 
 ## 4. Evidence
 
@@ -76,6 +112,26 @@ Không có session nào trong đợt này.
 | EV-008 | RUN-006 | Dòng database (`crypto_force`), đã che email | Bảng bên dưới, lúc 07:36 | Chưa có user mới sau Create account |
 | EV-009 | RUN-007 | Dòng database (`crypto_force`), đã che email | Bảng bên dưới, lúc 07:38 | U chưa xác minh, chỉ có account `credential`, không có phiên |
 | EV-003 | RUN-001 đến RUN-005 | Video màn hình, 2:34 | `C:\Users\Duy\Videos\2026-11-19 07-15-45.mp4` (máy của product owner) | Điều hiển thị trên UI và trong Gmail |
+| EV-010 | RUN-010 | Output Vitest, 9 dòng | `evidence/RUN-010-su01-vitest-smoke.txt` | 1 test pass, thời điểm bắt đầu 08:10:43 |
+| EV-011 | RUN-011 | Output Playwright | `evidence/RUN-011-su11-playwright-smoke.txt` | 1 test pass trong 1,1 phút |
+| EV-012 | RUN-012 | Output `pnpm test` của ba workspace | `evidence/RUN-012-su04-pnpm-test.txt` | Tên, thông báo lỗi và tổng số của 48 test fail; 152 test pass |
+| EV-013 | RUN-013 | Output Playwright (list reporter) | `evidence/RUN-013-su13-playwright-all.txt` | Tên, thông báo lỗi và tổng số của 20 test fail; 141 test pass. Dòng cuối "Command playwright not found" do pnpm in khi lệnh thoát với mã khác 0; không phải lỗi của test |
+| EV-014 | RUN-014 | Mã nguồn trong `node_modules` | Các file và dòng ghi ở RUN-014 | Nguồn của token phiên |
+| EV-015 | RUN-015 | Tài liệu và source | Bảng bên dưới | Kết quả từng mục ASVS |
+
+Output thô của EV-010 đến EV-013 không có secrets: tìm các mẫu key Resend, cookie, `secret`, `password=`, email Gmail của product owner không có kết quả. Playwright không lưu trace, screenshot và `results.json` vào repo; thư mục `apps/web/test-results/` và `playwright-report/` còn trên máy của product owner đến lần chạy sau (Procedures & Suites mục 5).
+
+**EV-015: kết quả TC-200.** Security tại `c23d848`; UI đọc từ source tại `7cdb0f5`, chưa chụp màn hình.
+
+| Mục ASVS | Có / Không | Vị trí |
+| --- | --- | --- |
+| 6.1.1 Rate limit theo IP kèm lý do | Có | `docs/architecture/23-security.md` mục "Giới hạn số lần đăng nhập" (dòng 30 đến 32): tính theo IP "để người khác không thể cố ý nhập sai nhằm khóa tài khoản" |
+| 6.1.3 Giới hạn của Sign in và Google | Có | Cùng mục (3 request trong 10 giây); dòng Google ở bảng phiên (dòng 24): cùng giới hạn với Sign in, bộ đếm riêng, callback 100 request trong 10 giây |
+| 7.1.1 Thời hạn 7 ngày, 30 ngày, không idle timeout | Có | Dòng 13 (cookie 7 ngày) và dòng 14 (tuyệt đối 30 ngày; "Idle timeout không áp dụng") |
+| 7.1.2 Không giới hạn phiên đồng thời | Có | Dòng 23 |
+| 7.1.3 Quan hệ với phiên Google | Có | Dòng 24: phiên Crypto Force độc lập với phiên Google |
+| 6.2.10 Không luồng nào bắt đổi password theo thời gian | Có | Tìm `rotate`, `expire.*password`, `password.*age` trong `apps/api/src` và `apps/web/app/pages/Auth`: không có kết quả. Tìm theo từ khóa, chưa đọc từng luồng |
+| 6.4.2 Không gợi ý password, không câu hỏi bí mật ở Sign in, Create account, Forgot password | Có | `SignInPage.tsx`, `SignUpPage.tsx`, `ForgotPasswordPage.tsx`: không có trường câu hỏi bí mật. Duy nhất một `hint` là "At least 8 characters." ở `SignUpPage.tsx:100`; đây là yêu cầu độ dài, không phải gợi ý password đã lưu |
 
 EV-003 có mật khẩu hiện rõ ở ô Password và email thật, nên không được lưu vào repo. Mật khẩu này nên được đổi nếu dùng ở nơi khác.
 
@@ -119,6 +175,10 @@ EV-003 có mật khẩu hiện rõ ở ô Password và email thật, nên không
 | --- | --- | --- |
 | DV-01 | Bước 3 (TC-197) dùng địa chỉ `<hộp thư>+ts001-<ngày giờ>`. RUN-008 dùng địa chỉ gốc, không có `+tag`, và xóa user cũ của địa chỉ này trước khi chạy | Expected result đã đạt với địa chỉ gốc. Dạng `+tag` chưa được thử, nên chưa biết Resend có chấp nhận hay không |
 | DV-02 | Bước 2 (TC-196) yêu cầu mở `https://accounts.google.com` ở tab khác để ghi phiên Google còn hay không. Video chỉ có một tab Gmail đã đăng nhập (07:16:25) và màn chọn tài khoản của Google lần thứ hai | Phiên Google còn được suy ra từ màn chọn tài khoản liệt kê các tài khoản đã đăng nhập và từ tab Gmail; không có tab `accounts.google.com` riêng |
+| DV-03 | TC-200 `v1` ghi Security `d6c0541`; PROC-18 và test basis của TS-001 ghi `c23d848`. Hai commit khác nhau ở file `23-security.md` (`git diff --stat d6c0541 c23d848`: 13 dòng thêm, 7 dòng xóa). RUN-015 dùng `c23d848`, giống HEAD | Kết quả của TC-200 đúng cho `c23d848`, không cho `d6c0541`. Nguồn của test case cần sửa, hoặc product owner xác nhận chọn `c23d848` (Execution Status mục 6) |
+| DV-04 | PROC-18 bước 1 cho phép ghi vị trí trong tài liệu hoặc screenshot; TC-200 ghi "xem các màn Auth". RUN-015 đọc source của ba màn, không mở giao diện | 6.4.2 được kiểm bằng source; một `hint` hay nhãn tạo bởi code ngoài ba file đã đọc có thể bị bỏ sót |
+| DV-05 | RUN-012 và RUN-013 ghi theo suite; kết quả từng test nằm trong output thô (EV-012, EV-013) và bảng ở mục 2.4, không có một dòng Run ID cho mỗi test instance | Q2-01 chỉ đạt ở mức suite cho 295 test tự động đã Passed (152 + 141 + 2 smoke); không truy được thời điểm chạy riêng của từng test |
+| DV-06 | SU-13 chạy với `--workers=2`, không dùng số worker mặc định (Procedures & Suites mục 4 dự kiến 4 worker, khoảng 8 phút) | Số worker làm đổi thời gian chạy (7,6 phút). Lượt chạy SU-12 với 2 worker ở Phase 04 (VF-13) cho cùng kết quả: 141 pass, 20 fail |
 
 ## 5. Tiêu chí đạt
 
@@ -126,12 +186,12 @@ EV-003 có mật khẩu hiện rõ ở ô Password và email thật, nên không
 | --- | --- | --- | --- |
 | Q2-01 | Mỗi lượt chạy xác định instance, test case version, dữ liệu, cấu hình, build, người thực hiện và thời điểm | RC-05 | Đạt |
 | Q2-02 | Mỗi lượt chạy có expected và actual result, hoặc link tới nơi giữ chúng | RC-02 | Đạt |
-| Q2-03 | Build ghi trong mỗi lượt chạy khớp với build trong môi trường tại thời điểm chạy | RC-01 | Đạt một phần: build là working tree của product owner khi `pnpm dev` chạy. Commit `b35a791` là HEAD lúc ghi; chưa kiểm tra HEAD lúc 07:15 |
-| Q2-04 | Mọi lượt chạy Failed hoặc Inconclusive dẫn tới anomaly report hoặc phân tích | IN-09 | Đạt: AN-01, AN-02 và BL-01 ở mục 2.1. Chưa có file Defect Reports; AN-02 cần defect report (TD-13) |
+| Q2-03 | Build ghi trong mỗi lượt chạy khớp với build trong môi trường tại thời điểm chạy | RC-01 | Đạt một phần: RUN-001 đến RUN-009 chạy trên working tree của product owner khi `pnpm dev` chạy; commit `b35a791` là HEAD lúc ghi, chưa kiểm HEAD lúc 07:15. RUN-010 đến RUN-015 đạt: commit `7cdb0f5`, working tree không có file đã sửa |
+| Q2-04 | Mọi lượt chạy Failed hoặc Inconclusive dẫn tới anomaly report hoặc phân tích | IN-09 | Đạt: AN-01 và BL-01 ở mục 2.1; mọi test Failed của RUN-007, RUN-012 và RUN-013 có defect report DEF-01 đến DEF-19 (mục 2.4). AN-02 là DEF-19 |
 | Q2-05 | Lượt chạy lại được thêm thành dòng mới; không ghi đè kết quả cũ | — | Đạt |
 | Q2-06 | Evidence truy cập được, gắn với Run ID hoặc Session ID, không chứa secrets hoặc dữ liệu cá nhân thật | IN-08 | Đạt một phần: EV-001 và EV-002 đã lọc. EV-003 chứa dữ liệu thật và chỉ nằm trên máy của product owner |
 | Q2-07 | Mọi lượt chạy có evidence đúng mức đã quy ước cho nhóm rủi ro của nó | IN-04, IN-08 | Đạt một phần: RUN-001, RUN-002 dựa vào video (không trong repo) và log server. RUN-008, RUN-009 dựa vào database và lời product owner; không có log hay video |
-| Q2-08 | Exploratory session có charter, thời lượng, phạm vi đã khám phá và phát hiện | — | N/A: không có session |
+| Q2-08 | Exploratory session có charter, thời lượng, phạm vi đã khám phá và phát hiện | — | N/A: không có session. CHR-01 đến CHR-04 chưa chạy (Not Run, Execution Status mục 2.3) |
 
 **Người review / ngày:** chưa có.
 

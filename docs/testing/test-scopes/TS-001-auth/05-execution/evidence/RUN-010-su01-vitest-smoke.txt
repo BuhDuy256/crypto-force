@@ -1,0 +1,9 @@
+
+ RUN  v5.1.0 C:/Users/Duy/Desktop/crypto-force/apps/api
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  08:10:43
+   Duration  4.70s (import 67%, tests 22%, transform 10%, worker 2%)
+

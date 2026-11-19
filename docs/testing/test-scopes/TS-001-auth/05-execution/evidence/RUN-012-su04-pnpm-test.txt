@@ -1,0 +1,1042 @@
+
+> crypto-force@ test C:\Users\Duy\Desktop\crypto-force
+> pnpm -r --no-bail --workspace-concurrency=1 --filter @crypto-force/shared --filter @crypto-force/web --filter @crypto-force/api test
+
+Scope: 3 of 6 workspace projects
+
+> @crypto-force/shared@0.0.0 test C:\Users\Duy\Desktop\crypto-force\packages\shared
+> vitest run
+
+
+ RUN  v5.1.0 C:/Users/Duy/Desktop/crypto-force/packages/shared
+
+ ❯ test/auth.schema.test.ts (33 tests | 9 failed) 144ms
+   ❯ Lengths in the form schemas (33)
+     ❯ TC-090 and TC-091 Create account password, ASCII (8)
+       × 129 characters 42ms
+       × 130 characters 4ms
+     ❯ TC-092 and TC-093 New password, ASCII (8)
+       × 129 characters 4ms
+       × 130 characters 4ms
+     ❯ TC-094 and TC-095 Full name, ASCII (7)
+       × 101 characters 4ms
+       × 102 characters 3ms
+     ❯ TC-096 Create account password counts code points (4)
+       × 129 × 😀 3ms
+     ❯ TC-097 New password counts code points (4)
+       × 129 × 😀 2ms
+     ❯ TC-098 Full name counts code points (2)
+       × 101 × 😀 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/auth.schema.test.ts > Lengths in the form schemas > TC-090 and TC-091 Create account password, ASCII > 129 characters
+ FAIL  test/auth.schema.test.ts > Lengths in the form schemas > TC-090 and TC-091 Create account password, ASCII > 130 characters
+AssertionError: expected [] to deeply equal [ 'Use 128 characters or fewer.' ]
+
+- Expected
++ Received
+
+- [
+-   "Use 128 characters or fewer.",
+- ]
++ []
+
+ ❯ test/auth.schema.test.ts:60:55
+     58|     for (const length of [6, 7, 8, 9, 127, 128, 129, 130]) {
+     59|       it(`${String(length)} characters`, () => {
+     60|         expect(signUpPasswordMessages(ascii(length))).toEqual(password…
+       |                                                       ^
+     61|       });
+     62|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  test/auth.schema.test.ts > Lengths in the form schemas > TC-092 and TC-093 New password, ASCII > 129 characters
+ FAIL  test/auth.schema.test.ts > Lengths in the form schemas > TC-092 and TC-093 New password, ASCII > 130 characters
+AssertionError: expected [] to deeply equal [ 'Use 128 characters or fewer.' ]
+
+- Expected
++ Received
+
+- [
+-   "Use 128 characters or fewer.",
+- ]
++ []
+
+ ❯ test/auth.schema.test.ts:68:52
+     66|     for (const length of [6, 7, 8, 9, 127, 128, 129, 130]) {
+     67|       it(`${String(length)} characters`, () => {
+     68|         expect(newPasswordMessages(ascii(length))).toEqual(passwordExp…
+       |                                                    ^
+     69|       });
+     70|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  test/auth.schema.test.ts > Lengths in the form schemas > TC-094 and TC-095 Full name, ASCII > 101 characters
+ FAIL  test/auth.schema.test.ts > Lengths in the form schemas > TC-094 and TC-095 Full name, ASCII > 102 characters
+AssertionError: expected [] to deeply equal [ 'Use 100 characters or fewer.' ]
+
+- Expected
++ Received
+
+- [
+-   "Use 100 characters or fewer.",
+- ]
++ []
+
+ ❯ test/auth.schema.test.ts:85:54
+     83|     for (const [length, messages] of Object.entries(expected)) {
+     84|       it(`${length} characters`, () => {
+     85|         expect(nameMessages(nameOf(Number(length)))).toEqual(messages);
+       |                                                      ^
+     86|       });
+     87|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  test/auth.schema.test.ts > Lengths in the form schemas > TC-096 Create account password counts code points > 129 × 😀
+AssertionError: expected [] to deeply equal [ 'Use 128 characters or fewer.' ]
+
+- Expected
++ Received
+
+- [
+-   "Use 128 characters or fewer.",
+- ]
++ []
+
+ ❯ test/auth.schema.test.ts:93:61
+     91|     for (const count of [4, 8, 65, 129]) {
+     92|       it(`${String(count)} × ${EMOJI}`, () => {
+     93|         expect(signUpPasswordMessages(EMOJI.repeat(count))).toEqual(pa…
+       |                                                             ^
+     94|       });
+     95|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  test/auth.schema.test.ts > Lengths in the form schemas > TC-097 New password counts code points > 129 × 😀
+AssertionError: expected [] to deeply equal [ 'Use 128 characters or fewer.' ]
+
+- Expected
++ Received
+
+- [
+-   "Use 128 characters or fewer.",
+- ]
++ []
+
+ ❯ test/auth.schema.test.ts:101:58
+     99|     for (const count of [4, 8, 65, 129]) {
+    100|       it(`${String(count)} × ${EMOJI}`, () => {
+    101|         expect(newPasswordMessages(EMOJI.repeat(count))).toEqual(passw…
+       |                                                          ^
+    102|       });
+    103|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  test/auth.schema.test.ts > Lengths in the form schemas > TC-098 Full name counts code points > 101 × 😀
+AssertionError: expected [] to deeply equal [ 'Use 100 characters or fewer.' ]
+
+- Expected
++ Received
+
+- [
+-   "Use 100 characters or fewer.",
+- ]
++ []
+
+ ❯ test/auth.schema.test.ts:111:47
+    109|     });
+    110|     it(`101 × ${EMOJI}`, () => {
+    111|       expect(nameMessages(EMOJI.repeat(101))).toEqual([NAME_MAX]);
+       |                                               ^
+    112|     });
+    113|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 24 passed (33)
+   Start at  08:12:14
+   Duration  1.55s (import 59%, transform 20%, tests 18%, worker 3%)
+
+
+> @crypto-force/web@0.0.0 test C:\Users\Duy\Desktop\crypto-force\apps\web
+> vitest run
+
+
+ RUN  v5.1.0 C:/Users/Duy/Desktop/crypto-force/apps/web
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  08:12:16
+   Duration  423ms (transform 55%, import 24%, tests 11%, worker 9%)
+
+
+> @crypto-force/api@0.0.0 test C:\Users\Duy\Desktop\crypto-force\apps\api
+> vitest run
+
+
+ RUN  v5.1.0 C:/Users/Duy/Desktop/crypto-force/apps/api
+
+ ❯ test/auth/rate-limit.test.ts (35 tests | 16 failed) 71215ms
+   ❯ Sign in lock (5)
+     × TC-001 counts every press up to the lock; a press while locked does not extend it 1453ms
+     × TC-002 unlocks 10 seconds after the last accepted press, then counts from t=12 1706ms
+     ❯ TC-004 the counter returns to 0 after 10 seconds without a press (3)
+       × row 1: 1 press(es), pause, then 4 presses 863ms
+       × row 3: 3 press(es), pause, then 4 presses 724ms
+   ❯ Sign in lock across API restarts (5)
+     ❯ TC-005 the counter survives an API restart (4)
+       × row 1 8541ms
+       × row 2 11270ms
+       × row 3 11468ms
+       × row 4 6287ms
+   ❯ Attempt limits (25)
+     × TC-006 Sign in: presses 2 and 3 are accepted, presses 4 and 5 get 429 615ms
+     ❯ TC-007 Sign in: time of the 4th press (4)
+       × d = 8 581ms
+       × d = 9 707ms
+     ❯ TC-008 Sign in: press while locked, by time (4)
+       × d = 8 673ms
+       × d = 9 674ms
+       × d = 10 685ms
+       × d = 11 629ms
+     × TC-020 rounds X-Retry-After up to whole seconds 660ms
+ ❯ test/auth/session.test.ts (40 tests | 10 failed) 19735ms
+   ❯ Session lifecycle (16)
+     ❯ TC-033 signing in again issues a new token and revokes the old one (ASVS 7.2.4) (4)
+       × row 1: P1, Keep me signed in on 604ms
+       × row 2: P1, Keep me signed in off 761ms
+       × row 3: P2, Keep me signed in on 1268ms
+       × row 4: P2, Keep me signed in off 840ms
+     × TC-036 a session ends 30 days after sign-in even when used every day 895ms
+   ❯ Time limits (24)
+     ❯ TC-046 reset link age (4)
+       × used 3600 s after sending 360ms
+     ❯ TC-047 7-day limit of a remembered session (4)
+       × request at 7 days + 0 s 359ms
+     ❯ TC-049 30-day absolute limit (4)
+       × request at 30 days + 0 s 854ms
+       × request at 30 days + 1 s 804ms
+     ❯ TC-050 1-day limit of a browser session (4)
+       × request at 1 day + 0 s 380ms
+ ❯ test/auth/password.test.ts (37 tests | 12 failed) 11143ms
+   ❯ Password length (24)
+     ❯ TC-096 Create account: length counts Unicode code points (4)
+       × 4 × 😀 148ms
+       × 65 × 😀 9ms
+     ❯ TC-097 New password: length counts Unicode code points (4)
+       × 4 × 😀 464ms
+       × 65 × 😀 206ms
+   ❯ Common and breached passwords (11)
+     ❯ TC-110 a password on the common-password list is rejected (2)
+       × row 1: Create account with `password` 142ms
+       × row 2: New password `12345678` 483ms
+     ❯ TC-111 a password that the API reports as breached is rejected (2)
+       × row 1: Create account 154ms
+       × row 2: New password 495ms
+     ❯ TC-113 the Pwned Passwords API fails (2)
+       × row 1: Create account is accepted and one warning is logged 149ms
+       × row 2: New password is accepted and one warning is logged 349ms
+     ❯ TC-114 the Pwned Passwords API does not answer (2)
+       × row 1: Create account answers before the stub does, is accepted, logs one warning 191ms
+       × row 2: New password answers before the stub does, is accepted, logs one warning 370ms
+ ❯ test/auth/links.test.ts (7 tests | 1 failed) 3281ms
+   ❯ Reset link (6)
+     × TC-068 setting a password with one link invalidates the other links 533ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 39 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/auth/links.test.ts > Reset link > TC-068 setting a password with one link invalidates the other links
+AssertionError: expected 200 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 200
+
+ ❯ test/auth/links.test.ts:89:71
+     87|
+     88|     expect((await resetPassword(h, t2, NEW_PASSWORD, ip())).status).to…
+     89|     expect((await resetPassword(h, t1, OTHER_PASSWORD, ip())).status).…
+       |                                                                       ^
+     90|     expect(await passwordWorks(h, account.email, NEW_PASSWORD, ip())).…
+     91|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/39]⎯
+
+ FAIL  test/auth/password.test.ts > Password length > TC-096 Create account: length counts Unicode code points > 4 × 😀
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ test/auth/password.test.ts:123:25
+    121|       it(`${String(count)} × ${EMOJI}`, async () => {
+    122|         const { created } = await createAccount(EMOJI.repeat(count));
+    123|         expect(created).toBe(count >= 8 && count <= 128);
+       |                         ^
+    124|       });
+    125|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/39]⎯
+
+ FAIL  test/auth/password.test.ts > Password length > TC-096 Create account: length counts Unicode code points > 65 × 😀
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ test/auth/password.test.ts:123:25
+    121|       it(`${String(count)} × ${EMOJI}`, async () => {
+    122|         const { created } = await createAccount(EMOJI.repeat(count));
+    123|         expect(created).toBe(count >= 8 && count <= 128);
+       |                         ^
+    124|       });
+    125|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/39]⎯
+
+ FAIL  test/auth/password.test.ts > Password length > TC-097 New password: length counts Unicode code points > 4 × 😀
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ test/auth/password.test.ts:132:25
+    130|       it(`${String(count)} × ${EMOJI}`, async () => {
+    131|         const { changed } = await setNewPassword(EMOJI.repeat(count));
+    132|         expect(changed).toBe(count >= 8 && count <= 128);
+       |                         ^
+    133|       });
+    134|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/39]⎯
+
+ FAIL  test/auth/password.test.ts > Password length > TC-097 New password: length counts Unicode code points > 65 × 😀
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ test/auth/password.test.ts:132:25
+    130|       it(`${String(count)} × ${EMOJI}`, async () => {
+    131|         const { changed } = await setNewPassword(EMOJI.repeat(count));
+    132|         expect(changed).toBe(count >= 8 && count <= 128);
+       |                         ^
+    133|       });
+    134|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/39]⎯
+
+ FAIL  test/auth/password.test.ts > Common and breached passwords > TC-110 a password on the common-password list is rejected > row 1: Create account with `password`
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ test/auth/password.test.ts:143:23
+    141|       setPwnedMode('clean');
+    142|       const { created } = await createAccount('password');
+    143|       expect(created).toBe(false);
+       |                       ^
+    144|     });
+    145|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/39]⎯
+
+ FAIL  test/auth/password.test.ts > Common and breached passwords > TC-110 a password on the common-password list is rejected > row 2: New password `12345678`
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ test/auth/password.test.ts:149:23
+    147|       setPwnedMode('clean');
+    148|       const { account, changed } = await setNewPassword('12345678');
+    149|       expect(changed).toBe(false);
+       |                       ^
+    150|       expect(await passwordWorks(h, account.email, account.password, i…
+    151|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/39]⎯
+
+ FAIL  test/auth/password.test.ts > Common and breached passwords > TC-111 a password that the API reports as breached is rejected > row 1: Create account
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ test/auth/password.test.ts:159:55
+    157|       markPwned(password);
+    158|       setPwnedMode('pwned');
+    159|       expect((await createAccount(password)).created).toBe(false);
+       |                                                       ^
+    160|     });
+    161|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/39]⎯
+
+ FAIL  test/auth/password.test.ts > Common and breached passwords > TC-111 a password that the API reports as breached is rejected > row 2: New password
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ test/auth/password.test.ts:166:56
+    164|       markPwned(password);
+    165|       setPwnedMode('pwned');
+    166|       expect((await setNewPassword(password)).changed).toBe(false);
+       |                                                        ^
+    167|     });
+    168|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/39]⎯
+
+ FAIL  test/auth/password.test.ts > Common and breached passwords > TC-113 the Pwned Passwords API fails > row 1: Create account is accepted and one warning is logged
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ test/auth/password.test.ts:189:35
+    187|       const before = warnings();
+    188|       expect((await createAccount(randomPassword())).created).toBe(tru…
+    189|       expect(warnings() - before).toBe(1);
+       |                                   ^
+    190|     });
+    191|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/39]⎯
+
+ FAIL  test/auth/password.test.ts > Common and breached passwords > TC-113 the Pwned Passwords API fails > row 2: New password is accepted and one warning is logged
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ test/auth/password.test.ts:199:35
+    197|       const password = randomPassword();
+    198|       expect((await resetPassword(h, token, password, ip())).status).t…
+    199|       expect(warnings() - before).toBe(1);
+       |                                   ^
+    200|     });
+    201|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/39]⎯
+
+ FAIL  test/auth/password.test.ts > Common and breached passwords > TC-114 the Pwned Passwords API does not answer > row 1: Create account answers before the stub does, is accepted, logs one warning
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ test/auth/password.test.ts:211:35
+    209|       expect(performance.now() - started).toBeLessThan(10_000);
+    210|       expect(created).toBe(true);
+    211|       expect(warnings() - before).toBe(1);
+       |                                   ^
+    212|     }, 20_000);
+    213|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/39]⎯
+
+ FAIL  test/auth/password.test.ts > Common and breached passwords > TC-114 the Pwned Passwords API does not answer > row 2: New password answers before the stub does, is accepted, logs one warning
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ test/auth/password.test.ts:223:35
+    221|       expect(performance.now() - started).toBeLessThan(10_000);
+    222|       expect(response.status).toBe(200);
+    223|       expect(warnings() - before).toBe(1);
+       |                                   ^
+    224|     }, 20_000);
+    225|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/39]⎯
+
+ FAIL  test/auth/rate-limit.test.ts > Sign in lock > TC-001 counts every press up to the lock; a press while locked does not extend it
+AssertionError: expected 401 to be 429 // Object.is equality
+
+- Expected
++ Received
+
+- 429
++ 401
+
+ ❯ test/auth/rate-limit.test.ts:104:25
+    102|     expect(sessionSetCookie(r.t1)).toBeDefined();
+    103|     expect(r.t2.status).toBe(401);
+    104|     expect(r.t3.status).toBe(429);
+       |                         ^
+    105|     expect(r.t3.headers.get('x-retry-after')).toBe('9');
+    106|     expect(r.t5.status).toBe(429);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/39]⎯
+
+ FAIL  test/auth/rate-limit.test.ts > Sign in lock > TC-002 unlocks 10 seconds after the last accepted press, then counts from t=12
+AssertionError: expected 429 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 429
+
+ ❯ test/auth/rate-limit.test.ts:118:24
+    116|
+    117|     const t12 = await pressSignIn(h, ip, 12, right);
+    118|     expect(t12.status).toBe(200);
+       |                        ^
+    119|     expect(sessionSetCookie(t12)).toBeDefined();
+    120|     expect((await pressSignIn(h, ip, 13)).status).toBe(401);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/39]⎯
+
+ FAIL  test/auth/rate-limit.test.ts > Sign in lock > TC-004 the counter returns to 0 after 10 seconds without a press > row 1: 1 press(es), pause, then 4 presses
+AssertionError: expected [ 401, 401, 401, 401, 401 ] to deeply equal [ 401, 401, 401, 401, 429 ]
+
+- Expected
++ Received
+
+  [
+    401,
+    401,
+    401,
+    401,
+-   429,
++   401,
+  ]
+
+ ❯ test/auth/rate-limit.test.ts:135:60
+    133|         const results = await pressAll(nextIp(), [...first, ...after]);
+    134|         const accepted = new Array<number>(results.length - 1).fill(40…
+    135|         expect(results.map((response) => response.status)).toEqual([..…
+       |                                                            ^
+    136|       });
+    137|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/39]⎯
+
+ FAIL  test/auth/rate-limit.test.ts > Sign in lock > TC-004 the counter returns to 0 after 10 seconds without a press > row 3: 3 press(es), pause, then 4 presses
+AssertionError: expected [ 401, 401, 401, 401, 401, 429, 429 ] to deeply equal [ 401, 401, 401, 401, 401, 401, 429 ]
+
+- Expected
++ Received
+
+@@ -2,8 +2,8 @@
+    401,
+    401,
+    401,
+    401,
+    401,
+-   401,
++   429,
+    429,
+  ]
+
+ ❯ test/auth/rate-limit.test.ts:135:60
+    133|         const results = await pressAll(nextIp(), [...first, ...after]);
+    134|         const accepted = new Array<number>(results.length - 1).fill(40…
+    135|         expect(results.map((response) => response.status)).toEqual([..…
+       |                                                            ^
+    136|       });
+    137|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/39]⎯
+
+ FAIL  test/auth/rate-limit.test.ts > Sign in lock across API restarts > TC-005 the counter survives an API restart > row 1
+AssertionError: expected [ 401, 401, 401 ] to deeply equal [ 401, 401, 429 ]
+
+- Expected
++ Received
+
+  [
+    401,
+    401,
+-   429,
++   401,
+  ]
+
+ ❯ test/auth/rate-limit.test.ts:209:26
+    207|           9,
+    208|         );
+    209|         expect(statuses).toEqual(expected);
+       |                          ^
+    210|       }, 60_000);
+    211|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/39]⎯
+
+ FAIL  test/auth/rate-limit.test.ts > Sign in lock across API restarts > TC-005 the counter survives an API restart > row 2
+AssertionError: expected [ 401, 401 ] to deeply equal [ 401, 429 ]
+
+- Expected
++ Received
+
+  [
+    401,
+-   429,
++   401,
+  ]
+
+ ❯ test/auth/rate-limit.test.ts:209:26
+    207|           9,
+    208|         );
+    209|         expect(statuses).toEqual(expected);
+       |                          ^
+    210|       }, 60_000);
+    211|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/39]⎯
+
+ FAIL  test/auth/rate-limit.test.ts > Sign in lock across API restarts > TC-005 the counter survives an API restart > row 3
+AssertionError: expected [ 401 ] to deeply equal [ 429 ]
+
+- Expected
++ Received
+
+  [
+-   429,
++   401,
+  ]
+
+ ❯ test/auth/rate-limit.test.ts:209:26
+    207|           9,
+    208|         );
+    209|         expect(statuses).toEqual(expected);
+       |                          ^
+    210|       }, 60_000);
+    211|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/39]⎯
+
+ FAIL  test/auth/rate-limit.test.ts > Sign in lock across API restarts > TC-005 the counter survives an API restart > row 4
+AssertionError: expected [ 401, 401, 401, 401 ] to deeply equal [ 401, 401, 401, 429 ]
+
+- Expected
++ Received
+
+  [
+    401,
+    401,
+    401,
+-   429,
++   401,
+  ]
+
+ ❯ test/auth/rate-limit.test.ts:190:58
+    188|         const first = await start(3992);
+    189|         const origin = performance.now();
+    190|         expect(await pressAt(first, ip, origin, before)).toEqual(befor…
+       |                                                          ^
+    191|
+    192|         await first.stop();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/39]⎯
+
+ FAIL  test/auth/rate-limit.test.ts > Attempt limits > TC-006 Sign in: presses 2 and 3 are accepted, presses 4 and 5 get 429
+AssertionError: expected [ 401, 401, 401, 401, 401 ] to deeply equal [ 401, 401, 401, 429, 429 ]
+
+- Expected
++ Received
+
+  [
+    401,
+    401,
+    401,
+-   429,
+-   429,
++   401,
++   401,
+  ]
+
+ ❯ test/auth/rate-limit.test.ts:218:56
+    216|   it('TC-006 Sign in: presses 2 and 3 are accepted, presses 4 and 5 ge…
+    217|     const results = await pressAll(nextIp(), [0, 1, 2, 3, 4]);
+    218|     expect(results.map((response) => response.status)).toEqual([401, 4…
+       |                                                        ^
+    219|   });
+    220|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/39]⎯
+
+ FAIL  test/auth/rate-limit.test.ts > Attempt limits > TC-007 Sign in: time of the 4th press > d = 8
+ FAIL  test/auth/rate-limit.test.ts > Attempt limits > TC-007 Sign in: time of the 4th press > d = 9
+AssertionError: expected 401 to be 429 // Object.is equality
+
+- Expected
++ Received
+
+- 429
++ 401
+
+ ❯ test/auth/rate-limit.test.ts:227:31
+    225|         await pressAll(ip, [0, 1, 2]);
+    226|         const fourth = await pressSignIn(h, ip, 2 + d);
+    227|         expect(fourth.status).toBe(d >= 10 ? 401 : 429);
+       |                               ^
+    228|       });
+    229|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/39]⎯
+
+ FAIL  test/auth/rate-limit.test.ts > Attempt limits > TC-008 Sign in: press while locked, by time > d = 8
+ FAIL  test/auth/rate-limit.test.ts > Attempt limits > TC-008 Sign in: press while locked, by time > d = 9
+ FAIL  test/auth/rate-limit.test.ts > Attempt limits > TC-008 Sign in: press while locked, by time > d = 10
+ FAIL  test/auth/rate-limit.test.ts > Attempt limits > TC-008 Sign in: press while locked, by time > d = 11
+AssertionError: expected 401 to be 429 // Object.is equality
+
+- Expected
++ Received
+
+- 429
++ 401
+
+ ❯ test/auth/rate-limit.test.ts:237:54
+    235|         const ip = nextIp();
+    236|         await pressAll(ip, [0, 1, 2]);
+    237|         expect((await pressSignIn(h, ip, 3)).status).toBe(429);
+       |                                                      ^
+    238|         const press = await pressSignIn(h, ip, 2 + d);
+    239|         expect(press.status).toBe(d >= 10 ? 401 : 429);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/39]⎯
+
+ FAIL  test/auth/rate-limit.test.ts > Attempt limits > TC-020 rounds X-Retry-After up to whole seconds
+AssertionError: expected 401 to be 429 // Object.is equality
+
+- Expected
++ Received
+
+- 429
++ 401
+
+ ❯ test/auth/rate-limit.test.ts:351:29
+    349|     await pressAll(ip, [0, 1, 2]);
+    350|     const response = await pressSignIn(h, ip, 10.5);
+    351|     expect(response.status).toBe(429);
+       |                             ^
+    352|     expect(response.headers.get('x-retry-after')).toBe('2');
+    353|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/39]⎯
+
+ FAIL  test/auth/session.test.ts > Session lifecycle > TC-033 signing in again issues a new token and revokes the old one (ASVS 7.2.4) > row 1: P1, Keep me signed in on
+AssertionError: expected { session: { …(8) }, user: { …(7) } } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "session": {
+    "createdAt": "2026-11-20T00:00:00.000Z",
+    "expiresAt": "2026-11-27T00:00:00.000Z",
+    "id": "J6puRmXcpHuw7t4smTJ3bp6IgIvmoAxx",
+    "ipAddress": "10.3.0.3",
+    "token": "Ybs7tef4MRAlqgEB4h9J39xDdBprEu7E",
+    "updatedAt": "2026-11-20T00:00:00.000Z",
+    "userAgent": "",
+    "userId": "HpTKQyCShKrj7C92zTnrReGcd6rotqPe",
+  },
+  "user": {
+    "createdAt": "2026-11-19T23:00:00.000Z",
+    "email": "unverified-d78d685d-c0ae-436a-986a-4b230d3d6ea7@example.com",
+    "emailVerified": true,
+    "id": "HpTKQyCShKrj7C92zTnrReGcd6rotqPe",
+    "image": null,
+    "name": "Test User",
+    "updatedAt": "2026-11-19T23:00:00.000Z",
+  },
+}
+
+ ❯ test/auth/session.test.ts:109:55
+    107|         expect(response.status).toBe(200);
+    108|         expect(sessionToken(cookie)).not.toBe(sessionToken(oldCookie));
+    109|         expect((await getSession(h, oldCookie)).body).toBeNull();
+       |                                                       ^
+    110|         const setCookie = sessionSetCookie(response) ?? '';
+    111|         if (remember) expect(setCookie).toMatch(/Max-Age=604800/i);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/39]⎯
+
+ FAIL  test/auth/session.test.ts > Session lifecycle > TC-033 signing in again issues a new token and revokes the old one (ASVS 7.2.4) > row 2: P1, Keep me signed in off
+AssertionError: expected { session: { …(8) }, user: { …(7) } } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "session": {
+    "createdAt": "2026-11-20T00:00:00.000Z",
+    "expiresAt": "2026-11-27T00:00:00.000Z",
+    "id": "KVjj4HEmOsEmLQB46QketjW17fuiUImn",
+    "ipAddress": "10.3.0.7",
+    "token": "HxIYfQYUabKHm7Ue0xAP81Umk2IYhAqU",
+    "updatedAt": "2026-11-20T00:00:00.000Z",
+    "userAgent": "",
+    "userId": "2VpgsBLY0za1i16gwa190cl2d0UZKckf",
+  },
+  "user": {
+    "createdAt": "2026-11-19T23:00:00.000Z",
+    "email": "unverified-42f35116-ffc7-465b-980a-e477445c68cb@example.com",
+    "emailVerified": true,
+    "id": "2VpgsBLY0za1i16gwa190cl2d0UZKckf",
+    "image": null,
+    "name": "Test User",
+    "updatedAt": "2026-11-19T23:00:00.000Z",
+  },
+}
+
+ ❯ test/auth/session.test.ts:109:55
+    107|         expect(response.status).toBe(200);
+    108|         expect(sessionToken(cookie)).not.toBe(sessionToken(oldCookie));
+    109|         expect((await getSession(h, oldCookie)).body).toBeNull();
+       |                                                       ^
+    110|         const setCookie = sessionSetCookie(response) ?? '';
+    111|         if (remember) expect(setCookie).toMatch(/Max-Age=604800/i);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/39]⎯
+
+ FAIL  test/auth/session.test.ts > Session lifecycle > TC-033 signing in again issues a new token and revokes the old one (ASVS 7.2.4) > row 3: P2, Keep me signed in on
+AssertionError: expected { session: { …(8) }, user: { …(7) } } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "session": {
+    "createdAt": "2026-11-20T00:00:00.000Z",
+    "expiresAt": "2026-11-21T00:00:00.000Z",
+    "id": "HntkDmcStlm7DutseVKKgu7YwObK8roU",
+    "ipAddress": "10.3.0.11",
+    "token": "9OwpDbVmbwanpdDRXrjd5aWsBsX7Yed1",
+    "updatedAt": "2026-11-20T00:00:00.000Z",
+    "userAgent": "",
+    "userId": "FHQgUr94FBHmRp0kQQSJHoYFtaQCRDtI",
+  },
+  "user": {
+    "createdAt": "2026-11-19T23:00:00.000Z",
+    "email": "unverified-42b79f4d-34ec-421f-a3f2-f2dfb6914c31@example.com",
+    "emailVerified": true,
+    "id": "FHQgUr94FBHmRp0kQQSJHoYFtaQCRDtI",
+    "image": null,
+    "name": "Test User",
+    "updatedAt": "2026-11-19T23:00:00.000Z",
+  },
+}
+
+ ❯ test/auth/session.test.ts:109:55
+    107|         expect(response.status).toBe(200);
+    108|         expect(sessionToken(cookie)).not.toBe(sessionToken(oldCookie));
+    109|         expect((await getSession(h, oldCookie)).body).toBeNull();
+       |                                                       ^
+    110|         const setCookie = sessionSetCookie(response) ?? '';
+    111|         if (remember) expect(setCookie).toMatch(/Max-Age=604800/i);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/39]⎯
+
+ FAIL  test/auth/session.test.ts > Session lifecycle > TC-033 signing in again issues a new token and revokes the old one (ASVS 7.2.4) > row 4: P2, Keep me signed in off
+AssertionError: expected { session: { …(8) }, user: { …(7) } } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "session": {
+    "createdAt": "2026-11-20T00:00:00.000Z",
+    "expiresAt": "2026-11-21T00:00:00.000Z",
+    "id": "XlW4YK6zJi0FQoMxSJKEL8gMwaK7jWpZ",
+    "ipAddress": "10.3.0.15",
+    "token": "cDI6cg0rKBvFMwV7BqMeQkhgPml3ZFaQ",
+    "updatedAt": "2026-11-20T00:00:00.000Z",
+    "userAgent": "",
+    "userId": "KLLseAq3VfTaWUoOTi13VcwZZY592efI",
+  },
+  "user": {
+    "createdAt": "2026-11-19T23:00:00.000Z",
+    "email": "unverified-f1cfa900-1be7-4425-a575-975f48e14bfa@example.com",
+    "emailVerified": true,
+    "id": "KLLseAq3VfTaWUoOTi13VcwZZY592efI",
+    "image": null,
+    "name": "Test User",
+    "updatedAt": "2026-11-19T23:00:00.000Z",
+  },
+}
+
+ ❯ test/auth/session.test.ts:109:55
+    107|         expect(response.status).toBe(200);
+    108|         expect(sessionToken(cookie)).not.toBe(sessionToken(oldCookie));
+    109|         expect((await getSession(h, oldCookie)).body).toBeNull();
+       |                                                       ^
+    110|         const setCookie = sessionSetCookie(response) ?? '';
+    111|         if (remember) expect(setCookie).toMatch(/Max-Age=604800/i);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/39]⎯
+
+ FAIL  test/auth/session.test.ts > Session lifecycle > TC-036 a session ends 30 days after sign-in even when used every day
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ test/auth/session.test.ts:152:35
+    150|     const firstFrom30 = results.find((item) => item.t >= 30 * DAY);
+    151|     expect(before30.every((item) => item.accepted)).toBe(true);
+    152|     expect(firstFrom30?.accepted).toBe(false);
+       |                                   ^
+    153|   });
+    154|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/39]⎯
+
+ FAIL  test/auth/session.test.ts > Time limits > TC-046 reset link age > used 3600 s after sending
+AssertionError: expected 200 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 200
+
+ ❯ test/auth/session.test.ts:244:35
+    242|           expect(await passwordWorks(h, account.email, NEW_PASSWORD, i…
+    243|         } else {
+    244|           expect(response.status).toBe(400);
+       |                                   ^
+    245|           expect(await passwordWorks(h, account.email, account.passwor…
+    246|         }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/39]⎯
+
+ FAIL  test/auth/session.test.ts > Time limits > TC-047 7-day limit of a remembered session > request at 7 days + 0 s
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ test/auth/session.test.ts:255:61
+    253|       it(`request at 7 days ${offset < 0 ? '−' : '+'} ${String(Math.ab…
+    254|         const cookie = await openSession(await createVerifiedAccount(h…
+    255|         expect(await accepted(cookie, SEVEN_DAYS + offset)).toBe(offse…
+       |                                                             ^
+    256|       });
+    257|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/39]⎯
+
+ FAIL  test/auth/session.test.ts > Time limits > TC-049 30-day absolute limit > request at 30 days + 0 s
+ FAIL  test/auth/session.test.ts > Time limits > TC-049 30-day absolute limit > request at 30 days + 1 s
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ test/auth/session.test.ts:279:59
+    277|         const cookie = await openSession(await createVerifiedAccount(h…
+    278|         for (let k = 1; k * (DAY + 1) < 30 * DAY - 2; k++) await accep…
+    279|         expect(await accepted(cookie, 30 * DAY + offset)).toBe(offset …
+       |                                                           ^
+    280|       });
+    281|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/39]⎯
+
+ FAIL  test/auth/session.test.ts > Time limits > TC-050 1-day limit of a browser session > request at 1 day + 0 s
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ test/auth/session.test.ts:288:54
+    286|       it(`request at 1 day ${offset < 0 ? '−' : '+'} ${String(Math.abs…
+    287|         const cookie = await openSession(await createVerifiedAccount(h…
+    288|         expect(await accepted(cookie, DAY + offset)).toBe(offset < 0);
+       |                                                      ^
+    289|       });
+    290|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/39]⎯
+
+
+ Test Files  4 failed | 4 passed (8)
+      Tests  39 failed | 121 passed (160)
+   Start at  08:12:18
+   Duration  148.62s (tests 90%, import 10%)
+
+ ERR_PNPM_RECURSIVE_FAIL  
+
+
+Summary: 2 fails, 1 passes
+
+C:\Users\Duy\Desktop\crypto-force\packages\shared:
+ ERROR  @crypto-force/shared@0.0.0 test: `vitest run`
+Exit status 1
+
+C:\Users\Duy\Desktop\crypto-force\apps\api:
+ ERROR  @crypto-force/api@0.0.0 test: `vitest run`
+Exit status 1
+ ELIFECYCLE  Test failed. See above for more details.
+exit=1

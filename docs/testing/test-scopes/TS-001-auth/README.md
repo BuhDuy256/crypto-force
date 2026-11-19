@@ -21,7 +21,7 @@
 | 02 Test Planning | [02-planning/](02-planning/) | Đạt | [Test Plan](02-planning/output/01-test-plan.md) |
 | 03 Test Analysis & Design | [03-design/](03-design/) | Đạt | [Test Design Status](03-design/output/01-design-status.md) |
 | 04 Test Implementation | [04-implementation/](04-implementation/) | Đạt | [Implementation Status](04-implementation/output/01-implementation-status.md) |
-| 05 Test Execution | [05-execution/](05-execution/) | Đang thực hiện | [Test Log](05-execution/output/02-test-log.md) (mới có session PROC-17) |
+| 05 Test Execution | [05-execution/](05-execution/) | Đang thực hiện | [Execution Status](05-execution/output/01-execution-status.md) (lần chốt 1, 2026-11-19): chạy tự động và review xong, 44 test case Failed (19 defect Open); exploratory chưa chạy |
 | 06 Test Summary & Closure | `06-report/` | Chưa bắt đầu | |
 
 Một phase có trạng thái Đạt khi mọi tiêu chí đạt trong các file output của phase đó đều đạt.

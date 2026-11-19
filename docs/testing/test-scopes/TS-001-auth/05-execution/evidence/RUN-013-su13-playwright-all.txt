@@ -1,0 +1,910 @@
+
+Running 161 tests using 2 workers
+
+  ✓    2 [chromium] › e2e\auth\a11y.spec.ts:44:3 › form error pattern › TC-240 Sign in (4.9s)
+  ✓    1 [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-094 Full name of 0 characters (5.1s)
+  ✓    3 [chromium] › e2e\auth\a11y.spec.ts:56:3 › form error pattern › TC-241 Create account (3.6s)
+  ✓    4 [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-094 Full name of 1 characters (3.8s)
+  ✓    6 [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-094 Full name of 2 characters (3.6s)
+  ✓    7 [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-095 Full name of 99 characters (2.6s)
+  ✓    8 [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-095 Full name of 100 characters (4.0s)
+  ✘    5 [chromium] › e2e\auth\a11y.spec.ts:67:3 › form error pattern › TC-242 Forgot password (12.8s)
+  ✘    9 [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-095 Full name of 101 characters (2.2s)
+  ✘   10 [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-095 Full name of 102 characters (3.3s)
+  ✓   12 [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-098 Full name of 51 × emoji (3.6s)
+  ✘   13 [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-098 Full name of 101 × emoji (2.2s)
+  ✘   11 [chromium] › e2e\auth\a11y.spec.ts:75:3 › form error pattern › TC-243 Choose a new password (13.8s)
+  ✓   14 [chromium] › e2e\auth\forms.spec.ts:103:5 › form fields › TC-130 Sign in email "" (2.3s)
+  ✓   15 [chromium] › e2e\auth\forms.spec.ts:109:5 › form fields › TC-131 Create account email "" (2.9s)
+  ✓   16 [chromium] › e2e\auth\forms.spec.ts:120:5 › form fields › TC-132 Forgot password email "" (3.5s)
+  ✓   17 [chromium] › e2e\auth\a11y.spec.ts:127:5 › axe scan, default state (TC-244) › TC-244 Sign in (6.0s)
+  ✓   18 [chromium] › e2e\auth\forms.spec.ts:103:5 › form fields › TC-130 Sign in email "an.example.com" (3.6s)
+  ✓   20 [chromium] › e2e\auth\forms.spec.ts:109:5 › form fields › TC-131 Create account email "an.example.com" (2.6s)
+  ✓   19 [chromium] › e2e\auth\a11y.spec.ts:127:5 › axe scan, default state (TC-244) › TC-244 Create account (4.5s)
+  ✓   21 [chromium] › e2e\auth\forms.spec.ts:120:5 › form fields › TC-132 Forgot password email "an.example.com" (3.2s)
+  ✓   23 [chromium] › e2e\auth\forms.spec.ts:103:5 › form fields › TC-130 Sign in email "an@" (3.1s)
+  ✓   22 [chromium] › e2e\auth\a11y.spec.ts:127:5 › axe scan, default state (TC-244) › TC-244 Check your email (6.6s)
+  ✓   24 [chromium] › e2e\auth\forms.spec.ts:109:5 › form fields › TC-131 Create account email "an@" (3.8s)
+  ✓   26 [chromium] › e2e\auth\forms.spec.ts:120:5 › form fields › TC-132 Forgot password email "an@" (2.3s)
+  ✓   25 [chromium] › e2e\auth\a11y.spec.ts:127:5 › axe scan, default state (TC-244) › TC-244 Forgot password (4.6s)
+  ✓   27 [chromium] › e2e\auth\forms.spec.ts:103:5 › form fields › TC-130 Sign in email "an@example" (3.0s)
+  ✓   29 [chromium] › e2e\auth\forms.spec.ts:109:5 › form fields › TC-131 Create account email "an@example" (2.7s)
+  ✓   28 [chromium] › e2e\auth\a11y.spec.ts:127:5 › axe scan, default state (TC-244) › TC-244 Choose a new password (6.5s)
+  ✓   30 [chromium] › e2e\auth\forms.spec.ts:120:5 › form fields › TC-132 Forgot password email "an@example" (2.3s)
+  ✓   32 [chromium] › e2e\auth\forms.spec.ts:103:5 › form fields › TC-130 Sign in email "an@@example.com" (2.2s)
+  ✓   31 [chromium] › e2e\auth\a11y.spec.ts:127:5 › axe scan, default state (TC-244) › TC-244 expired link (4.1s)
+  ✓   33 [chromium] › e2e\auth\forms.spec.ts:109:5 › form fields › TC-131 Create account email "an@@example.com" (2.5s)
+  ✓   34 [chromium] › e2e\auth\a11y.spec.ts:167:5 › axe scan, error state (TC-245) › TC-245 Sign in (4.0s)
+  ✓   35 [chromium] › e2e\auth\forms.spec.ts:120:5 › form fields › TC-132 Forgot password email "an@@example.com" (2.3s)
+  ✓   37 [chromium] › e2e\auth\forms.spec.ts:103:5 › form fields › TC-130 Sign in email "an example@example.com" (3.7s)
+  ✓   36 [chromium] › e2e\auth\a11y.spec.ts:167:5 › axe scan, error state (TC-245) › TC-245 Create account (4.8s)
+  ✓   38 [chromium] › e2e\auth\forms.spec.ts:109:5 › form fields › TC-131 Create account email "an example@example.com" (3.5s)
+  ✓   39 [chromium] › e2e\auth\a11y.spec.ts:167:5 › axe scan, error state (TC-245) › TC-245 Forgot password (5.1s)
+  ✓   40 [chromium] › e2e\auth\forms.spec.ts:120:5 › form fields › TC-132 Forgot password email "an example@example.com" (2.9s)
+  ✓   42 [chromium] › e2e\auth\forms.spec.ts:103:5 › form fields › TC-130 Sign in email "an@example.com" (2.9s)
+  ✓   41 [chromium] › e2e\auth\a11y.spec.ts:167:5 › axe scan, error state (TC-245) › TC-245 Choose a new password (5.3s)
+  ✓   43 [chromium] › e2e\auth\forms.spec.ts:109:5 › form fields › TC-131 Create account email "an@example.com" (3.2s)
+  ✓   44 [chromium] › e2e\auth\a11y.spec.ts:175:1 › TC-246 arrow keys, Home and End on the Sign in and Create account tabs (3.6s)
+  ✓   45 [chromium] › e2e\auth\forms.spec.ts:120:5 › form fields › TC-132 Forgot password email "an@example.com" (2.3s)
+  ✓   47 [chromium] › e2e\auth\forms.spec.ts:129:3 › form fields › TC-133 spaces around the email are removed: Sign in opens the same account (4.7s)
+  ✓   48 [chromium] › e2e\auth\forms.spec.ts:139:3 › form fields › TC-134 Sign in password (1.9s)
+  ✓   46 [chromium] › e2e\auth\limits.spec.ts:39:3 › TC-021 the UI when a request that sends email is refused › row 1: Resend the link on Check your email; same message for an unregistered email (11.1s)
+  ✓   50 [chromium] › e2e\auth\limits.spec.ts:66:3 › TC-021 the UI when a request that sends email is refused › row 2: Send reset link for the 4th time in 60 s; same message for an unregistered email (3.8s)
+  ✓   51 [chromium] › e2e\auth\limits.spec.ts:90:3 › TC-021 the UI when a request that sends email is refused › row 3: Create account for the 4th time in 10 s; same message for a registered email (5.3s)
+  ✘   49 [chromium] › e2e\auth\forms.spec.ts:153:5 › form fields › TC-135 row 1: an empty field (13.0s)
+  ✓   53 [chromium] › e2e\auth\forms.spec.ts:153:5 › form fields › TC-135 row 2: an empty field (2.2s)
+  ✓   54 [chromium] › e2e\auth\forms.spec.ts:163:3 › form fields › TC-135 rows 3 and 4: the mismatch shows while typing, then clears (2.0s)
+  ✓   55 [chromium] › e2e\auth\forms.spec.ts:174:3 › form fields › TC-136 the confirmation checkbox (2.2s)
+  ✓   56 [chromium] › e2e\auth\forms.spec.ts:187:3 › form fields › TC-137 editing the password hides the mismatch message (2.1s)
+  ✓   57 [chromium] › e2e\auth\forms.spec.ts:196:3 › form fields › TC-139 the show-password button (1.7s)
+  ✘   52 [chromium] › e2e\auth\limits.spec.ts:126:3 › TC-138 Sign in lock message while editing › editing the password keeps the lock message (13.5s)
+  ✓   58 [chromium] › e2e\auth\forms.spec.ts:207:3 › form fields › TC-140 row 1: Google configured shows Continue with Google (1.4s)
+  ✓   59 [chromium] › e2e\auth\forms.spec.ts:212:3 › form fields › TC-140 row 2: Google not configured hides Continue with Google (2.5s)
+  ✘   61 [chromium] › e2e\auth\forms.spec.ts:223:5 › form fields › TC-141 row 1: Google returns access_denied (14.5s)
+  ✘   60 [chromium] › e2e\auth\limits.spec.ts:140:3 › TC-175 Sign in lock in the UI › the 4th press locks Sign in and suggests waiting or resetting the password (15.3s)
+  ✓   63 [chromium] › e2e\auth\links.spec.ts:83:3 › reset link › TC-060 a valid link opens in two tabs; saving signs out every browser (6.6s)
+  ✓   64 [chromium] › e2e\auth\links.spec.ts:121:3 › reset link › TC-061 an invalid new password does not use up the link (2.7s)
+  ✘   62 [chromium] › e2e\auth\forms.spec.ts:223:5 › form fields › TC-141 row 2: Google returns server_error (14.8s)
+  ✓   65 [chromium] › e2e\auth\links.spec.ts:132:3 › reset link › TC-062 an expired link shows the expired-link screen (1.8s)
+  ✓   66 [chromium] › e2e\auth\links.spec.ts:140:3 › reset link › TC-064 a used link shows the expired-link screen (2.3s)
+  ✓   67 [chromium] › e2e\auth\forms.spec.ts:245:3 › form fields › TC-142 row 1: Sign in without network (3.0s)
+  ✓   68 [chromium] › e2e\auth\links.spec.ts:148:3 › reset link › TC-065 saving from a second tab after the link was used (5.9s)
+  ✓   69 [chromium] › e2e\auth\forms.spec.ts:254:3 › form fields › TC-142 row 2: Create account when the API answers 500 (3.2s)
+  ✓   71 [chromium] › e2e\auth\forms.spec.ts:268:3 › form fields › TC-142 row 3: Send reset link without network (2.3s)
+  ✓   70 [chromium] › e2e\auth\links.spec.ts:163:3 › reset link › TC-067 saving from a form opened before the link expired (4.2s)
+  ✓   72 [chromium] › e2e\auth\forms.spec.ts:279:3 › form fields › TC-142 row 4: save the new password when the API answers 500 (3.1s)
+  ✓   73 [chromium] › e2e\auth\links.spec.ts:177:3 › verification link › TC-070 the first opening verifies the account and opens Realtime (2.8s)
+  ✓   74 [chromium] › e2e\auth\forms.spec.ts:293:3 › form fields › TC-142 row 5: Resend the link without network (3.1s)
+  ✓   76 [chromium] › e2e\auth\forms.spec.ts:305:3 › form fields › TC-143 row 1: /sign-in without a session shows the form (1.8s)
+  ✓   77 [chromium] › e2e\auth\forms.spec.ts:310:3 › form fields › TC-143 row 2: /sign-in with a session opens Realtime (2.2s)
+  ✓   78 [chromium] › e2e\auth\forms.spec.ts:316:3 › form fields › TC-143 row 3: a valid reset link with a session shows the form (1.8s)
+  ✓   79 [chromium] › e2e\auth\forms.spec.ts:326:3 › form fields › TC-144 a Full name of spaces only (2.1s)
+  ✓   80 [chromium] › e2e\auth\forms.spec.ts:343:5 › Sign in result by account (UI) › TC-150 row 1: no account (1.8s)
+  ✘   75 [chromium] › e2e\auth\links.spec.ts:184:3 › verification link › TC-071 the link of B while signed in as A (12.3s)
+  ✓   81 [chromium] › e2e\auth\forms.spec.ts:343:5 › Sign in result by account (UI) › TC-150 row 2: Google-only account (2.2s)
+  ✓   82 [chromium] › e2e\auth\forms.spec.ts:343:5 › Sign in result by account (UI) › TC-150 row 3: wrong password (2.6s)
+  ✓   84 [chromium] › e2e\auth\forms.spec.ts:343:5 › Sign in result by account (UI) › TC-150 row 4: unverified, wrong password (3.0s)
+  ✓   85 [chromium] › e2e\auth\forms.spec.ts:360:3 › Sign in result by account (UI) › TC-150 row 5: unverified, right password (2.0s)
+  ✓   86 [chromium] › e2e\auth\forms.spec.ts:370:3 › Sign in result by account (UI) › TC-150 row 6: verified, right password (2.9s)
+  ✓   87 [chromium] › e2e\auth\forms.spec.ts:390:5 › `next` after Sign in (UI) › TC-160 next = /backtest (2.9s)
+  ✘   83 [chromium] › e2e\auth\links.spec.ts:202:3 › verification link › TC-072 an expired link without a session (12.8s)
+  ✓   88 [chromium] › e2e\auth\forms.spec.ts:390:5 › `next` after Sign in (UI) › TC-160 next = https://evil.example/ (3.9s)
+  ✓   90 [chromium] › e2e\auth\forms.spec.ts:390:5 › `next` after Sign in (UI) › TC-160 next = //evil.example (4.5s)
+  ✓   89 [chromium] › e2e\auth\links.spec.ts:210:3 › verification link › TC-073 an older link after the email was verified with a newer one (5.6s)
+  ✓   91 [chromium] › e2e\auth\forms.spec.ts:390:5 › `next` after Sign in (UI) › TC-160 next = /\evil.example (4.7s)
+  ✓   92 [chromium] › e2e\auth\links.spec.ts:236:3 › verification link › TC-074 a used link opened again without a session (4.6s)
+  ✓   93 [chromium] › e2e\auth\forms.spec.ts:390:5 › `next` after Sign in (UI) › TC-160 next = javascript:alert(1) (4.6s)
+  ✓   94 [chromium] › e2e\auth\links.spec.ts:252:3 › verification link › TC-075 a used link opened again with the session of the same account (3.5s)
+  ✓   95 [chromium] › e2e\auth\forms.spec.ts:390:5 › `next` after Sign in (UI) › TC-160 next = /sign-in (5.3s)
+  ✓   96 [chromium] › e2e\auth\links.spec.ts:262:3 › verification link › TC-076 the link of a verified B while signed in as A (6.6s)
+  ✓   97 [chromium] › e2e\auth\forms.spec.ts:390:5 › `next` after Sign in (UI) › TC-160 next = no next (5.1s)
+  ✓   99 [chromium] › e2e\auth\forms.spec.ts:409:3 › Auth flows › TC-170 Sign in without a pending destination (3.4s)
+  ✓  100 [chromium] › e2e\auth\forms.spec.ts:417:3 › Auth flows › TC-171 Sign in from the Backtest gate, then the note is gone (4.6s)
+  ✘   98 [chromium] › e2e\auth\links.spec.ts:284:5 › verification link › TC-078 row 1: an expired link with the session of B (12.7s)
+  ✓  101 [chromium] › e2e\auth\forms.spec.ts:433:3 › Auth flows › TC-172 switching steps keeps the email (2.1s)
+  ✓  102 [chromium] › e2e\auth\forms.spec.ts:444:3 › Auth flows › TC-173 wrong password, then Reset password (3.1s)
+  ✓  104 [chromium] › e2e\auth\forms.spec.ts:454:3 › Auth flows › TC-174 unverified email: resend the link (3.2s)
+  ✓  105 [chromium] › e2e\auth\forms.spec.ts:464:3 › Auth flows › TC-176 Create account, then open the link in the same browser (4.4s)
+  ✓  106 [chromium] › e2e\auth\forms.spec.ts:481:3 › Auth flows › TC-177 Create account from the Backtest gate (3.6s)
+  ✘  103 [chromium] › e2e\auth\links.spec.ts:284:5 › verification link › TC-078 row 2: an expired link with the session of A (12.7s)
+  ✓  107 [chromium] › e2e\auth\forms.spec.ts:496:3 › Auth flows › TC-178 the link opened in another browser (4.8s)
+  ✓  109 [chromium] › e2e\auth\forms.spec.ts:510:3 › Auth flows › TC-179 the link opened in another tab of the same browser (4.8s)
+  ✓  110 [chromium] › e2e\auth\forms.spec.ts:524:3 › Auth flows › TC-180 Resend the link (4.6s)
+  ✘  108 [chromium] › e2e\auth\links.spec.ts:302:3 › verification link › TC-145 a changed token in the verification link (13.3s)
+  ✓  111 [chromium] › e2e\auth\forms.spec.ts:539:3 › Auth flows › TC-181 Use a different email (3.5s)
+  ✓  112 [chromium] › e2e\auth\forms.spec.ts:548:3 › Auth flows › TC-182 Create account with the email of a verified account (3.9s)
+  ✓  113 [chromium] › e2e\auth\links.spec.ts:318:3 › verification link › TC-146 a changed token in the reset link (3.9s)
+  ✘  114 [chromium] › e2e\auth\forms.spec.ts:561:3 › Auth flows › TC-183 Create account with the email of an unverified account (4.0s)
+  ✓  115 [chromium] › e2e\auth\links.spec.ts:327:3 › Reset password flows › TC-186 Reset password from Sign in (12.0s)
+  ✘  116 [chromium] › e2e\auth\forms.spec.ts:574:3 › Auth flows › TC-184 reloading Check your email shows Create account (15.2s)
+  ✓  118 [chromium] › e2e\auth\security.spec.ts:35:3 › ASVS checks › TC-202 password fields accept paste and allow password managers (3.4s)
+  ✓  119 [chromium] › e2e\auth\security.spec.ts:58:3 › ASVS checks › TC-207 CORS does not allow another origin (284ms)
+  ✘  117 [chromium] › e2e\auth\links.spec.ts:350:3 › Reset password flows › TC-187 Reset password from the Backtest gate returns to Backtest (14.2s)
+  ✓  120 [chromium] › e2e\auth\security.spec.ts:68:3 › security configuration › TC-220 rows 1 and 2: the session cookie is HttpOnly and SameSite=Lax (3.9s)
+  ✓  122 [chromium] › e2e\auth\security.spec.ts:81:3 › security configuration › TC-221 row 1: a sign-in from another origin is rejected (642ms)
+  ✓  121 [chromium] › e2e\auth\links.spec.ts:365:3 › Reset password flows › TC-188 a reset link opened while signed in (4.3s)
+  ✓  123 [chromium] › e2e\auth\security.spec.ts:91:3 › security configuration › TC-225 development prints the email with the link to the API console (3.0s)
+  ✘  125 [chromium] › e2e\auth\security.spec.ts:99:3 › security configuration › TC-227 security headers on API responses (440ms)
+  ✓  126 [chromium] › e2e\auth\security.spec.ts:108:3 › security configuration › TC-228 Auth responses are not stored (304ms)
+  ✓  124 [chromium] › e2e\auth\links.spec.ts:375:3 › Reset password flows › TC-189 Forgot password for an email without an account (4.4s)
+  ✓  128 [chromium] › e2e\auth\links.spec.ts:384:3 › Reset password flows › TC-190 a used link: Send a new link opens Forgot password (2.8s)
+  ✓  129 [chromium] › e2e\auth\links.spec.ts:394:3 › Reset password flows › TC-191 an expired link: Back to sign in opens Sign in (1.7s)
+  ✓  130 [chromium] › e2e\auth\session.spec.ts:52:3 › session cookie and Sign out › TC-030 Keep me signed in on: the cookie lasts 7 days (3.2s)
+  ✓  131 [chromium] › e2e\auth\session.spec.ts:63:3 › session cookie and Sign out › TC-031 Keep me signed in off: the cookie lasts for the browser session (3.2s)
+  ✓  132 [chromium] › e2e\auth\session.spec.ts:79:5 › session cookie and Sign out › TC-037 row 1: Sign out ends the session (2.5s)
+  ✓  133 [chromium] › e2e\auth\session.spec.ts:79:5 › session cookie and Sign out › TC-037 row 2: Sign out ends the session (2.7s)
+  ✓  134 [chromium] › e2e\auth\session.spec.ts:92:3 › session cookie and Sign out › TC-038 a failed Sign out keeps the session and says so (2.6s)
+  ✓  135 [chromium] › e2e\auth\session.spec.ts:108:5 › session cookie and Sign out › TC-040 row 1: close and reopen the browser (2.0s)
+  ✓  136 [chromium] › e2e\auth\session.spec.ts:108:5 › session cookie and Sign out › TC-040 row 2: close and reopen the browser (2.0s)
+  ✓  137 [chromium] › e2e\auth\session.spec.ts:127:3 › sign-in gate › TC-120 with a session: switch screens, then Sign out (2.6s)
+  ✓  138 [chromium] › e2e\auth\session.spec.ts:142:3 › sign-in gate › TC-121 without a session: the gate leads to Sign in and back to Backtest (3.2s)
+  ✓  139 [chromium] › e2e\auth\session.spec.ts:158:3 › sign-in gate › TC-122 Back to home opens Landing (1.4s)
+  ✓  140 [chromium] › e2e\auth\session.spec.ts:164:3 › sign-in gate › TC-123 a failed session check shows a load error until the API answers (2.2s)
+  ✓  141 [chromium] › e2e\auth\session.spec.ts:184:3 › sign-in gate › TC-124 retry after the API answers, without a session, shows the gate (1.8s)
+  ✓  142 [chromium] › e2e\auth\session.spec.ts:197:3 › sign-in gate › TC-125 a session ended in another tab: switching screen shows the gate (4.1s)
+  ✓  143 [chromium] › e2e\auth\session.spec.ts:218:3 › sign-in gate › TC-126 a session ended in another tab: returning to the tab shows the gate (4.7s)
+  ✓  144 [chromium] › e2e\auth\session.spec.ts:239:3 › Sign out flows › TC-193 Sign out, then Back, shows the gate and no loaded data (6.1s)
+  ✓  145 [chromium] › e2e\auth\session.spec.ts:258:3 › Sign out flows › TC-194 Sign out when the request fails keeps the user signed in (2.5s)
+  ✓  146 [chromium] › e2e\smoke.spec.ts:14:1 › create an account, confirm the email, then sign in (5.3s)
+  ✓  147 [chromium] › e2e\workspace.spec.ts:21:5 › signed out › /realtime shows the sign-in gate (1.0s)
+  ✓  148 [chromium] › e2e\workspace.spec.ts:21:5 › signed out › /strategy shows the sign-in gate (1.4s)
+  ✘  127 [chromium] › e2e\auth\security.spec.ts:113:3 › security configuration › TC-230 the page with a reset token sends no referrer (1.0m)
+  ✓  149 [chromium] › e2e\workspace.spec.ts:21:5 › signed out › /discovery shows the sign-in gate (1.5s)
+  ✓  150 [chromium] › e2e\workspace.spec.ts:21:5 › signed out › /backtest shows the sign-in gate (1.3s)
+  ✓  151 [chromium] › e2e\workspace.spec.ts:21:5 › signed out › /news shows the sign-in gate (1.3s)
+  ✓  152 [chromium] › e2e\workspace.spec.ts:27:3 › signed out › the gate returns to the same screen after signing in (3.1s)
+  ✓  153 [chromium] › e2e\workspace.spec.ts:45:3 › signed out › Back to home leaves the gate for Landing (2.0s)
+  ✓  154 [chromium] › e2e\workspace.spec.ts:51:3 › signed out › a session check that fails shows a load error instead of the gate (3.0s)
+  ✓  155 [chromium] › e2e\workspace.spec.ts:63:3 › signed in › the header shows the account and marks the current tab (2.6s)
+  ✓  156 [chromium] › e2e\workspace.spec.ts:86:3 › signed in › the account menu works from the keyboard (2.8s)
+  ✓  157 [chromium] › e2e\workspace.spec.ts:113:3 › signed in › Sign out ends the session and opens Landing (2.5s)
+  ✓  158 [chromium] › e2e\workspace.spec.ts:131:3 › signed in › Landing offers Open workspace instead of Sign in and Create account (2.4s)
+  ✓  159 [chromium] › e2e\workspace.spec.ts:145:3 › signed in › a failed Sign out keeps the user signed in and says so (2.4s)
+  ✓  160 [chromium] › e2e\workspace.spec.ts:161:3 › signed in › a session ended in another tab shows the gate when the tab is visible again (2.0s)
+  ✓  161 [chromium] › e2e\workspace.spec.ts:183:3 › signed in › below lg the tabs and account move into a drawer (3.8s)
+
+
+  1) [chromium] › e2e\auth\a11y.spec.ts:67:3 › form error pattern › TC-242 Forgot password ─────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: /^Fix \d+ fields? to continue/ })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: /^Fix \d+ fields? to continue/ }) with timeout 10000ms
+      - waiting for getByRole('alert').filter({ hasText: /^Fix \d+ fields? to continue/ })
+
+
+      70 |     await expectFieldError(page, authForm(page).email);
+      71 |     await expect(authForm(page).email).toBeFocused();
+    > 72 |     await expect(errorList(page)).toBeVisible();
+         |                                   ^
+      73 |   });
+      74 |
+      75 |   test('TC-243 Choose a new password', async ({ page }) => {
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\a11y.spec.ts:72:35
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-a11y-form-error-pattern-TC-242-Forgot-password-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-a11y-form-error-pattern-TC-242-Forgot-password-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-a11y-form-error-pattern-TC-242-Forgot-password-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-a11y-form-error-pattern-TC-242-Forgot-password-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › e2e\auth\a11y.spec.ts:75:3 › form error pattern › TC-243 Choose a new password ───
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: /^Fix \d+ fields? to continue/ })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: /^Fix \d+ fields? to continue/ }) with timeout 10000ms
+      - waiting for getByRole('alert').filter({ hasText: /^Fix \d+ fields? to continue/ })
+
+
+      81 |     await expectFieldError(page, confirmPassword);
+      82 |     await expect(newPassword).toBeFocused();
+    > 83 |     await expect(errorList(page)).toBeVisible();
+         |                                   ^
+      84 |     await errorList(page).getByRole('button').nth(1).click();
+      85 |     await expect(confirmPassword).toBeFocused();
+      86 |   });
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\a11y.spec.ts:83:35
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-a11y-form-error-pattern-TC-243-Choose-a-new-password-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-a11y-form-error-pattern-TC-243-Choose-a-new-password-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-a11y-form-error-pattern-TC-243-Choose-a-new-password-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-a11y-form-error-pattern-TC-243-Choose-a-new-password-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-095 Full name of 101 characters 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Use 100 characters or fewer."
+    Received: null
+
+      81 |       await signUpWithName(page, name);
+      82 |       if (message) {
+    > 83 |         expect(await fieldError(authForm(page).name)).toBe(message);
+         |                                                       ^
+      84 |       } else {
+      85 |         await expect(checkEmailHeading(page)).toBeVisible();
+      86 |       }
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\forms.spec.ts:83:55
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-forms-Full-name-lengt-f8bf2-Full-name-of-101-characters-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-forms-Full-name-lengt-f8bf2-Full-name-of-101-characters-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-forms-Full-name-lengt-f8bf2-Full-name-of-101-characters-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-forms-Full-name-lengt-f8bf2-Full-name-of-101-characters-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-095 Full name of 102 characters 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Use 100 characters or fewer."
+    Received: null
+
+      81 |       await signUpWithName(page, name);
+      82 |       if (message) {
+    > 83 |         expect(await fieldError(authForm(page).name)).toBe(message);
+         |                                                       ^
+      84 |       } else {
+      85 |         await expect(checkEmailHeading(page)).toBeVisible();
+      86 |       }
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\forms.spec.ts:83:55
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-forms-Full-name-lengt-f2829-Full-name-of-102-characters-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-forms-Full-name-lengt-f2829-Full-name-of-102-characters-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-forms-Full-name-lengt-f2829-Full-name-of-102-characters-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-forms-Full-name-lengt-f2829-Full-name-of-102-characters-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-098 Full name of 101 × emoji 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Use 100 characters or fewer."
+    Received: null
+
+      81 |       await signUpWithName(page, name);
+      82 |       if (message) {
+    > 83 |         expect(await fieldError(authForm(page).name)).toBe(message);
+         |                                                       ^
+      84 |       } else {
+      85 |         await expect(checkEmailHeading(page)).toBeVisible();
+      86 |       }
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\forms.spec.ts:83:55
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-forms-Full-name-lengt-4408b-98-Full-name-of-101-×-emoji-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-forms-Full-name-lengt-4408b-98-Full-name-of-101-×-emoji-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-forms-Full-name-lengt-4408b-98-Full-name-of-101-×-emoji-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-forms-Full-name-lengt-4408b-98-Full-name-of-101-×-emoji-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium] › e2e\auth\forms.spec.ts:153:5 › form fields › TC-135 row 1: an empty field ────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Fill in both fields.')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Fill in both fields.') with timeout 10000ms
+      - waiting for getByText('Fill in both fields.')
+
+
+      157 |       await authForm(page).confirmPassword.fill(confirm);
+      158 |       await authForm(page).saveNewPassword.click();
+    > 159 |       await expect(page.getByText(message ?? '')).toBeVisible();
+          |                                                   ^
+      160 |     });
+      161 |   }
+      162 |
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\forms.spec.ts:159:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-forms-form-fields-TC-135-row-1-an-empty-field-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-forms-form-fields-TC-135-row-1-an-empty-field-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-forms-form-fields-TC-135-row-1-an-empty-field-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-forms-form-fields-TC-135-row-1-an-empty-field-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [chromium] › e2e\auth\forms.spec.ts:223:5 › form fields › TC-141 row 1: Google returns access_denied 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Email', { exact: true })
+    Expected: "an@example.com"
+    Received: ""
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Email', { exact: true }) with timeout 10000ms
+      - waiting for getByLabel('Email', { exact: true })
+        23 × locator resolved to <input id="email" type="email" name="email" data-slot="input" autocomplete="email" class="w-full min-w-0 border border-input py-1 shadow-xs transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:border-ring focus-visible:ring-…/>
+           - unexpected value ""
+
+
+      236 |
+      237 |       await expect(page.getByRole('alert').filter({ hasText: /Google/ })).toBeVisible();
+    > 238 |       await expect(authForm(page).email).toHaveValue('an@example.com');
+          |                                          ^
+      239 |       expect(await sessionEmail(page.request)).toBeNull();
+      240 |     });
+      241 |   }
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\forms.spec.ts:238:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-forms-form-fields-TC--caa12-oogle-returns-access-denied-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-forms-form-fields-TC--caa12-oogle-returns-access-denied-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-forms-form-fields-TC--caa12-oogle-returns-access-denied-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-forms-form-fields-TC--caa12-oogle-returns-access-denied-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [chromium] › e2e\auth\forms.spec.ts:223:5 › form fields › TC-141 row 2: Google returns server_error 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Email', { exact: true })
+    Expected: "an@example.com"
+    Received: ""
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Email', { exact: true }) with timeout 10000ms
+      - waiting for getByLabel('Email', { exact: true })
+        23 × locator resolved to <input id="email" type="email" name="email" data-slot="input" autocomplete="email" class="w-full min-w-0 border border-input py-1 shadow-xs transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:border-ring focus-visible:ring-…/>
+           - unexpected value ""
+
+
+      236 |
+      237 |       await expect(page.getByRole('alert').filter({ hasText: /Google/ })).toBeVisible();
+    > 238 |       await expect(authForm(page).email).toHaveValue('an@example.com');
+          |                                          ^
+      239 |       expect(await sessionEmail(page.request)).toBeNull();
+      240 |     });
+      241 |   }
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\forms.spec.ts:238:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-forms-form-fields-TC--0560e-Google-returns-server-error-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-forms-form-fields-TC--0560e-Google-returns-server-error-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-forms-form-fields-TC--0560e-Google-returns-server-error-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-forms-form-fields-TC--0560e-Google-returns-server-error-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [chromium] › e2e\auth\forms.spec.ts:561:3 › Auth flows › TC-183 Create account with the email of an unverified account 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /confirm/i
+    Received string:  "
+    To: unverified-7a202e47-e9a9-401f-bad7-61c9bf530821@example.com
+    Subject: You already have a Crypto Force account
+    Someone tried to create a Crypto Force account with this email address, but it already has an account.
+    Sign in: http://localhost:5173/sign-in
+    Forgot your password? Reset it at http://localhost:5173/forgot-password. If this wasn’t you, ignore this email.
+    "
+
+      568 |     expect(notice.text).toMatch(/\/sign-in/);
+      569 |     expect(notice.text).toMatch(/\/forgot-password/);
+    > 570 |     expect(notice.text).toMatch(/confirm/i);
+          |                         ^
+      571 |     expect(await countUsers(u.email)).toBe(1);
+      572 |   });
+      573 |
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\forms.spec.ts:570:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-forms-Auth-flows-TC-1-92fbc-il-of-an-unverified-account-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-forms-Auth-flows-TC-1-92fbc-il-of-an-unverified-account-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-forms-Auth-flows-TC-1-92fbc-il-of-an-unverified-account-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-forms-Auth-flows-TC-1-92fbc-il-of-an-unverified-account-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [chromium] › e2e\auth\forms.spec.ts:574:3 › Auth flows › TC-184 reloading Check your email shows Create account 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Create your account' })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Create your account' }) with timeout 10000ms
+      - waiting for getByRole('heading', { name: 'Create your account' })
+
+
+      577 |     await expect(checkEmailHeading(page)).toBeVisible();
+      578 |     await page.reload();
+    > 579 |     await expect(createHeading(page)).toBeVisible();
+          |                                       ^
+      580 |   });
+      581 | });
+      582 |
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\forms.spec.ts:579:39
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-forms-Auth-flows-TC-1-74565--email-shows-Create-account-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-forms-Auth-flows-TC-1-74565--email-shows-Create-account-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-forms-Auth-flows-TC-1-74565--email-shows-Create-account-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-forms-Auth-flows-TC-1-74565--email-shows-Create-account-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [chromium] › e2e\auth\limits.spec.ts:126:3 › TC-138 Sign in lock message while editing › editing the password keeps the lock message 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: /Too many attempts/ })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: /Too many attempts/ }) with timeout 10000ms
+      - waiting for getByRole('alert').filter({ hasText: /Too many attempts/ })
+
+
+      128 |     await pressSignInFourTimes(page, 'nobody@example.test', WRONG_PASSWORD);
+      129 |     const lock = page.getByRole('alert').filter({ hasText: /Too many attempts/ });
+    > 130 |     await expect(lock).toBeVisible();
+          |                        ^
+      131 |
+      132 |     await authForm(page).password.fill(`${WRONG_PASSWORD}x`);
+      133 |     await expect(lock).toBeVisible();
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\limits.spec.ts:130:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-limits-TC-138-Sign-in-fb928-word-keeps-the-lock-message-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-limits-TC-138-Sign-in-fb928-word-keeps-the-lock-message-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-limits-TC-138-Sign-in-fb928-word-keeps-the-lock-message-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-limits-TC-138-Sign-in-fb928-word-keeps-the-lock-message-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [chromium] › e2e\auth\limits.spec.ts:140:3 › TC-175 Sign in lock in the UI › the 4th press locks Sign in and suggests waiting or resetting the password 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: /wait|try again/i })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: /wait|try again/i }) with timeout 10000ms
+      - waiting for getByRole('alert').filter({ hasText: /wait|try again/i })
+
+
+      146 |
+      147 |     const lock = page.getByRole('alert').filter({ hasText: /wait|try again/i });
+    > 148 |     await expect(lock).toBeVisible();
+          |                        ^
+      149 |     await expect(lock.getByRole('link', { name: /reset password/i })).toBeVisible();
+      150 |     expect(await sessionEmail(page.request)).toBeNull();
+      151 |   });
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\limits.spec.ts:148:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-limits-TC-175-Sign-in-08646-g-or-resetting-the-password-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-limits-TC-175-Sign-in-08646-g-or-resetting-the-password-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-limits-TC-175-Sign-in-08646-g-or-resetting-the-password-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-limits-TC-175-Sign-in-08646-g-or-resetting-the-password-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [chromium] › e2e\auth\links.spec.ts:184:3 › verification link › TC-071 the link of B while signed in as A 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('b-cdfdca28-1587-484b-a426-2ca72b132835@example.com is verified. You’re still signed in as a-520d3257-7bf4-4940-9160-ac972a21fef9@example.com.')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('b-cdfdca28-1587-484b-a426-2ca72b132835@example.com is verified. You’re still signed in as a-520d3257-7bf4-4940-9160-ac972a21fef9@example.com.') with timeout 10000ms
+      - waiting for getByText('b-cdfdca28-1587-484b-a426-2ca72b132835@example.com is verified. You’re still signed in as a-520d3257-7bf4-4940-9160-ac972a21fef9@example.com.')
+
+
+      190 |     await expect(
+      191 |       page.getByText(`${b.email} is verified. You’re still signed in as ${a.email}.`),
+    > 192 |     ).toBeVisible();
+          |       ^
+      193 |     expect(await sessionEmail(page.request)).toBe(a.email);
+      194 |     const other = await contextWithIp(browser);
+      195 |     const otherPage = await other.newPage();
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\links.spec.ts:192:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-links-verification-li-eb79e-k-of-B-while-signed-in-as-A-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-links-verification-li-eb79e-k-of-B-while-signed-in-as-A-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-links-verification-li-eb79e-k-of-B-while-signed-in-as-A-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-links-verification-li-eb79e-k-of-B-while-signed-in-as-A-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [chromium] › e2e\auth\links.spec.ts:202:3 › verification link › TC-072 an expired link without a session 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: /resend|new link/i }).or(getByRole('link', { name: /resend|new link/i }))
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: /resend|new link/i }).or(getByRole('link', { name: /resend|new link/i })) with timeout 10000ms
+      - waiting for getByRole('button', { name: /resend|new link/i }).or(getByRole('link', { name: /resend|new link/i }))
+
+
+      63 |       .getByRole('button', { name: /resend|new link/i })
+      64 |       .or(page.getByRole('link', { name: /resend|new link/i })),
+    > 65 |   ).toBeVisible();
+         |     ^
+      66 | };
+      67 |
+      68 | async function saveNewPassword(page: Page, password: string, confirm = password) {
+        at verificationLinkError (C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\links.spec.ts:65:5)
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\links.spec.ts:205:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-links-verification-li-ea233-ired-link-without-a-session-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-links-verification-li-ea233-ired-link-without-a-session-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-links-verification-li-ea233-ired-link-without-a-session-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-links-verification-li-ea233-ired-link-without-a-session-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [chromium] › e2e\auth\links.spec.ts:284:5 › verification link › TC-078 row 1: an expired link with the session of B 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: /confirmation link/i })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: /confirmation link/i }) with timeout 10000ms
+      - waiting for getByRole('alert').filter({ hasText: /confirmation link/i })
+
+
+      58 | const verificationLinkError = async (page: Page) => {
+      59 |   const alert = page.getByRole('alert').filter({ hasText: /confirmation link/i });
+    > 60 |   await expect(alert).toBeVisible();
+         |                       ^
+      61 |   await expect(
+      62 |     page
+      63 |       .getByRole('button', { name: /resend|new link/i })
+        at verificationLinkError (C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\links.spec.ts:60:23)
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\links.spec.ts:297:13
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-links-verification-li-276a2--link-with-the-session-of-B-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-links-verification-li-276a2--link-with-the-session-of-B-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-links-verification-li-276a2--link-with-the-session-of-B-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-links-verification-li-276a2--link-with-the-session-of-B-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [chromium] › e2e\auth\links.spec.ts:284:5 › verification link › TC-078 row 2: an expired link with the session of A 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: /confirmation link/i })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: /confirmation link/i }) with timeout 10000ms
+      - waiting for getByRole('alert').filter({ hasText: /confirmation link/i })
+
+
+      58 | const verificationLinkError = async (page: Page) => {
+      59 |   const alert = page.getByRole('alert').filter({ hasText: /confirmation link/i });
+    > 60 |   await expect(alert).toBeVisible();
+         |                       ^
+      61 |   await expect(
+      62 |     page
+      63 |       .getByRole('button', { name: /resend|new link/i })
+        at verificationLinkError (C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\links.spec.ts:60:23)
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\links.spec.ts:297:13
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-links-verification-li-eddab--link-with-the-session-of-A-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-links-verification-li-eddab--link-with-the-session-of-A-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-links-verification-li-eddab--link-with-the-session-of-A-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-links-verification-li-eddab--link-with-the-session-of-A-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [chromium] › e2e\auth\links.spec.ts:302:3 › verification link › TC-145 a changed token in the verification link 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: /resend|new link/i }).or(getByRole('link', { name: /resend|new link/i }))
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('button', { name: /resend|new link/i }).or(getByRole('link', { name: /resend|new link/i })) with timeout 10000ms
+      - waiting for getByRole('button', { name: /resend|new link/i }).or(getByRole('link', { name: /resend|new link/i }))
+
+
+      63 |       .getByRole('button', { name: /resend|new link/i })
+      64 |       .or(page.getByRole('link', { name: /resend|new link/i })),
+    > 65 |   ).toBeVisible();
+         |     ^
+      66 | };
+      67 |
+      68 | async function saveNewPassword(page: Page, password: string, confirm = password) {
+        at verificationLinkError (C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\links.spec.ts:65:5)
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\links.spec.ts:305:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-links-verification-li-05f7f-en-in-the-verification-link-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-links-verification-li-05f7f-en-in-the-verification-link-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-links-verification-li-05f7f-en-in-the-verification-link-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-links-verification-li-05f7f-en-in-the-verification-link-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [chromium] › e2e\auth\links.spec.ts:350:3 › Reset password flows › TC-187 Reset password from the Backtest gate returns to Backtest 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Backtest', exact: true, level: 1 })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Backtest', exact: true, level: 1 }) with timeout 10000ms
+      - waiting for getByRole('heading', { name: 'Backtest', exact: true, level: 1 })
+        - waiting for "http://localhost:5173/realtime" navigation to finish...
+        - navigated to "http://localhost:5173/realtime"
+
+
+      360 |     await page.getByRole('link', { name: 'Sign in' }).click();
+      361 |     await fillSignIn(page, user.email, NEW_PASSWORD);
+    > 362 |     await expect(backtestHeading(page)).toBeVisible();
+          |                                         ^
+      363 |   });
+      364 |
+      365 |   test('TC-188 a reset link opened while signed in', async ({ page, context }) => {
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\links.spec.ts:362:41
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-links-Reset-password--d5a4f-st-gate-returns-to-Backtest-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-links-Reset-password--d5a4f-st-gate-returns-to-Backtest-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-links-Reset-password--d5a4f-st-gate-returns-to-Backtest-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-links-Reset-password--d5a4f-st-gate-returns-to-Backtest-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [chromium] › e2e\auth\security.spec.ts:99:3 › security configuration › TC-227 security headers on API responses 
+
+    Error: /api/auth/get-session
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "nosniff"
+    Received: undefined
+
+      100 |     for (const path of ['/api/auth/get-session', '/api/auth-config', '/api/does-not-exist']) {
+      101 |       const headers = (await page.request.get(path, { headers: APP_ORIGIN_HEADERS })).headers();
+    > 102 |       expect(headers['x-content-type-options'], path).toBe('nosniff');
+          |                                                       ^
+      103 |       expect(headers['referrer-policy'], path).toBe('no-referrer');
+      104 |       expect(headers['content-security-policy'] ?? '', path).toMatch(/frame-ancestors 'none'/);
+      105 |     }
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\security.spec.ts:102:55
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-security-security-con-f7a53-ty-headers-on-API-responses-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-security-security-con-f7a53-ty-headers-on-API-responses-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-security-security-con-f7a53-ty-headers-on-API-responses-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-security-security-con-f7a53-ty-headers-on-API-responses-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [chromium] › e2e\auth\security.spec.ts:113:3 › security configuration › TC-230 the page with a reset token sends no referrer 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected value: "no-referrer"
+    Received array: [undefined, null]
+
+      119 |       .getAttribute('content')
+      120 |       .catch(() => null);
+    > 121 |     expect([header, meta]).toContain('no-referrer');
+          |                            ^
+      122 |   });
+      123 | });
+      124 |
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\auth\security.spec.ts:121:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\auth-security-security-con-44841-set-token-sends-no-referrer-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\auth-security-security-con-44841-set-token-sends-no-referrer-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\auth-security-security-con-44841-set-token-sends-no-referrer-chromium\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\auth-security-security-con-44841-set-token-sends-no-referrer-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20 failed
+    [chromium] › e2e\auth\a11y.spec.ts:67:3 › form error pattern › TC-242 Forgot password ──────────
+    [chromium] › e2e\auth\a11y.spec.ts:75:3 › form error pattern › TC-243 Choose a new password ────
+    [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-095 Full name of 101 characters 
+    [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-095 Full name of 102 characters 
+    [chromium] › e2e\auth\forms.spec.ts:80:5 › Full name length in the form › TC-098 Full name of 101 × emoji 
+    [chromium] › e2e\auth\forms.spec.ts:153:5 › form fields › TC-135 row 1: an empty field ─────────
+    [chromium] › e2e\auth\forms.spec.ts:223:5 › form fields › TC-141 row 1: Google returns access_denied 
+    [chromium] › e2e\auth\forms.spec.ts:223:5 › form fields › TC-141 row 2: Google returns server_error 
+    [chromium] › e2e\auth\forms.spec.ts:561:3 › Auth flows › TC-183 Create account with the email of an unverified account 
+    [chromium] › e2e\auth\forms.spec.ts:574:3 › Auth flows › TC-184 reloading Check your email shows Create account 
+    [chromium] › e2e\auth\limits.spec.ts:126:3 › TC-138 Sign in lock message while editing › editing the password keeps the lock message 
+    [chromium] › e2e\auth\limits.spec.ts:140:3 › TC-175 Sign in lock in the UI › the 4th press locks Sign in and suggests waiting or resetting the password 
+    [chromium] › e2e\auth\links.spec.ts:184:3 › verification link › TC-071 the link of B while signed in as A 
+    [chromium] › e2e\auth\links.spec.ts:202:3 › verification link › TC-072 an expired link without a session 
+    [chromium] › e2e\auth\links.spec.ts:284:5 › verification link › TC-078 row 1: an expired link with the session of B 
+    [chromium] › e2e\auth\links.spec.ts:284:5 › verification link › TC-078 row 2: an expired link with the session of A 
+    [chromium] › e2e\auth\links.spec.ts:302:3 › verification link › TC-145 a changed token in the verification link 
+    [chromium] › e2e\auth\links.spec.ts:350:3 › Reset password flows › TC-187 Reset password from the Backtest gate returns to Backtest 
+    [chromium] › e2e\auth\security.spec.ts:99:3 › security configuration › TC-227 security headers on API responses 
+    [chromium] › e2e\auth\security.spec.ts:113:3 › security configuration › TC-230 the page with a reset token sends no referrer 
+  141 passed (7.6m)
+undefined
+C:\Users\Duy\Desktop\crypto-force\apps\web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "playwright" not found
+exit=1
