@@ -2,7 +2,11 @@ import { useSearchParams } from 'react-router';
 import { ResetPasswordPage } from '~/pages/Auth/ResetPasswordPage';
 
 export function meta() {
-  return [{ title: 'Choose a new password – Crypto Force' }];
+  return [
+    { title: 'Choose a new password – Crypto Force' },
+    // The URL holds the reset token; never send it in a Referer header.
+    { name: 'referrer', content: 'no-referrer' },
+  ];
 }
 
 export default function ResetPasswordRoute() {

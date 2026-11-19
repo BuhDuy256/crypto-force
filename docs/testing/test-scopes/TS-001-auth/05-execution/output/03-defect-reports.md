@@ -34,7 +34,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 | DEF-15 | Tải lại Check your email vẫn ở Check your email | Product | Minor / Trung bình | Open | RUN-013 |
 | DEF-16 | Reset password bắt đầu từ màn chặn Backtest mở Realtime sau Sign in | Product | Minor / Trung bình | Open | RUN-013 |
 | DEF-17 | Response của API không có `X-Content-Type-Options`, `Referrer-Policy`, CSP `frame-ancestors` | Product | Minor / Trung bình | Open | RUN-013 |
-| DEF-18 | Trang có token reset không đặt `Referrer-Policy: no-referrer` | Product | Major / Cao | Open | RUN-013 |
+| DEF-18 | Trang có token reset không đặt `Referrer-Policy: no-referrer` | Product | Major / Cao | Fixed | RUN-013 |
 | DEF-19 | Google với email của tài khoản chưa xác minh: Auth hiện thông báo chung thay vì báo email đã đăng ký | Product | Minor / Trung bình | Open | RUN-007 (AN-02) |
 
 Hai anomaly không phải defect nằm ở Test Log mục 2.1: BL-01 (Resend chế độ test, nguyên nhân Environment) và AN-01 (setup sai, nguyên nhân Test). Hai ghi chú để quyết định sau, chưa phải defect: khi Resend từ chối gửi, Auth vẫn hiện "Check your email" (Test Log mục 2.1); TC-200 và TC-209 ghi nguồn không khớp ở DV-03 (Test Log mục 2.3).
@@ -250,6 +250,7 @@ Mỗi report dưới đây ghi phần riêng: test case, expected (nguồn), act
 | Actual | `Expected value: "no-referrer"; Received array: [undefined, null]` (EV-013) |
 | Severity | Major: token reset nằm trong URL của trang và có thể rò rỉ qua header Referer khi trang tải tài nguyên hoặc người dùng bấm link ra ngoài |
 | Tham chiếu | MD-15-CI-25 |
+| Bản sửa | Commit `fix(auth): send no referrer from the reset password page` trên branch `fix/auth-major-defects`: route `reset-password` đặt `<meta name="referrer" content="no-referrer">`. TC-230 pass |
 
 ### DEF-19: Google với email của tài khoản chưa xác minh hiện thông báo chung
 
