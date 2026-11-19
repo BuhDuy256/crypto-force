@@ -156,7 +156,7 @@ test.describe('form fields', () => {
       await authForm(page).newPassword.fill(newPassword);
       await authForm(page).confirmPassword.fill(confirm);
       await authForm(page).saveNewPassword.click();
-      await expect(page.getByText(message ?? '')).toBeVisible();
+      await expect(page.getByText(message ?? '', { exact: true })).toBeVisible();
     });
   }
 

@@ -122,7 +122,7 @@ test.describe('reset link', () => {
     const user = await createVerifiedUser();
     await page.goto(await resetLink(user.email));
     await saveNewPassword(page, 'Short12');
-    await expect(page.getByText(MESSAGES.passwordMin)).toBeVisible();
+    await expect(page.getByText(MESSAGES.passwordMin, { exact: true })).toBeVisible();
     expect(await passwordWorks(user.email, user.password)).toBe(true);
 
     await saveNewPassword(page, NEW_PASSWORD);

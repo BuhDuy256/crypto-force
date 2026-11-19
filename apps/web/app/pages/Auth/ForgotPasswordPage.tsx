@@ -7,6 +7,7 @@ import { Button } from '~/components/ui/button';
 import { useRequestPasswordReset } from '~/hooks/useAuth';
 import { authPath } from '~/utils/auth-redirect';
 import { AuthField } from './components/AuthField';
+import { ErrorSummary } from './components/ErrorSummary';
 import { FormAlert } from './components/FormAlert';
 import { AuthHeading } from './components/NextNote';
 
@@ -22,7 +23,7 @@ export function ForgotPasswordPage({ next, initialEmail }: ForgotPasswordPagePro
     defaultValues: { email: initialEmail },
   });
   const email = useWatch({ control: form.control, name: 'email' });
-  const { errors } = form.formState;
+  const { errors, isSubmitted } = form.formState;
 
   const onSubmit = form.handleSubmit((input) => {
     request.mutate({ email: input.email, redirectTo: authPath('/reset-password', next) });
@@ -52,6 +53,22 @@ export function ForgotPasswordPage({ next, initialEmail }: ForgotPasswordPagePro
           <p className="m-0 text-base leading-normal text-muted-foreground">
             Enter the email you signed up with and we’ll send a link to choose a new password.
           </p>
+          <ErrorSummary
+            errors={
+              isSubmitted
+                ? [
+                    errors.email && {
+                      field: 'email' as const,
+                      label: 'Email',
+                      message: errors.email.message,
+                    },
+                  ]
+                : []
+            }
+            onSelect={(field) => {
+              form.setFocus(field);
+            }}
+          />
           <AuthField
             id="email"
             label="Email"

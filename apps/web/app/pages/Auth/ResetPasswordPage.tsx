@@ -10,6 +10,7 @@ import { Button } from '~/components/ui/button';
 import { AuthRequestError, useResetPassword } from '~/hooks/useAuth';
 import { authPath } from '~/utils/auth-redirect';
 import { PasswordField } from './components/AuthField';
+import { ErrorSummary } from './components/ErrorSummary';
 import { FormAlert } from './components/FormAlert';
 import { AuthHeading } from './components/NextNote';
 
@@ -41,7 +42,7 @@ export function ResetPasswordPage({ token, next }: { token: string | null; next:
     mode: 'onChange',
     defaultValues: { newPassword: '', confirmPassword: '' },
   });
-  const { errors } = form.formState;
+  const { errors, isSubmitted } = form.formState;
 
   const tokenRejected =
     reset.error instanceof AuthRequestError && reset.error.code === 'INVALID_TOKEN';
@@ -72,6 +73,27 @@ export function ResetPasswordPage({ token, next }: { token: string | null; next:
     <section aria-labelledby="auth-title" className="mx-auto flex w-full max-w-108 flex-col gap-4">
       <AuthHeading>Choose a new password</AuthHeading>
       <form noValidate onSubmit={(event) => void onSubmit(event)} className="flex flex-col gap-4">
+        <ErrorSummary
+          errors={
+            isSubmitted
+              ? [
+                  errors.newPassword && {
+                    field: 'newPassword' as const,
+                    label: 'New password',
+                    message: errors.newPassword.message,
+                  },
+                  errors.confirmPassword && {
+                    field: 'confirmPassword' as const,
+                    label: 'Confirm new password',
+                    message: errors.confirmPassword.message,
+                  },
+                ]
+              : []
+          }
+          onSelect={(field) => {
+            form.setFocus(field);
+          }}
+        />
         <PasswordField
           id="new-password"
           label="New password"

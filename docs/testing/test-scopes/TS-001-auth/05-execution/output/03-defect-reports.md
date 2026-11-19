@@ -27,7 +27,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 | DEF-08 | Schema form không giới hạn password 128 ký tự và Full name 100 ký tự | Product | Minor / Trung bình | Fixed | RUN-012, RUN-013 |
 | DEF-09 | Mở link xác minh của B khi đang đăng nhập A chuyển phiên sang B, không có thông báo | Product | Major / Cao | Fixed | RUN-013 |
 | DEF-10 | Link xác minh lỗi: không có cách gửi lại link; khi có phiên thì không có thông báo lỗi | Product | Minor / Trung bình | Fixed | RUN-013 |
-| DEF-11 | Form Forgot password và Choose a new password không có danh sách lỗi | Product | Minor / Trung bình | Open | RUN-013 |
+| DEF-11 | Form Forgot password và Choose a new password không có danh sách lỗi | Product | Minor / Trung bình | Fixed | RUN-013 |
 | DEF-12 | New password trống báo "Use at least 8 characters." thay vì "Fill in both fields." | Product | Trivial / Thấp | Fixed | RUN-013 |
 | DEF-13 | Google trả lỗi thì email đã nhập ở form Sign in bị mất | Product | Minor / Trung bình | Fixed | RUN-013 |
 | DEF-14 | Email "You already have an account" gửi cho tài khoản chưa xác minh không hướng dẫn xác nhận email | Product | Minor / Trung bình | Fixed | RUN-013 |
@@ -311,3 +311,4 @@ Chưa có bản sửa nào. Khi một defect được sửa, thêm dòng cho def
 | Bản sửa | Commit `fix(web): keep the pending destination through password reset` trên branch `fix/auth-major-defects`: Forgot password gửi `redirectTo` là `/reset-password?next=…`; nút Sign in sau khi lưu password mang theo `next`. TC-187 pass |
 | Bản sửa | Commit `fix(auth): explain how to confirm the email in the existing-account email` trên branch `fix/auth-major-defects`: email "You already have a Crypto Force account" gửi cho tài khoản chưa xác minh có thêm hướng dẫn: Reset password, Sign in rồi chọn "Resend the link" để xác nhận email. TC-182, TC-183 pass |
 | Bản sửa | Commit `fix(web): tell the user the email has an account when Google cannot link it` trên branch `fix/auth-major-defects`: khi Google trả `error=account_not_linked`, Sign in báo email đã có tài khoản, gợi ý Sign in bằng password hoặc Reset password (có link Reset password). Đã kiểm tay trên trình duyệt với URL của RUN-007; chưa chạy lại với Google thật |
+| Bản sửa | Commit `fix(web): add the error list to Forgot password and Choose a new password` trên branch `fix/auth-major-defects`: hai form có `ErrorSummary` theo pattern của prototype. Locator của TC-135 và TC-061 thêm `{ exact: true }` (người dùng duyệt ngày 2026-11-19), vì câu lỗi giờ có cả trong danh sách và dưới ô. TC-242, TC-243, TC-135, TC-061 pass |
