@@ -30,7 +30,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 | DEF-11 | Form Forgot password và Choose a new password không có danh sách lỗi | Product | Minor / Trung bình | Open | RUN-013 |
 | DEF-12 | New password trống báo "Use at least 8 characters." thay vì "Fill in both fields." | Product | Trivial / Thấp | Fixed | RUN-013 |
 | DEF-13 | Google trả lỗi thì email đã nhập ở form Sign in bị mất | Product | Minor / Trung bình | Fixed | RUN-013 |
-| DEF-14 | Email "You already have an account" gửi cho tài khoản chưa xác minh không hướng dẫn xác nhận email | Product | Minor / Trung bình | Open | RUN-013 |
+| DEF-14 | Email "You already have an account" gửi cho tài khoản chưa xác minh không hướng dẫn xác nhận email | Product | Minor / Trung bình | Fixed | RUN-013 |
 | DEF-15 | Tải lại Check your email vẫn ở Check your email | Product | Minor / Trung bình | Fixed | RUN-013 |
 | DEF-16 | Reset password bắt đầu từ màn chặn Backtest mở Realtime sau Sign in | Product | Minor / Trung bình | Fixed | RUN-013 |
 | DEF-17 | Response của API không có `X-Content-Type-Options`, `Referrer-Policy`, CSP `frame-ancestors` | Product | Minor / Trung bình | Fixed | RUN-013 |
@@ -309,3 +309,4 @@ Chưa có bản sửa nào. Khi một defect được sửa, thêm dòng cho def
 | Bản sửa | Commit `fix(web): keep the typed email when Google sign-in fails` trên branch `fix/auth-major-defects`: nút Continue with Google lưu email đang nhập vào `sessionStorage` của tab; khi Google trả lỗi, Sign in điền lại email đó rồi xóa giá trị đã lưu. Email không được đưa vào URL. TC-141 pass |
 | Bản sửa | Commit `fix(web): offer a new verification link when a link fails` trên branch `fix/auth-major-defects`: thông báo lỗi link xác minh trên Sign in có nút Send a new link (gửi lại tới email trong form); `auth-layout` không chuyển hướng khi Sign in mang lỗi của link, nên lỗi vẫn hiện khi trình duyệt có phiên. TC-072, TC-078, TC-145 pass |
 | Bản sửa | Commit `fix(web): keep the pending destination through password reset` trên branch `fix/auth-major-defects`: Forgot password gửi `redirectTo` là `/reset-password?next=…`; nút Sign in sau khi lưu password mang theo `next`. TC-187 pass |
+| Bản sửa | Commit `fix(auth): explain how to confirm the email in the existing-account email` trên branch `fix/auth-major-defects`: email "You already have a Crypto Force account" gửi cho tài khoản chưa xác minh có thêm hướng dẫn: Reset password, Sign in rồi chọn "Resend the link" để xác nhận email. TC-182, TC-183 pass |

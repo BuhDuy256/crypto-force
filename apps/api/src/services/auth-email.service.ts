@@ -51,14 +51,19 @@ export function createAuthEmails(mailer: Mailer, appUrl: string) {
     },
 
     /** Sent when someone tries to create an account with an email that already has one. */
-    sendExistingAccount(to: string) {
+    /** `emailVerified: false` adds how to confirm the email (authentication.md, Create account). */
+    sendExistingAccount(to: string, emailVerified: boolean) {
+      const resetUrl = new URL('/forgot-password', appUrl).toString();
+      const outro = emailVerified
+        ? `Forgot your password? Reset it at ${resetUrl}. If this wasn’t you, ignore this email.`
+        : `This email is not confirmed yet. Reset your password at ${resetUrl}, then sign in and choose “Resend the link” to confirm your email. If this wasn’t you, ignore this email.`;
       return mailer.send(
         buildMessage(
           to,
           'You already have a Crypto Force account',
           'Someone tried to create a Crypto Force account with this email address, but it already has an account.',
           { label: 'Sign in', url: new URL('/sign-in', appUrl).toString() },
-          `Forgot your password? Reset it at ${new URL('/forgot-password', appUrl).toString()}. If this wasn’t you, ignore this email.`,
+          outro,
         ),
       );
     },

@@ -89,7 +89,10 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
         return Promise.resolve();
       },
       onExistingUserSignUp: ({ user }) => {
-        sendInBackground(emails.sendExistingAccount(user.email), 'existing-account');
+        sendInBackground(
+          emails.sendExistingAccount(user.email, user.emailVerified),
+          'existing-account',
+        );
         return Promise.resolve();
       },
     },
