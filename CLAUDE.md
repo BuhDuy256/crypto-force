@@ -24,7 +24,7 @@
 20. Email: `Resend`
 21. Validation: `Zod` (schema dùng chung trong `packages/shared`: strategy definition, cấu hình backtest, snapshot của run, giới hạn Search, biến môi trường)
 22. Logging: `pino`
-23. Testing: công cụ chọn theo [`docs/testing/test-strategy.md`](docs/testing/test-strategy.md) — Open ([OQ-069](docs/open-questions.md#oq-069))
+23. Testing: `Vitest` (unit, integration với PostgreSQL chạy bằng Docker Compose), `Playwright` (E2E); công cụ khác chọn theo [`docs/testing/test-strategy.md`](docs/testing/test-strategy.md)
 24. Code Quality: `ESLint` (`typescript-esli nt` strict), `Prettier`
 
 ## Commands
@@ -35,9 +35,11 @@ Chạy từ thư mục gốc; yêu cầu Node.js `>=22.22` (React Router 8) và 
 02. `pnpm db:up` / `pnpm db:down`: bật / tắt PostgreSQL qua Docker Compose (cần file `.env`, tạo từ `.env.example`).
 03. `pnpm dev`: chạy song song `apps/web` (Vite, cổng 5173, proxy `/api` sang API), `apps/api` (cổng 3000) và `apps/worker`.
 04. `pnpm check`: chạy lần lượt `pnpm typecheck`, `pnpm lint`, `pnpm format:check`; bắt buộc pass trước khi commit. `pnpm lint` cũng kiểm tra dependency boundaries, layer rules và anti-pattern bị cấm trong `eslint.config.js`.
-05. `pnpm build`: build mọi app (`tsup` cho API/Worker, `react-router build` cho Web).
-06. `pnpm db:generate` / `pnpm db:migrate`: sinh và áp dụng migration Drizzle (`apps/api/drizzle/`).
-07. Thêm dependency: `pnpm --filter @crypto-force/<web|api|worker|shared|engine> add <package>`.
+05. `pnpm test`: component test của `packages/shared` và `apps/web`, rồi integration test của `apps/api` (Vitest) trên database `<POSTGRES_DB>_test`. Database này được tạo lại từ migration mỗi lần chạy; cần `pnpm db:up`. `pnpm test:e2e`: E2E của `apps/web` (Playwright). Lệnh này tự khởi động hai server E2E theo `apps/web/e2e/environment.ts`: một server có Google (cổng 5173, API 3000), một server không có Google (cổng 5174, API 3001). Mỗi server có database riêng và in email ra console thay vì gửi. Dừng `pnpm dev` trước khi chạy `pnpm test:e2e`, vì server E2E cần các cổng này.
+06. `pnpm build`: build mọi app (`tsup` cho API/Worker, `react-router build` cho Web).
+07. `pnpm db:generate` / `pnpm db:migrate`: sinh và áp dụng migration Drizzle (`apps/api/drizzle/`).
+08. Thêm dependency: `pnpm --filter @crypto-force/<web|api|worker|shared|engine> add <package>`.
+09. Knowledge graph của code (Graphify): cài CLI ngoài repo bằng `uv tool install graphifyy`, build lần đầu bằng `graphify extract . --code-only` (chỉ AST cục bộ, không gửi gì cho LLM ngoài). `graphify-out/` đã gitignore. Cách agent dùng graph nằm ở mục `graphify` bên dưới; dùng `graphify affected "<symbol>"` trước khi sửa symbol dùng chung (ví dụ schema trong `packages/shared`) để thấy tác động qua ranh giới workspace.
 
 ## Architecture
 
@@ -82,3 +84,11 @@ Tuân thủ [ `docs/CONTRIBUTING.md` ](docs/CONTRIBUTING.md) khi tạo hoặc ch
 02. Trước khi thực hiện task, đọc các Lesson Learned có Scope liên quan đến task trong `LESSONS.md`. Chỉ áp dụng bài học còn hiệu lực, bỏ qua bài học có `Status: Deprecated`.
 03. Dùng Skill `correct` ([`.claude/skills/correct/SKILL.md`](.claude/skills/correct/SKILL.md)) khi người dùng chỉ ra lỗi của agent hoặc khi cần thêm, review hay cập nhật Lesson Learned. Lesson Learned chỉ dành cho lỗi không chặn được bằng kiến trúc, type, lint hoặc test.
 04. Không tự thêm, sửa hoặc xóa Lesson Learned khi người dùng chưa chấp thuận.
+
+## graphify
+
+01. Khi có `graphify-out/graph.json`, chạy `graphify query "<câu hỏi>"` trước lần grep hoặc đọc source đầu tiên cho mỗi câu hỏi về codebase. Chỉ đọc file thô ở những dòng mà graph hoặc lần đọc trước đã chỉ ra. Ghi quy tắc này vào prompt của mọi subagent khám phá code.
+02. Dùng `graphify path "<A>" "<B>"` cho quan hệ giữa hai symbol, `graphify explain "<concept>"` cho một khái niệm cụ thể. Trước khi sửa symbol dùng chung giữa các workspace (ví dụ schema trong `packages/shared`), chạy `graphify affected "<symbol>"` để biết nơi bị ảnh hưởng.
+03. Sau khi sửa code, chạy `graphify update .` để cập nhật graph (chỉ AST, không tốn API).
+04. Graph chỉ index code (`--code-only`). Không chạy `graphify extract` thiếu `--code-only` hoặc `graphify label`: chúng gửi nội dung `docs/` hoặc tên symbol cho LLM bên ngoài. Khi chạy `graphify cluster-only`, thêm `--no-label`.
+05. `graphify-out/` được gitignore, không commit và không cần review. Graph là công cụ điều hướng, không thay thế đọc code: kết quả `INFERRED` phải kiểm tra lại trên source trước khi dựa vào.

@@ -31,3 +31,79 @@ jobs:
       - run: pnpm check
 
       - run: pnpm build
+
+  # Component and integration tests (`pnpm test`) on PostgreSQL. Each test must be able to fail, so
+  # a red test blocks the merge; do not skip a test to make this job pass
+  # (docs/development/coding-guidelines.md#testware).
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: crypto_force
+          POSTGRES_PASSWORD: crypto_force
+          POSTGRES_DB: crypto_force
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U crypto_force -d crypto_force"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://crypto_force:crypto_force@localhost:5432/crypto_force
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm test
+
+  # System tests (`pnpm test:e2e`) on pull requests into main, because they take about 12 minutes.
+  # `apps/web/e2e/environment.ts` gives the servers every other setting. The auth secret is a
+  # test-only value, not a secret.
+  e2e:
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: crypto_force
+          POSTGRES_PASSWORD: crypto_force
+          POSTGRES_DB: crypto_force
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U crypto_force -d crypto_force"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://crypto_force:crypto_force@localhost:5432/crypto_force
+      BETTER_AUTH_SECRET: e2e-only-secret-not-used-outside-ci-0123456789
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @crypto-force/web exec playwright install --with-deps chromium
+
+      - run: pnpm test:e2e

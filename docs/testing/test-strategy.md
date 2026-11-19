@@ -71,7 +71,7 @@ Mức ưu tiên: **High** là sai thì kết quả hệ thống mất giá trị
 | Security | R-13 | Kiểm tra các quy tắc Auth; quét dependency có lỗ hổng; quét lỗi web phổ biến (OWASP Top 10) |
 | Observability | R-15 | Kiểm tra trạng thái loop, số job lỗi, thời gian backtest được ghi log và truy vấn được |
 | E2E | R-05, R-08, R-14 | Các flow chính: tạo strategy → backtest → xem run; Start search → Leaderboard → Re-test |
-| Accessibility | R-16 | Quét tự động trên các màn hình chính; kiểm tra điều hướng bàn phím ở Leaderboard, drawer, tab Auth |
+| Accessibility | R-16 | Quét tự động trên các màn hình chính, kể cả trạng thái lỗi; test không đạt khi có vi phạm mức `serious` hoặc `critical`. Kiểm tra điều hướng bàn phím ở Leaderboard, drawer, tab Auth |
 | Visual regression | R-17 | So ảnh chụp các màn hình chính ở Desktop, Tablet, Mobile |
 
 ## Chiến lược theo module
@@ -111,17 +111,17 @@ Mức ưu tiên: **High** là sai thì kết quả hệ thống mất giá trị
 
 ## Công cụ
 
-Tất cả là **Proposed**. Một loại test chỉ được thêm công cụ khi loại test đó được giữ lại trong strategy.
+`Vitest` và `Playwright` là **Confirmed**; các công cụ còn lại là **Proposed**. Một loại test chỉ được thêm công cụ khi loại test đó được giữ lại trong strategy.
 
 | Công cụ | Dùng cho loại test | Rủi ro |
 | --- | --- | --- |
-| `Vitest` | Example-based unit, golden (snapshot), integration, contract, benchmark (`vitest bench`) | R-01 tới R-06, R-09, R-10, R-12 |
+| `Vitest` | Example-based unit, golden (snapshot), integration, contract, benchmark (`vitest bench`) | R-01 tới R-06, R-09, R-10, R-12, R-13 |
 | `fast-check` | Property-based, model-based state machine (`fc.commands`) | R-01 tới R-04, R-08, R-09 |
 | `Testcontainers` | Khởi tạo PostgreSQL sạch cho integration test | R-05, R-09, R-13 |
 | Mock WebSocket server tự viết (dùng `ws`) | Giả lập Binance, tạo mất kết nối | R-07 |
 | `Toxiproxy` | Tạo độ trễ, ngắt mạng giữa app và DB hoặc mock | R-07, R-09, R-11 |
 | `k6` | Load test REST và WebSocket | R-12 |
-| `Playwright` | E2E, visual regression (screenshot) | R-05, R-08, R-14, R-17 |
+| `Playwright` | E2E, visual regression (screenshot) | R-05, R-08, R-13, R-14, R-17 |
 | `@axe-core/playwright` | Accessibility | R-16 |
 | `pnpm audit` | Quét dependency có lỗ hổng | R-13 |
 | `OWASP ZAP` | Quét lỗi web phổ biến | R-13 |

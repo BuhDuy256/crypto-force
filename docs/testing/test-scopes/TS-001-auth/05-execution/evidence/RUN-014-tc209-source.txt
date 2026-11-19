@@ -1,0 +1,18 @@
+# TC-209: dau ra cua cac lenh doc code. Ghi lai luc 2026-11-19 08:38:21 (UTC+7); noi dung doc la cung file nhu luc RUN-014.
+## internal-adapter.mjs dong 304
+				token: generateId(32),
+## core utils/id.mjs
+import { createRandomStringGenerator } from "@better-auth/utils/random";
+// src/utils/id.ts
+const generateId = (size) => {
+	return createRandomStringGenerator("a-z", "A-Z", "0-9")(size || 32);
+};
+export { generateId };
+## utils random.mjs dong 23, 31, 35
+		const maxValid = Math.floor(256 / charSetLength) * charSetLength;
+				crypto.getRandomValues(buf);
+			if (rand < maxValid) result += charSet[rand % charSetLength];
+## overrideAll trong better-auth/dist/api (so dong khop)
+0
+## generateId|databaseHooks|overrideAll trong apps/api/src/configs/auth.ts (so dong khop)
+0

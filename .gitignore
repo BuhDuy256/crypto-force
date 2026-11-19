@@ -15,3 +15,13 @@ coverage/
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# Playwright test output
+playwright-report/
+test-results/
+
+# Graphify output
+graphify-out/
+
+# E2E server consoles (contain one-time auth links)
+apps/web/.e2e-output/

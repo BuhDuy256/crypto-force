@@ -84,17 +84,12 @@
 
 | ID | Câu hỏi | Điều đã biết | Chặn | Ưu tiên | Nguồn |
 | --- | --- | --- | --- | --- | --- |
-| <a id="oq-044"></a>OQ-044 | Số lần thử sai, thời gian khóa và cách mở khóa? | Prototype khóa ở lần sai thứ 3, kèm thông báo "đợi vài phút" | Cấu hình Better Auth, test R-13 | Medium | [[9]](#ref-9) |
-| <a id="oq-045"></a>OQ-045 | Phiên có thời hạn bao lâu khi bật và khi tắt "Keep me signed in"? | Có checkbox, chưa thể hiện khác biệt | Cấu hình session | Medium | [[9]](#ref-9) |
-| <a id="oq-046"></a>OQ-046 | Google sign-in có tạo tài khoản mới nếu email chưa tồn tại không? Có cần bước Verify không? | Chỉ có nhánh lỗi | Luồng OAuth | Medium | [[9]](#ref-9) |
-| <a id="oq-047"></a>OQ-047 | Link reset password có hiệu lực bao lâu và dùng được mấy lần? | Có trạng thái hết hạn | Cấu hình Better Auth | Medium | [[9]](#ref-9) |
 | <a id="oq-048"></a>OQ-048 | Có cho đổi email không? Có cần xác minh email mới không? | Ô Email sửa được nhưng không được lưu | API Settings | Medium | [[10]](#ref-10) |
 | <a id="oq-049"></a>OQ-049 | Time zone ảnh hưởng tới thời gian nào: chart, tin, run, ngày "hôm nay" khi validate Backtest? "Hôm nay" tính theo time zone người dùng hay UTC? | Có lựa chọn Asia/Ho_Chi_Minh và UTC; prototype cố định "hôm nay" là 14/11/2026 | Lưu và hiển thị thời gian, validation Backtest | Medium | [[10]](#ref-10) [[4]](#ref-4) |
 | <a id="oq-050"></a>OQ-050 | Đổi password có đăng xuất các thiết bị khác không? | Chưa thể hiện | Cấu hình session | Medium | [[10]](#ref-10) |
 | <a id="oq-051"></a>OQ-051 | Nếu Google là cách đăng nhập duy nhất, có chặn Disconnect hoặc yêu cầu đặt password trước không? | Chuyển trạng thái ngay, không xác nhận | Luồng tài khoản liên kết | Medium | [[10]](#ref-10) |
 | <a id="oq-052"></a>OQ-052 | Xóa tài khoản có cần nhập password, có thời gian chờ hoặc cách khôi phục không? Backtest và phiên Search đang chạy xử lý ra sao? | Xóa ngay sau khi gõ DELETE | API xóa tài khoản, worker | Medium | [[10]](#ref-10) |
 | <a id="oq-053"></a>OQ-053 | Có cần thông báo "phiên đã hết hạn" riêng không? Dữ liệu đang nhập dở được xử lý thế nào? | Màn chặn có thông báo chung | — | Low | [[9]](#ref-9) |
-| <a id="oq-054"></a>OQ-054 | Đã đăng nhập mà mở Auth thì chuyển thẳng vào workspace hay hiện "đang đăng nhập với …"? | Auth vẫn hiện form | — | Low | [[9]](#ref-9) |
 | <a id="oq-055"></a>OQ-055 | Research defaults áp dụng cho form Backtest mới, cho Realtime, hay cả hai? Có áp dụng lại với form đang mở không? | Có Pair, Timeframe, Capital, Fee, Slippage trong Profile nhưng Backtest không đọc | — | Low | [[10]](#ref-10) |
 | <a id="oq-056"></a>OQ-056 | Undo của "Sign out thiết bị khác" có thực hiện được không, hay cần hộp thoại xác nhận trước? | Có Undo trong toast | — | Low | [[10]](#ref-10) |
 | <a id="oq-057"></a>OQ-057 | Email thông báo được gửi ngay hay gộp lại? Weekly research summary gồm nội dung gì? | Có toggle email nhưng chưa có luồng gửi | — | Low | [[10]](#ref-10) |
@@ -112,6 +107,7 @@
 | <a id="oq-065"></a>OQ-065 | "Try again" trên 404 có nên tải lại URL vừa lỗi thay vì mở Realtime không? | Nút này mở Realtime | — | Low | [[11]](#ref-11) |
 | <a id="oq-075"></a>OQ-075 | Khi tải hoặc làm mới dữ liệu thất bại (Library, Runs, News feed), màn hình nào giữ dữ liệu cũ và giữ trong bao lâu? Retry chỉ do người dùng bấm, hay hệ thống tự thử lại? | Prototype có pattern hiển thị cho lỗi tải, dữ liệu cũ được giữ lại và offline, kèm nút Retry; chưa có quy tắc retry | Xử lý lỗi API ở frontend | Low | [[14]](#ref-14) |
 | <a id="oq-076"></a>OQ-076 | Người dùng chọn theme sáng/tối thế nào: theo cài đặt hệ thống, tự chọn trong Settings, hay cả hai? Lựa chọn lưu theo tài khoản hay theo trình duyệt? | Prototype chỉ có theme tối và Settings không có tùy chọn theme. `apps/web` có token cho cả hai theme, mặc định là theme tối | UI chọn theme, lưu lựa chọn theme | Low | [[10]](#ref-10) |
+| <a id="oq-081"></a>OQ-081 | Kết quả backtest minh họa trên Landing lấy từ đâu: số cố định ghi rõ là minh họa, hay một sample run thật do `packages/engine` chạy trên dữ liệu lịch sử Binance rồi lưu thành snapshot tĩnh để prerender? Nếu dùng sample run thật thì chọn strategy, pair, timeframe, khoảng ngày, phí và slippage nào? | Landing đang hiển thị số cố định chuyển từ prototype (ví dụ +8.42%, 61.80%, 110 of 178 trades) kèm nhãn "Example" và caption nói đây không phải kết quả đã kiểm chứng. Đề xuất sample run thật chưa được chốt | Nội dung khối Backtest result trên Landing, nhãn "Example" | Low | [[11]](#ref-11) |
 
 ## Testing
 
@@ -120,7 +116,6 @@
 | <a id="oq-066"></a>OQ-066 | Backtest một candidate trên bộ nến cố định được phép mất tối đa bao lâu? | Benchmark là loại test cho R-12 | Tiêu chí vào/ra của benchmark | Medium | [[2]](#ref-2) |
 | <a id="oq-067"></a>OQ-067 | Bao nhiêu client WebSocket và bao nhiêu job đồng thời là mục tiêu của load test? | Load test là loại test cho R-12 | Kịch bản load test | Medium | [[2]](#ref-2) |
 | <a id="oq-068"></a>OQ-068 | Loại test nào chạy trên mỗi commit, loại nào chạy định kỳ? | Tiêu chí vào/ra đang là Proposed | Pipeline CI | Medium | [[2]](#ref-2) [[12]](#ref-12) |
-| <a id="oq-069"></a>OQ-069 | Chốt công cụ testing nào trong danh sách Proposed? | Danh sách công cụ gắn với từng rủi ro đã có | Tech Stack mục 23 | Medium | [[7, Tech Stack]](#ref-7) [[2]](#ref-2) |
 
 ## Resolved & Dropped
 
@@ -132,6 +127,16 @@
 | <a id="oq-073"></a>OQ-073 | Mọi run Completed dùng chung một bộ kết quả mẫu | Dropped | Đây là dữ liệu minh họa của prototype, không phải câu hỏi sản phẩm | [[4]](#ref-4) |
 | <a id="oq-061"></a>OQ-061 | "Leave without saving?" có cần chặn link trong nội dung trang và nút Back của trình duyệt không? | Resolved | Hộp thoại chặn mọi điều hướng trong ứng dụng ra khỏi Settings; Back/Forward, đóng tab và tải lại trang dùng cảnh báo của trình duyệt | [[10, Lưu Profile]](#ref-10) [[6, Rời trang khi còn thay đổi chưa lưu]](#ref-6) |
 | <a id="oq-074"></a>OQ-074 | Lỗi sai thông tin kích hoạt bằng password `wrongpass`; link reset dùng nút preview | Dropped | Đây là trigger demo của prototype, không phải yêu cầu | [[9]](#ref-9) |
+| <a id="oq-044"></a>OQ-044 | Số lần thử sai, thời gian khóa và cách mở khóa? | Resolved | Giới hạn 5 lần Sign in trong 15 phút theo địa chỉ IP, không khóa theo tài khoản; hết thời gian thì tự mở khóa | [[9, Sign in]](#ref-9) |
+| <a id="oq-045"></a>OQ-045 | Phiên có thời hạn bao lâu khi bật và khi tắt "Keep me signed in"? | Resolved | Bật: 7 ngày, tự gia hạn khi dùng. Tắt: kết thúc khi đóng trình duyệt | [[9, Sign in]](#ref-9) |
+| <a id="oq-046"></a>OQ-046 | Google sign-in có tạo tài khoản mới nếu email chưa tồn tại không? Có cần bước Verify không? | Resolved | Có tạo tài khoản mới, không cần bước Verify | [[9, Sign in]](#ref-9) |
+| <a id="oq-047"></a>OQ-047 | Link reset password có hiệu lực bao lâu và dùng được mấy lần? | Resolved | 1 giờ, dùng một lần; đặt password mới thì đăng xuất mọi phiên cũ | [[9, Reset password]](#ref-9) |
+| <a id="oq-054"></a>OQ-054 | Đã đăng nhập mà mở Auth thì chuyển thẳng vào workspace hay hiện "đang đăng nhập với …"? | Resolved | Chuyển thẳng tới đích theo quy tắc chuyển tiếp | [[9, Chuyển tiếp sau khi đăng nhập]](#ref-9) |
+| <a id="oq-069"></a>OQ-069 | Chốt công cụ testing nào trong danh sách Proposed? | Resolved | `Vitest` cho unit và integration test, `Playwright` cho E2E. Các công cụ còn lại vẫn là Proposed | [[7, Tech Stack]](#ref-7) [[2, Công cụ]](#ref-2) |
+| <a id="oq-077"></a>OQ-077 | Continue with Google bằng email đã có tài khoản email/password thì xử lý thế nào? Nếu tài khoản đó chưa xác minh email thì sao? | Resolved | Tài khoản đã xác minh thì liên kết Google vào tài khoản đó. Chưa xác minh thì không đăng nhập, Auth báo email đã được đăng ký và gợi ý Sign in hoặc Reset password | [[9, Sign in]](#ref-9) |
+| <a id="oq-078"></a>OQ-078 | Giới hạn Sign in theo ngưỡng nào, đếm lần sai hay mọi lần bấm, và tính theo IP, theo tài khoản hay cả hai? | Resolved | Dùng mặc định của Better Auth: 3 request/10 giây theo IP, đếm mọi lần bấm, không khóa theo tài khoản | [[9, Sign in]](#ref-9) [[15, Giới hạn số lần đăng nhập]](#ref-15) |
+| <a id="oq-079"></a>OQ-079 | Gửi link xác minh, gửi link reset và Create account được giới hạn bao nhiêu lần? Có cần giới hạn theo email để chặn việc spam email vào hộp thư người khác không? | Resolved | Hiện tại dùng mặc định của Better Auth theo IP. Trước khi deploy public thêm giới hạn 3 email/địa chỉ/giờ, giới hạn tổng theo ngày thấp hơn quota kèm cảnh báo, và dọn tài khoản chưa xác minh sau 7 ngày | [[15, Giới hạn gửi email]](#ref-15) |
+| <a id="oq-080"></a>OQ-080 | Có chốt các hành vi chỉ có trong code (nội dung lỗi, thời điểm báo lỗi, giới hạn độ dài, tải lại Check your email, mở link reset khi đang đăng nhập, lỗi server) làm requirement không? | Resolved | Chốt cả 6 hành vi; thêm Full name tối đa 100 ký tự, password 8–128 ký tự | [[9]](#ref-9) |
 
 ## References
 
@@ -149,3 +154,4 @@
 12. <a id="ref-12"></a>[CI/CD](development/cicd.md)
 13. <a id="ref-13"></a>[Project Brief](requirements/project-brief.md)
 14. <a id="ref-14"></a>[Crypto Force UI Prototype](design/prototype/README.md)
+15. <a id="ref-15"></a>[Security](architecture/23-security.md)

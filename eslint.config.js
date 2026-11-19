@@ -4,6 +4,7 @@ import prettier from 'eslint-config-prettier';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import testware from './scripts/eslint-plugin-testware.mjs';
 
 /** Cross-package imports must go through public exports (docs/development/project-structure.md). */
 const noDeepPackageImports = {
@@ -41,11 +42,33 @@ const noEffectHooks = {
     'Effects are only allowed inside app/hooks/. Derive values during render, load server state with TanStack Query or route loaders, and handle user actions in event handlers. To sync an imperative library (e.g. Lightweight Charts), write a named hook in app/hooks/.',
 };
 
+/** The shadcn CLI resolves the `utils` alias in components.json to the unrelated npm package `cn`. */
+const noCnPackage = {
+  name: 'cn',
+  message:
+    'Import cn from "~/utils/cn" (the project helper), not the npm package "cn". After `shadcn add`, fix the import and remove "cn" from apps/web/package.json.',
+};
+
 const noEffectProperties = ['useEffect', 'useLayoutEffect'].map((property) => ({
   object: 'React',
   property,
   message: noEffectHooks.message,
 }));
+
+// Testware rules (docs/development/coding-guidelines.md#testware).
+const testFiles = [
+  'apps/*/test/**/*.ts',
+  'apps/web/e2e/**/*.ts',
+  'packages/*/test/**/*.ts',
+  '**/*.test.{ts,tsx}',
+  '**/*.spec.ts',
+];
+const testwareDoc = 'See docs/development/coding-guidelines.md#testware.';
+
+const noAppSourceInSystemTests = {
+  regex: '^(\\.\\./)+app/|^~/|^@crypto-force/(web|api|worker)',
+  message: `System tests check the app from outside: take expected values from the requirement, not from app source. If no user action reaches the state a test needs, change the test environment in apps/web/e2e/environment.ts. ${testwareDoc}`,
+};
 
 export default tseslint.config(
   {
@@ -55,6 +78,9 @@ export default tseslint.config(
       '**/build/**',
       '**/.react-router/**',
       'apps/api/drizzle/**',
+      // Test reports (gitignored); Playwright copies its trace viewer scripts into them.
+      '**/playwright-report/**',
+      '**/test-results/**',
       'docs/**',
       // Vendored third-party skill (see its UPSTREAM.md); not project code.
       '.claude/skills/shadcn/**',
@@ -88,7 +114,7 @@ export default tseslint.config(
   },
 
   {
-    files: ['*.js', '**/*.config.{js,ts}', '.claude/hooks/*.mjs'],
+    files: ['*.js', '**/*.config.{js,ts}', '.claude/hooks/*.mjs', 'scripts/*.mjs'],
     ...tseslint.configs.disableTypeChecked,
   },
 
@@ -100,6 +126,7 @@ export default tseslint.config(
       '*.js',
       '**/*.config.{js,ts}',
       '.claude/hooks/*.mjs',
+      'scripts/*.mjs',
     ],
     languageOptions: { globals: globals.node },
   },
@@ -151,15 +178,24 @@ export default tseslint.config(
     files: ['apps/web/app/**/*.{ts,tsx}'],
     ignores: ['apps/web/app/hooks/**'],
     rules: {
-      'no-restricted-imports': restrictImports({ paths: [noEffectHooks] }),
+      'no-restricted-imports': restrictImports({ paths: [noEffectHooks, noCnPackage] }),
       'no-restricted-properties': ['error', ...noEffectProperties],
+      // React Router renders a thrown `data(..., { status })` in the route ErrorBoundary.
+      '@typescript-eslint/only-throw-error': [
+        'error',
+        { allow: [{ from: 'package', package: 'react-router', name: 'DataWithResponseInit' }] },
+      ],
     },
   },
   {
-    files: ['apps/web/app/components/**/*.{ts,tsx}', 'apps/web/app/pages/**/*.{ts,tsx}'],
+    files: [
+      'apps/web/app/components/**/*.{ts,tsx}',
+      'apps/web/app/layouts/**/*.{ts,tsx}',
+      'apps/web/app/pages/**/*.{ts,tsx}',
+    ],
     rules: {
       'no-restricted-imports': restrictImports({
-        paths: [noEffectHooks],
+        paths: [noEffectHooks, noCnPackage],
         patterns: [
           {
             regex: '^~/api(/|$)|(^|/)api(/|$)',
@@ -168,6 +204,29 @@ export default tseslint.config(
           },
         ],
       }),
+    },
+  },
+
+  // Testware: long-lived names a new maintainer can read, and checks that can fail.
+  {
+    files: testFiles,
+    plugins: { testware },
+    rules: {
+      'testware/no-scope-in-path': 'error',
+      'testware/no-stlc-ids': 'error',
+      'testware/no-implementation-oracle': 'error',
+      'testware/no-app-module-mocks': 'error',
+      'testware/exact-status-oracle': 'error',
+      'testware/no-app-constants': 'error',
+    },
+  },
+  // System tests: no app source. Playwright has no assertion count (Vitest uses
+  // expect.requireAssertions), so lint requires an expect() in each test body.
+  {
+    files: ['apps/web/e2e/**/*.ts'],
+    rules: {
+      'testware/require-expect': 'error',
+      'no-restricted-imports': restrictImports({ patterns: [noAppSourceInSystemTests] }),
     },
   },
 

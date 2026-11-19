@@ -1,0 +1,21 @@
+# EN-03 va moi truong. Ghi lai luc 2026-11-19 08:38:19 (UTC+7), sau cac lan chay RUN-010 den RUN-015; khong phai luc chay.
+## git rev-parse HEAD
+440fc768f5f40f98b331350ed9d62bbe9b9eb85b
+## git status --short
+?? docs/testing/test-scopes/TS-001-auth/05-execution/evidence/EN-03-environment.txt
+## git log b35a791..7cdb0f5 -- apps packages (so commit)
+0
+## pnpm --filter @crypto-force/api list better-auth
+@crypto-force/api@0.0.0 C:\Users\Duy\Desktop\crypto-force\apps\api (PRIVATE)
+
+dependencies:
+better-auth 1.7.25
+## node -v
+v22.23.5
+## pnpm -v
+9.15.9
+## Phien ban trong pnpm-lock.yaml
+305:  '@better-auth/core@1.7.25':
+375:  '@better-auth/utils@0.5.1':
+2549:  better-auth@1.7.25:
+4373:  '@better-auth/utils@0.5.1':

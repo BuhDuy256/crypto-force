@@ -1,0 +1,8 @@
+# TC-200 phan UI (ASVS 6.4.2): ba man Auth tren `pnpm dev`, commit 440fc76 (khong doi apps, packages so voi 7cdb0f5).
+# Lenh: playwright-cli goto <url>; playwright-cli --raw snapshot. Ghi lai 2026-11-19 khoang 08:55 (UTC+7). Chua nhap du lieu nao.
+## /sign-in: Continue with Google; Email; Password (link Forgot password?, nut Show); checkbox Keep me signed in on this device; nut Sign in; link Create an account.
+   Khong co goi y password, khong co cau hoi bi mat.
+## /sign-up: Continue with Google; Full name; Email; Password (nut Show) kem dong chu "At least 8 characters."; checkbox dieu khoan; nut Create account.
+   Chi co mot dong chu duoi o Password: yeu cau do dai, khong phai goi y password. Khong co cau hoi bi mat.
+## /forgot-password: doan "Enter the email you signed up with and we'll send a link to choose a new password."; Email; nut Send reset link; link Back to sign in.
+   Khong co goi y password, khong co cau hoi bi mat.
