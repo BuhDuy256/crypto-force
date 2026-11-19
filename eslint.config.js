@@ -220,6 +220,7 @@ export default tseslint.config(
       'testware/no-app-module-mocks': 'error',
       'testware/exact-status-oracle': 'error',
       'testware/no-app-constants': 'error',
+      'testware/no-real-time-wait': 'error',
     },
   },
   // System tests: no app source. Playwright has no assertion count (Vitest uses

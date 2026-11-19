@@ -8,15 +8,21 @@
 // `outbound.ts`. Send it only requests that make no outbound call, for example Sign in.
 import { type ChildProcess, spawn } from 'node:child_process';
 import { request } from 'node:http';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { getTestDatabaseUrl } from '../test-database';
 import { APP_URL, TEST_SECRET } from './harness';
 
 const apiDir = fileURLToPath(new URL('../..', import.meta.url));
 
-/** Starts `src/index.ts` on the test database; `env` adds to or replaces the base variables. */
+const fileClock = pathToFileURL(fileURLToPath(new URL('./file-clock.ts', import.meta.url))).href;
+
+/**
+ * Starts `src/index.ts` on the test database; `env` adds to or replaces the base variables.
+ * With `TEST_CLOCK_FILE` in `env`, the process reads its clock from that file (`file-clock.ts`).
+ */
 export function spawnApi(env: Record<string, string>): ChildProcess {
-  return spawn(process.execPath, ['--import', 'tsx', 'src/index.ts'], {
+  const clock = env.TEST_CLOCK_FILE === undefined ? [] : ['--import', fileClock];
+  return spawn(process.execPath, ['--import', 'tsx', ...clock, 'src/index.ts'], {
     cwd: apiDir,
     env: {
       PATH: process.env.PATH ?? '',
@@ -36,9 +42,16 @@ export interface ApiProcess {
   stop: () => Promise<void>;
 }
 
-/** Starts the API on `port` and waits until it listens. */
-export async function startApi(port: number): Promise<ApiProcess> {
-  const child = spawnApi({ NODE_ENV: 'test', API_PORT: String(port) });
+/**
+ * Starts the API on `port` and waits until it listens. With `clockFile`, the process reads its
+ * clock from that file (`file-clock.ts`).
+ */
+export async function startApi(port: number, clockFile?: string): Promise<ApiProcess> {
+  const child = spawnApi({
+    NODE_ENV: 'test',
+    API_PORT: String(port),
+    ...(clockFile === undefined ? {} : { TEST_CLOCK_FILE: clockFile }),
+  });
   let output = '';
   await new Promise<void>((resolve, reject) => {
     const timer = setTimeout(() => {

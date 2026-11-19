@@ -10,7 +10,8 @@
 // Time: `controlClock` fixes `Date`; `t` in a test is seconds after the first request.
 // Restart: TC-003 and TC-005 run the real API as a process (`support/api-process.ts`), stop it and
 // start a new one, because a new auth server in the same process shares the memory of the old one.
-// These tests use the real clock, since the API processes cannot read the controlled clock.
+// The API processes read their clock from a file that the test writes (`support/file-clock.ts`),
+// so these tests do not wait for real time either.
 // A request that a limit lets through gets its normal answer (Test Cases section 2.1), so the tests
 // check that exact status: 401 for Sign in with a wrong password (as at t=0 in TC-001), 200 for
 // Create account, resend verification link and Send reset link. A blocked request gets 429.
@@ -21,6 +22,9 @@
 // Expected results come from the test case whose ID (TC-xxx) starts each test title. The cases are
 // in docs/testing/test-scopes/TS-001-auth/03-design/output/04-test-cases.md. When a test fails, read its
 // test case first: the test checks the requirement, not the current code.
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
 import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   type Account,
@@ -142,22 +146,37 @@ describe('Sign in lock across API restarts', () => {
   const credentials = { email: 'nobody@example.test', password: WRONG_PASSWORD };
   const running: ApiProcess[] = [];
 
+  // The API processes read their clock from this file (`support/file-clock.ts`). Both processes
+  // of a restart use the same file, so the time goes on across the restart as in production.
+  let clockFile: string;
+  const origin = Date.parse('2026-11-20T00:00:00.000Z');
+
+  /** Sets the clock of the API processes to `ms`. */
+  function setClock(ms: number) {
+    writeFileSync(clockFile, String(ms));
+  }
+
+  beforeEach(() => {
+    clockFile = join(mkdtempSync(join(tmpdir(), 'api-clock-')), 'now');
+    setClock(origin);
+  });
+
   async function start(port: number) {
-    const api = await startApi(port);
+    const api = await startApi(port, clockFile);
     running.push(api);
     return api;
   }
 
   afterEach(async () => {
     await Promise.all(running.splice(0).map((api) => api.stop()));
+    rmSync(dirname(clockFile), { recursive: true, force: true });
   });
 
-  /** Presses Sign in at each `t`: seconds after `origin` on the real clock (`performance.now`). */
-  async function pressAt(api: ApiProcess, ip: string, origin: number, times: number[]) {
+  /** Presses Sign in at each `t`: seconds after `origin` on the clock of the API process. */
+  async function pressAt(api: ApiProcess, ip: string, times: number[]) {
     const statuses: number[] = [];
     for (const t of times) {
-      const wait = origin + t * 1000 - performance.now();
-      if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
+      setClock(origin + t * 1000);
       statuses.push((await api.post('/sign-in/email', credentials, ip)).status);
     }
     return statuses;
@@ -166,7 +185,7 @@ describe('Sign in lock across API restarts', () => {
   // A process that has just started is the API right after a restart.
   it('TC-003 accepts the first press after an API restart', async () => {
     const api = await start(3991);
-    expect(await pressAt(api, nextIp(), performance.now(), [0])).toEqual([401]);
+    expect(await pressAt(api, nextIp(), [0])).toEqual([401]);
   }, 60_000);
 
   describe('TC-005 the counter survives an API restart', () => {
@@ -186,27 +205,11 @@ describe('Sign in lock across API restarts', () => {
       it(`row ${String(row)}`, async () => {
         const ip = nextIp();
         const first = await start(3992);
-        const origin = performance.now();
-        expect(await pressAt(first, ip, origin, before)).toEqual(beforeResult);
+        expect(await pressAt(first, ip, before)).toEqual(beforeResult);
 
         await first.stop();
         const restarted = await start(3993);
-        // When the new process is ready after the first `after` time, every later press moves by
-        // the same delay. The counter starts again only when 10 s pass after the previous press.
-        // Thus, the expected result stays the same while all presses are less than 10 s after the
-        // first press: then no gap between two presses reaches 10 s.
-        const delay = Math.max(0, (performance.now() - origin) / 1000 - (after[0] ?? 0));
-        const statuses = await pressAt(
-          restarted,
-          ip,
-          origin,
-          after.map((t) => t + delay),
-        );
-        const lastPress = (performance.now() - origin) / 1000;
-        expect(lastPress, 'the restart took too long: presses left the 10 s window').toBeLessThan(
-          9,
-        );
-        expect(statuses).toEqual(expected);
+        expect(await pressAt(restarted, ip, after)).toEqual(expected);
       }, 60_000);
     }
   });
