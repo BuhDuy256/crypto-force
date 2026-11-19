@@ -52,7 +52,7 @@ export const forgotPasswordSchema = z.object({ email: emailSchema });
 
 export const resetPasswordSchema = z
   .object({
-    newPassword: newPasswordSchema,
+    newPassword: z.string().min(1, 'Fill in both fields.').pipe(newPasswordSchema),
     confirmPassword: z.string().min(1, 'Fill in both fields.'),
   })
   .refine((value) => value.newPassword === value.confirmPassword, {
