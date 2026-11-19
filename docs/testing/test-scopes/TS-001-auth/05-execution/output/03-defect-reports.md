@@ -13,7 +13,7 @@
 
 ## 2. Danh sách anomaly
 
-Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục 2.4 [[6]](#ref-6). Phân tích này dựa trên hai điều: testware đã được kiểm ở Phase 04, và mỗi test fail trùng với một dấu hiệu ở Implementation Status mục 4.1 [[4]](#ref-4). Product owner chưa xác nhận từng dòng. Với các dòng ghi "requirement" ở cột Nguồn expected, có thể product owner chọn đổi requirement thay vì sửa code (EX-06).
+Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục 2.4 [[6]](#ref-6). Phân tích này dựa trên hai điều: testware đã được kiểm ở Phase 04, và mỗi test fail trùng với một dấu hiệu ở Implementation Status mục 4.1 [[4]](#ref-4). Product owner duyệt nguyên nhân Product và severity của mọi dòng ngày 2026-11-19; priority đặt theo severity, theo ủy quyền của product owner (Execution Status TD-21).
 
 | ID | Tiêu đề | Nguyên nhân | Severity / priority | Trạng thái | Run IDs phát hiện |
 | --- | --- | --- | --- | --- | --- |
@@ -277,7 +277,7 @@ Chưa có bản sửa nào. Khi một defect được sửa, thêm dòng cho def
 | Q3-01 | Mỗi report có đủ các trường ở mục 3 | IN-09 | Đạt: mỗi report có trường "Các bước tái hiện" riêng; trạng thái ban đầu chung ở mục 3 |
 | Q3-02 | Các bước tái hiện và evidence đủ để người khác tái hiện mà không cần hỏi người báo cáo | IN-06, IN-07, RC-03 | Đạt một phần: mỗi report có lệnh chạy riêng và bước thủ công với dữ liệu cụ thể. Chưa có người khác chạy lại từng report. DEF-03, DEF-04 cần đồng hồ điều khiển được, nên bước thủ công khó làm ngoài test; DEF-13 cần provider giả của E2E |
 | Q3-03 | Expected result dẫn tới nguồn có version | RC-02 | Đạt một phần (RC-02 đạt một phần vì TC-200, không có defect nào từ TC-200): nguồn là test basis ở `c23d848`, Test Cases ở `497541d` và các bản v2 |
-| Q3-04 | Mỗi anomaly có nguyên nhân được phân loại; failure không bị mặc định là product defect | — | Đạt một phần: phân loại dựa trên testware đã kiểm ở Phase 04 và đối chiếu với mục 4.1; product owner chưa xác nhận từng dòng |
+| Q3-04 | Mỗi anomaly có nguyên nhân được phân loại; failure không bị mặc định là product defect | — | Đạt: phân loại dựa trên testware đã kiểm ở Phase 04 và đối chiếu với mục 4.1; product owner duyệt nguyên nhân của mọi dòng ngày 2026-11-19 (TD-21) |
 | Q3-05 | Mọi defect Closed có confirmation test Passed trên build có bản sửa | RC-01 | Đạt một phần: không có defect Closed; RC-01 đạt một phần, nhưng chỉ DEF-19 đến từ RUN-007 trên working tree của product owner |
 | Q3-06 | Mỗi bản sửa có phạm vi regression và kết quả, hoặc ghi rõ chưa chạy regression | — | Đạt: chưa có bản sửa; ghi ở mục 4 |
 | Q3-07 | Defect ở trạng thái Duplicate, Rejected hoặc Deferred có lý do và link tới report gốc hoặc quyết định | — | Đạt: không có defect ở các trạng thái đó |

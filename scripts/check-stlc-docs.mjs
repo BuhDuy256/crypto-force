@@ -7,10 +7,14 @@
 // 3. A review of dependency code that a test cannot replace (for example, the random source of
 //    session tokens) is for the versions that pnpm-lock.yaml installs. The row "Dependency đã
 //    review" of Implementation Status gives the versions that the review read.
-// 4. The conclusion of Execution Readiness follows the definition of the template: "Sẵn sàng một
-//    phần" needs RC-01 and RC-05 fully met, and "Sẵn sàng" needs every RC fully met.
+// 4. The conclusion of a readiness file follows the definition of its template: "Sẵn sàng một
+//    phần" needs two RC rows fully met (RC-01 and RC-05 in Phase 05, RC-01 and RC-02 in Phase 06),
+//    and "Sẵn sàng" needs every RC fully met. A criterion of an output is not "Đạt" when an RC in
+//    its input column is not fully met.
+// 5. Each Markdown file of a test scope starts with its "# " title, so that an edit that adds text
+//    above the title (for example a table row) fails.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { SCOPES_DIR, tableRows } from './test-scope-ids.mjs';
 
@@ -23,6 +27,33 @@ export const EXECUTION_OUTPUTS = [
   '05-execution/output/02-test-log.md',
   '05-execution/output/03-defect-reports.md',
 ];
+export const REPORT_READINESS = '06-report/input/01-reporting-readiness.md';
+export const REPORT_OUTPUTS = [
+  '06-report/output/01-test-summary-report.md',
+  '06-report/output/02-execution-and-coverage.md',
+  '06-report/output/03-defects.md',
+  '06-report/output/04-residual-risks.md',
+  '06-report/output/05-lessons-learned.md',
+  '06-report/output/06-closure-and-handover.md',
+];
+/**
+ * @typedef {{ readiness: string, outputs: string[], partial: string[], template: string }} Phase
+ * `partial`: the RC rows that "Sẵn sàng một phần" needs fully met, from the readiness template.
+ */
+/** @type {Phase} */
+export const EXECUTION_PHASE = {
+  readiness: READINESS,
+  outputs: EXECUTION_OUTPUTS,
+  partial: ['RC-01', 'RC-05'],
+  template: '05-execution',
+};
+/** @type {Phase} */
+export const REPORT_PHASE = {
+  readiness: REPORT_READINESS,
+  outputs: REPORT_OUTPUTS,
+  partial: ['RC-01', 'RC-02'],
+  template: '06-report',
+};
 export const REVIEWED = 'Dependency đã review';
 const LOCKFILE = resolve(import.meta.dirname, '..', 'pnpm-lock.yaml');
 const GUIDE = 'docs/development/coding-guidelines.md#testware';
@@ -107,17 +138,22 @@ export function readinessResults(lines) {
 }
 
 /**
- * A criterion of a Phase 05 output that is "Đạt" while an RC in its input column is not fully
+ * A criterion of a phase output that is "Đạt" while an RC in its input column is not fully
  * met. The template says: when the input condition is not met, the criterion is not met.
  * @param {string} file @param {string[]} lines @param {Map<string, string>} rc
+ * @param {Phase} [phase]
  * @returns {Violation[]}
  */
-export function criteriaWithUnmetInput(file, lines, rc) {
+export function criteriaWithUnmetInput(file, lines, rc, phase = EXECUTION_PHASE) {
   return lines.flatMap((text, index) => {
     const cells = text.split('|').map((cell) => cell.normalize('NFC').trim());
     const id = cells[1] ?? '';
     if (!/^Q\d-\d+$/.test(id) || !fullyMet(cells[4] ?? '')) return [];
-    const unmet = [...(cells[3] ?? '').matchAll(/RC-\d+/g)]
+    // "RC-01 → RC-05" (Residual Risks Q4-02 of the Phase 06 template) is a criterion that reviews
+    // every RC, met or not. It does not depend on the RC rows being met. Only the range is
+    // skipped; an RC that the cell names alone is still checked.
+    const input = (cells[3] ?? '').replace(/RC-\d+\s*→\s*RC-\d+/g, '');
+    const unmet = [...input.matchAll(/RC-\d+/g)]
       .map(([ref]) => ref)
       .filter((ref) => rc.has(ref) && !fullyMet(rc.get(ref) ?? ''));
     if (unmet.length === 0) return [];
@@ -126,14 +162,17 @@ export function criteriaWithUnmetInput(file, lines, rc) {
         file,
         line: index + 1,
         key: id,
-        message: `${id} is "Đạt", but its input condition ${unmet.join(', ')} is not fully met in Execution Readiness. The template says a criterion is not met when its input condition is not met. Write "Đạt một phần" or "Không đạt" with the part that the input condition affects, or make ${unmet.join(', ')} met with a source. See docs/testing/stlc-template/05-execution/README.md.`,
+        message: `${id} is "Đạt", but its input condition ${unmet.join(', ')} is not fully met in ${phase.readiness}. The template says a criterion is not met when its input condition is not met. Write "Đạt một phần" or "Không đạt" with the part that the input condition affects, or make ${unmet.join(', ')} met with a source. See docs/testing/stlc-template/${phase.template}/README.md.`,
       },
     ];
   });
 }
 
-/** @param {string} file @param {string[]} lines @returns {Violation[]} */
-export function readinessConclusion(file, lines) {
+/**
+ * @param {string} file @param {string[]} lines @param {Phase} [phase]
+ * @returns {Violation[]}
+ */
+export function readinessConclusion(file, lines, phase = EXECUTION_PHASE) {
   const at = lines.findIndex((text) => text.startsWith('**Trạng thái:**'));
   if (at < 0) return [];
   const conclusion = (lines[at] ?? '')
@@ -143,7 +182,7 @@ export function readinessConclusion(file, lines) {
     .replace(/[.\s]+$/, '');
   const partial = conclusion === 'Sẵn sàng một phần';
   if (!partial && conclusion !== 'Sẵn sàng') return [];
-  const needed = partial ? ['RC-01', 'RC-05'] : null;
+  const needed = partial ? phase.partial : null;
   return lines.flatMap((text) => {
     const id = RC_ROW.exec(text)?.[1];
     if (!id || (needed && !needed.includes(id))) return [];
@@ -154,7 +193,7 @@ export function readinessConclusion(file, lines) {
         file,
         line: lines.indexOf(text) + 1,
         key: id,
-        message: `The conclusion is "${conclusion}", but ${id} is not fully met ("${result.slice(0, 40)}"). The template gives "Sẵn sàng một phần" only when RC-01 and RC-05 are met, and "Sẵn sàng" only when every RC is met. Write "Chưa sẵn sàng", or make ${id} met with a source. See docs/testing/stlc-template/05-execution/input/01-execution-readiness.md section 4.`,
+        message: `The conclusion is "${conclusion}", but ${id} is not fully met ("${result.slice(0, 40)}"). The template gives "Sẵn sàng một phần" only when ${phase.partial.join(' and ')} are met, and "Sẵn sàng" only when every RC is met. Write "Chưa sẵn sàng", or make ${id} met with a source. See docs/testing/stlc-template/${phase.template}/${phase.readiness.split('/').slice(1).join('/')} section 4.`,
       },
     ];
   });
@@ -200,6 +239,35 @@ export function staleReviews(file, lines, lockText) {
 }
 
 /**
+ * A Markdown file of a test scope whose first line is not its "# " title. Text above the title
+ * is almost always an edit that went to the wrong place, for example a table row that a script
+ * added at the start of the file instead of in its table.
+ * @param {string} file @param {string[]} lines @param {string} key
+ * @returns {Violation[]}
+ */
+export function textAboveTitle(file, lines, key) {
+  if ((lines[0] ?? '').startsWith('# ')) return [];
+  return [
+    {
+      file,
+      line: 1,
+      key,
+      message:
+        'The first line is not a "# " title. Move this text to its section (a table row goes in its table, in place of the old row), and keep the title on line 1. See docs/CONTRIBUTING.md.',
+    },
+  ];
+}
+
+/** @param {string} dir @returns {string[]} */
+function markdownFiles(dir) {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) return markdownFiles(path);
+    return entry.name.endsWith('.md') ? [path] : [];
+  });
+}
+
+/**
  * @param {string} scopesDir
  * @param {string} [lockText]
  * @param {{ scope: string, key: string, debt: string }[]} [knownList] violations to skip (KNOWN)
@@ -220,21 +288,28 @@ export function checkScopes(
       [TEST_CASES, negatedOracles],
       [ENVIRONMENT, uncheckedSimulations],
       [IMPLEMENTATION_STATUS, (file, lines) => staleReviews(file, lines, lockText)],
-      [READINESS, readinessConclusion],
+      [READINESS, (file, lines) => readinessConclusion(file, lines, EXECUTION_PHASE)],
+      [REPORT_READINESS, (file, lines) => readinessConclusion(file, lines, REPORT_PHASE)],
     ];
     for (const [document, check] of checks) {
       const file = join(scopesDir, scope, document);
       if (!existsSync(file)) continue;
       found.push(...check(file, readFileSync(file, 'utf8').split(/\r?\n/)));
     }
-    const readiness = join(scopesDir, scope, READINESS);
-    if (existsSync(readiness)) {
+    for (const phase of [EXECUTION_PHASE, REPORT_PHASE]) {
+      const readiness = join(scopesDir, scope, phase.readiness);
+      if (!existsSync(readiness)) continue;
       const rc = readinessResults(readFileSync(readiness, 'utf8').split(/\r?\n/));
-      for (const document of EXECUTION_OUTPUTS) {
+      for (const document of phase.outputs) {
         const file = join(scopesDir, scope, document);
         if (!existsSync(file)) continue;
-        found.push(...criteriaWithUnmetInput(file, readFileSync(file, 'utf8').split(/\r?\n/), rc));
+        const lines = readFileSync(file, 'utf8').split(/\r?\n/);
+        found.push(...criteriaWithUnmetInput(file, lines, rc, phase));
       }
+    }
+    for (const file of markdownFiles(join(scopesDir, scope))) {
+      const key = relative(join(scopesDir, scope), file).split('\\').join('/');
+      found.push(...textAboveTitle(file, readFileSync(file, 'utf8').split(/\r?\n/), key));
     }
     const known = knownList.filter((item) => item.scope === scope);
     for (const violation of found) {

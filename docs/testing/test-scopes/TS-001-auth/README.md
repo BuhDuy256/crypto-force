@@ -22,7 +22,7 @@
 | 03 Test Analysis & Design | [03-design/](03-design/) | Đạt | [Test Design Status](03-design/output/01-design-status.md) |
 | 04 Test Implementation | [04-implementation/](04-implementation/) | Đạt | [Implementation Status](04-implementation/output/01-implementation-status.md) |
 | 05 Test Execution | [05-execution/](05-execution/) | Đang thực hiện | [Execution Status](05-execution/output/01-execution-status.md) (lần chốt 1, 2026-11-19): chạy tự động và review xong, 44 test case Failed (19 defect Open); exploratory chưa chạy |
-| 06 Test Summary & Closure | `06-report/` | Chưa bắt đầu | |
+| 06 Test Summary & Closure | [06-report/](06-report/) | Đang thực hiện | [Test Summary Report](06-report/output/01-test-summary-report.md) version 1.0 (vòng 1): exit criteria Không đạt; recommendation Chưa chuyển, chờ quyết định của product owner |
 
 Một phase có trạng thái Đạt khi mọi tiêu chí đạt trong các file output của phase đó đều đạt.
 

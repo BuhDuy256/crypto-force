@@ -8,6 +8,8 @@ import { test } from 'node:test';
 import {
   ENVIRONMENT,
   IMPLEMENTATION_STATUS,
+  REPORT_PHASE,
+  REPORT_READINESS,
   TEST_CASES,
   checkScopes,
   criteriaWithUnmetInput,
@@ -15,6 +17,7 @@ import {
   readinessConclusion,
   readinessResults,
   staleReviews,
+  textAboveTitle,
   uncheckedSimulations,
 } from './check-stlc-docs.mjs';
 
@@ -241,4 +244,81 @@ test('criteria: "Đạt" with an input RC that is only partly met fails', () => 
     criteriaWithUnmetInput('log.md', lines, rc).map((violation) => violation.key),
     ['Q2-01'],
   );
+});
+
+// Phase 06 Reporting Readiness: "Sẵn sàng một phần" needs RC-01 and RC-02, not RC-05.
+test('report readiness: "Sẵn sàng một phần" needs RC-01 and RC-02 met', () => {
+  const rows = [
+    '| RC-01 | Đối tượng | IN-01 | Đạt | |',
+    '| RC-02 | Kết quả đúng đối tượng | IN-06 | Đạt một phần: working tree chưa kiểm | |',
+    '| RC-05 | Đơn vị đếm | IN-06 | Đạt một phần | |',
+  ];
+  const found = readinessConclusion(
+    'report.md',
+    [...rows, '**Trạng thái:** Sẵn sàng một phần'],
+    REPORT_PHASE,
+  );
+  assert.deepEqual(
+    found.map((violation) => violation.key),
+    ['RC-02'],
+  );
+  assert.match(found[0]?.message ?? '', /RC-01 and RC-02/);
+  assert.deepEqual(
+    readinessConclusion('report.md', [...rows, '**Trạng thái:** Chưa sẵn sàng'], REPORT_PHASE),
+    [],
+  );
+});
+
+test('criteria: an input range "RC-01 → RC-05" reviews the RC rows and does not depend on them', () => {
+  const rc = readinessResults(['| RC-05 | Đơn vị đếm | IN-06 | Đạt một phần | |']);
+  const lines = [
+    '| Q4-02 | Mọi điều kiện không đạt đã được xem xét | IN-01 → IN-13, RC-01 → RC-05 | Đạt |',
+    '| Q1-05 | Số liệu khớp | RC-05 | Đạt |',
+    '| Q2-03 | Tỷ lệ có mẫu số | IN-06 → IN-08, RC-05 | Đạt |',
+  ];
+  const found = criteriaWithUnmetInput('summary.md', lines, rc, REPORT_PHASE);
+  assert.deepEqual(
+    found.map((violation) => violation.key),
+    ['Q1-05', 'Q2-03'],
+  );
+  assert.match(found[0]?.message ?? '', /06-report\/input\/01-reporting-readiness\.md/);
+  assert.match(found[0]?.message ?? '', /stlc-template\/06-report\/README\.md/);
+});
+
+// The TS-001 Execution Status at ce5e35c: three table rows were added above the title.
+test('a scope file with text above its title fails', () => {
+  const broken = [
+    '| TD-23 | Đã xử lý ngày 2026-11-19 || TD-22 | Đã xử lý |# Test Execution Status',
+    '',
+  ];
+  assert.deepEqual(
+    textAboveTitle('status.md', broken, 'status.md').map((violation) => violation.line),
+    [1],
+  );
+  // A blank first line: the title was deleted with the rows above it.
+  assert.equal(textAboveTitle('status.md', ['', '# Test Execution Status'], 's').length, 1);
+  assert.deepEqual(textAboveTitle('status.md', ['# Test Execution Status', ''], 's'), []);
+});
+
+test('the scope check reads the Phase 06 readiness and every Markdown file of a scope', () => {
+  const root = mkdtempSync(join(tmpdir(), 'stlc-'));
+  const readiness = join(root, 'TS-900', REPORT_READINESS);
+  mkdirSync(dirname(readiness), { recursive: true });
+  writeFileSync(
+    readiness,
+    [
+      '# Test Summary: Readiness',
+      '| RC-01 | Đối tượng | IN-01 | Đạt | |',
+      '| RC-02 | Kết quả | IN-06 | Không đạt | |',
+      '**Trạng thái:** Sẵn sàng một phần',
+    ].join('\n'),
+  );
+  const nested = join(root, 'TS-900', '06-report', 'output', '04-residual-risks.md');
+  mkdirSync(dirname(nested), { recursive: true });
+  writeFileSync(nested, 'Text\n# Residual Risks\n| Q4-04 | Có owner | RC-02 | Đạt |\n');
+  const errors = checkScopes(root, '', []).join('\n');
+  assert.match(errors, /RC-02 is not fully met/);
+  assert.match(errors, /04-residual-risks\.md:1: The first line is not a "# " title/);
+  assert.match(errors, /04-residual-risks\.md:3: Q4-04 is "Đạt"/);
+  assert.equal(errors.split('\n').length, 3);
 });

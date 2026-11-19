@@ -1,4 +1,4 @@
-| TD-23 | Đã xử lý ngày 2026-11-19: product owner duyệt kết luận TC-200 và TC-209 || TD-22 | Đã xử lý ngày 2026-11-19: product owner chọn Security `c23d848` cho TC-200 (DV-03) || TD-21 | Đã xử lý ngày 2026-11-19: product owner duyệt nguyên nhân Product và severity; priority đặt theo severity, theo ủy quyền của product owner |# Test Execution Status
+# Test Execution Status
 
 Đọc file này để biết trạng thái hiện hành của các test TS-001 tại thời điểm chốt 2026-11-19 08:25, kết quả nào còn hiệu lực, và việc gì còn phải làm. File này chỉ ghi sự thật về lượt chạy. Nó không kết luận exit criteria, không chấp nhận rủi ro và không quyết định release.
 
@@ -95,7 +95,7 @@ Mọi kết quả Failed ở RUN-012 và RUN-013 chỉ đúng cho `7cdb0f5`. Khi
 | ID | Sự kiện | Thời gian | Tiêu chí áp dụng | Ảnh hưởng | Người quyết định |
 | --- | --- | --- | --- | --- | --- |
 | DV-01 đến DV-02 | Sai lệch của PROC-17: địa chỉ TC-197 không có `+tag`; không có tab `accounts.google.com` riêng | 2026-11-19 07:16 – 07:56 | Không có tiêu chí | TC-196, TC-197; Test Log mục 2.3 | Product owner chạy; chưa có quyết định ghi lại |
-| DV-03 | TC-200 ghi Security `d6c0541`; review dùng `c23d848` | 2026-11-19 08:14 | Không có tiêu chí | TC-200 đúng cho `c23d848` | Chưa có (TD-22) |
+| DV-03 | TC-200 ghi Security `d6c0541`; review dùng `c23d848` | 2026-11-19 08:14 | Không có tiêu chí | TC-200 đúng cho `c23d848` | Product owner chọn `c23d848`, 2026-11-19 (TD-22) |
 | DV-04 | RUN-015 kiểm UI bằng source, không mở giao diện; RUN-016 (08:55) mở giao diện và thay kết quả | 2026-11-19 08:14 – 08:55 | Không có tiêu chí | RUN-015 mục 6.4.2 | Đã xử lý bằng RUN-016 |
 | DV-05 | Ghi kết quả theo suite, không theo từng test instance | 2026-11-19 08:10 – 08:22 | Không có tiêu chí | RUN-012, RUN-013 | Chưa có |
 | DV-07 | Execution Readiness là Chưa sẵn sàng (RC-05 chỉ đạt một phần) khi các lượt chạy bắt đầu | 2026-11-19 07:15 | RC-05 | Mọi lượt chạy | Chưa có |
@@ -113,9 +113,9 @@ Số TD tiếp nối Implementation Status (TD-19 là số cuối).
 | ID | Việc | Liên quan | Owner | Hạn | Nơi theo dõi |
 | --- | --- | --- | --- | --- | --- |
 | TD-20 | Exploratory CHR-01 đến CHR-04: product owner hoãn vô thời hạn ngày 2026-11-19. EX-07 chưa đạt khi các session chưa chạy; Phase 06 phải ghi điều này là rủi ro còn lại hoặc quyết định của product owner | CHR-01 đến CHR-04; EX-07 | Product owner | Hoãn vô thời hạn | Mục 2.3 |
-| TD-21 | Triage DEF-01 đến DEF-19: đặt priority, xác nhận nguyên nhân Product hay đổi requirement (EX-06) | DEF-01 đến DEF-19 | Product owner | Chưa có | [Defect Reports](03-defect-reports.md) |
-| TD-22 | Sửa nguồn của TC-200 (`d6c0541` thành `c23d848`) hoặc xác nhận chọn `c23d848` | TC-200; DV-03 | Agent (sửa), product owner (xác nhận) | Trước Phase 06 | Mục 5 |
-| TD-23 | Product owner duyệt kết luận TC-200 và TC-209. Phần chạy lại TC-200 với giao diện đã xong (RUN-016) | TC-200, TC-209 | Product owner | Chưa có | Test Log RUN-014 đến RUN-016 |
+| TD-21 | Đã xử lý ngày 2026-11-19: product owner duyệt nguyên nhân Product và severity; priority đặt theo severity, theo ủy quyền của product owner | DEF-01 đến DEF-19 | Product owner | 2026-11-19 | [Defect Reports](03-defect-reports.md) |
+| TD-22 | Đã xử lý ngày 2026-11-19: product owner chọn Security `c23d848` cho TC-200 (DV-03) | TC-200; DV-03 | Product owner | 2026-11-19 | Mục 5 |
+| TD-23 | Đã xử lý ngày 2026-11-19: product owner duyệt kết luận TC-200 và TC-209 | TC-200, TC-209 | Product owner | 2026-11-19 | Test Log RUN-014 đến RUN-016 |
 | TD-26 | Đã xử lý ngày 2026-11-19: mỗi defect report có "Các bước tái hiện" riêng. Còn lại: một người khác chạy lại từng report (Defect Reports Q3-02) | DEF-01 đến DEF-19 | Agent | 2026-11-19 | Defect Reports |
 | TD-27 | Đã chạy `correct` sweep ngày 2026-11-19: thêm check `readinessConclusion` và `criteriaWithUnmetInput` vào `scripts/check-stlc-docs.mjs`, LL-007 vào `LESSONS.md`, và chặn `--list` ghi đè kết quả Playwright | Phase 05 | Agent | 2026-11-19 | `scripts/check-stlc-docs.mjs`, `LESSONS.md` |
 | TD-28 | Đã xử lý: `apps/web/playwright.config.ts` không dùng reporter `html` và `json` khi chạy `--list`, nên lệnh này không ghi đè kết quả của lần chạy trước (kiểm: mốc thời gian của `results.json` không đổi sau `--list`). Vẫn phải chép `test-results/` và `playwright-report/` trước khi chạy test lần sau (Procedures & Suites mục 5) | RUN-013; DV-08 | Agent | 2026-11-19 | `apps/web/playwright.config.ts` |
