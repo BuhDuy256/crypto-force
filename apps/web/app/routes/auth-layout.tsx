@@ -21,8 +21,13 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
       verifiedNotice: { verifiedEmail: verified, currentEmail: session.user.email, next },
     };
   }
+  // A verification link that failed shows its error on Sign in, also when a session exists.
+  const linkFailed =
+    url.pathname === '/sign-in' &&
+    url.searchParams.has('error') &&
+    url.searchParams.get('provider') !== 'google';
   // Signed-in users skip Auth (OQ-054), except when they open a password reset link.
-  if (session && url.pathname !== '/reset-password') {
+  if (session && url.pathname !== '/reset-password' && !linkFailed) {
     return redirect(next);
   }
   return { googleEnabled: config.google, verifiedNotice: null };

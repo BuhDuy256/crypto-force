@@ -21,9 +21,9 @@ type SignInProblem =
   | { kind: 'unavailable' };
 
 const LINK_ERRORS: Record<string, string> = {
-  TOKEN_EXPIRED: 'This confirmation link has expired. Sign in and we’ll send you a new one.',
+  TOKEN_EXPIRED: 'This confirmation link has expired. Enter your email and send a new link.',
   INVALID_TOKEN:
-    'This confirmation link is invalid or was already used. Sign in to continue, or ask for a new link.',
+    'This confirmation link is invalid or was already used. Enter your email and send a new link.',
 };
 
 interface SignInPageProps {
@@ -101,6 +101,20 @@ export function SignInPage({
       {linkError && (
         <FormAlert tone="error" role="alert">
           {linkError}
+          <TextButton
+            disabled={resend.isPending || resend.isSuccess}
+            onClick={() => {
+              void form.trigger('email').then((valid) => {
+                if (!valid) {
+                  form.setFocus('email');
+                  return;
+                }
+                resend.mutate({ email, callbackURL: authPath('/sign-in', next) });
+              });
+            }}
+          >
+            {resend.isSuccess ? 'Sent again' : 'Send a new link'}
+          </TextButton>
         </FormAlert>
       )}
       <AccountTabs active="signin" next={next} email={email} />
