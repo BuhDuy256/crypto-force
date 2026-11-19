@@ -4,6 +4,7 @@ import express from 'express';
 import type { Logger } from 'pino';
 import { pinoHttp } from 'pino-http';
 import { errorHandler, notFoundHandler } from './api/middlewares/error-handler.middleware';
+import { securityHeaders } from './api/middlewares/security-headers.middleware';
 import { createApiRouter } from './api/routes/index';
 import type { Auth } from './configs/auth';
 
@@ -18,6 +19,7 @@ export function createApp({ logger, auth, authConfig }: AppDependencies) {
 
   app.disable('x-powered-by');
   app.use(pinoHttp({ logger }));
+  app.use(securityHeaders);
 
   // Better Auth parses its own request bodies, so it is mounted before express.json().
   app.all('/api/auth/{*splat}', toNodeHandler(auth));

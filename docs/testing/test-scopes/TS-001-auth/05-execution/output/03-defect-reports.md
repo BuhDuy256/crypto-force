@@ -33,7 +33,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 | DEF-14 | Email "You already have an account" gửi cho tài khoản chưa xác minh không hướng dẫn xác nhận email | Product | Minor / Trung bình | Open | RUN-013 |
 | DEF-15 | Tải lại Check your email vẫn ở Check your email | Product | Minor / Trung bình | Open | RUN-013 |
 | DEF-16 | Reset password bắt đầu từ màn chặn Backtest mở Realtime sau Sign in | Product | Minor / Trung bình | Open | RUN-013 |
-| DEF-17 | Response của API không có `X-Content-Type-Options`, `Referrer-Policy`, CSP `frame-ancestors` | Product | Minor / Trung bình | Open | RUN-013 |
+| DEF-17 | Response của API không có `X-Content-Type-Options`, `Referrer-Policy`, CSP `frame-ancestors` | Product | Minor / Trung bình | Fixed | RUN-013 |
 | DEF-18 | Trang có token reset không đặt `Referrer-Policy: no-referrer` | Product | Major / Cao | Fixed | RUN-013 |
 | DEF-19 | Google với email của tài khoản chưa xác minh: Auth hiện thông báo chung thay vì báo email đã đăng ký | Product | Minor / Trung bình | Open | RUN-007 (AN-02) |
 
@@ -299,3 +299,5 @@ Chưa có bản sửa nào. Khi một defect được sửa, thêm dòng cho def
 4. <a id="ref-4"></a>[Implementation Status](../../04-implementation/output/01-implementation-status.md) — mục 4.1, 2026-11-19
 5. <a id="ref-5"></a>Skill `test-defect-classification` — `.claude/skills/test-defect-classification/SKILL.md`, thang severity mặc định
 6. <a id="ref-6"></a>[Test Log](02-test-log.md) — mục 2.4
+
+| Bản sửa | Commit `fix(api): add security headers to every API response` trên branch `fix/auth-major-defects`: middleware `securityHeaders` đặt `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer` và CSP `frame-ancestors 'none'` cho mọi response. TC-227 pass |
