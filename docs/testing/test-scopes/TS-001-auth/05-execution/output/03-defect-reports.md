@@ -21,7 +21,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 | DEF-02 | Sign in lại khi đang có phiên không hủy token cũ | Product | Major / Cao | Fixed | RUN-012 |
 | DEF-03 | Không có thời hạn tuyệt đối 30 ngày của phiên | Product | Major / Cao | Open | RUN-012 |
 | DEF-04 | Phiên và link reset còn được chấp nhận đúng tại thời điểm hết hạn | Product | Minor / Trung bình | Open | RUN-012 |
-| DEF-05 | Đặt password bằng một link reset không làm các link reset khác hết hiệu lực | Product | Major / Cao | Open | RUN-012 |
+| DEF-05 | Đặt password bằng một link reset không làm các link reset khác hết hiệu lực | Product | Major / Cao | Fixed | RUN-012 |
 | DEF-06 | Không kiểm danh sách password phổ biến và Pwned Passwords; không ghi cảnh báo khi API lỗi | Product | Major / Cao | Open | RUN-012 |
 | DEF-07 | API đếm độ dài password theo UTF-16 thay vì code point | Product | Minor / Trung bình | Open | RUN-012 |
 | DEF-08 | Schema form không giới hạn password 128 ký tự và Full name 100 ký tự | Product | Minor / Trung bình | Open | RUN-012, RUN-013 |
@@ -109,6 +109,7 @@ Mỗi report dưới đây ghi phần riêng: test case, expected (nguồn), act
 | Actual | Lần 2 nhận 200 thay vì 400 (`expected 200 to be 400`, EV-012) |
 | Severity | Major: link reset cũ trong email vẫn đổi được password sau khi người dùng đã đặt password mới |
 | Tham chiếu | MD-03-CI-13 |
+| Bản sửa | Commit `fix(auth): invalidate other reset links after a password reset` trên branch `fix/auth-major-defects`: `onPasswordReset` xóa mọi token `reset-password:*` của tài khoản. TC-068 pass |
 
 ### DEF-06: Không kiểm password phổ biến hoặc đã lộ
 

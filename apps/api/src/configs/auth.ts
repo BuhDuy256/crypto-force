@@ -2,9 +2,11 @@ import { PASSWORD_MIN_LENGTH, type ApiEnv } from '@crypto-force/shared';
 import { betterAuth } from 'better-auth';
 import { createAuthMiddleware } from 'better-auth/api';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { and, eq, like } from 'drizzle-orm';
 import type { Logger } from 'pino';
 import type { Database } from '../database/client';
 import * as schema from '../database/schema/index';
+import { verification } from '../database/schema/index';
 import type { AuthEmails } from '../services/auth-email.service';
 
 const HOUR = 60 * 60;
@@ -55,6 +57,14 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
       minPasswordLength: PASSWORD_MIN_LENGTH,
       resetPasswordTokenExpiresIn: HOUR,
       revokeSessionsOnPasswordReset: true,
+      // A new password makes every other reset link of the account invalid (BD-07a).
+      onPasswordReset: async ({ user }) => {
+        await db
+          .delete(verification)
+          .where(
+            and(like(verification.identifier, 'reset-password:%'), eq(verification.value, user.id)),
+          );
+      },
       sendResetPassword: ({ user, url }) => {
         sendInBackground(emails.sendPasswordReset(user.email, url), 'password-reset');
         return Promise.resolve();
