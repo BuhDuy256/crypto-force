@@ -10,7 +10,7 @@ const HOUR = 60 * 60;
 const DAY = 24 * HOUR;
 
 /** Sign-in attempts allowed per IP address within the window (authentication.md, Sign in). */
-const SIGN_IN_RATE_LIMIT = { window: 15 * 60, max: 5 };
+const SIGN_IN_RATE_LIMIT = { window: 10, max: 3 };
 
 type AuthEnv = Pick<
   ApiEnv,

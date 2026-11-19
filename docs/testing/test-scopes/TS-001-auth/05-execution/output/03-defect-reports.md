@@ -17,7 +17,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 
 | ID | Tiêu đề | Nguyên nhân | Severity / priority | Trạng thái | Run IDs phát hiện |
 | --- | --- | --- | --- | --- | --- |
-| DEF-01 | Sign in khóa sau 5 lần trong 15 phút, không phải 3 lần trong 10 giây; UI không hiện thông báo khóa | Product | Major / Cao | Open | RUN-012, RUN-013 |
+| DEF-01 | Sign in khóa sau 5 lần trong 15 phút, không phải 3 lần trong 10 giây; UI không hiện thông báo khóa | Product | Major / Cao | Fixed | RUN-012, RUN-013 |
 | DEF-02 | Sign in lại khi đang có phiên không hủy token cũ | Product | Major / Cao | Open | RUN-012 |
 | DEF-03 | Không có thời hạn tuyệt đối 30 ngày của phiên | Product | Major / Cao | Open | RUN-012 |
 | DEF-04 | Phiên và link reset còn được chấp nhận đúng tại thời điểm hết hạn | Product | Minor / Trung bình | Open | RUN-012 |
@@ -63,6 +63,7 @@ Mỗi report dưới đây ghi phần riêng: test case, expected (nguồn), act
 | Actual | Mục 4.1: giới hạn 5 lần trong 15 phút; UI không hiện thông báo khóa sau lần bấm thứ 4. TC-001 fail với `expected 401 to be 429` (EV-012). Build tham chiếu đổi giới hạn thành 3 lần/10 giây (VF-04): 35/35 test của PROC-01 pass |
 | Severity | Major: giới hạn thử password sai khác requirement bảo mật (ASVS 6.1.1, 6.1.3) và người dùng không thấy lý do khi bị khóa |
 | Tham chiếu | MD-01, MD-05; EX-06 |
+| Bản sửa | Commit `fix(auth): limit sign in to 3 attempts per 10 seconds` trên branch `fix/auth-major-defects`: `SIGN_IN_RATE_LIMIT` đổi thành 3 request/10 giây. TC-001 đến TC-020 của DEF-01, TC-138 và TC-175 pass |
 
 ### DEF-02: Sign in lại không hủy token cũ
 
