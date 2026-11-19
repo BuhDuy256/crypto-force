@@ -5,6 +5,9 @@ export const PASSWORD_MIN_LENGTH = 8;
 /** Maximum password length, enforced by the auth server and by every auth form. */
 export const PASSWORD_MAX_LENGTH = 128;
 
+/** Maximum Full name length (authentication.md, Create account). */
+const FULL_NAME_MAX_LENGTH = 100;
+
 /** Length in Unicode code points, the unit of every length rule (authentication.md). */
 export const codePointLength = (value: string) => Array.from(value).length;
 
@@ -16,7 +19,14 @@ const emailSchema = z
 
 const newPasswordSchema = z
   .string()
-  .min(PASSWORD_MIN_LENGTH, `Use at least ${PASSWORD_MIN_LENGTH} characters.`);
+  .refine(
+    (value) => codePointLength(value) >= PASSWORD_MIN_LENGTH,
+    `Use at least ${String(PASSWORD_MIN_LENGTH)} characters.`,
+  )
+  .refine(
+    (value) => codePointLength(value) <= PASSWORD_MAX_LENGTH,
+    `Use ${String(PASSWORD_MAX_LENGTH)} characters or fewer.`,
+  );
 
 export const signInSchema = z.object({
   email: emailSchema,
@@ -25,7 +35,14 @@ export const signInSchema = z.object({
 });
 
 export const signUpSchema = z.object({
-  name: z.string().trim().min(1, 'Enter your full name.'),
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Enter your full name.')
+    .refine(
+      (value) => codePointLength(value) <= FULL_NAME_MAX_LENGTH,
+      `Use ${String(FULL_NAME_MAX_LENGTH)} characters or fewer.`,
+    ),
   email: emailSchema,
   password: newPasswordSchema,
   acceptTerms: z.boolean().refine((accepted) => accepted, 'Please confirm to create your account.'),

@@ -24,7 +24,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 | DEF-05 | Đặt password bằng một link reset không làm các link reset khác hết hiệu lực | Product | Major / Cao | Fixed | RUN-012 |
 | DEF-06 | Không kiểm danh sách password phổ biến và Pwned Passwords; không ghi cảnh báo khi API lỗi | Product | Major / Cao | Fixed | RUN-012 |
 | DEF-07 | API đếm độ dài password theo UTF-16 thay vì code point | Product | Minor / Trung bình | Fixed | RUN-012 |
-| DEF-08 | Schema form không giới hạn password 128 ký tự và Full name 100 ký tự | Product | Minor / Trung bình | Open | RUN-012, RUN-013 |
+| DEF-08 | Schema form không giới hạn password 128 ký tự và Full name 100 ký tự | Product | Minor / Trung bình | Fixed | RUN-012, RUN-013 |
 | DEF-09 | Mở link xác minh của B khi đang đăng nhập A chuyển phiên sang B, không có thông báo | Product | Major / Cao | Fixed | RUN-013 |
 | DEF-10 | Link xác minh lỗi: không có cách gửi lại link; khi có phiên thì không có thông báo lỗi | Product | Minor / Trung bình | Open | RUN-013 |
 | DEF-11 | Form Forgot password và Choose a new password không có danh sách lỗi | Product | Minor / Trung bình | Open | RUN-013 |
@@ -303,3 +303,4 @@ Chưa có bản sửa nào. Khi một defect được sửa, thêm dòng cho def
 | Bản sửa | Commit `fix(api): add security headers to every API response` trên branch `fix/auth-major-defects`: middleware `securityHeaders` đặt `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer` và CSP `frame-ancestors 'none'` cho mọi response. TC-227 pass |
 | Bản sửa | Commit `fix(auth): end sessions and reset links at their limit` trên branch `fix/auth-major-defects`: hook `before` xóa phiên của cookie khi `expiresAt <= now`; token reset được lưu với `expiresAt` sớm hơn 1 ms. Giới hạn 30 ngày của DEF-03 dùng đúng mốc 30 ngày. TC-046, TC-047, TC-050 pass |
 | Bản sửa | Commit `fix(auth): count password length in Unicode code points` trên branch `fix/auth-major-defects`: hook `before` của Create account và Reset password đếm độ dài bằng code point (8 đến 128); giới hạn của Better Auth nới thành 8 đến 256 đơn vị UTF-16 để không từ chối password hợp lệ. TC-096, TC-097 pass |
+| Bản sửa | Commit `fix(shared): limit password and full name length in the form schemas` trên branch `fix/auth-major-defects`: schema dùng chung giới hạn password 8 đến 128 code point và Full name tối đa 100 code point, kèm thông báo theo spec. Test schema TC-090 đến TC-098 và E2E TC-095, TC-098 pass |
