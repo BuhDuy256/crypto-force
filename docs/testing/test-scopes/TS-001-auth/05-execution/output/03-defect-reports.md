@@ -18,7 +18,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 | ID | Tiêu đề | Nguyên nhân | Severity / priority | Trạng thái | Run IDs phát hiện |
 | --- | --- | --- | --- | --- | --- |
 | DEF-01 | Sign in khóa sau 5 lần trong 15 phút, không phải 3 lần trong 10 giây; UI không hiện thông báo khóa | Product | Major / Cao | Fixed | RUN-012, RUN-013 |
-| DEF-02 | Sign in lại khi đang có phiên không hủy token cũ | Product | Major / Cao | Open | RUN-012 |
+| DEF-02 | Sign in lại khi đang có phiên không hủy token cũ | Product | Major / Cao | Fixed | RUN-012 |
 | DEF-03 | Không có thời hạn tuyệt đối 30 ngày của phiên | Product | Major / Cao | Open | RUN-012 |
 | DEF-04 | Phiên và link reset còn được chấp nhận đúng tại thời điểm hết hạn | Product | Minor / Trung bình | Open | RUN-012 |
 | DEF-05 | Đặt password bằng một link reset không làm các link reset khác hết hiệu lực | Product | Major / Cao | Open | RUN-012 |
@@ -75,6 +75,7 @@ Mỗi report dưới đây ghi phần riêng: test case, expected (nguồn), act
 | Actual | `get-session` với token cũ trả phiên (`expected { session: …, user: … } to be null`, EV-012, cả 4 dòng) |
 | Severity | Major: token cũ còn dùng được sau khi người dùng đăng nhập lại |
 | Tham chiếu | MD-02-CI-04, MD-02-CI-05, MD-02-CI-15, MD-02-CI-16 |
+| Bản sửa | Commit `fix(auth): revoke the old session when signing in again` trên branch `fix/auth-major-defects`: hook `after` của `/sign-in/email` xóa phiên của cookie cũ. TC-033 dòng 1 đến 4 pass |
 
 ### DEF-03: Không có thời hạn tuyệt đối 30 ngày
 

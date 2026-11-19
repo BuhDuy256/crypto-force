@@ -1,5 +1,6 @@
 import { PASSWORD_MIN_LENGTH, type ApiEnv } from '@crypto-force/shared';
 import { betterAuth } from 'better-auth';
+import { createAuthMiddleware } from 'better-auth/api';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import type { Logger } from 'pino';
 import type { Database } from '../database/client';
@@ -84,6 +85,17 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
       enabled: true,
       storage: 'database',
       customRules: { '/sign-in/email': SIGN_IN_RATE_LIMIT },
+    },
+    hooks: {
+      // Signing in again must revoke the session that the request still carries (ASVS 7.2.4).
+      after: createAuthMiddleware(async (ctx) => {
+        if (ctx.path !== '/sign-in/email' || !ctx.context.newSession) return;
+        const { name } = ctx.context.authCookies.sessionToken;
+        const oldToken = await ctx.getSignedCookie(name, ctx.context.secret);
+        if (oldToken && oldToken !== ctx.context.newSession.session.token) {
+          await ctx.context.internalAdapter.deleteSession(oldToken);
+        }
+      }),
     },
     advanced: {
       useSecureCookies: env.NODE_ENV === 'production',
