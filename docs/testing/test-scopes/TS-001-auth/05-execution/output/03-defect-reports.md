@@ -19,7 +19,7 @@ Nguyên nhân của mọi dòng là Product, theo phân tích ở Test Log mục
 | --- | --- | --- | --- | --- | --- |
 | DEF-01 | Sign in khóa sau 5 lần trong 15 phút, không phải 3 lần trong 10 giây; UI không hiện thông báo khóa | Product | Major / Cao | Fixed | RUN-012, RUN-013 |
 | DEF-02 | Sign in lại khi đang có phiên không hủy token cũ | Product | Major / Cao | Fixed | RUN-012 |
-| DEF-03 | Không có thời hạn tuyệt đối 30 ngày của phiên | Product | Major / Cao | Open | RUN-012 |
+| DEF-03 | Không có thời hạn tuyệt đối 30 ngày của phiên | Product | Major / Cao | Fixed | RUN-012 |
 | DEF-04 | Phiên và link reset còn được chấp nhận đúng tại thời điểm hết hạn | Product | Minor / Trung bình | Open | RUN-012 |
 | DEF-05 | Đặt password bằng một link reset không làm các link reset khác hết hiệu lực | Product | Major / Cao | Fixed | RUN-012 |
 | DEF-06 | Không kiểm danh sách password phổ biến và Pwned Passwords; không ghi cảnh báo khi API lỗi | Product | Major / Cao | Open | RUN-012 |
@@ -87,6 +87,7 @@ Mỗi report dưới đây ghi phần riêng: test case, expected (nguồn), act
 | Actual | Phiên vẫn được chấp nhận sau 30 ngày (`expected true to be false`, EV-012) |
 | Severity | Major: phiên bị đánh cắp hoặc để quên dùng được vô thời hạn khi có request đều |
 | Tham chiếu | MD-02-CI-09, MD-07-CI-13 đến MD-07-CI-15, MD-07-CI-20; ASVS 7.1.1 |
+| Bản sửa | Commit `fix(auth): end every session 30 days after sign-in` trên branch `fix/auth-major-defects`: hook `session.update.after` giữ `expiresAt` không vượt quá `createdAt` + 30 ngày. TC-036 và TC-049 pass |
 
 ### DEF-04: Phiên và link reset được chấp nhận đúng tại thời điểm hết hạn
 

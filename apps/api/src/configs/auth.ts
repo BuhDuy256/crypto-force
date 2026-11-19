@@ -6,11 +6,13 @@ import { and, eq, like } from 'drizzle-orm';
 import type { Logger } from 'pino';
 import type { Database } from '../database/client';
 import * as schema from '../database/schema/index';
-import { verification } from '../database/schema/index';
+import { session as sessionTable, verification } from '../database/schema/index';
 import type { AuthEmails } from '../services/auth-email.service';
 
 const HOUR = 60 * 60;
 const DAY = 24 * HOUR;
+/** A session ends this long after sign-in, even when it is used every day (security.md, sessions). */
+const SESSION_ABSOLUTE_LIMIT_MS = 30 * DAY * 1000;
 
 /** Sign-in attempts allowed per IP address within the window (authentication.md, Sign in). */
 const SIGN_IN_RATE_LIMIT = { window: 10, max: 3 };
@@ -91,6 +93,22 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
         : {},
     // "Keep me signed in" on: 7 days, extended daily while in use. Off: browser-session cookie.
     session: { expiresIn: 7 * DAY, updateAge: DAY },
+    databaseHooks: {
+      session: {
+        update: {
+          // The daily extension must not move the end of a session past its absolute limit.
+          // The session ends at the limit, so the last accepted moment is 1 ms before it.
+          after: async (updated) => {
+            const end = new Date(updated.createdAt.getTime() + SESSION_ABSOLUTE_LIMIT_MS - 1);
+            if (updated.expiresAt <= end) return;
+            await db
+              .update(sessionTable)
+              .set({ expiresAt: end })
+              .where(eq(sessionTable.id, updated.id));
+          },
+        },
+      },
+    },
     rateLimit: {
       enabled: true,
       storage: 'database',
