@@ -1,6 +1,6 @@
 ---
 name: stlc-test-completion
-description: Use when you summarize and close a test cycle (STLC phase 6). Covers the test summary report, execution and coverage results, defect summary, and exit criteria. Also covers residual risks, recommendation, lessons learned, and handover of testware and environments. Use also when the user asks "can we release?" and needs evidence. Do not use to run more tests or to decide a release for the decision maker.
+description: Use only when the user asks for the full STLC process for a test scope in docs/testing/test-scopes/. Then use this skill to summarize and close a test cycle (STLC phase 6). Covers the test summary report, execution and coverage results, defect summary, and exit criteria. Also covers residual risks, recommendation, lessons learned, and handover of testware and environments. Do not use to run more tests or to decide a release for the decision maker. Do not use when the user asks only if a release is safe.
 ---
 
 # Test Summary and Closure (STLC Phase 6)

@@ -1,6 +1,6 @@
 ---
 name: stlc-test-implementation
-description: Use when you prepare testware for execution (STLC phase 4). Covers test procedures, manual and automated test scripts, test suites, and the execution schedule. Also covers test data, the test environment with stubs, drivers and service virtualization, and verification of each item before execution. Use also when the user asks "are we ready to run the tests?". Do not use to design test cases or to evaluate the product.
+description: Use only when the user asks for the full STLC process for a test scope in docs/testing/test-scopes/. Then use this skill to prepare testware for execution (STLC phase 4). Covers test procedures, manual and automated test scripts, test suites, and the execution schedule. Also covers test data, the test environment with stubs, drivers and service virtualization, and verification of each item before execution. Do not use to design test cases or to evaluate the product. Do not use when the user asks only if the tests are ready to run.
 ---
 
 # Test Implementation (STLC Phase 4)

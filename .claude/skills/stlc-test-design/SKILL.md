@@ -1,6 +1,6 @@
 ---
 name: stlc-test-design
-description: Use when you do test analysis and test design (STLC phase 3). Covers test conditions from a versioned test basis, technique selection, test models and coverage items. Also covers test cases and exploratory charters with concrete inputs and expected results. Use also when the user asks to "design test cases" or "what should we test for this feature". Do not use to write test scripts or to run tests.
+description: Use only when the user asks for the full STLC process for a test scope in docs/testing/test-scopes/. Then use this skill to do test analysis and test design (STLC phase 3). Covers test conditions from a versioned test basis, technique selection, test models and coverage items. Also covers test cases and exploratory charters with concrete inputs and expected results. Do not use to write test scripts or to run tests. Do not use when the user asks only for test cases for a feature.
 ---
 
 # Test Analysis and Design (STLC Phase 3)

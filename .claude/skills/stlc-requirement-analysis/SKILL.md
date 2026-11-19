@@ -1,6 +1,6 @@
 ---
 name: stlc-requirement-analysis
-description: Use when you review requirements before test planning or test design (STLC phase 1, static testing of the test basis). Covers readiness criteria, review of each requirement for completeness, correctness, consistency and testability, comparison with an independent baseline, and anomaly reports. Use also when the user asks "are these requirements ready to test?". Do not use to write or fix requirements, or to design test cases.
+description: Use only when the user asks for the full STLC process for a test scope in docs/testing/test-scopes/. Then use this skill to review requirements before test planning or test design (STLC phase 1, static testing of the test basis). Covers readiness criteria, review of each requirement for completeness, correctness, consistency and testability, comparison with an independent baseline, and anomaly reports. Do not use to write or fix requirements, or to design test cases. Do not use when the user asks only if the requirements are ready to test.
 ---
 
 # Requirement Analysis (STLC Phase 1)

@@ -1,6 +1,6 @@
 ---
 name: stlc-test-execution
-description: Use when you run tests and record results (STLC phase 5). Covers manual, automated and exploratory execution, test logs with evidence, and actual versus expected results. Also covers defect reports, confirmation and regression testing, suspension and resumption, and execution status at a cut-off time. Use also when the user asks to "run the tests and report what failed". Do not use to fix defects, to design new test cases, or to decide that exit criteria are met.
+description: Use only when the user asks for the full STLC process for a test scope in docs/testing/test-scopes/. Then use this skill to run tests and record results (STLC phase 5). Covers manual, automated and exploratory execution, test logs with evidence, and actual versus expected results. Also covers defect reports, confirmation and regression testing, suspension and resumption, and execution status at a cut-off time. Do not use to fix defects, to design new test cases, or to decide that exit criteria are met. Do not use when the user asks only which tests failed.
 ---
 
 # Test Execution (STLC Phase 5)

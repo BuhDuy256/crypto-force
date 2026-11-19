@@ -1,6 +1,6 @@
 ---
 name: stlc-test-planning
-description: Use when you write a test plan (STLC phase 2). Covers test objectives and scope, product and project risks, and the test approach (test levels, test types, techniques, coverage targets by risk level, automation). Also covers entry, exit, suspension and resumption criteria, estimates and schedule. Use also when the user asks "what should we test and how much?". Do not use to design test cases or to decide a release.
+description: Use only when the user asks for the full STLC process for a test scope in docs/testing/test-scopes/. Then use this skill to write a test plan (STLC phase 2). Covers test objectives and scope, product and project risks, and the test approach (test levels, test types, techniques, coverage targets by risk level, automation). Also covers entry, exit, suspension and resumption criteria, estimates and schedule. Do not use to design test cases or to decide a release. Do not use when the user asks only what to test and how much.
 ---
 
 # Test Planning (STLC Phase 2)
