@@ -32,6 +32,7 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Changed
 
+- Bàn giao Bước 08 cho REST Market Data: sáu interface đã duyệt, thứ tự red → green, fixture/oracle, evidence còn thiếu, gate mutation/fake và điều kiện chạy baseline. Tài liệu bàn giao đã được review độc lập. Trạng thái hoàn thành Bước 07 có hiệu lực khi commit riêng Task 5 thành công. Workload, ngưỡng và quyết định chưa duyệt giữ Proposed. Chưa hoàn tất TDD hoặc đo baseline.
 - Kế hoạch Market Data viết test tự động sau khi chốt cách kiểm chứng và trước khi build từng increment.
 - Tổ chức yêu cầu sản phẩm trong `docs/UCs/`, bắt đầu với Authentication; kiến trúc ghi cơ chế và tham chiếu requirement ID. Tám quality attribute scenario chuyển sang `Confirmed` theo ủy quyền của product owner ngày 2026-11-20; cột Nguồn ghi lý do từng số đo để product owner có thể phủ quyết.
 - Tập trung conventions cho code, testware và tài liệu tại `docs/conventions/`; `AGENTS.md` hướng dẫn khi nào đọc và dùng từng quy tắc. Thêm skills viết use case, architecture và review thay đổi.

@@ -25,7 +25,7 @@ Chỉ kiểm tra biến có giá trị, không in hoặc lưu giá trị. Kết 
 
 ### Review và phần chuyển tiếp
 
-Product owner đã duyệt sáu interface ngày 2026-11-20 theo yêu cầu của kế hoạch và skill `tdd`. Interface dùng để thiết kế và viết test ở các Task tiếp theo. Kết quả Task 2–3 nằm bên dưới. Kết quả Task 4 nằm bên dưới. Task 5 chưa thực hiện.
+Product owner đã duyệt sáu interface ngày 2026-11-20 theo yêu cầu của kế hoạch và skill `tdd`. Interface dùng để thiết kế và viết test ở các Task tiếp theo. Kết quả Task 2–4 và bàn giao Task 5 nằm bên dưới.
 
 Các việc cần cho Bước 08 đã ghi theo điểm kiểm thử: đổi shared contract, dựng provider/service và route có phiên, cập nhật Web và mock, bổ sung harness đi qua API thật. Timeout cụ thể, protocol baseline, fixtures và ma trận kịch bản được xử lý ở các Task sau của Bước 07 [[1]](#ref-1) [[2]](#ref-2).
 
@@ -143,7 +143,7 @@ Bước 08 phải chạy lại red, triển khai tối thiểu để green theo 
 - Express/Auth harness: bỏ kiểm phiên hoặc strict query. Test phải fail ở status/body/provider call count.
 - E2E upstream/control driver: giữ dữ liệu pair cũ, tính MA sai hoặc cho lỗi chart lan sang chart khác. Test phải fail qua UI/API thật.
 
-Các phép kiểm fake trên đều chưa chứng minh được khi implementation còn thiếu. Chúng là gate bắt buộc ở Bước 08. Task 4 chỉ bàn giao test trước build. Chưa hoàn tất TDD, mutant check hoặc baseline. Task 5 chưa thực hiện.
+Các phép kiểm fake trên đều chưa chứng minh được khi implementation còn thiếu. Chúng là gate bắt buộc ở Bước 08. Task 4 chỉ bàn giao test trước build. Chưa hoàn tất TDD, mutant check hoặc baseline. Bàn giao Task 5 nằm bên dưới.
 
 ### Kiểm tra và review Task 4
 
@@ -152,6 +152,65 @@ Prettier đạt cho code mới và sáu Markdown. Markdown được kiểm với
 Reviewer độc lập đã kiểm đủ 518 reference rows, không thấy sai lệch. Review phát hiện ba điểm: precision UI chưa có oracle, claim response tới muộn vượt evidence và câu trạng thái config E2E đã cũ. Đã bỏ assertion chuỗi giá phụ thuộc metadata. Test pair chỉ còn kiểm khi request upstream cũ đang bị giữ. Đã sửa trạng thái config. Không tuyên bố đã kiểm response tới muộn sau khi release. Reviewer đã kiểm lại ba sửa đổi và không có finding mới.
 
 Các sửa lỗi nằm trong test/driver và trạng thái tài liệu. Đã áp dụng skill correct ở phạm vi này. Không thêm rule chung hoặc sửa Lesson Learned cho các finding riêng của lát chưa build. Bằng chứng mutant và độ nhạy driver vẫn là gate Bước 08.
+
+## Task 5: Bàn giao Bước 08
+
+Ngày thực hiện: 2026-11-20. Task 5 chỉ cập nhật README scope, execution, tracker, plan và changelog. Tài liệu kiểm chứng và test trước build đã có từ Task 1–4. Các kết quả test ở Task 4 là evidence lịch sử, không phải lượt chạy mới của Task 5. Tài liệu bàn giao đã được review độc lập. Trạng thái hoàn thành Bước 07 có hiệu lực khi commit riêng Task 5 thành công [[1, Task 5: Review, kiểm tra tài liệu và bàn giao]](#ref-1).
+
+### Interface và thứ tự triển khai
+
+Sáu interface đã được product owner duyệt nằm trong bảng interface của tài liệu kiểm chứng [[2, Interface đề xuất để review]](#ref-2). Bước 08 giữ các điểm gọi sau:
+
+- Shared: các schema lịch sử, query và summary qua public exports của `@crypto-force/shared`. Bổ sung `marketSummaryInputSchema`.
+- Service/provider: `createMarketDataService({provider, logger})` gọi `MarketDataProvider.getCandles({pair,timeframe,limit})` và `getSummary(pair)`.
+- Adapter: `createBinanceMarketDataProvider({fetch, now, timeoutMs, logger})`. Thay upstream qua HTTP boundary.
+- Cache: `createCachedMarketDataProvider({provider, now, ttlMs, logger})`. Không thêm method đọc trạng thái nội bộ chỉ cho test.
+- HTTP: mở rộng `createApp` để nhận `marketDataProvider`. Hai endpoint dùng Auth thật trên database test.
+- Web: E2E qua API và session thật với upstream giả lập. Không thay response tại browser để kết luận flow xuyên suốt đã đạt.
+
+Mỗi lát dưới đây bắt đầu bằng chạy lại test red. Khi test bị chặn bởi import/startup, Bước 08 phải xác nhận test đã tới assertion. Sau đó triển khai tối thiểu để green, review/refactor và chạy lại test liên quan [[1, Task 4: Viết test tự động trước build và xác nhận trạng thái fail]](#ref-1).
+
+| Thứ tự | Lát triển khai                      | Test và điều kiện chuyển tiếp                                                                                                                                                               |
+| ------ | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1      | Shared contract và dữ liệu          | `market-data-rest.schema.test.ts`, `market-summary-input.schema.test.ts`. Kiểm `1d`, query strict và snapshot không cần `ma20`. Giữ riêng regression schema nháp để chuyển đổi có kiểm soát |
+| 2      | Provider/service và Binance adapter | `service.test.ts`, `binance.test.ts`. Dựng module đã thiếu, rồi kiểm dữ liệu, cửa sổ 519/500 nến, mapping volume, lỗi và timeout                                                            |
+| 3      | Cache và lỗi upstream               | `cached-provider.test.ts`, `provider-contract.test.ts`. Cần adapter và decorator. Kiểm khóa, single-flight, rejection, snapshot, cooldown và không retry. Biên TTL chờ duyệt                |
+| 4      | HTTP/session                        | `http.test.ts`. Thay kết quả lịch sử 404 bằng assertion status/body/provider count của contract. Kiểm phiên, query, `no-store` và mapping lỗi                                               |
+| 5      | Flow UI                             | `rest-history.spec.ts` với `playwright.market-data-rest.config.ts`. Sửa startup, chuyển Web/mock sang contract mới, rồi kiểm lựa chọn, cách ly chart/sidebar, MA, lỗi và phiên              |
+
+Tên test red đầu tiên, expected và nguyên nhân fail lịch sử nằm ở bảng Các lát red cho Bước 08 của Task 4. Lệnh chạy từng nhóm nằm ở bảng Lệnh và kết quả của Task 4. API dùng database `_test`. E2E dùng cấu hình REST riêng và database riêng. Không dùng database dev [[2, Harness và cách chạy]](#ref-2).
+
+### Fixture, evidence và gate còn lại
+
+Fixture và oracle chuẩn nằm trong tài liệu kiểm chứng [[2, Fixture và oracle độc lập]](#ref-2). Reviewer Task 4 đã đối chiếu 518 reference rows của nến đóng. Bước 08 giữ literal theo khóa pair/timeframe/openTime và kiểm mọi nến đóng. Không lấy output của implementation làm expected. Các bộ full/500/short/empty/gap/decimal/summary/invalid/selection kiểm các miền dữ liệu khác nhau. Không so hai snapshot nến đang mở tại hai thời điểm khác nhau.
+
+Các quyết định chưa duyệt vẫn **Proposed**: mốc bắt đầu và biên TTL, thứ tự ưu tiên khi phiên/query cùng sai, workload, công cụ phát tải và ngưỡng mở Realtime/đổi timeframe (QA-10, QA-11). Metadata giá cần nguồn tick size. Provider vượt limit và payload upstream parse hỏng cần oracle trước assertion tương ứng. Không suy ra việc bắt đầu Task 5 là duyệt các quyết định này [[2, Partitions và giá trị biên]](#ref-2) [[2, Mô hình cache và cooldown]](#ref-2) [[2, Decision table và threat model REST]](#ref-2) [[2, Ngưỡng và quyền kết luận]](#ref-2).
+
+Evidence cần thu khi Bước 08 triển khai:
+
+- Command, commit/diff, test name, assertion và kết quả từng lát. Tách test của scope khỏi regression và lỗi thiếu module/harness.
+- So sánh OHLCV/MA với fixture độc lập. Lưu response, log pair/timeframe, upstream/service duration và cache hit/miss. Các assertion log đầy đủ còn thiếu ở Task 4.
+- Browser evidence cho canvas, đọc nến, zoom, màn hình hẹp và accessibility. Kiểm screen reader bằng assistive technology. DOM không đủ để kết luận hình vẽ hoặc tiếng đọc đúng.
+- Kiểm response cũ sau khi release, timeout transport Web và các dòng ma trận chưa có test. Test lựa chọn hiện chỉ kiểm lúc request cũ đang bị giữ.
+- Scoped ESLint và typecheck sau khi có module/export thật. Task 4 còn lỗi lint/API/shared typecheck, chưa chứng minh các kiểm tra này green.
+
+Mutation và phép kiểm fake là gate bắt buộc, chưa chạy [[2, Mutation và phép kiểm fake dự kiến]](#ref-2). Bước 08 làm sai lần lượt dữ liệu OHLCV/MA, khóa/lựa chọn, TTL/snapshot, single-flight/rejection, cooldown và phiên. Đồng thời kiểm độ nhạy provider fake, deferred/cache driver, HTTP fake, Express/Auth harness và E2E upstream/control driver theo Gate kiểm độ nhạy của Task 4. Chỉ chạy khi test gốc đã green. Mỗi mutation phải làm assertion liên quan fail. Sau mỗi mutation, khôi phục code và xác nhận test gốc green. Lỗi import hoặc syntax không chứng minh test phát hiện hành vi sai.
+
+### Baseline sau khi flow green
+
+Protocol đã thiết kế nằm trong tài liệu kiểm chứng [[2, Protocol baseline REST]](#ref-2). Chưa chạy benchmark, baseline hoặc smoke Binance thật. Bước 08 chỉ chạy workload sau khi được duyệt và flow tương ứng đã green.
+
+1. Chốt công cụ/version/script phát tải và instrumentation chart. Lưu commit/diff, môi trường server/client, lockfile, DB/session, RTT, clock và cấu hình cache/build.
+2. Đo riêng cache rỗng, cache hit và single-flight. Giữ cache production 5 giây. Thu raw samples, lỗi, request count và weight upstream riêng.
+3. Dùng replay xác định để so phiên bản. Chỉ smoke Binance thật để kiểm mapping, không load test Binance thật. Kiểm dữ liệu đúng trước khi kết luận tải.
+4. Tách latency HTTP khỏi thời gian chart đầu tiên/đủ chart/đổi timeframe. Nếu chưa chứng minh canvas đã vẽ, ghi thời gian hiển thị Inconclusive.
+5. Khi ngưỡng hiệu năng chưa duyệt, chỉ báo kết quả mô tả. Không ghi Passed hoặc capacity đạt. Các phép đo freshness và cập nhật tiếp tục hoãn tới polling/WebSocket.
+
+### Kiểm tra tài liệu Task 5
+
+Đã chạy Prettier thực tế cho năm file Task 5 với `--ignore-path .gitignore`. Lượt kiểm tra ngày 2026-11-20 xác nhận Node `v22.23.5`, pnpm `9.15.9`, Prettier `--check` đạt và `pnpm check:docs` trả `check-docs: docs OK`. Các lệnh dùng runtime ngoài sandbox. Lượt đầu trong sandbox không tìm thấy `pnpm` do không đọc được thư mục runtime.
+
+Reviewer độc lập phát hiện thiếu lát 3 cache/cooldown trong bảng bàn giao. Đã khôi phục lát 3 với hai suite cache/provider contract. Reviewer kiểm lại xác nhận finding đã giải quyết và không còn finding. Trạng thái hoàn thành Task 5 và Bước 07 có hiệu lực khi commit riêng Task 5 thành công. Không chạy lại test app vì chỉ sửa Markdown. Không sửa production hoặc public exports, nên không chạy build, ESLint, typecheck, `check:exports` hay Graphify. Không chạy `pnpm check`.
 
 ## References
 

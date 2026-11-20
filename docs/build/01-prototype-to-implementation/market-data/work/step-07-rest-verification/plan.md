@@ -175,11 +175,13 @@ Chạy từng mutation sau khi test gốc đã pass. Test phải fail ở assert
 
 ### Task 5: Review, kiểm tra tài liệu và bàn giao
 
-- [ ] Cập nhật README của scope, execution và tracker. Chỉ đánh dấu hoàn thành khi cả tài liệu kiểm chứng lẫn test trước build đã có.
-- [ ] Chạy Prettier cho file sửa và `pnpm check:docs`. Nếu sửa public exports, chạy `pnpm check:exports`. Chạy ESLint, typecheck workspace và test liên quan theo thay đổi. Báo rõ lỗi do contract production chưa build, không gộp vào kết quả pass.
-- [ ] Chạy `graphify update .` nếu sửa code. Dùng skill `review-change` với reviewer mới cho code/test hoặc UCs đã sửa. Xử lý findings trước khi báo hoàn thành.
-- [ ] Bàn giao Bước 08: interface đã chốt, thứ tự red → green theo từng lát, fixture tham chiếu, protocol baseline, evidence cần thu, mutation và phép kiểm fake chưa thực hiện. Chạy mutant check sau khi test gốc pass. Khôi phục code và chạy lại test sau mỗi mutation. Không chạy benchmark trước khi có flow tương ứng.
-- [ ] Tạo commit riêng cho Task 5 theo mục Commit khi hoàn tất Task. Chỉ báo Bước 07 hoàn thành sau khi commit thành công.
+- [x] Cập nhật README của scope, execution và tracker. Chỉ đánh dấu hoàn thành khi cả tài liệu kiểm chứng lẫn test trước build đã có.
+- [x] Chạy Prettier cho file sửa và `pnpm check:docs`. Nếu sửa public exports, chạy `pnpm check:exports`. Chạy ESLint, typecheck workspace và test liên quan theo thay đổi. Báo rõ lỗi do contract production chưa build, không gộp vào kết quả pass.
+- [x] Chạy `graphify update .` nếu sửa code. Dùng skill `review-change` với reviewer mới cho code/test hoặc UCs đã sửa. Xử lý findings trước khi báo hoàn thành.
+- [x] Bàn giao Bước 08: interface đã chốt, thứ tự red → green theo từng lát, fixture tham chiếu, protocol baseline, evidence cần thu, mutation và phép kiểm fake chưa thực hiện. Chạy mutant check sau khi test gốc pass. Khôi phục code và chạy lại test sau mỗi mutation. Không chạy benchmark trước khi có flow tương ứng.
+- [x] Tạo commit riêng cho Task 5 theo mục Commit khi hoàn tất Task. Chỉ báo Bước 07 hoàn thành sau khi commit thành công.
+
+Đã có đầu ra tài liệu và test trước build. Bàn giao nằm trong execution, mục Task 5: Bàn giao Bước 08. Đã kiểm tra tài liệu và xử lý finding review. Reviewer kiểm lại không còn finding. Trạng thái hoàn thành và checkbox commit có hiệu lực khi commit riêng Task 5 thành công. Kết quả test Task 4 là evidence lịch sử. Workload, ngưỡng và quyết định chưa duyệt tiếp tục giữ Proposed.
 
 ## References
 
