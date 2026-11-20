@@ -70,7 +70,7 @@ Ngày thực hiện: 2026-11-20. Đã thiết kế protocol trong tài liệu ki
 
 Protocol giữ thời gian chart đầu tiên/đủ bốn chart/đổi timeframe, latency HTTP, tỷ lệ lỗi, đối chiếu nến đóng và request count/weight riêng. Thiết kế tách rỗng/hit/single-flight, giữ TTL production 5 giây. Replay đi qua adapter thật, có oracle độc lập và ledger upstream. Môi trường, raw samples, lỗi, tài nguyên và command được lưu theo từng lượt khi chạy ở Bước 08.
 
-Workload do agent đề xuất có nguồn, lý do và tác động riêng cho từng giá trị. Đã trình riêng workload và khuyến nghị giữ ngưỡng mở Realtime/đổi timeframe ở Proposed. Chưa ghi product owner duyệt workload hoặc ngưỡng. Protocol cho phép đo mô tả khi ngưỡng chưa chốt, không ghi Passed hoặc capacity đã đạt. Chỉ chạy workload sau khi được duyệt và có implementation tương ứng.
+Workload do agent đề xuất có nguồn, lý do và tác động riêng cho từng giá trị. Product owner đã duyệt ngày 2026-11-20 các giá trị trong bảng workload, micro-batch 100 lượt mỗi state/lần lặp với ba lần lặp và smoke một request lịch sử cùng một summary [[2, Workload đã duyệt]](#ref-2). Product owner đồng ý giữ ngưỡng mở Realtime/đổi timeframe ở Proposed để đo mô tả trước. Quyết định này không chốt ngưỡng thành tiêu chí đạt. Không ghi Passed hoặc capacity đã đạt. Chỉ chạy workload khi có implementation và harness tương ứng.
 
 Task 4 tiếp tục test/harness theo thiết kế chức năng. Công cụ phát tải, instrumentation vẽ chart và script benchmark phải được cụ thể hóa trước khi chạy baseline. Nếu chưa chứng minh canvas đã vẽ, chỉ báo thời gian apply dữ liệu và ghi thời gian hiển thị là Inconclusive.
 

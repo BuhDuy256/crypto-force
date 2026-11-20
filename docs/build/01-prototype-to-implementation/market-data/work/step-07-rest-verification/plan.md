@@ -153,7 +153,7 @@ Chạy từng mutation sau khi test gốc đã pass. Test phải fail ở assert
 - [x] Hoãn freshness/source-to-chart delay, tỷ lệ thời gian dữ liệu cũ và bandwidth/client/phút tới polling. Hoãn fan-out subscription và recovery/backfill tới WebSocket. REST vẫn kiểm snapshot `dataTime` đúng. Chọn CPU/RAM/event-loop lag làm số đo bổ sung khi chạy tải, không tự đặt ngưỡng tối ưu.
 - [x] Trình riêng workload đề xuất và quyết định giữ/chỉnh ngưỡng QA-10/QA-11. Nếu chưa chốt ngưỡng, chỉ thiết kế phép đo mô tả, không ghi Passed cho mục tiêu hiệu năng.
 
-Đã thiết kế protocol trong tài liệu kiểm chứng và trình riêng workload/ngưỡng. Các giá trị chưa được duyệt giữ Proposed. Chưa chạy baseline hoặc ghi Passed cho mục tiêu hiệu năng.
+Đã thiết kế protocol trong tài liệu kiểm chứng. Product owner đã duyệt workload ngày 2026-11-20 và đồng ý giữ ngưỡng QA-10/QA-11 ở Proposed để đo mô tả trước [[13, Workload đã duyệt]](#ref-13). Chưa chạy baseline hoặc ghi Passed cho mục tiêu hiệu năng.
 
 **Điều kiện đạt:** protocol phân biệt được điều đo ngay và điều chưa thể đo. Các phiên bản REST tải lịch sử, polling và WebSocket dùng chung định nghĩa chỉ số khi so sánh.
 
