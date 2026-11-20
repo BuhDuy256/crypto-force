@@ -348,9 +348,9 @@ Replay phải có seed, fixture hash, epoch nguồn và timeline cố định. M
 
 Replay mô phỏng weight của endpoint theo cấu hình có phiên bản. Request ledger ghi weight riêng cho nến và summary. Giá trị weight trong thiết kế hiện tại là dữ liệu tham khảo của ngày đọc, không chứng minh quota Binance hiện hành [[3, Giới hạn request của Binance]](#ref-3). Smoke thật phải lưu header quota thực nhận và nguồn đối chiếu tại ngày chạy. Nếu thiếu header, ghi thiếu, không suy weight đã dùng toàn IP bằng số call của process.
 
-### Workload đã duyệt
+### Workload đề xuất để duyệt riêng
 
-**Trạng thái: Confirmed, product owner đã duyệt ngày 2026-11-20.** Phạm vi duyệt gồm các giá trị trong bảng dưới, micro-batch 100 lượt mỗi state/lần lặp với ba lần lặp và smoke một request lịch sử cùng một summary. Nhãn agent đề xuất giữ nguồn của từng giá trị. Workload là cấu hình benchmark xác định, chưa phải hành vi production hoặc dự báo lượng người dùng. Chỉ chạy khi có implementation và harness tương ứng. Các giá trị đã có nguồn chỉ được dùng trong đúng phạm vi nguồn.
+Mọi giá trị mang nhãn agent đề xuất trong bảng dưới đang **Proposed**. Chúng là cấu hình benchmark xác định, chưa phải hành vi production hoặc dự báo lượng người dùng. Không chạy workload này trước khi product owner duyệt. Các giá trị đã có nguồn chỉ được dùng trong đúng phạm vi nguồn.
 
 | Tham số | Giá trị và nguồn | Lý do và tác động so với test basis |
 | --- | --- | --- |
@@ -402,7 +402,7 @@ Smoke Binance thật là lượt riêng để kiểm mapping, contract và heade
 
 ### Ngưỡng và quyền kết luận
 
-Product owner đã đồng ý ngày 2026-11-20 giữ hai mục tiêu mở Realtime dưới 2 giây ở p95 (QA-10) và đổi timeframe dưới 1 giây ở p95 (QA-11) ở trạng thái **Proposed** [[2]](#ref-2). Lý do: chưa có flow production, số đo hoặc môi trường chuẩn để xác nhận khả thi. Quyết định giữ Proposed tách biệt với duyệt workload. Task 3 không chỉnh hai requirement. Khi ngưỡng chưa chốt, kết quả chỉ mô tả p50/p95/p99, tỷ lệ lỗi và độ đúng, không ghi Passed cho mục tiêu hiệu năng.
+Agent khuyến nghị giữ hai mục tiêu mở Realtime dưới 2 giây ở p95 (QA-10) và đổi timeframe dưới 1 giây ở p95 (QA-11) ở trạng thái **Proposed** [[2]](#ref-2). Lý do: chưa có flow production, số đo hoặc môi trường chuẩn để xác nhận khả thi. Task 3 không chỉnh hai requirement. Đây là quyết định tách biệt với duyệt workload. Nếu chưa chốt ngưỡng, kết quả chỉ mô tả p50/p95/p99, tỷ lệ lỗi và độ đúng, không ghi Passed cho mục tiêu hiệu năng.
 
 Chưa có ngưỡng latency HTTP, tỷ lệ lỗi hoặc capacity REST được duyệt. Do đó không tự đặt SLO mới cho những chỉ số này. Dữ liệu sai luôn làm lượt đo không đủ điều kiện đạt tải. Capacity lịch sử, nếu được xác nhận sau này, phải ghi kèm request throughput, số client, mix/cache, môi trường và tiêu chí đã duyệt. Con số đó không thay số client đang nhận cập nhật realtime trong mục tiêu CV [[31]](#ref-31).
 
