@@ -11,6 +11,7 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 - Bản nháp use case Market Data, câu hỏi mở, kế hoạch và bằng chứng hoàn thành Bước 2. API contract production chưa được chốt.
 - Requirements Market Data cho vòng REST tải lịch sử: rule đã chốt cho nến đang mở, MA, volume, sidebar, timeframe, lựa chọn mặc định, 500 nến mỗi chart, exception flow và accessibility, kèm gap analysis với hai baseline độc lập. Ngưỡng hiệu năng REST còn Proposed.
 - Test scope TS-002 Market Data kiểm thử theo increment REST, REST polling, WebSocket, không dùng template STLC; mỗi increment có file phân tích requirements.
+- Thiết kế Market Data cho vòng REST: thành phần Web, API, Market Data Service và provider, luồng tải lịch sử, phân loại lỗi và log để phân biệt lỗi upstream, backend, client. ADR-003 đặt adapter dữ liệu thị trường trong layer `providers/` của API; ADR-004 để Web tính MA từ nến API trả về. Chưa triển khai code.
 - Trạng thái `Dropped` cho rule bị bỏ trong `docs/UCs/`, được `check:docs` chấp nhận.
 - Monorepo TypeScript strict với React Router, Express, worker pg-boss, shared schemas và strategy/backtest engine; PostgreSQL chạy bằng Docker Compose.
 - Landing page có SEO metadata, giao diện responsive và trang 404; design tokens, font self-host, hỗ trợ bàn phím và reduced motion.

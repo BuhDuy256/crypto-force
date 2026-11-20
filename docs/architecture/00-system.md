@@ -34,6 +34,7 @@ flowchart LR
     A --> R[Mailer: Resend hoặc console]
     A --> P[Pwned Passwords API]
     W[Worker: pg-boss] --> D
+    A -. Market Data qua MarketDataProvider, chưa triển khai .-> BI[Binance REST]
 ```
 
 Các kết nối nét liền trong sơ đồ là cơ chế đã có trong source; kết nối nét đứt là tích hợp trong thiết kế chưa có adapter triển khai. Việc một integration có code không khẳng định dịch vụ đó đã được cấu hình trên môi trường deploy.
@@ -41,7 +42,7 @@ Các kết nối nét liền trong sơ đồ là cơ chế đã có trong source
 | Container/package | Trách nhiệm | Phần đã triển khai |
 | --- | --- | --- |
 | Web | Render UI, điều hướng và giữ server state phía client | Landing, Auth, màn 404, workspace layout/header và lớp chặn phiên; nội dung các tab nghiệp vụ là placeholder |
-| API | HTTP boundary, orchestration và truy cập dữ liệu | Better Auth, health, cấu hình Auth công khai, security headers, logging và error handling |
+| API | HTTP boundary, orchestration, truy cập dữ liệu và gọi provider dữ liệu thị trường | Better Auth, health, cấu hình Auth công khai, security headers, logging và error handling; Market Data mới có thiết kế [[10]](#ref-10) |
 | PostgreSQL | Persistence của ứng dụng và queue | Schema ứng dụng gồm dữ liệu tài khoản/phiên và rate limit; pg-boss quản lý schema queue riêng |
 | Worker | Thực thi job nền ngoài vòng đời HTTP request | Khởi động/dừng pg-boss; chưa đăng ký job handler |
 | `packages/shared` | Contracts và validation dùng chung | Schema Auth và environment |
@@ -91,3 +92,4 @@ Kiểm phiên ở Web phục vụ điều hướng và hiển thị, không thay
 7. <a id="ref-7"></a>[System States & Lifecycle](20-state-machine.md)
 8. <a id="ref-8"></a>[Data Model & Persistence](21-database.md)
 9. <a id="ref-9"></a>[API & Realtime Communication Contracts](22-api-endpoints.md)
+10. <a id="ref-10"></a>[Market Data & Realtime Updates](10-market-data.md)

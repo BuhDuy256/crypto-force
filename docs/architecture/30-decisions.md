@@ -76,6 +76,72 @@ Crypto Force chỉ mô phỏng: không giữ tiền, không kết nối sàn và
 - Kiểm password đã bị lộ gọi API bên ngoài khi Create account và Reset password.
 - Phải nâng lên L2 đầy đủ nếu sau này lưu API key của sàn hoặc đặt lệnh thật.
 
+## ADR-003: Đặt adapter dữ liệu thị trường trong layer `providers/` của API
+
+**Status:** Accepted (2026-11-20)
+
+### Bối cảnh
+
+Backend chỉ được gọi Binance qua `MarketDataProvider`; frontend không gọi Binance [[9, Shared và Engine]](#ref-9). Thêm provider thứ hai không được làm thay đổi frontend (QA-09) [[11, Modifiability]](#ref-11). `apps/api` đã có layer Route, Controller, Service, Repository, Mapper nhưng chưa có nơi cho đầu ra tới API bên ngoài. Worker chưa cần dữ liệu thị trường.
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Folder `providers/` trong `apps/api`, interface đặt cùng adapter | Một chỗ để đọc interface và adapter; ranh giới import viết được bằng ESLint như các layer khác | Worker không dùng lại được; rule ESLint phải chặn Service import file adapter theo tên file, vì interface và adapter cùng folder |
+| Interface do `services/` sở hữu, adapter ở `providers/` | Đúng nguyên tắc dependency inversion | Thêm một bước nhảy khi đọc code, khi chỉ có một service và một provider |
+| Interface và adapter trong một package mới | API và Worker dùng chung | Tạo package khi chưa có bên dùng thứ hai, trái quy tắc không tạo abstraction trước nhu cầu [[9, Dependency rules]](#ref-9) |
+
+### Quyết định
+
+- Tạo `apps/api/src/providers/market-data/` gồm interface `MarketDataProvider`, kiểu domain và adapter Binance.
+- Adapter chuẩn hóa dữ liệu provider sang kiểu domain. Kiểu dữ liệu của Binance không ra khỏi adapter.
+- Service chỉ import file interface, không import file adapter. Route và Controller không import `providers/`. `providers/` không import Express, `api/`, `services/`, `repositories/`, `database/`. Rule ESLint được thêm cùng lúc với folder.
+- `index.ts` tạo adapter từ cấu hình và truyền qua `AppDependencies`, `ApiRouterDependencies` tới service. Integration test truyền provider giả lập theo cùng đường.
+
+### Lý do
+
+Folder `providers/` có interface cùng adapter tách Binance khỏi service bằng ít thành phần nhất. Composition root hiện có đã truyền dependency qua tham số, nên không cần thư viện DI. Provider giả lập kiểm được ranh giới mà không cần provider thật thứ hai.
+
+### Hệ quả
+
+- Đổi provider chỉ thay adapter và lựa chọn trong composition root [[10, Provider và cách thay thế]](#ref-10).
+- Thêm một rule `no-restricted-imports` cho `providers/` trong `eslint.config.js`.
+- Xét lại khi Worker cần dữ liệu thị trường, chẳng hạn cho backtest: chuyển interface và kiểu domain sang package có public API.
+
+## ADR-004: Web tính MA của chart từ nến API trả về
+
+**Status:** Accepted (2026-11-20)
+
+### Bối cảnh
+
+Mỗi chart hiển thị MA theo giá đóng cửa (MK-01). MA phủ mọi nến đang hiển thị khi lịch sử đủ (MK-24), tính cả nến đang mở với nhãn giá trị tạm (MK-28) và chỉ dùng nến có thật (MK-36) [[8, Xem lịch sử thị trường]](#ref-8). Chart chỉ hiển thị một số nến giới hạn (MK-33), nên mẫu MA của các nến đầu cần nến trước cửa sổ hiển thị. Chỉ báo dùng cho strategy thuộc `packages/engine`; engine chưa có MA.
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Web tính MA; API trả thêm nến khởi động MA | Contract chỉ có nến; đổi tham số MA không đổi API; tooltip MA cùng nguồn với nến | Web tải thêm một ít nến; MA của chart và của strategy có thể là hai bản cài đặt |
+| API tính MA và trả kèm nến | Một bản cài đặt có thể dùng `packages/engine` | Contract lớn hơn; mỗi tham số MA mới đổi API; vòng WebSocket phải gửi lại MA khi nến đang mở thay đổi |
+
+### Quyết định
+
+- API trả số nến hiển thị (MK-33) cộng số nến cần cho mẫu MA đầu tiên (MK-24). Contract đánh dấu được nến nào thuộc cửa sổ hiển thị.
+- Web tính MA bằng hàm thuần, không I/O, từ toàn bộ nến nhận được; chart chỉ vẽ nến trong cửa sổ hiển thị.
+
+### Lý do
+
+MA trên Realtime chỉ phục vụ hiển thị và tính từ chính các nến Web đã có. Khi WebSocket cập nhật nến đang mở, Web tính lại MA tại chỗ mà không cần server gửi thêm dữ liệu.
+
+### Rủi ro chấp nhận
+
+MA trên chart và MA trong strategy có thể lệch nhau nếu hai bản cài đặt khác nhau.
+
+### Hệ quả
+
+- Contract nến có nến khởi động MA và cách phân biệt nến hiển thị.
+- Xét lại khi `packages/engine` có chỉ báo MA cho strategy: Web dùng lại hàm của engine nếu dependency rules cho phép, để chart và strategy dùng cùng một cách tính.
+
 ## References
 
 1. <a id="ref-1"></a>[Authentication](../UCs/authentication.md)
@@ -85,3 +151,7 @@ Crypto Force chỉ mô phỏng: không giữ tiền, không kết nối sàn và
 5. <a id="ref-5"></a>OWASP ASVS 5.0, V7 Session Management. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x16-V7-Session-Management.md>
 6. <a id="ref-6"></a>OWASP ASVS 5.0, V3 Web Frontend Security. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x12-V3-Web-Frontend-Security.md>
 7. <a id="ref-7"></a>OpenID Connect Core 1.0 incorporating errata set 2. <https://openid.net/specs/openid-connect-core-1_0.html>
+8. <a id="ref-8"></a>[Market Data](../UCs/market-data.md)
+9. <a id="ref-9"></a>[Project Structure](../conventions/project-structure.md)
+10. <a id="ref-10"></a>[Market Data & Realtime Updates](10-market-data.md)
+11. <a id="ref-11"></a>[Quality Attributes](../UCs/quality-attributes.md)
