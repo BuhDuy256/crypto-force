@@ -25,7 +25,7 @@ Chỉ kiểm tra biến có giá trị, không in hoặc lưu giá trị. Kết 
 
 ### Review và phần chuyển tiếp
 
-Product owner đã duyệt sáu interface ngày 2026-11-20 theo yêu cầu của kế hoạch và skill `tdd`. Interface dùng để thiết kế và viết test ở các Task tiếp theo. Kết quả Task 2 nằm bên dưới. Các Task 3–5 chưa triển khai.
+Product owner đã duyệt sáu interface ngày 2026-11-20 theo yêu cầu của kế hoạch và skill `tdd`. Interface dùng để thiết kế và viết test ở các Task tiếp theo. Kết quả Task 2–3 nằm bên dưới. Các Task 4–5 chưa triển khai.
 
 Các việc cần cho Bước 08 đã ghi theo điểm kiểm thử: đổi shared contract, dựng provider/service và route có phiên, cập nhật Web và mock, bổ sung harness đi qua API thật. Timeout cụ thể, protocol baseline, fixtures và ma trận kịch bản được xử lý ở các Task sau của Bước 07 [[1]](#ref-1) [[2]](#ref-2).
 
@@ -63,6 +63,20 @@ Các gate này không chặn ghi thiết kế case hoặc expected đã có ngu�
 Kiểm tra tài liệu: Prettier qua CLI trực tiếp đạt cho các file Task 2. `pnpm check:docs` trả `check-docs: docs OK`. `git diff --check` đạt. Reviewer độc lập dùng `review-change` không có finding cho thiết kế và cập nhật tiến độ. Không chạy test app, build, `pnpm check` hoặc Graphify vì chỉ sửa Markdown.
 
 Task 2 được lưu bằng commit riêng cùng cập nhật plan, scope README, tracker và changelog. Mã commit được xác nhận trong Git và báo cho product owner sau khi tạo thành công.
+
+## Task 3: Protocol baseline REST
+
+Ngày thực hiện: 2026-11-20. Đã thiết kế protocol trong tài liệu kiểm chứng [[2, Protocol baseline REST]](#ref-2). Protocol phân biệt chỉ số tải lịch sử, chỉ số cập nhật từ polling và chỉ số subscription/phục hồi từ WebSocket. Chưa chạy benchmark, smoke Binance thật hoặc test app. Chưa sửa production, quality attributes hoặc abstract plan.
+
+Protocol giữ thời gian chart đầu tiên/đủ bốn chart/đổi timeframe, latency HTTP, tỷ lệ lỗi, đối chiếu nến đóng và request count/weight riêng. Thiết kế tách rỗng/hit/single-flight, giữ TTL production 5 giây. Replay đi qua adapter thật, có oracle độc lập và ledger upstream. Môi trường, raw samples, lỗi, tài nguyên và command được lưu theo từng lượt khi chạy ở Bước 08.
+
+Workload do agent đề xuất có nguồn, lý do và tác động riêng cho từng giá trị. Đã trình riêng workload và khuyến nghị giữ ngưỡng mở Realtime/đổi timeframe ở Proposed. Chưa ghi product owner duyệt workload hoặc ngưỡng. Protocol cho phép đo mô tả khi ngưỡng chưa chốt, không ghi Passed hoặc capacity đã đạt. Chỉ chạy workload sau khi được duyệt và có implementation tương ứng.
+
+Task 4 tiếp tục test/harness theo thiết kế chức năng. Công cụ phát tải, instrumentation vẽ chart và script benchmark phải được cụ thể hóa trước khi chạy baseline. Nếu chưa chứng minh canvas đã vẽ, chỉ báo thời gian apply dữ liệu và ghi thời gian hiển thị là Inconclusive.
+
+Kiểm tra tài liệu: Prettier kiểm sáu file Task 3 đạt. `pnpm check:docs` trả `check-docs: docs OK`. `git diff --check` đạt. Review độc lập theo skill `review-change` phát hiện barrier single-flight chưa phân biệt request vào API với caller đã join pending key. Đã sửa điều kiện thả barrier và yêu cầu log chứng minh join. Đây là sửa protocol, chưa phải bằng chứng single-flight đã chạy. Không phát sinh lớp lỗi lặp lại cần thêm rule hoặc Lesson Learned.
+
+Không chạy test app, build, browser, baseline, `pnpm check` hoặc Graphify vì chỉ sửa Markdown. Task 3 được lưu bằng commit riêng gồm protocol và các cập nhật tiến độ. Mã commit được xác nhận trong Git sau khi tạo thành công.
 
 ## References
 

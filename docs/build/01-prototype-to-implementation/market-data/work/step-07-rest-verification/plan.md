@@ -143,19 +143,21 @@ Chạy từng mutation sau khi test gốc đã pass. Test phải fail ở assert
 
 ### Task 3: Chốt protocol baseline REST
 
-- [ ] Tạo bảng phép đo thực hiện/hoãn từ mục tiêu Market Data và nhóm chỉ số CV [[10]](#ref-10) [[11]](#ref-11).
-- [ ] Giữ ngay: thời gian hiện chart đầu tiên, thời gian đủ chart mặc định, đổi timeframe, latency HTTP, tỷ lệ lỗi, đối chiếu nến đóng và số request browser → API/upstream. Tách latency API khỏi thời gian vẽ chart.
-- [ ] Thiết kế lượt cache rỗng, cache còn hạn và request đồng thời cùng khóa. Giữ cache production 5 giây. Không tắt cache để tạo baseline yếu. Ghi cả request count và weight upstream, không xem chúng là một chỉ số.
-- [ ] Đề xuất workload trước khi chạy: concurrency, phân bố pair/timeframe, số chart/client, nhịp mở hoặc đổi chart, warm-up, thời lượng, số lần lặp và cách tổng hợp percentile. Mỗi giá trị mới có lý do. Không dùng một lần tải trang làm mẫu p95.
-- [ ] Ghi môi trường cần lưu: commit/diff, runtime và dependency lock, cấu hình máy, DB/session, nguồn thật hoặc replay, RTT, clock, cache, chế độ build Web, công cụ phát tải và vị trí máy phát tải. Ghi cả cấu hình máy client khi đo thời gian vẽ.
-- [ ] Tách replay xác định để so sánh các phiên bản khỏi smoke với Binance thật để kiểm mapping. Không load test Binance thật. Thiết kế lưu command, cấu hình, raw samples, lỗi và kết quả đối chiếu theo từng lượt.
-- [ ] Ghi capacity REST là tải request phục vụ lịch sử. Chỉ gọi là đạt tải khi dữ liệu đúng và đáp ứng tiêu chí latency đã chốt. Không dùng con số này thay capacity nhận cập nhật realtime.
-- [ ] Hoãn freshness/source-to-chart delay, tỷ lệ thời gian dữ liệu cũ và bandwidth/client/phút tới polling. Hoãn fan-out subscription và recovery/backfill tới WebSocket. REST vẫn kiểm snapshot `dataTime` đúng. Chọn CPU/RAM/event-loop lag làm số đo bổ sung khi chạy tải, không tự đặt ngưỡng tối ưu.
-- [ ] Trình riêng workload đề xuất và quyết định giữ/chỉnh ngưỡng QA-10/QA-11. Nếu chưa chốt ngưỡng, chỉ thiết kế phép đo mô tả, không ghi Passed cho mục tiêu hiệu năng.
+- [x] Tạo bảng phép đo thực hiện/hoãn từ mục tiêu Market Data và nhóm chỉ số CV [[10]](#ref-10) [[11]](#ref-11).
+- [x] Giữ ngay: thời gian hiện chart đầu tiên, thời gian đủ chart mặc định, đổi timeframe, latency HTTP, tỷ lệ lỗi, đối chiếu nến đóng và số request browser → API/upstream. Tách latency API khỏi thời gian vẽ chart.
+- [x] Thiết kế lượt cache rỗng, cache còn hạn và request đồng thời cùng khóa. Giữ cache production 5 giây. Không tắt cache để tạo baseline yếu. Ghi cả request count và weight upstream, không xem chúng là một chỉ số.
+- [x] Đề xuất workload trước khi chạy: concurrency, phân bố pair/timeframe, số chart/client, nhịp mở hoặc đổi chart, warm-up, thời lượng, số lần lặp và cách tổng hợp percentile. Mỗi giá trị mới có lý do. Không dùng một lần tải trang làm mẫu p95.
+- [x] Ghi môi trường cần lưu: commit/diff, runtime và dependency lock, cấu hình máy, DB/session, nguồn thật hoặc replay, RTT, clock, cache, chế độ build Web, công cụ phát tải và vị trí máy phát tải. Ghi cả cấu hình máy client khi đo thời gian vẽ.
+- [x] Tách replay xác định để so sánh các phiên bản khỏi smoke với Binance thật để kiểm mapping. Không load test Binance thật. Thiết kế lưu command, cấu hình, raw samples, lỗi và kết quả đối chiếu theo từng lượt.
+- [x] Ghi capacity REST là tải request phục vụ lịch sử. Chỉ gọi là đạt tải khi dữ liệu đúng và đáp ứng tiêu chí latency đã chốt. Không dùng con số này thay capacity nhận cập nhật realtime.
+- [x] Hoãn freshness/source-to-chart delay, tỷ lệ thời gian dữ liệu cũ và bandwidth/client/phút tới polling. Hoãn fan-out subscription và recovery/backfill tới WebSocket. REST vẫn kiểm snapshot `dataTime` đúng. Chọn CPU/RAM/event-loop lag làm số đo bổ sung khi chạy tải, không tự đặt ngưỡng tối ưu.
+- [x] Trình riêng workload đề xuất và quyết định giữ/chỉnh ngưỡng QA-10/QA-11. Nếu chưa chốt ngưỡng, chỉ thiết kế phép đo mô tả, không ghi Passed cho mục tiêu hiệu năng.
+
+Đã thiết kế protocol trong tài liệu kiểm chứng và trình riêng workload/ngưỡng. Các giá trị chưa được duyệt giữ Proposed. Chưa chạy baseline hoặc ghi Passed cho mục tiêu hiệu năng.
 
 **Điều kiện đạt:** protocol phân biệt được điều đo ngay và điều chưa thể đo. Các phiên bản REST tải lịch sử, polling và WebSocket dùng chung định nghĩa chỉ số khi so sánh.
 
-- [ ] Chạy kiểm tra phù hợp và tạo commit riêng cho Task 3 theo mục Commit khi hoàn tất Task.
+- [x] Chạy kiểm tra phù hợp và tạo commit riêng cho Task 3 theo mục Commit khi hoàn tất Task.
 
 ### Task 4: Viết test tự động trước build và xác nhận trạng thái fail
 

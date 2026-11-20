@@ -6,6 +6,7 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Added
 
+- Protocol baseline REST Market Data cho Task 3 của Bước 07: định nghĩa phép đo, cache rỗng/hit/single-flight, workload đề xuất, replay/smoke và evidence chạy lại. Workload và ngưỡng hiệu năng còn Proposed. Chưa đo baseline hoặc xác nhận capacity.
 - Thiết kế kiểm chứng REST Market Data cho Task 2 của Bước 07: ma trận requirement/kịch bản/evidence, partitions và biên, fixture với expected literal, cache/cooldown, E2E/accessibility, log và mutation dự kiến. Chưa viết hoặc chạy test REST mới.
 - Test basis REST Market Data, đối chiếu sáu SC WCAG, sáu interface kiểm thử được product owner duyệt và khảo sát harness từ source cho Task 1 của Bước 07. Chưa viết test hoặc đo baseline.
 - Frontend Realtime dùng HTTP mock: pair chung, 1/2/4 chart với timeframe riêng, nến, volume, MA(20), giá/thay đổi 24h và sidebar. Các chart có trạng thái đang tải, rỗng, lỗi và thử lại riêng.

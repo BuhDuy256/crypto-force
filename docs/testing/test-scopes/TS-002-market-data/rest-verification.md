@@ -307,6 +307,105 @@ Các phép kiểm dưới **chưa chạy**. Task 4 phải ghi được test nào
 
 Không sửa expected để giết mutant. Fault làm hỏng fake phải làm test sản phẩm fail ở kết quả cần kiểm. Nếu chưa có production để chứng minh, ghi phép kiểm fake chưa thực hiện và giữ gate Bước 08. Source review kiểm tránh module mock, private method hoặc export chỉ dùng bởi test. Kiểm tự động ở Task 4–08 dùng ESLint cho file test thay đổi, không coi review là bằng chứng behavior đã chạy.
 
+## Protocol baseline REST
+
+Protocol này phục vụ mục tiêu demo, chẩn đoán độ chậm và so sánh các phiên bản trên cùng tài nguyên [[30]](#ref-30). Nhóm chỉ số CV phân biệt tải lịch sử với cập nhật trực tiếp [[31]](#ref-31). Task 3 chỉ thiết kế phép đo. Chưa có kết quả benchmark hoặc capacity đã đạt.
+
+### Phép đo giữ lại và hoãn
+
+| Phép đo | Điểm bắt đầu, điểm kết thúc hoặc nơi đọc | Phạm vi và cách diễn giải |
+| --- | --- | --- |
+| Chart đầu tiên | Browser ghi mốc trước thao tác mở Realtime hoặc chọn pair. Kết thúc khi chart đầu tiên đã áp dụng nến đúng lựa chọn và hoàn tất lượt vẽ tương ứng | Đo ngay, tách hit/miss. Không dùng thời điểm HTTP xong hoặc nhãn Ready làm bằng chứng canvas đã vẽ |
+| Đủ chart mặc định | Cùng mốc mở Realtime. Kết thúc khi cả bốn chart có nến, volume và MA đúng, đã hoàn tất lượt vẽ | Đo ngay cho mục tiêu mở Realtime (QA-10). Ghi riêng thời gian summary sẵn sàng, không đưa summary vào điểm kết thúc bốn chart [[2]](#ref-2) |
+| Đổi timeframe | Browser ghi mốc ngay trước chọn timeframe. Kết thúc khi chart bị đổi đã vẽ dữ liệu đúng lựa chọn mới | Đo ngay cho mục tiêu đổi timeframe (QA-11). Chart khác giữ dữ liệu và không phát request mới [[1]](#ref-1) |
+| Latency HTTP | Client HTTP dùng clock đơn điệu từ ngay trước gửi request tới khi nhận hết body. API ghi riêng thời gian từ nhận request tới hoàn tất response | Đo riêng endpoint nến/summary, hit/miss/chờ single-flight, status và số client. Không lấy chênh clock client/server để tính network latency |
+| Tỷ lệ lỗi | Số request lỗi chia tổng request đã phát. Số thao tác UI lỗi chia tổng thao tác đã bắt đầu | Lỗi gồm non-2xx, timeout, transport, parse và dữ liệu sai dù HTTP 200. Báo từng nhóm. Fault injection có mẫu số riêng, không trộn với lượt thành công dự kiến |
+| Đúng và đủ nến đóng | Đối chiếu từng khóa pair/timeframe/openTime và OHLCV với manifest replay | Đếm thiếu, trùng, thừa và lệch giá trị. So `dataTime`/`isClosed` theo snapshot. Nến đang mở không so với trạng thái nguồn ở thời điểm muộn hơn |
+| Request và weight | Browser network trace, log ingress API, call ledger tại HTTP replay upstream | Đếm riêng nến/summary, tổng số và số/phút trên cửa sổ đo. Weight tính theo từng endpoint và cấu hình replay. Không suy request count bằng weight |
+| CPU, RAM, event-loop lag | Chuỗi thời gian API và máy phát tải trong cửa sổ đo. Ghi thêm DB/session latency và connection count nếu thu được | Số đo bổ sung để chẩn đoán. Chưa đặt ngưỡng tối ưu hoặc tiêu chí pass |
+| Capacity REST | Mức concurrency và throughput request lịch sử thực đo, kèm latency, lỗi và đối chiếu dữ liệu | Chỉ gọi đạt tải khi có tiêu chí latency/lỗi đã duyệt và dữ liệu đúng. Nếu thiếu tiêu chí, chỉ báo tải đã thử và kết quả mô tả |
+| Freshness/source-to-chart delay, thời gian dữ liệu cũ, bytes/client/phút | Hoãn tới polling, khi có nhịp cập nhật và nguồn tham chiếu đồng bộ | `dataTime` đúng vẫn được kiểm ngay. Không dùng tuổi snapshot tải một lần làm độ trễ cập nhật |
+| Fan-out subscription, recovery/backfill | Hoãn tới WebSocket và kịch bản ngắt kết nối | Không dùng gộp request REST để tuyên bố hiệu quả chia sẻ subscription hoặc capacity nhận event |
+
+Browser phải ghi cả mốc nhận body, parse/apply dữ liệu và hoàn tất vẽ. Harness ở Bước 08 phải chứng minh mốc cuối gắn với lượt vẽ dữ liệu của đúng lựa chọn. Nếu chưa quan sát được lượt vẽ, chỉ báo thời gian tới apply và ghi thời gian hiển thị là Inconclusive. Giữ nguyên định nghĩa bắt đầu/kết thúc khi chuyển sang polling hoặc WebSocket. Khác biệt instrumentation phải được ghi trong manifest trước so sánh.
+
+### Cache, replay và kiểm dữ liệu
+
+Baseline đi qua API, Auth/session thật, service, cache decorator và Binance adapter. Chỉ HTTP upstream được thay bằng replay. Không dùng provider fake bỏ qua adapter để báo baseline toàn flow. API giữ cache production 5 giây và single-flight đã thiết kế [[3, Cache và giới hạn request]](#ref-3). Không tắt cache hoặc đổi TTL để làm lượt miss dễ hơn.
+
+| Lượt | Chuẩn bị và thao tác | Evidence để chấp nhận phân loại |
+| --- | --- | --- |
+| Cache rỗng | Khởi động API mới trước batch, hoặc chờ mọi khóa mục tiêu hết hạn. Chờ API/DB sẵn sàng trước đo, không cộng startup vào latency. Browser dùng context mới hoặc xóa Query cache trước thao tác | Trước batch không có snapshot còn hạn. Log và ledger chứng minh request đầu mỗi khóa là miss. Với batch đồng thời, phân biệt request leader và request chờ, không gắn mọi request là miss độc lập |
+| Cache còn hạn | Prime các khóa bằng request ngoài cửa sổ đo. Chỉ phát batch đo khi snapshot còn hạn. Trước batch sau phải prime lại nếu cần | Hit phải có log cache, giữ nguyên `dataTime` và `isClosed`, không có upstream call tương ứng. Batch chạm TTL bị phân loại theo thực tế, không tính là toàn hit |
+| Cùng khóa đồng thời | Sau hết hạn hoặc process mới, phát đồng thời request nến cùng pair/timeframe/limit. Replay giữ response bằng barrier. Chỉ thả response sau khi log cache chứng minh leader đang pending và mọi caller còn lại đã join cùng pending key | Một upstream call cho khóa. Mọi caller nhận cùng snapshot. Ingress count không thay bằng chứng join vì request có thể còn chờ Auth/session. Nếu thiếu evidence join, ghi kiểm single-flight là Inconclusive. Ghi thời gian chờ barrier riêng. Burst này không trộn latency có barrier với baseline upstream cố định |
+| Khác khóa | Phát batch đa pair/timeframe, đếm ledger theo từng khóa nến và từng pair summary | Không gộp dữ liệu khác khóa. Báo tỷ lệ hit/miss thực tế và số upstream call, không mặc định một request mỗi client |
+
+TTL vẫn chạy theo clock thật khi đo latency. Fake clock chỉ dùng test chức năng. Mốc hết TTL còn Proposed trong mô hình cache của Task 2. Lượt baseline tránh đúng biên TTL, không biến đề xuất biên thành quyết định sản phẩm.
+
+Replay phải có seed, fixture hash, epoch nguồn và timeline cố định. Mỗi khóa nến có đủ 519 nến thật để hiển thị 500 nến với MA(20), theo contract [[3, Lịch sử nến]](#ref-3). Fixture hiệu năng được tạo trước lượt đo và có manifest OHLCV tham chiếu độc lập. Lịch sử ngắn/gap/nến mở vẫn kiểm theo fixture chức năng của Task 2, không thay toàn bộ tải bằng payload nhỏ. Ghi riêng time-to-first-chart và correctness đối với fixture rỗng hoặc lỗi.
+
+Đối chiếu mọi response thành công với manifest theo cửa sổ nến và warm-up, không chỉ kiểm response có 500 phần tử. Nến thiếu có chủ đích trong fixture không được báo là thất thoát truyền dữ liệu. OHLCV lấy từ literal/manifest có nguồn, không tính lại bằng hàm chuẩn hóa production. Sai dữ liệu làm lượt đo không đủ điều kiện đạt tải, dù latency thấp. Browser đối chiếu dữ liệu chart đã apply và MA với manifest. Kiểm canvas trực quan giữ phạm vi và giới hạn của phần E2E.
+
+Replay mô phỏng weight của endpoint theo cấu hình có phiên bản. Request ledger ghi weight riêng cho nến và summary. Giá trị weight trong thiết kế hiện tại là dữ liệu tham khảo của ngày đọc, không chứng minh quota Binance hiện hành [[3, Giới hạn request của Binance]](#ref-3). Smoke thật phải lưu header quota thực nhận và nguồn đối chiếu tại ngày chạy. Nếu thiếu header, ghi thiếu, không suy weight đã dùng toàn IP bằng số call của process.
+
+### Workload đề xuất để duyệt riêng
+
+Mọi giá trị mang nhãn agent đề xuất trong bảng dưới đang **Proposed**. Chúng là cấu hình benchmark xác định, chưa phải hành vi production hoặc dự báo lượng người dùng. Không chạy workload này trước khi product owner duyệt. Các giá trị đã có nguồn chỉ được dùng trong đúng phạm vi nguồn.
+
+| Tham số | Giá trị và nguồn | Lý do và tác động so với test basis |
+| --- | --- | --- |
+| Lựa chọn UI chuẩn | BTCUSDT, bốn chart 5m/15m/1h/4h, tối đa 500 nến hiển thị mỗi chart. Nguồn: mặc định và cửa sổ nến (MK-31, MK-33) [[1]](#ref-1) | Giữ đúng thao tác mở Realtime của QA-10. Một lần mở gồm bốn request nến và một summary khi Query cache rỗng |
+| Phạm vi đa dạng khóa | BTCUSDT/ETHUSDT/SOLUSDT và 1m/5m/15m/1h/4h/1d. Nguồn: tập lựa chọn (MK-30, MK-32) [[1]](#ref-1) | Bao phủ 18 khóa nến và ba khóa summary mà không thêm pair/timeframe ngoài sản phẩm |
+| Concurrency API | Agent đề xuất: 1, 10, 50 client ảo, closed model, đo riêng từng mức | Tạo baseline đơn client và hai mức tranh chấp có thể chạy local. Đây là các điểm thử, chưa phải peak/capacity mục tiêu. Nếu máy phát tải bão hòa, mức đó Inconclusive |
+| Mix API | Agent đề xuất: mỗi client phát burst bốn nến và một summary. Chạy riêng cohort mặc định BTCUSDT và cohort phủ đều 18 khóa nến/ba summary | Giữ tỷ lệ 4:1 của mở mặc định và tách lợi ích chia sẻ cache khỏi đa dạng khóa. Cohort đa dạng là tải tổng hợp, không gọi là phân bố hành vi người dùng |
+| Thứ tự khóa | Agent đề xuất: cohort đa dạng luân phiên ba pair, các bộ bốn timeframe xoay vòng qua danh sách sáu timeframe đã chốt. Seed lưu trong manifest | Tạo số lượt từng khóa cân bằng trong toàn run. Ghi histogram thực tế, không suy chia đều nếu run bị dừng |
+| Nhịp API | Agent đề xuất: mỗi client chờ 6 giây sau khi burst hoàn tất rồi phát burst tiếp | Lớn hơn TTL 5 giây để quan sát miss và contention ở các chu kỳ mới. Không đặt request rate cứng. Đây là benchmark đóng, không mô phỏng traffic public độc lập độ chậm |
+| UI và thao tác | Agent đề xuất: một browser client, bốn chart. Tách run mở mặc định, run đổi timeframe 5m ↔ 1m của chart đầu và run đổi pair theo vòng ba pair | Browser riêng đo render, API generator đo tải. Mỗi thao tác bắt đầu từ trạng thái ổn định, Query cache khóa đích rỗng. Khoảng nghỉ tối thiểu 6 giây sau thao tác trước, cùng lý do TTL. Pair-switch là mô tả bổ sung, không áp ngưỡng timeframe |
+| Warm-up và thời lượng API | Agent đề xuất: warm-up 30 giây, steady state 180 giây, ba lần lặp mỗi cohort/mức tải | Warm-up loại cold JIT khỏi steady state. 180 giây đi qua nhiều chu kỳ TTL. Ba lần lặp cho thấy biến động. Không suy từ các số này rằng môi trường đã ổn định. Ghi đồ thị và lý do hủy lượt nếu chưa ổn định |
+| UI warm-up và số mẫu | Agent đề xuất: năm thao tác warm-up, sau đó 100 thao tác mỗi loại/cache state/lần lặp, ba lần lặp | Có tập mẫu cho p95 thay vì một lần tải trang. Mỗi mẫu mở dùng context mới. Browser HTTP cache nóng/lạnh là hai cohort riêng. Chưa đủ mẫu thì báo số mẫu thực và không ghi đạt p95 |
+| Replay latency | Agent đề xuất: trì hoãn upstream cố định 50 ms mỗi response, payload đầy đủ, không lỗi ở baseline | Có chi phí upstream tái lập, khác Binance thật. Đây là độ trễ giả lập, không phải RTT quan sát. Burst barrier và fault injection thuộc lượt riêng |
+| Phân vị | Agent đề xuất: p50/p95/p99 dùng nearest-rank, phần tử thứ `ceil(p × N)` của mẫu tăng dần, với p dạng 0–1 | Chốt cách tính trước so sánh. Báo từng run và min/max p95 giữa ba run. Không lấy trung bình percentile hoặc trộn cache state, endpoint, mức tải |
+
+API dùng closed model nên throughput là kết quả đo. Kiểm tính nhất quán bằng `client ≈ burst/giây × (thời gian burst + think time)`. Với burst 4:1, request/giây bằng năm lần burst/giây nếu không có lỗi phát tải. HTTP concurrency có thể lớn hơn số client vì các request trong burst chạy song song. Little's law cho request dùng số request đang xử lý, throughput request và latency request, không dùng số client thay request concurrency. Không suy capacity từ số client cấu hình.
+
+Chạy riêng micro-batch rỗng/hit/single-flight và lượt steady state có hit/miss tự nhiên. Micro-batch không có thời lượng 180 giây bắt buộc. Nó kết thúc khi thu đủ số batch đã khai báo trong manifest. Agent đề xuất 100 batch mỗi state/lần lặp, ba lần lặp, để cùng cách tổng hợp với UI. Lượt có barrier không được so p95 trực tiếp với lượt replay 50 ms.
+
+Mẫu latency thành công và mẫu lỗi có thống kê riêng. Timeout giữ duration thực tới deadline và loại lỗi, không bị xóa khỏi raw samples. Mẫu đã phát nhưng chưa kết thúc ở cuối steady state được drain và gắn cửa sổ theo lúc bắt đầu. Chỉ request bắt đầu trong steady state đi vào tổng hợp. Báo số thao tác thất bại bên cạnh percentile thành công để tránh kết luận nhanh do bỏ lỗi.
+
+### Môi trường, evidence và cách chạy lại
+
+Công cụ phát tải HTTP còn **Proposed**, chưa cài hoặc chọn trong Task 3. Bước chạy baseline phải chốt công cụ, version và script có thể chạy lại trước khi thu mẫu. Browser dùng Playwright theo Test Strategy [[27]](#ref-27). Không dùng thời gian chạy Vitest/E2E assertion làm latency sản phẩm.
+
+Mỗi lượt có manifest và thư mục evidence riêng. Đường dẫn đề xuất là `docs/testing/evidence/market-data/<run-id>/`, theo hướng lưu evidence của mục tiêu build [[30]](#ref-30). Task 3 chưa tạo thư mục hoặc artifact đo.
+
+| Evidence dự kiến | Nội dung phải lưu khi chạy |
+| --- | --- |
+| `manifest.json` | Commit, dirty diff/hash, Node/pnpm và tool version thực tế, lockfile hash, seed/fixture hash, loại nguồn, thông số workload đã duyệt, endpoint, số instance API, TTL, timeout và retry |
+| Môi trường trong manifest | OS, CPU/core, RAM, giới hạn container, CPU governor nếu biết. Vị trí browser/generator/API/replay/DB và tài nguyên chia sẻ. DB migration/version, số session/tài khoản và kích thước dữ liệu. Không lưu cookie, token, connection string hoặc secret |
+| Mạng và clock | RTT đo từ generator/browser tới API và API tới replay/nguồn thật, proxy/TLS/compression, network shaping. Clock đơn điệu cho duration, UTC và sai lệch/sync cho đối chiếu sự kiện. Không coi replay 50 ms là RTT |
+| Browser trong manifest | Cấu hình máy client, browser/version, viewport/device scale, headless/headed, chế độ Web production build, asset hash. Tách asset cache nóng/lạnh và Query cache khỏi API cache. Dev build chỉ có giá trị chẩn đoán |
+| `commands.txt`, `config.json` | Lệnh setup/build/start/prime/đo/drain/cleanup thực tế và tham số không chứa secret. Cấu hình máy phát tải và các cohort, nhịp, cache state, concurrency, thời lượng. Không ghi lệnh dự kiến như lệnh đã chạy |
+| `samples.jsonl`, `errors.jsonl` | Run/client/action/request ID không chứa dữ liệu phiên, pair/timeframe, start/end/duration, status, outcome, cache classification, số byte nếu có. UI có các mốc body/apply/draw. Ghi cả warm-up với cờ loại trừ |
+| `upstream.jsonl`, `resources.jsonl` | Ledger call/endpoint/key/snapshot/request weight, header weight nếu có, CPU/RAM/event-loop lag/connection/queue và tài nguyên generator theo thời gian |
+| `reconciliation.json`, `summary.json` | Expected/actual theo khóa nến, thiếu/trùng/thừa/lệch, MA và snapshot. Số mẫu/mẫu số lỗi, throughput, p50/p95/p99 từng cohort/run và biến động giữa các run. Trace/ảnh khi cần kiểm hiển thị |
+
+Thứ tự chạy lại:
+
+1. Xác nhận workload đã duyệt và flow tương ứng đã có implementation green ở Bước 08. Lưu commit/diff, cấu hình và oracle trước đo.
+2. Dựng DB/session test riêng, tắt email ngoài và chặn outbound ngoài loopback/replay. Bật Web production build, API và replay. Chứng minh call ledger đi qua adapter, không có MSW hoặc response mock browser.
+3. Chạy warm-up ngoài cửa sổ đo. Chuẩn bị cache state của từng cohort sau warm-up, đồng thời xác nhận session còn hạn suốt run.
+4. Chạy từng cohort/mức tải/lần lặp riêng. Ghi raw samples và monitor cả generator. Dừng lượt nếu môi trường hoặc generator không đáp ứng cấu hình và ghi lý do.
+5. Drain request đã phát, đối chiếu dữ liệu và tổng hợp theo định nghĩa trên. Giữ cả lượt lỗi và artifact, không chỉ lưu lượt nhanh nhất.
+6. Khi so hai phiên bản, giữ cùng hardware, nguồn replay, payload, latency replay, workload, cache, timeout, build và công cụ. Nếu đổi điều kiện, báo thành cohort khác. Không suy tuyến tính sang VPS hoặc production.
+
+Smoke Binance thật là lượt riêng để kiểm mapping, contract và header, không phát tải. Agent đề xuất: một client, một lượt request lịch sử BTCUSDT/5m và một summary, không lặp tự động. Lý do: kiểm wiring thật với ít call, khác replay ở mạng và dữ liệu đang biến đổi. Lưu payload đã loại thông tin nhạy cảm, header, thời gian nhận và kết quả đối chiếu nến đóng với nguồn cùng snapshot. Không load test Binance thật, không dùng smoke ít mẫu để báo p95 hoặc capacity. Đối chiếu header/weight hiện hành trước khi chạy. Smoke chưa kiểm các pair/timeframe còn lại.
+
+### Ngưỡng và quyền kết luận
+
+Agent khuyến nghị giữ hai mục tiêu mở Realtime dưới 2 giây ở p95 (QA-10) và đổi timeframe dưới 1 giây ở p95 (QA-11) ở trạng thái **Proposed** [[2]](#ref-2). Lý do: chưa có flow production, số đo hoặc môi trường chuẩn để xác nhận khả thi. Task 3 không chỉnh hai requirement. Đây là quyết định tách biệt với duyệt workload. Nếu chưa chốt ngưỡng, kết quả chỉ mô tả p50/p95/p99, tỷ lệ lỗi và độ đúng, không ghi Passed cho mục tiêu hiệu năng.
+
+Chưa có ngưỡng latency HTTP, tỷ lệ lỗi hoặc capacity REST được duyệt. Do đó không tự đặt SLO mới cho những chỉ số này. Dữ liệu sai luôn làm lượt đo không đủ điều kiện đạt tải. Capacity lịch sử, nếu được xác nhận sau này, phải ghi kèm request throughput, số client, mix/cache, môi trường và tiêu chí đã duyệt. Con số đó không thay số client đang nhận cập nhật realtime trong mục tiêu CV [[31]](#ref-31).
+
 ## References
 
 1. <a id="ref-1"></a>[Market Data](../../../UCs/market-data.md)
@@ -338,3 +437,5 @@ Không sửa expected để giết mutant. Fault làm hỏng fake phải làm te
 27. <a id="ref-27"></a>[Test Strategy](../../test-strategy.md)
 28. <a id="ref-28"></a>[Architectural Decisions](../../../architecture/30-decisions.md)
 29. <a id="ref-29"></a>[Kế hoạch kiểm chứng REST và baseline](../../../build/01-prototype-to-implementation/market-data/work/step-07-rest-verification/plan.md)
+30. <a id="ref-30"></a>[Những thứ cần đạt được trong lúc build Market Data](../../../build/01-prototype-to-implementation/market-data/goal.md)
+31. <a id="ref-31"></a>[Market Data sẽ thêm dòng nào vào CV?](../../../build/01-prototype-to-implementation/market-data/cv-goal.md)
