@@ -1,0 +1,36 @@
+# Tiến độ triển khai Market Data
+
+Đọc file này để biết trạng thái từng step, kế hoạch chi tiết và bằng chứng hoàn thành Market Data.
+
+Các step theo kế hoạch tổng quan [[1]](#ref-1). Trạng thái khởi tạo là **Chưa bắt đầu**, do chưa kiểm chứng đầu ra của từng step trong lần lập tracker này.
+
+## Tracker
+
+| Step | Nội dung | Trạng thái | Kế hoạch chi tiết | Đầu ra và bằng chứng |
+| --- | --- | --- | --- | --- |
+| 01 | Chọn phạm vi của flow REST đầu tiên | Hoàn thành | [Phạm vi REST đầu tiên](work/step-01-rest-scope/plan.md) | Đã thống nhất multi-chart, MA và thông tin thị trường cho REST. Giữ live/phục hồi ở vòng WebSocket. Prettier và check:docs đạt ngày 2026-11-20 |
+| 02 | Hoàn thiện frontend bằng mock data | Hoàn thành | [Frontend bằng mock](work/step-02-mock-frontend/plan.md) | Multi-chart, pair/timeframe, nến/volume/MA, summary và trạng thái lỗi đã kiểm chứng. Browser 10/10, Web 9/9, shared 34/34; typecheck, scoped lint, build guard và review đạt ngày 2026-11-20. [Bằng chứng và ảnh](work/step-02-mock-frontend/execution.md) |
+| 03 | Phân tích và chốt requirements cho REST | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |
+| 04 | Thiết kế ranh giới và luồng xử lý REST | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |
+| 05 | Thiết kế contract nến và API REST | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |
+| 06 | Thiết kế database và cache | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |
+| 07 | Chốt cách kiểm chứng REST và baseline | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |
+| 08 | Build và kiểm chứng flow REST xuyên suốt | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |
+| 09 | Phân tích và chốt requirements cho WebSocket | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |
+| 10 | Thiết kế WebSocket và xem lại thiết kế REST | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |
+| 11 | Chốt cách kiểm chứng WebSocket trước khi build | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |
+| 12 | Build WebSocket và hoàn thiện bằng chứng | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |
+
+## Cách cập nhật
+
+- **Chưa bắt đầu:** chưa bắt đầu lập kế hoạch chi tiết hoặc thực hiện step.
+- **Đang lập kế hoạch:** đã tạo folder và đang chốt kế hoạch chi tiết của step.
+- **Đang thực hiện:** đang thực hiện các việc trong kế hoạch chi tiết.
+- **Bị chặn:** ghi rõ nguyên nhân và việc cần giải quyết trong kế hoạch chi tiết, kèm link tại dòng tương ứng.
+- **Hoàn thành:** đã kiểm chứng đầu ra theo kế hoạch chi tiết. Cột bằng chứng phải có link tới tài liệu, code, commit hoặc kết quả kiểm chứng tương ứng.
+
+Chỉ thêm link kế hoạch sau khi file đã được tạo trong `work/step-<số hai chữ số>-<tên-ngắn>/`. Phạm vi cụ thể, điều chỉnh cách thực hiện và kết quả từng task nhỏ nằm trong folder đó. Tracker chỉ tổng hợp tiến độ và bằng chứng chính. Không sửa abstract plan khi cập nhật tiến độ hoặc kế hoạch chi tiết, trừ khi người dùng yêu cầu trực tiếp sửa abstract plan.
+
+## References
+
+1. <a id="ref-1"></a>[Kế hoạch triển khai Market Data ở mức tổng quan](abstract-implementation-plan.md)

@@ -6,6 +6,9 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Added
 
+- Frontend Realtime dùng HTTP mock: pair chung, 1/2/4 chart với timeframe riêng, nến, volume, MA(20), giá/thay đổi 24h và sidebar. Các chart có trạng thái đang tải, rỗng, lỗi và thử lại riêng.
+- Schema HTTP nháp cho Market Data, fixtures tất định và MSW handlers. Browser suite riêng kiểm UI mock và worker thật, gồm responsive, bàn phím, accessibility và dữ liệu cũ đến sau.
+- Bản nháp use case Market Data, câu hỏi mở, kế hoạch và bằng chứng hoàn thành Bước 2. API contract production chưa được chốt.
 - Monorepo TypeScript strict với React Router, Express, worker pg-boss, shared schemas và strategy/backtest engine; PostgreSQL chạy bằng Docker Compose.
 - Landing page có SEO metadata, giao diện responsive và trang 404; design tokens, font self-host, hỗ trợ bàn phím và reduced motion.
 - Authentication với Better Auth: email/password, xác minh email, reset password, Google OAuth tùy cấu hình và cookie session; gửi email qua Resend. Giao diện Auth có validation, error summary và kiểm soát đích redirect nội bộ.

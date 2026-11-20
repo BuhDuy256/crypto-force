@@ -60,12 +60,15 @@
 
 | ID | Câu hỏi | Điều đã biết | Chặn | Ưu tiên | Nguồn |
 | --- | --- | --- | --- | --- | --- |
-| <a id="oq-030"></a>OQ-030 | Realtime có ô chọn pair không? Mọi chart dùng chung một pair hay mỗi chart một pair? Chọn pair trong Search có mở Realtime với pair đó không? | Realtime chỉ có BTCUSDT; Search liệt kê ETHUSDT, SOLUSDT nhưng vẫn mở Realtime như BTCUSDT | Mô hình subscribe WebSocket, Market Data Service | High | [[5]](#ref-5) [[6]](#ref-6) |
+| <a id="oq-030"></a>OQ-030 | Chọn pair trong Search có mở Realtime với pair đó không? | Đã thống nhất pair chung cho mọi chart trên Realtime. Chuyển pair từ Search chưa được chốt [[16]](#ref-16) | Mô hình subscribe WebSocket, Market Data Service | High | [[5]](#ref-5) [[6]](#ref-6) |
 | <a id="oq-031"></a>OQ-031 | Tín hiệu BUY/SELL trên chart được tính realtime từ rules của strategy, hay chỉ minh họa? | Badge tín hiệu hiện với mọi source | Engine có nằm trên luồng realtime không | High | [[5]](#ref-5) |
-| <a id="oq-032"></a>OQ-032 | "Load 1,000 past candles" áp dụng cho một chart hay tất cả, và có giới hạn không? | Chỉ có toast | API lấy nến lịch sử | Medium | [[5]](#ref-5) |
+| <a id="oq-032"></a>OQ-032 | "Load 1,000 past candles" áp dụng cho một chart hay tất cả, và có giới hạn không? | Prototype chỉ có toast. Bản nháp làm mới từng chart, chưa chốt cách nối lịch sử [[16]](#ref-16) | API lấy nến lịch sử | Medium | [[5]](#ref-5) |
 | <a id="oq-033"></a>OQ-033 | Overlay cố định theo signal source, hay người dùng tự chọn? | Chart chỉ có MA(20) | — | Low | [[5]](#ref-5) |
 | <a id="oq-034"></a>OQ-034 | Cờ onboarding tính theo tài khoản hay theo thiết bị? Có Hide riêng từng bước không? | Done dựa trên cờ lưu trong trình duyệt | — | Low | [[5]](#ref-5) |
 | <a id="oq-035"></a>OQ-035 | Có báo mất kết nối khi người dùng đã tạm dừng Live không? | Chưa thể hiện | — | Low | [[5]](#ref-5) |
+| <a id="oq-082"></a>OQ-082 | Khi chưa đủ nến cho MA(20), hiển thị thế nào? Nến đang mở có được tính vào mẫu không? | Bản nháp hiển thị chưa đủ dữ liệu thay vì số không | Requirements Market Data | Medium | [[16]](#ref-16) |
+| <a id="oq-083"></a>OQ-083 | MA và volume của sidebar theo chart nào? Volume là nến cuối hay cả vùng, dùng đơn vị base hay quote? | Bản nháp dùng chart đầu tiên, ghi timeframe, volume của nến cuối | Requirements Market Data | Medium | [[16]](#ref-16) |
+| <a id="oq-084"></a>OQ-084 | Lịch sử có bao gồm nến đang mở không? Người dùng phân biệt nến đang mở với nến đã đóng thế nào? | Bản nháp chưa đánh dấu trạng thái đóng nến | Requirements và contract Market Data | Medium | [[16]](#ref-16) |
 
 ## News & Sentiment
 
@@ -155,3 +158,5 @@
 13. <a id="ref-13"></a>[Project Brief](UCs/sources/project-brief.md)
 14. <a id="ref-14"></a>[Crypto Force UI Prototype](design/prototype/README.md)
 15. <a id="ref-15"></a>[Security](architecture/23-security.md)
+
+16. <a id="ref-16"></a>[Market Data](UCs/market-data.md)

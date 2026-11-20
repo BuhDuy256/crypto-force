@@ -7,6 +7,7 @@ const listing = process.argv.includes('--list');
 
 export default defineConfig({
   testDir: './e2e',
+  testIgnore: '**/market-data/**',
   fullyParallel: false,
   // No retry: a test that passes only on the second try hides a real problem.
   retries: 0,
