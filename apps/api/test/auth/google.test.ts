@@ -196,6 +196,15 @@ describe('Google rate limits', () => {
   });
 });
 
+describe('Google account chooser', () => {
+  it('TC-247 the provider URL asks Google for the account chooser', async () => {
+    const start = await startGoogle(nextIp());
+
+    expect(start.url?.origin).toBe('https://accounts.google.com');
+    expect(start.url?.searchParams.get('prompt')).toBe('select_account');
+  });
+});
+
 describe('Google decision table', () => {
   it('TC-043 a session created by Google is a remembered session', async () => {
     const { response } = await completeGoogle({ sub: sub(), email: uniqueEmail('google-new') });

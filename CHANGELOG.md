@@ -29,5 +29,6 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Fixed
 
+- Continue with Google luôn hiện màn chọn tài khoản: URL nhà cung cấp thêm `prompt=select_account`, nên Sign out chỉ kết thúc phiên Crypto Force và lần đăng nhập sau không ngầm dùng lại tài khoản Google đang mở.
 - Playwright `--list` không ghi đè kết quả và báo cáo của lần chạy trước.
 - Vite tối ưu dependency và biên dịch trước route để tránh reload trang khi cache trống.

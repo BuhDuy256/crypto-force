@@ -109,7 +109,15 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
     },
     socialProviders:
       env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
-        ? { google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET } }
+        ? {
+            google: {
+              clientId: env.GOOGLE_CLIENT_ID,
+              clientSecret: env.GOOGLE_CLIENT_SECRET,
+              // Sign out ends only the Crypto Force session, so Google must ask which account to
+              // use at each press (docs/UCs/authentication.md, GO-06).
+              prompt: 'select_account',
+            },
+          }
         : {},
     // "Keep me signed in" on: 7 days, extended daily while in use. Off: browser-session cookie.
     session: { expiresIn: 7 * DAY, updateAge: DAY },
