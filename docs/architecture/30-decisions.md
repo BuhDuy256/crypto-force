@@ -142,6 +142,32 @@ MA trên chart và MA trong strategy có thể lệch nhau nếu hai bản cài 
 - Contract nến có nến khởi động MA và cách phân biệt nến hiển thị.
 - Xét lại khi `packages/engine` có chỉ báo MA cho strategy: Web dùng lại hàm của engine nếu dependency rules cho phép, để chart và strategy dùng cùng một cách tính.
 
+## ADR-005: Số chữ số thập phân của pair là hằng số trong `packages/shared`
+
+**Status:** Accepted (2026-11-20)
+
+### Bối cảnh
+
+Giá hiển thị theo số chữ số thập phân của pair, giá khác 0 không hiển thị thành 0 (MK-44) [[8, Quy tắc]](#ref-8). Danh sách pair là enum nhỏ trong `packages/shared`. Binance công bố bước giá (tick size) trong filter `PRICE_FILTER` của mỗi symbol trong `exchangeInfo`; theo tài liệu, mọi filter của symbol là optional [[12]](#ref-12).
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Hằng số theo pair trong `packages/shared`, cùng danh sách pair | Không thêm request; Web dùng ngay khi render; test đơn giản | Phải cập nhật tay khi Binance đổi tick size hoặc khi thêm pair |
+| Endpoint metadata đọc `exchangeInfo` qua provider | Luôn khớp sàn | Thêm endpoint, request và trạng thái lỗi; chart phải chờ metadata trước khi format giá |
+| Suy từ chuỗi giá của provider | Không cần metadata | Chuỗi của Binance có số 0 thừa; giá trị không cho biết bước giá |
+
+### Quyết định
+
+Chọn hằng số theo pair. Giá trị lấy từ tick size trong `exchangeInfo` của Binance lúc build và ghi nguồn cạnh hằng số [[10, Quyết định]](#ref-10).
+
+### Hệ quả
+
+- Khi symbol không có `PRICE_FILTER`, người build chọn giá trị theo giá thực tế của pair và ghi lý do cạnh hằng số.
+- Thêm pair phải thêm số chữ số thập phân cùng lúc; schema dùng chung bắt buộc mỗi pair có giá trị.
+- Xét lại khi danh sách pair do người dùng chọn tự do, hoặc khi thêm provider có bước giá khác Binance.
+
 ## References
 
 1. <a id="ref-1"></a>[Authentication](../UCs/authentication.md)
@@ -155,3 +181,4 @@ MA trên chart và MA trong strategy có thể lệch nhau nếu hai bản cài 
 9. <a id="ref-9"></a>[Project Structure](../conventions/project-structure.md)
 10. <a id="ref-10"></a>[Market Data & Realtime Updates](10-market-data.md)
 11. <a id="ref-11"></a>[Quality Attributes](../UCs/quality-attributes.md)
+12. <a id="ref-12"></a>Binance Spot API, General endpoints, Exchange information, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-endpoints>

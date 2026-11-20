@@ -10,6 +10,9 @@
 | Không có phiên thì chặn workspace (SS-03), Sign out thu hồi phiên (SS-01) | `get-session` và `sign-out` dùng cookie session |
 | Chỉ nhận origin và đích chuyển tiếp hợp lệ (SEC-02, RD-06) | Better Auth kiểm origin/callback; Web kiểm `next` trước khi điều hướng |
 | Giới hạn request Auth và gửi email (SI-06, GO-08, SEC-07) | Better Auth trả 429 cùng `X-Retry-After`; Web chuyển lỗi thành `AuthRequestError` |
+| Xem lịch sử nến và summary của pair (Market Data, MK-08, MK-25, MK-33) | [Endpoint Market Data](#endpoint-market-data) (thiết kế, chưa triển khai) |
+| Phiên hết hạn khi xem Realtime (MK-40) | Endpoint Market Data trả 401 `UNAUTHENTICATED`; Web chuyển sang màn chặn workspace |
+| Lỗi theo nhóm, không lộ chi tiết upstream (MK-12, MK-18, MK-39, MK-45) | [Lỗi Market Data](#lỗi-market-data) |
 
 ## Thành phần
 
@@ -35,6 +38,34 @@ Web gọi API qua module `app/api/`; contract Auth hiện nằm trong `apps/web/
 | GET | `/api/auth-config` | Không yêu cầu | `{ "google": boolean }`; true khi cả Google client ID và secret có cấu hình, không lộ giá trị secret |
 
 Nguồn: `health.route.ts`, `auth-config.route.ts` và bootstrap API [[2]](#ref-2).
+
+### Endpoint Market Data
+
+Trạng thái: thiết kế cho vòng REST tải lịch sử, chưa triển khai. Web hiện gọi hai path này qua mock [[8]](#ref-8). Kiểu response là contract nến trong Market Data; bảng dưới không định nghĩa lại trường [[9, Contract nến và chuẩn hóa]](#ref-9).
+
+| Method | Path | Query | Session | Response thành công |
+| --- | --- | --- | --- | --- |
+| GET | `/api/market-data/candles` | `pair`, `timeframe`; bắt buộc | Yêu cầu | 200, lịch sử nến |
+| GET | `/api/market-data/summary` | `pair`; bắt buộc | Yêu cầu | 200, summary |
+
+- `pair` và `timeframe` phải thuộc enum trong `packages/shared` (MK-30, MK-32). Query thiếu, sai giá trị hoặc thừa tham số trả 400.
+- Client không gửi số nến. Server quyết định số nến: số nến tối đa trên một chart (MK-33) cộng nến khởi động MA (ADR-004), để client không tăng tải lên provider.
+- Response có `Cache-Control: no-store`. Dữ liệu thay đổi theo thời gian; cache phía server thuộc thiết kế database và cache.
+- Middleware dùng chung của router ứng dụng kiểm phiên: gọi `auth.api.getSession` với header của request, đổi bằng `fromNodeHeaders` của `better-auth/node`. Endpoint này của Better Auth yêu cầu header và trả `null` khi không có phiên hợp lệ [[4]](#ref-4).
+
+#### Lỗi Market Data
+
+Body theo envelope của router ứng dụng: `{ "error": { "code": string, "message": string } }`. `message` là thông điệp chung, không có status, URL hoặc payload của provider (MK-39); chi tiết nằm trong log [[9, Observability]](#ref-9).
+
+| Nhóm | HTTP | `code` | Web xử lý |
+| --- | --- | --- | --- |
+| Không có phiên hợp lệ | 401 | `UNAUTHENTICATED` | Chuyển sang màn chặn workspace (MK-40) |
+| Input không hợp lệ | 400 | `INVALID_QUERY` | Không xảy ra từ UI; hiển thị lỗi chung |
+| Nguồn dữ liệu không khả dụng hoặc hết timeout | 503 | `MARKET_DATA_UNAVAILABLE` | Lỗi của chart hoặc sidebar kèm thử lại (MK-12, MK-18) |
+| Dữ liệu nguồn sai | 502 | `MARKET_DATA_INVALID` | Lỗi của chart, không vẽ nến (MK-45) |
+| Lỗi không lường trước | 500 | `INTERNAL_ERROR` | Lỗi kèm thử lại |
+
+503 cho nguồn không khả dụng, vì đây là tình trạng tạm thời và thử lại có thể thành công. 502 cho dữ liệu nguồn sai, vì upstream đã trả lời nhưng response không dùng được. Web phân nhánh theo `code`, không theo status.
 
 ### Endpoint Auth đang dùng trong ứng dụng
 
@@ -81,7 +112,7 @@ Mount toàn bộ handler Better Auth cũng đăng ký các route không có UI t
 | --- | --- |
 | Better Auth | Lỗi thông thường có `code`, `message`; Web unwrap kết quả SDK thành `AuthRequestError` với `status`, `code`, `retryAfter`. Lỗi 429 có thể chỉ có `message`, nên `code` là optional |
 | Rate limit | Status 429; `X-Retry-After` cho thời gian chờ. Wrapper Sign in đọc header này để UI xử lý giới hạn số lần |
-| Router ứng dụng | Lỗi `AppError` có `{ "error": { "code": string, "message": string } }`; route không tồn tại trả 404 với `NOT_FOUND`; lỗi không xác định trả 500 với `INTERNAL_ERROR` |
+| Router ứng dụng | Lỗi Market Data theo [bảng riêng](#lỗi-market-data). Lỗi `AppError` có `{ "error": { "code": string, "message": string } }`; route không tồn tại trả 404 với `NOT_FOUND`; lỗi không xác định trả 500 với `INTERNAL_ERROR` |
 | Kiểm session của workspace | Request lỗi được Web chuyển thành trạng thái lỗi route 503; `null` được chuyển thành 401. Đây là status nội bộ của router Web, không phải khẳng định endpoint `get-session` luôn trả HTTP 401/503 |
 
 Header chung do middleware API đặt; các thuộc tính cookie, origin, cache và reverse proxy được mô tả trong Security [[5]](#ref-5). Error envelope của Express không được áp đặt lên response Better Auth vì handler Auth xử lý request riêng [[2]](#ref-2).
@@ -99,6 +130,8 @@ Worker mới khởi động pg-boss, chưa có job handler hoặc payload schema
 | Quyền sở hữu route | Better Auth sở hữu `/api/auth/*`; router Express của ứng dụng sở hữu `/api/health` và `/api/auth-config` |
 | Callback | URL callback backend thuộc `/api/auth/*`; route form `/reset-password` và route `/sign-up/verify` là Web UI, không thay thế endpoint kiểm token |
 | Cấu hình Google | API trả capability công khai; Auth layout dùng false nếu không đọc được cấu hình, không suy ra secret từ phía client |
+| Truy cập Market Data | Yêu cầu phiên. Realtime là màn hình workspace (MK-40). Endpoint công khai cho phép bên ngoài dùng API như proxy tới Binance và tiêu giới hạn request theo IP của server. Xét lại nếu có trang công khai cần dữ liệu thị trường, ví dụ landing |
+| Số nến | Server quyết định, không nhận từ query |
 
 ## Rủi ro
 
@@ -115,3 +148,5 @@ Worker mới khởi động pg-boss, chưa có job handler hoặc payload schema
 5. <a id="ref-5"></a>[Security](23-security.md)
 6. <a id="ref-6"></a>[Vite config](../../apps/web/vite.config.ts)
 7. <a id="ref-7"></a>[Worker bootstrap](../../apps/worker/src/index.ts)
+8. <a id="ref-8"></a>[Web Market Data API](../../apps/web/app/api/market-data.ts)
+9. <a id="ref-9"></a>[Market Data & Realtime Updates](10-market-data.md)
