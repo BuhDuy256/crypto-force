@@ -3,7 +3,16 @@
 // docs/requirements moved, the "hết hạn theo RP-05" sentence, an unused References entry.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { anchors, checkCodeLinks, checkFile, slug } from './check-docs.mjs';
+import {
+  anchors,
+  checkCodeLinks,
+  checkCodeTrace,
+  checkFile,
+  checkRetainedIds,
+  checkTestTrace,
+  slug,
+  useCaseIds,
+} from './check-docs.mjs';
 
 const UC = 'docs/UCs/example.md';
 const files = new Map([
@@ -295,4 +304,52 @@ test('Binance API in a use case diagram is allowed; "chậm nhất" is not a vag
 
 test('a malformed % escape in a link gives a message, not a crash', () => {
   assert.ok(has(messages('docs/x.md', '# X\n\n[a](b%zz.md)\n'), /malformed % escape/));
+});
+
+const ids = useCaseIds(
+  new Map([
+    [
+      'docs/UCs/authentication.md',
+      '| ID | Rule |\n| --- | --- |\n| SS-05 | Thời hạn tuyệt đối |\n| SI-06 | Giới hạn Sign in |\n| ASVS-7.2.3 | Token |\n',
+    ],
+  ]),
+);
+
+test('previously committed rule IDs survive a merge or a move between use case files', () => {
+  const baseline = new Map([[UC, new Set(['CM-04', 'CM-05', 'CM-06', 'RP-09'])]]);
+  const removed = new Map([[UC, new Set(['SI-02', 'RP-04', 'SEC-07'])]]);
+  assert.deepEqual(
+    checkRetainedIds(removed, baseline).map((problem) => problem.message.split(' ')[3]),
+    ['CM-04', 'CM-05', 'CM-06', 'RP-09'],
+  );
+  assert.deepEqual(checkRetainedIds(new Map(), baseline).length, 4);
+  const moved = new Map([['docs/UCs/another.md', new Set(['CM-04', 'CM-05', 'CM-06', 'RP-09'])]]);
+  assert.deepEqual(checkRetainedIds(moved, baseline), []);
+});
+
+test('a code comment that cites a missing rule ID or a bare document name fails', () => {
+  const old = '/** A session ends after 30 days (security.md, sessions). */';
+  assert.ok(checkCodeTrace('auth.ts', old, ids).some((p) => /without its path/.test(p.message)));
+  const wrong = '/** A session ends after 30 days (docs/UCs/authentication.md, SS-09). */';
+  assert.ok(
+    checkCodeTrace('auth.ts', wrong, ids).some((p) => /SS-09 is not defined/.test(p.message)),
+  );
+  const good = '/** A session ends after 30 days (docs/UCs/authentication.md, SS-05). */';
+  assert.deepEqual(checkCodeTrace('auth.ts', good, ids), []);
+  const wrapped =
+    '// limit is accepted (docs/UCs/authentication.md,\n// SS-09): store the end earlier.';
+  assert.ok(checkCodeTrace('auth.ts', wrapped, ids).some((p) => /SS-09/.test(p.message)));
+});
+
+test('a test condition that points to a requirement ID missing from docs/UCs fails', () => {
+  const header =
+    '| Condition ID | Test basis item / version | Điều cần kiểm tra |\n| --- | --- | --- |\n';
+  const missing = `${header}| COND-01 | SI-09; \`705a1ad\` | Dùng trực tiếp |\n`;
+  assert.ok(
+    checkTestTrace('c.md', missing, ids).some((p) => /SI-09 is not defined/.test(p.message)),
+  );
+  const present = `${header}| COND-01 | SI-06; \`705a1ad\` | Dùng trực tiếp |\n| COND-02 | ASVS-7.2.3 | x |\n`;
+  assert.deepEqual(checkTestTrace('c.md', present, ids), []);
+  const otherPrefix = `${header}| COND-03 | PR-01 | Rủi ro |\n`;
+  assert.deepEqual(checkTestTrace('c.md', otherPrefix, ids), []);
 });

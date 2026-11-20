@@ -2,6 +2,7 @@
 // docs/conventions/use-cases.md, docs/conventions/architecture.md, docs/conventions/mermaid.md).
 // Each message tells the fix and links to the convention. Run with `pnpm check:docs`.
 // The Claude hook .claude/hooks/lint-edited-file.mjs runs checkFile on each edited docs/**/*.md.
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, normalize, relative, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -528,11 +529,170 @@ export function checkCodeLinks(
   return problems;
 }
 
+const REQUIREMENT_ID = /^[A-Z][A-Z0-9]*-\d+(?:\.\d+)*$/;
+const REQUIREMENT_IDS = /\b[A-Z][A-Z0-9]*-\d+(?:\.\d+)*\b/g;
+const COMMENT = /^\s*(\/\/|\/\*|\*)/;
+
+/** Requirement IDs that each file in docs/UCs defines (first column of its tables). */
+export function useCaseIds(/** @type {Map<string, string>} */ files) {
+  /** @type {Map<string, Set<string>>} */
+  const result = new Map();
+  for (const [path, text] of files) {
+    const ids = new Set();
+    for (const table of tables(text.split(/\r?\n/))) {
+      if (column(table, 'ID') !== 0) continue;
+      for (const row of table.rows) {
+        const id = (row.cells[0] ?? '').replaceAll('`', '');
+        if (REQUIREMENT_ID.test(id)) ids.add(id);
+      }
+    }
+    result.set(path, ids);
+  }
+  return result;
+}
+
+/** Keep previously committed IDs, including when a rule moves to another use case file. */
+export function checkRetainedIds(
+  /** @type {Map<string, Set<string>>} */ current,
+  /** @type {Map<string, Set<string>>} */ baseline,
+) {
+  const all = new Set([...current.values()].flatMap((ids) => [...ids]));
+  /** @type {Problem[]} */
+  const problems = [];
+  for (const [file, ids] of baseline) {
+    for (const id of ids) {
+      if (!all.has(id)) {
+        problems.push({
+          file,
+          line: 1,
+          message: `Previously committed ID ${id} was removed. Keep its row and meaning; record a replacement without deleting the ID. See ${DOCS}#id.`,
+        });
+      }
+    }
+  }
+  return problems;
+}
+
+/** HEAD is the baseline for local edits; also check its parent for changes committed by CI. */
+function committedUseCaseIds() {
+  const revisions = execFileSync('git', ['rev-list', '--max-count=2', 'HEAD'], {
+    encoding: 'utf8',
+  })
+    .trim()
+    .split(/\r?\n/);
+  /** @type {Map<string, Set<string>>} */
+  const baseline = new Map();
+  for (const revision of revisions) {
+    const files = execFileSync('git', ['ls-tree', '-r', '--name-only', revision, 'docs/UCs'], {
+      encoding: 'utf8',
+    })
+      .trim()
+      .split(/\r?\n/)
+      .filter((file) => UC_DIR.test(file) && file.endsWith('.md'));
+    const texts = new Map(
+      files.map((file) => [
+        file,
+        execFileSync('git', ['show', `${revision}:${file}`], { encoding: 'utf8' }),
+      ]),
+    );
+    for (const [file, ids] of useCaseIds(texts)) {
+      baseline.set(file, new Set([...(baseline.get(file) ?? []), ...ids]));
+    }
+  }
+  return baseline;
+}
+
+/**
+ * Code to docs: a comment that cites "docs/UCs/<file>.md, <ID>" names IDs that the file defines,
+ * and a comment does not name a document by its bare file name.
+ */
+export function checkCodeTrace(
+  /** @type {string} */ file,
+  /** @type {string} */ text,
+  /** @type {Map<string, Set<string>>} */ ids,
+) {
+  /** @type {Problem[]} */
+  const problems = [];
+  const lines = text.split(/\r?\n/);
+  lines.forEach((line, index) => {
+    if (!COMMENT.test(line)) return;
+    // A citation can wrap to the next comment line, so read up to the closing parenthesis.
+    const rest = [line, lines[index + 1] ?? ''].join(' ');
+    for (const match of line.matchAll(/(docs\/UCs\/[\w-]+\.md),([^)]*)/g)) {
+      const known = ids.get(match[1] ?? '');
+      const cited = /\)/.test(match[2] ?? '')
+        ? (match[2] ?? '')
+        : (rest.slice(rest.indexOf(match[0]) + (match[1] ?? '').length).split(')')[0] ?? '');
+      for (const id of cited.match(REQUIREMENT_IDS) ?? []) {
+        if (known !== undefined && !known.has(id)) {
+          problems.push({
+            file,
+            line: index + 1,
+            message: `${id} is not defined in ${match[1] ?? ''}. Cite the ID of the rule that this code implements. See ${DOCS}#id.`,
+          });
+        }
+      }
+    }
+    for (const match of line.matchAll(/(?<![\w/.-])([\w-]+\.md)\b/g)) {
+      if (match[1] === 'README.md' || match[1] === 'SKILL.md') continue;
+      problems.push({
+        file,
+        line: index + 1,
+        message: `"${match[1] ?? ''}" names a document without its path. Write the path from the repository root and the rule ID, e.g. "(docs/UCs/authentication.md, SI-06)". See ${DOCS}#id.`,
+      });
+    }
+  });
+  return problems;
+}
+
+/**
+ * Test to docs: each requirement ID in the Test Conditions and the Requirement Readiness of a
+ * test scope is defined in docs/UCs, when its prefix belongs to a use case file.
+ */
+export function checkTestTrace(
+  /** @type {string} */ file,
+  /** @type {string} */ text,
+  /** @type {Map<string, Set<string>>} */ ids,
+) {
+  /** @type {Problem[]} */
+  const problems = [];
+  const all = new Set([...ids.values()].flatMap((set) => [...set]));
+  const prefixes = new Set([...all].map((id) => id.split('-')[0]));
+  for (const table of tables(text.split(/\r?\n/))) {
+    const at = table.header.findIndex((name) => /^(Requirement ID|Test basis item)/.test(name));
+    if (at === -1) continue;
+    for (const row of table.rows) {
+      const cell = (row.cells[at] ?? '').split(/[;:]/)[0] ?? '';
+      for (const id of cell.match(REQUIREMENT_IDS) ?? []) {
+        if (prefixes.has(id.split('-')[0] ?? '') && !all.has(id)) {
+          problems.push({
+            file,
+            line: row.line,
+            message: `Requirement ${id} is not defined in docs/UCs. Point the test to the current ID of the rule, or add the rule to its use case file. See ${DOCS}#id.`,
+          });
+        }
+      }
+    }
+  }
+  return problems;
+}
+
 function listFiles(/** @type {string} */ dir, /** @type {RegExp} */ name) {
   if (!existsSync(dir)) return [];
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) return entry.name === 'node_modules' ? [] : listFiles(path, name);
+    if (entry.isDirectory()) {
+      return [
+        'node_modules',
+        'dist',
+        'build',
+        '.react-router',
+        'test-results',
+        'playwright-report',
+      ].includes(entry.name)
+        ? []
+        : listFiles(path, name);
+    }
     return name.test(entry.name) ? [path] : [];
   });
 }
@@ -580,6 +740,29 @@ export function checkRepo() {
   for (const file of code) {
     if (existsSync(file))
       problems.push(...checkCodeLinks(file.split(sep).join('/'), readFileSync(file, 'utf8')));
+  }
+
+  const ucFiles = new Map(
+    docs
+      .map((file) => file.split(sep).join('/'))
+      .filter((path) => UC_DIR.test(path))
+      .map((path) => [path, readFileSync(path, 'utf8')]),
+  );
+  const ids = useCaseIds(ucFiles);
+  problems.push(...checkRetainedIds(ids, committedUseCaseIds()));
+  const source = ['apps', 'packages'].flatMap((dir) => listFiles(dir, /\.(ts|tsx|mjs|js)$/));
+  for (const file of source) {
+    const path = file.split(sep).join('/');
+    const text = readFileSync(file, 'utf8');
+    problems.push(...checkCodeLinks(path, text), ...checkCodeTrace(path, text, ids));
+  }
+  const traced = docs.filter((file) =>
+    /test-scopes[\\/][^\\/]+[\\/](01-requirement-analysis[\\/]output[\\/]01-requirement-readiness|03-design[\\/]output[\\/]02-test-conditions)\.md$/.test(
+      file,
+    ),
+  );
+  for (const file of traced) {
+    problems.push(...checkTestTrace(file.split(sep).join('/'), readFileSync(file, 'utf8'), ids));
   }
   return problems;
 }

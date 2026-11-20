@@ -12,7 +12,7 @@ export default function VerifyEmailRoute() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   // Read the email once, then remove it from the history entry: the browser keeps history state
-  // on reload, and a reload must return to Create account (authentication.md, Create account).
+  // on reload, and a reload must return to Create account (docs/UCs/authentication.md, CA-15).
   const [email] = useState(() => emailFromState(location.state));
   const next = searchParams.get('next');
   useClearHistoryState();

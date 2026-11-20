@@ -41,7 +41,7 @@ Mỗi giá trị cụ thể (ngưỡng, thời hạn, giới hạn, số lần) 
 ## ID
 
 1. ID có dạng `<TIỀN TỐ>-<số>`, ví dụ `RP-04`. Mỗi file định nghĩa ID có bảng tiền tố với cột `Tiền tố`, `Nhóm` và `Nguồn`. Mỗi tiền tố ứng với đúng một nhóm trong một section của tài liệu nguồn *(check-docs: ID dùng tiền tố chưa khai báo, ID lặp lại)*.
-2. Không đánh lại số của ID đã cấp. Item mới nhận số kế tiếp trong nhóm, kể cả khi thứ tự số không còn theo thứ tự của luồng. Item bị bỏ giữ ID và chuyển trạng thái, không xóa. Chỉ đổi tiền tố khi chưa có test case, defect hay tài liệu nào khác trỏ tới ID đó.
+2. Không đánh lại số của ID đã cấp. Item mới nhận số kế tiếp trong nhóm, kể cả khi thứ tự số không còn theo thứ tự của luồng. Item bị bỏ giữ ID và chuyển trạng thái, không xóa. Chỉ đổi tiền tố khi chưa có test case, defect hay tài liệu nào khác trỏ tới ID đó. `pnpm check:docs` kiểm ID trong `docs/UCs/` không biến mất so với `HEAD` và commit cha; CI cần checkout ít nhất hai commit.
 3. Tiền tố không trùng tiền tố mà template STLC đã dùng cho đối tượng khác, ví dụ `TC` (test case) và `RC` (tiêu chí sẵn sàng), để một ID chỉ có một nghĩa trong toàn repo.
 4. **ID không đứng một mình.** Mỗi lần nhắc một ID, viết trước nó một cụm nêu nội dung, rồi đặt ID trong ngoặc: "link reset chỉ dùng một lần (RP-04)". Không dùng ID làm chủ ngữ hay tân ngữ ("RP-05 quy định …", "hết hạn theo RP-05"). Trong diagram, nhãn là cụm nội dung, ID là phần phụ. Ngoại lệ: cột ID của bảng, và bảng tra cứu mà mỗi dòng đã có cột nội dung *(check-docs: mẫu "theo <ID>" và ô bảng chỉ chứa ID ngoài cột ID)*.
 

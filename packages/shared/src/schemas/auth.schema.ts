@@ -5,10 +5,10 @@ export const PASSWORD_MIN_LENGTH = 8;
 /** Maximum password length, enforced by the auth server and by every auth form. */
 export const PASSWORD_MAX_LENGTH = 128;
 
-/** Maximum Full name length (authentication.md, Create account). */
+/** Maximum Full name length (docs/UCs/authentication.md, CA-13). */
 const FULL_NAME_MAX_LENGTH = 100;
 
-/** Length in Unicode code points, the unit of every length rule (authentication.md). */
+/** Length in Unicode code points, the unit of every length rule (docs/UCs/authentication.md, CM-02). */
 export const codePointLength = (value: string) => Array.from(value).length;
 
 const emailSchema = z

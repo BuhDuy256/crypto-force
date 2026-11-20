@@ -63,7 +63,7 @@ export function useGoogleSignIn() {
 }
 
 /**
- * Signs out, drops account data cached in the browser and opens Landing (workspace.md, Sign out).
+ * Signs out, drops account data cached in the browser and opens Landing (docs/UCs/authentication.md, SS-01).
  * When the request fails the session may still be valid, so the user stays where they are.
  */
 export function useSignOut() {

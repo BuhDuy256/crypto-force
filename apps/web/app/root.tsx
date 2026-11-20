@@ -54,7 +54,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
-      {/* Toast timing and position: workspace.md, Phản hồi dùng chung. */}
+      {/* Toast timing and position: docs/design/prototype/docs/requirements/workspace.md, Phản hồi dùng chung. */}
       <Toaster position="bottom-right" duration={5000} />
     </QueryClientProvider>
   );

@@ -51,7 +51,7 @@ export function createAuthEmails(mailer: Mailer, appUrl: string) {
     },
 
     /** Sent when someone tries to create an account with an email that already has one. */
-    /** `emailVerified: false` adds how to confirm the email (authentication.md, Create account). */
+    /** `emailVerified: false` adds how to confirm the email (docs/UCs/authentication.md, CA-16). */
     sendExistingAccount(to: string, emailVerified: boolean) {
       const resetUrl = new URL('/forgot-password', appUrl).toString();
       const outro = emailVerified

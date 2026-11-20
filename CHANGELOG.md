@@ -22,6 +22,8 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 - Chốt baseline bảo mật OWASP ASVS 5.0 L1 cùng một số mục L2 và rủi ro chấp nhận trong [ADR-002](docs/architecture/30-decisions.md). Requirement Auth và gap analysis nằm trong [Authentication](docs/UCs/authentication.md); các gap chưa được coi là đã triển khai.
 - Dùng `docs/design/prototype/` làm design reference duy nhất, thay các design board và ảnh mockup cũ; tập trung câu hỏi chưa chốt trong `docs/open-questions.md`.
 - Prototype cải thiện accessibility và mobile: quản lý focus trong dialog, skip link, error summary, giữ bản nháp strategy và cảnh báo thay đổi Settings chưa lưu; bổ sung trạng thái lỗi tải, dữ liệu cũ và offline.
+- Viết lại tài liệu kiến trúc toàn hệ thống theo câu hỏi của người đọc: `00-system.md` và `20`–`23` nêu thành phần, vòng đời trạng thái, dữ liệu, contract và bảo mật đã triển khai; `docs/conventions/architecture.md` cho phép chọn và sắp xếp section theo chủ đề thay vì khung cố định.
+- Comment trong code trỏ tới requirement ID của [Authentication](docs/UCs/authentication.md) để truy vết từ code về yêu cầu. `pnpm check:docs` kiểm ID đã cấp không biến mất và comment không trích ID không tồn tại; CI checkout hai commit để có baseline so sánh.
 
 ### Fixed
 

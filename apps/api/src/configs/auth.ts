@@ -18,14 +18,14 @@ import { isRejectedPassword } from '../services/password-check.service';
 
 const HOUR = 60 * 60;
 const DAY = 24 * HOUR;
-/** A session ends this long after sign-in, even when it is used every day (security.md, sessions). */
+/** A session ends this long after sign-in, even when it is used every day (docs/UCs/authentication.md, SS-05). */
 const SESSION_ABSOLUTE_LIMIT_MS = 30 * DAY * 1000;
 
-/** Sign-in attempts allowed per IP address within the window (authentication.md, Sign in). */
-/** Error text for a common or breached password (authentication.md, Create account). */
+/** Error text for a common or breached password (docs/UCs/authentication.md, CA-14). */
 const PASSWORD_COMPROMISED_MESSAGE =
   'This password is too common or has appeared in a data breach. Choose a different one.';
 
+/** Sign-in attempts allowed per IP address within the window (docs/UCs/authentication.md, SI-06). */
 const SIGN_IN_RATE_LIMIT = { window: 10, max: 3 };
 
 /** The last accepted moment of a limit that ends at `end`. */
@@ -129,8 +129,8 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
       },
       verification: {
         // Better Auth accepts a reset link until `expiresAt < now`, so a request at exactly the
-        // limit is accepted. The spec ends the link at the limit (authentication.md, Reset
-        // password): store the end 1 ms earlier.
+        // limit is accepted. The spec ends the link at the limit (docs/UCs/authentication.md,
+        // RP-04): store the end 1 ms earlier.
         create: {
           before: (data) =>
             Promise.resolve(
@@ -150,7 +150,7 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
       // Create account and Reset password reject common and breached passwords.
       before: createAuthMiddleware(async (ctx) => {
         // Better Auth accepts a session until `expiresAt < now`; the spec ends it at `expiresAt`
-        // (security.md, sessions). Remove a session that has reached its end before the request.
+        // (docs/UCs/authentication.md, SI-09, SS-05). Remove a session that has reached its end before the request.
         const { name } = ctx.context.authCookies.sessionToken;
         const token = await ctx.getSignedCookie(name, ctx.context.secret);
         if (token) {
@@ -202,7 +202,7 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
         }
 
         // A verification link opened while another account is signed in keeps that session
-        // (authentication.md, Create account step 4). The Auth screen names both emails.
+        // (docs/UCs/authentication.md, SS-06). The Auth screen names both emails.
         if (ctx.path === '/verify-email') {
           const current = await ctx.context.internalAdapter.findSession(oldToken);
           if (!current || current.session.expiresAt <= new Date()) return;

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import type { Logger } from 'pino';
 import { COMMON_PASSWORDS } from './common-passwords';
 
-/** Longest wait for the Pwned Passwords API (docs/architecture/23-security.md, Password). */
+/** Longest wait for the Pwned Passwords API (docs/UCs/authentication.md, CA-14). */
 const PWNED_TIMEOUT_MS = 3000;
 const PWNED_RANGE_URL = 'https://api.pwnedpasswords.com/range/';
 const commonPasswords = new Set(COMMON_PASSWORDS);

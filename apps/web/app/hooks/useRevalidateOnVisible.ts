@@ -3,7 +3,7 @@ import { useRevalidator } from 'react-router';
 
 /**
  * Re-runs the route loaders (and the session check in front of them) when the tab becomes visible
- * again, so a session ended in another tab or device shows the sign-in gate (workspace.md).
+ * again, so a session ended in another tab or device shows the sign-in gate (docs/UCs/authentication.md, SS-04).
  */
 export function useRevalidateOnVisible() {
   const { revalidate } = useRevalidator();
