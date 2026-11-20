@@ -14,8 +14,8 @@ Included: `SKILL.md`.
 ### 1. Commits, CI and inline exceptions
 
 - Original: "Then fix the most frequent classes now, one commit each. Prove each new check fails on a real past mistake. Run the same command locally and in CI. Exceptions go on the offending line with a reason, an expiry date, and a human's approval."
-- Reason: the project commits only when the user asks (`CLAUDE.md` Safety Rules 02), runs every check through `pnpm check` both locally and in CI (`.github/workflows/ci.yml`), and forbids `eslint-disable` / `@ts-expect-error` to bypass rules (`CLAUDE.md` Testing & Quality 03).
-- Change: one reviewable change per class, no commit unless asked; checks run through `pnpm check`, locally and in CI; no inline exceptions, narrow the rule scope in `eslint.config.js` with the user's approval instead.
+- Reason: the project permits commits only when requested and prohibits inline exceptions. The user reserves the full repository check for explicit requests.
+- Change: use one reviewable change per class. Run relevant checks locally under `AGENTS.md` and keep applicable checks in CI. Run `pnpm check` only on explicit request. Keep exception rules in `eslint.config.js` with user approval.
 - Impact: exceptions are visible in one config file instead of scattered across source.
 
 ### 2. Rule table location

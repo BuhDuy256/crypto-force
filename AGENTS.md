@@ -34,7 +34,7 @@ Chạy từ thư mục gốc; yêu cầu Node.js `>=22.22` (React Router 8) và 
 01. `pnpm install`: cài dependencies cho toàn bộ workspaces.
 02. `pnpm db:up` / `pnpm db:down`: bật / tắt PostgreSQL qua Docker Compose (cần file `.env`, tạo từ `.env.example`).
 03. `pnpm dev`: chạy song song `apps/web` (Vite, cổng 5173, proxy `/api` sang API), `apps/api` (cổng 3000) và `apps/worker`.
-04. `pnpm check`: chạy lần lượt `pnpm typecheck`, `pnpm lint`, `pnpm check:rules`, `pnpm check:exports`, `pnpm check:docs`, `pnpm format:check`; bắt buộc pass trước khi commit. `pnpm lint` cũng kiểm tra dependency boundaries, layer rules và anti-pattern bị cấm trong `eslint.config.js`. `pnpm check:docs` kiểm convention của tài liệu trong `docs/` (link, trích dẫn, ID, khung của use case và architecture).
+04. `pnpm check`: chạy lần lượt `pnpm typecheck`, `pnpm lint`, `pnpm check:rules`, `pnpm check:exports`, `pnpm check:docs`, `pnpm format:check`. Đây là kiểm tra toàn repo dành cho người dùng và CI. Agent chỉ chạy khi người dùng yêu cầu rõ lệnh này. Agent chọn kiểm tra theo phạm vi ở mục Kiểm chứng theo thay đổi bên dưới. `pnpm lint` cũng kiểm tra dependency boundaries, layer rules và anti-pattern bị cấm trong `eslint.config.js`. `pnpm check:docs` kiểm convention của tài liệu trong `docs/` (link, trích dẫn, ID, khung của use case và architecture).
 05. `pnpm test`: component test của `packages/shared` và `apps/web`, rồi integration test của `apps/api` (Vitest) trên database `<POSTGRES_DB>_test`. Database này được tạo lại từ migration mỗi lần chạy; cần `pnpm db:up`. `pnpm test:e2e`: E2E của `apps/web` (Playwright). Lệnh này tự khởi động hai server E2E theo `apps/web/e2e/environment.ts`: một server có Google (cổng 5173, API 3000), một server không có Google (cổng 5174, API 3001). Mỗi server có database riêng và in email ra console thay vì gửi. Dừng `pnpm dev` trước khi chạy `pnpm test:e2e`, vì server E2E cần các cổng này.
 06. `pnpm build`: build mọi app (`tsup` cho API/Worker, `react-router build` cho Web).
 07. `pnpm db:generate` / `pnpm db:migrate`: sinh và áp dụng migration Drizzle (`apps/api/drizzle/`).
@@ -55,8 +55,25 @@ Mỗi loại quy tắc có một nơi sở hữu; mô hình các tầng nằm tr
 | Cần biết sản phẩm phải làm gì, hệ thống được dựng thế nào | [Use Cases](docs/UCs/README.md), [Architecture](docs/architecture/README.md) |
 | Hook hoặc `pnpm check` báo lỗi | Sửa theo message của rule. Không thêm `eslint-disable`, `@ts-expect-error` hoặc comment để lách rule |
 | Người dùng chỉ ra lỗi của agent, hoặc một lỗi có thể lặp lại | Skill `correct`: chặn lỗi ở tầng cao nhất làm được (cấu trúc, type, lint, test) trước khi viết văn bản |
-| Trước khi báo hoàn thành | Chạy `pnpm check`. Thay đổi code, test, hoặc tài liệu trong `docs/UCs`, `docs/architecture`, `docs/conventions`: skill `review-change`. Thay đổi ở `apps/web`: chạy `pnpm dev` và kiểm hành vi trên trình duyệt bằng skill `playwright-cli`. Báo rõ bước nào đã kiểm và bước nào bỏ qua |
+| Trước khi báo hoàn thành | Chọn kiểm tra theo mục Kiểm chứng theo thay đổi. Thay đổi code, test, hoặc tài liệu trong `docs/UCs`, `docs/architecture`, `docs/conventions`: skill `review-change`. Thay đổi hành vi giao diện ở `apps/web`: kiểm hành vi trên trình duyệt bằng skill `playwright-cli`. Báo rõ phạm vi đã kiểm và phần chưa kiểm |
 | Kiểm chứng app end-to-end | Người dùng gọi `/create-verification-skill` để sinh skill `verify-<app>`; `/maintain-verification-skill` giữ feature map khớp với app |
+
+## Kiểm chứng theo thay đổi
+
+Agent chọn tập kiểm tra nhỏ nhất đủ kiểm chứng thay đổi và các phần bị ảnh hưởng. Không tự chạy `pnpm check`, ghép lại toàn bộ lệnh thành phần để thay thế, hoặc yêu cầu người dùng chạy lệnh này sau mỗi task. Người dùng chủ động chạy kiểm tra toàn repo. Yêu cầu commit không tự cho phép agent chạy `pnpm check`.
+
+| Thay đổi | Kiểm tra phù hợp |
+| --- | --- |
+| Markdown, hướng dẫn hoặc skill | `pnpm exec prettier --check <các-file-đã-sửa>`. Với tài liệu trong `docs/`, thêm `pnpm check:docs`. Không chạy typecheck hoặc test app chỉ vì sửa văn bản |
+| Code trong một workspace | `pnpm exec eslint <các-file-đã-sửa>`, `pnpm --filter @crypto-force/<workspace> typecheck` và test liên quan tới hành vi đã thay đổi |
+| Contract hoặc code dùng chung | Kiểm tra package sở hữu và các workspace tiêu thụ bị ảnh hưởng. Dùng Graphify để xác định tác động theo quy tắc bên dưới |
+| Rule ESLint hoặc script kiểm tra | Chạy test của rule hoặc script đã sửa. Kiểm tra trường hợp hợp lệ và trường hợp phải bị từ chối |
+| Export hoặc dependency boundary | Chạy `pnpm check:exports` khi thay đổi ảnh hưởng public exports. Chạy ESLint cho các file chịu tác động |
+| Hành vi giao diện | Chạy test liên quan và kiểm tra flow bị ảnh hưởng trên trình duyệt. Chỉ khởi động các dịch vụ cần cho flow đó |
+| Build hoặc cấu hình runtime | Build workspace bị ảnh hưởng và kiểm tra hành vi liên quan |
+| Skill trong `.agents/skills/` | Chạy `pnpm skills:sync` và `pnpm skills:check`, cùng kiểm tra văn bản đã sửa |
+
+Các lệnh kiểm tra chuyên biệt có thể quét toàn repo khi chưa hỗ trợ lọc file, chẳng hạn `pnpm check:docs`. Không suy diễn kết quả của một kiểm tra thành kết quả của toàn bộ repo. Chỉ mở rộng hoặc chạy lại kiểm tra khi có thay đổi mới, lỗi hoặc tác động chưa được kiểm chứng.
 
 ## Safety Rules
 
@@ -86,4 +103,4 @@ Trả lời người dùng bằng tiếng Việt; giữ thuật ngữ chuyên ng
 ## Skills
 
 01. Skills được tạo và chỉnh sửa tại `.agents/skills/`. Chạy `pnpm skills:sync` để đồng bộ một chiều sang cả `.claude/skills/` và `.codex/skills/`; chạy `pnpm skills:check` để kiểm tra chênh lệch.
-02. Claude hooks trong `.claude/settings.json` chỉ chạy với Claude Code. Codex dùng `.codex/hooks.json` để kiểm tra file sau khi sửa. Cả hai dùng chung bộ kiểm ESLint và docs. Codex vẫn tuân thủ hướng dẫn Graphify ở trên và chạy `pnpm check` trước khi báo hoàn thành.
+02. Claude hooks trong `.claude/settings.json` chỉ chạy với Claude Code. Codex dùng `.codex/hooks.json` để kiểm tra file sau khi sửa. Cả hai dùng chung bộ kiểm ESLint và docs. Cả hai chọn kiểm chứng theo mục Kiểm chứng theo thay đổi, không tự chạy `pnpm check` trước khi báo hoàn thành.

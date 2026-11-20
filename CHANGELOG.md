@@ -26,6 +26,7 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 - Codex chạy hook `PostToolUse` trong `.codex/hooks.json`, gọi `scripts/lint-codex-edits.mjs` để dùng chung bộ kiểm ESLint và tài liệu với Claude khi sửa file.
 - Viết lại tài liệu kiến trúc toàn hệ thống theo câu hỏi của người đọc: `00-system.md` và `20`–`23` nêu thành phần, vòng đời trạng thái, dữ liệu, contract và bảo mật đã triển khai; `docs/conventions/architecture.md` cho phép chọn và sắp xếp section theo chủ đề thay vì khung cố định.
 - Comment trong code trỏ tới requirement ID của [Authentication](docs/UCs/authentication.md) để truy vết từ code về yêu cầu. `pnpm check:docs` kiểm ID đã cấp không biến mất và comment không trích ID không tồn tại; CI checkout hai commit để có baseline so sánh.
+- `AGENTS.md` thêm mục `Kiểm chứng theo thay đổi`: agent chọn tập kiểm tra nhỏ nhất đủ kiểm chứng thay đổi và các phần bị ảnh hưởng, chỉ chạy `pnpm check` khi người dùng yêu cầu rõ lệnh này. `pnpm check` giữ vai trò kiểm tra toàn repo cho người dùng và CI; skills `correct` và `review-change` theo cùng quy tắc.
 
 ### Fixed
 

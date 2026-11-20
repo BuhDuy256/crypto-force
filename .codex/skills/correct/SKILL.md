@@ -27,7 +27,7 @@ Feedback that applies only to the current task, or a temporary preference, is no
 
 ## Fix and prove
 
-Then fix the most frequent classes now, one reviewable change per class. Do not commit unless the user asks. Prove each new check fails on a real past mistake. Every check runs through `pnpm check`, the same command CI runs (`.github/workflows/ci.yml`). No inline exceptions (`eslint-disable`, `@ts-expect-error`): when a rule is wrong in one context, narrow the rule's scope in `eslint.config.js` with the user's approval.
+Then fix the most frequent classes now, one reviewable change per class. Do not commit unless the user asks. Prove each new check fails on a real past mistake. Add new checks to the CI aggregate when applicable. Run only the relevant checks locally, as specified in `AGENTS.md`, section `Kiểm chứng theo thay đổi`. Run `pnpm check` only when the user explicitly requests that command. No inline exceptions (`eslint-disable`, `@ts-expect-error`): when a rule is wrong in one context, narrow the rule's scope in `eslint.config.js` with the user's approval.
 
 ## Keep the rule table
 
