@@ -86,4 +86,4 @@ Trả lời người dùng bằng tiếng Việt; giữ thuật ngữ chuyên ng
 ## Skills
 
 01. Skills được tạo và chỉnh sửa tại `.agents/skills/`. Chạy `pnpm skills:sync` để đồng bộ một chiều sang cả `.claude/skills/` và `.codex/skills/`; chạy `pnpm skills:check` để kiểm tra chênh lệch.
-02. Claude hooks trong `.claude/settings.json` chỉ chạy với Claude Code. Codex tuân thủ hướng dẫn Graphify ở trên và chạy `pnpm check` để kiểm tra thay đổi.
+02. Claude hooks trong `.claude/settings.json` chỉ chạy với Claude Code. Codex dùng `.codex/hooks.json` để kiểm tra file sau khi sửa. Cả hai dùng chung bộ kiểm ESLint và docs. Codex vẫn tuân thủ hướng dẫn Graphify ở trên và chạy `pnpm check` trước khi báo hoàn thành.
