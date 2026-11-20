@@ -4,20 +4,20 @@
 
 ## Đối tượng kiểm thử
 
-| Mục | Nội dung |
-| --- | --- |
-| Test object | Xem thị trường trên Realtime: lịch sử nến, pair, timeframe, multi-chart, volume và MA |
-| Test basis | [Market Data](../../../UCs/market-data.md) và [Quality Attributes](../../../UCs/quality-attributes.md), phiên bản chốt cho từng increment ghi trong file gap analysis tương ứng |
-| Trong phạm vi | Ba increment: REST tải lịch sử, REST polling, WebSocket |
-| Ngoài phạm vi | Tín hiệu BUY/SELL, strategy và các màn hình khác của Realtime |
-| Code test | `apps/web/e2e/market-data/`, `packages/shared` và `apps/api` theo Project Structure |
+| Mục           | Nội dung                                                                                                                                                                        |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Test object   | Xem thị trường trên Realtime: lịch sử nến, pair, timeframe, multi-chart, volume và MA                                                                                           |
+| Test basis    | [Market Data](../../../UCs/market-data.md) và [Quality Attributes](../../../UCs/quality-attributes.md), phiên bản chốt cho từng increment ghi trong file gap analysis tương ứng |
+| Trong phạm vi | Ba increment: REST tải lịch sử, REST polling, WebSocket                                                                                                                         |
+| Ngoài phạm vi | Tín hiệu BUY/SELL, strategy và các màn hình khác của Realtime                                                                                                                   |
+| Code test     | `apps/web/e2e/market-data/`, `packages/shared` và `apps/api` theo Project Structure                                                                                             |
 
 Test scope này không dùng template STLC. Mỗi increment có một file phân tích requirements. File ghi trạng thái requirements trước phân tích, gap, baseline độc lập và kết luận. Test của mỗi increment được viết sau khi chốt cách kiểm chứng và trước khi build increment đó.
 
 ## Tài liệu theo increment
 
-| Increment | Phân tích requirements | Kiểm chứng | Trạng thái |
-| --- | --- | --- | --- |
-| REST tải lịch sử | [rest-requirement-gap-analysis.md](rest-requirement-gap-analysis.md) | [rest-verification.md](rest-verification.md) | Có test basis, sáu interface đã duyệt, thiết kế kịch bản/fixture và protocol baseline REST của Task 3. Workload và ngưỡng hiệu năng còn Proposed. Một số oracle chờ duyệt hoặc chờ nguồn trước assertion. Chưa viết test REST mới hoặc đo baseline |
-| REST polling | `rest-polling-requirement-gap-analysis.md` | Chưa tạo | Chưa bắt đầu |
-| WebSocket | `websocket-requirement-gap-analysis.md` | Chưa tạo | Chưa bắt đầu |
+| Increment        | Phân tích requirements                                               | Kiểm chứng                                   | Trạng thái                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ---------------- | -------------------------------------------------------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| REST tải lịch sử | [rest-requirement-gap-analysis.md](rest-requirement-gap-analysis.md) | [rest-verification.md](rest-verification.md) | Có test basis, sáu interface đã duyệt, thiết kế kịch bản/fixture và protocol baseline REST của Task 3. Workload và ngưỡng hiệu năng còn Proposed. Một số oracle chờ duyệt hoặc chờ nguồn trước assertion. Task 4 đã thêm và chạy test trước build. Shared/HTTP đang red, provider và E2E chưa tới assertion vì thiếu module. Kết quả trong [execution](../../../build/01-prototype-to-implementation/market-data/work/step-07-rest-verification/execution.md#task-4-test-tự-động-trước-build). Task 5 chưa thực hiện. Chưa đo baseline |
+| REST polling     | `rest-polling-requirement-gap-analysis.md`                           | Chưa tạo                                     | Chưa bắt đầu                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| WebSocket        | `websocket-requirement-gap-analysis.md`                              | Chưa tạo                                     | Chưa bắt đầu                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |

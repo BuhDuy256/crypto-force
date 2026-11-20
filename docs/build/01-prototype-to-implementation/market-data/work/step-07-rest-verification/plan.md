@@ -42,18 +42,18 @@ Nếu kiểm tra hoặc Git hook chặn commit vì test red có chủ đích, b�
 
 Đường dẫn tính từ gốc repo. Các file mới dưới đây là đầu ra dự kiến, chưa phải file đã tạo.
 
-| File | Thay đổi và trách nhiệm |
-| --- | --- |
-| `docs/testing/test-scopes/TS-002-market-data/rest-verification.md` | Tạo ma trận requirement → kịch bản → test → evidence. Ghi fixture, workload, môi trường, phép đo, tiêu chí và cách chạy lại |
-| `docs/testing/test-scopes/TS-002-market-data/README.md` | Thêm đường dẫn tài liệu kiểm chứng và trạng thái REST |
-| `docs/testing/test-scopes/TS-002-market-data/rest-requirement-gap-analysis.md` | Cập nhật kết luận khi đã đối chiếu nguyên văn WCAG và đã chốt điều kiện đo |
-| `docs/UCs/quality-attributes.md` | Chỉ sửa QA-10/QA-11 khi điều kiện đo và ngưỡng đã được chốt |
-| `docs/UCs/market-data.md` | Chỉ sửa nguồn WCAG hoặc hành vi nếu quá trình thiết kế test phát hiện gap đã được giải quyết |
-| `packages/shared/src/schemas/market-data.schema.test.ts` | Test contract response và query qua public API hiện có hoặc public API dự kiến đã ghi rõ |
-| `apps/api/test/market-data/` | Test provider contract, adapter, cache, service, API và log |
-| `apps/api/test/support/` | Fixture, provider giả lập và HTTP giả lập dùng chung nếu nhiều test cần |
-| `apps/web/e2e/market-data/` | Test flow dùng API ứng dụng thật, upstream giả lập. Phân biệt với test chỉ dùng HTTP mock của Web |
-| `work/step-07-rest-verification/execution.md` | Ghi quyết định, lệnh đã chạy, test fail có chủ đích và việc chuyển bước 08 |
+| File                                                                           | Thay đổi và trách nhiệm                                                                                                     |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `docs/testing/test-scopes/TS-002-market-data/rest-verification.md`             | Tạo ma trận requirement → kịch bản → test → evidence. Ghi fixture, workload, môi trường, phép đo, tiêu chí và cách chạy lại |
+| `docs/testing/test-scopes/TS-002-market-data/README.md`                        | Thêm đường dẫn tài liệu kiểm chứng và trạng thái REST                                                                       |
+| `docs/testing/test-scopes/TS-002-market-data/rest-requirement-gap-analysis.md` | Cập nhật kết luận khi đã đối chiếu nguyên văn WCAG và đã chốt điều kiện đo                                                  |
+| `docs/UCs/quality-attributes.md`                                               | Chỉ sửa QA-10/QA-11 khi điều kiện đo và ngưỡng đã được chốt                                                                 |
+| `docs/UCs/market-data.md`                                                      | Chỉ sửa nguồn WCAG hoặc hành vi nếu quá trình thiết kế test phát hiện gap đã được giải quyết                                |
+| `packages/shared/src/schemas/market-data.schema.test.ts`                       | Test contract response và query qua public API hiện có hoặc public API dự kiến đã ghi rõ                                    |
+| `apps/api/test/market-data/`                                                   | Test provider contract, adapter, cache, service, API và log                                                                 |
+| `apps/api/test/support/`                                                       | Fixture, provider giả lập và HTTP giả lập dùng chung nếu nhiều test cần                                                     |
+| `apps/web/e2e/market-data/`                                                    | Test flow dùng API ứng dụng thật, upstream giả lập. Phân biệt với test chỉ dùng HTTP mock của Web                           |
+| `work/step-07-rest-verification/execution.md`                                  | Ghi quyết định, lệnh đã chạy, test fail có chủ đích và việc chuyển bước 08                                                  |
 
 Tên file test cụ thể và interface test harness được chốt sau khi đọc source ở Task 1. Không đổi production API chỉ để thuận tiện cho test. Chỉ sửa `test-strategy.md` nếu chọn công cụ hoặc chiến lược chung khác hiện tại [[1]](#ref-1).
 
@@ -61,15 +61,15 @@ Tên file test cụ thể và interface test harness được chốt sau khi đ�
 
 Bảng này nêu cách kiểm thử theo nhóm hành vi. Lý do chọn level/type/technique, partitions, mô hình trạng thái và ma trận từng nhóm rule nằm trong tài liệu kiểm chứng [[13, Chọn level, type và technique]](#ref-13). Chọn level thấp nhất đủ phát hiện lỗi, chỉ dùng E2E cho hành vi cần đi qua toàn flow. Contract là loại kiểm tra, không phải một test level riêng [[2]](#ref-2) [[12, Bước 2]](#ref-12).
 
-| Nhóm hành vi | Rủi ro cần giảm | Level | Type | Technique |
-| --- | --- | --- | --- | --- |
-| Query và schema nến | Nhận input sai hoặc response lệch contract | Unit/component của shared schema | Functional, contract | Equivalence partitioning, boundary value analysis (EP/BVA) |
-| Chuẩn hóa OHLCV, lịch sử ngắn và MA | Sai dữ liệu hoặc sai số nến hiển thị | Component của adapter/service và logic Web | Functional, data integrity | EP/BVA, ví dụ có expected tính độc lập |
-| Cache, single-flight và cooldown | Trả snapshot sai, gọi upstream lặp hoặc gọi trong thời gian bị chặn | Component integration qua interface provider | Functional, resilience | State transition, BVA, scenario đồng thời |
-| Session, query và lỗi HTTP | Truy cập trái phép, input vượt phạm vi, lộ chi tiết upstream | Integration qua HTTP API | Functional, security, contract | Decision table, threat model cho bề mặt REST |
-| Đổi pair/timeframe và lỗi từng chart | Gắn dữ liệu sai nhãn hoặc ảnh hưởng chart khác | System/E2E | Functional | Scenario, state transition |
-| Điều khiển, focus và mô tả chart | Người dùng không thao tác hoặc không đọc được trạng thái | UI/system | Accessibility | Checklist từ WCAG, scenario bàn phím và screen reader |
-| Baseline REST | Kết quả tải không tái lập hoặc nhanh nhưng dữ liệu sai | API/system và browser | Performance, data integrity | Performance workload modeling |
+| Nhóm hành vi                         | Rủi ro cần giảm                                                     | Level                                        | Type                           | Technique                                                  |
+| ------------------------------------ | ------------------------------------------------------------------- | -------------------------------------------- | ------------------------------ | ---------------------------------------------------------- |
+| Query và schema nến                  | Nhận input sai hoặc response lệch contract                          | Unit/component của shared schema             | Functional, contract           | Equivalence partitioning, boundary value analysis (EP/BVA) |
+| Chuẩn hóa OHLCV, lịch sử ngắn và MA  | Sai dữ liệu hoặc sai số nến hiển thị                                | Component của adapter/service và logic Web   | Functional, data integrity     | EP/BVA, ví dụ có expected tính độc lập                     |
+| Cache, single-flight và cooldown     | Trả snapshot sai, gọi upstream lặp hoặc gọi trong thời gian bị chặn | Component integration qua interface provider | Functional, resilience         | State transition, BVA, scenario đồng thời                  |
+| Session, query và lỗi HTTP           | Truy cập trái phép, input vượt phạm vi, lộ chi tiết upstream        | Integration qua HTTP API                     | Functional, security, contract | Decision table, threat model cho bề mặt REST               |
+| Đổi pair/timeframe và lỗi từng chart | Gắn dữ liệu sai nhãn hoặc ảnh hưởng chart khác                      | System/E2E                                   | Functional                     | Scenario, state transition                                 |
+| Điều khiển, focus và mô tả chart     | Người dùng không thao tác hoặc không đọc được trạng thái            | UI/system                                    | Accessibility                  | Checklist từ WCAG, scenario bàn phím và screen reader      |
+| Baseline REST                        | Kết quả tải không tái lập hoặc nhanh nhưng dữ liệu sai              | API/system và browser                        | Performance, data integrity    | Performance workload modeling                              |
 
 Exploratory testing là lựa chọn bổ sung khi cần tìm tình huống chưa mô hình hóa. Không dùng branch coverage làm nguồn sinh expected result. Chỉ dùng coverage sau khi có test hành vi để tìm phần chưa được kiểm. Khi áp dụng một technique, đọc skill `test-technique-*` tương ứng trước khi thiết kế case.
 
@@ -77,35 +77,35 @@ Exploratory testing là lựa chọn bổ sung khi cần tìm tình huống chư
 
 Các biện pháp sau dựa trên Testware và phần anti-pattern của tài liệu tham khảo [[9]](#ref-9) [[12]](#ref-12).
 
-| Anti-pattern | Cách phòng | Cách kiểm |
-| --- | --- | --- |
-| Expected lặp lại implementation | Dùng literal từ requirement, ví dụ tính độc lập hoặc fixture tham chiếu. Không import hằng số app làm expected | ESLint cho test đã sửa và review nguồn expected |
-| Test phụ thuộc cấu trúc nội bộ | Gọi public interface hoặc UI. Không test private method, không export chỉ để test, không mock module app | ESLint, `check:exports` khi có đổi export và review interface |
-| Test không thể fail khi hành vi sai | Assert status chính xác cùng body/side effect. Fake phải tạo được cả thành công và lỗi | Mutant check cho các hành vi ưu tiên bên dưới |
-| Test phụ thuộc thời gian thật | Inject clock hoặc dùng fake clock. Chờ điều kiện thay vì chờ một khoảng cố định | ESLint và kiểm test TTL/timeout bằng clock điều khiển được |
-| Test pass nhờ mock bỏ qua flow thật | API test thay upstream, E2E đi qua API thật. Ghi rõ phần fake không chứng minh được | Review harness và kiểm độ nhạy của fake theo Testware |
+| Anti-pattern                        | Cách phòng                                                                                                     | Cách kiểm                                                     |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Expected lặp lại implementation     | Dùng literal từ requirement, ví dụ tính độc lập hoặc fixture tham chiếu. Không import hằng số app làm expected | ESLint cho test đã sửa và review nguồn expected               |
+| Test phụ thuộc cấu trúc nội bộ      | Gọi public interface hoặc UI. Không test private method, không export chỉ để test, không mock module app       | ESLint, `check:exports` khi có đổi export và review interface |
+| Test không thể fail khi hành vi sai | Assert status chính xác cùng body/side effect. Fake phải tạo được cả thành công và lỗi                         | Mutant check cho các hành vi ưu tiên bên dưới                 |
+| Test phụ thuộc thời gian thật       | Inject clock hoặc dùng fake clock. Chờ điều kiện thay vì chờ một khoảng cố định                                | ESLint và kiểm test TTL/timeout bằng clock điều khiển được    |
+| Test pass nhờ mock bỏ qua flow thật | API test thay upstream, E2E đi qua API thật. Ghi rõ phần fake không chứng minh được                            | Review harness và kiểm độ nhạy của fake theo Testware         |
 
 Agent đề xuất ưu tiên mutant check cho tính đúng dữ liệu, cách ly lựa chọn, giới hạn upstream và truy cập phiên. Lý do: lỗi ở các vùng này có thể trả dữ liệu sai hoặc làm ảnh hưởng mọi client. Bảng dưới là danh sách mutation dự kiến, chưa phải kết quả đã chạy.
 
-| Hành vi | Mutation có chủ đích | Test phải phát hiện |
-| --- | --- | --- |
-| Đối chiếu nến và MA | Đổi giá trị OHLCV hoặc làm lệch warm-up | Assertion giá trị nến/MA độc lập bị fail |
-| Cách ly pair/timeframe | Bỏ một thành phần khóa hoặc cho response cũ ghi đè lựa chọn mới | Test tách khóa hoặc E2E đổi lựa chọn bị fail |
-| TTL và snapshot | Kéo dài TTL hoặc cập nhật `dataTime` ở cache hit | Test trước/sau TTL hoặc snapshot bị fail |
-| Single-flight và lỗi | Bỏ gộp request hoặc giữ rejection cho request sau | Test đếm upstream hoặc thử lại sau lỗi bị fail |
-| Cooldown và phiên | Bỏ chặn upstream trong cooldown hoặc bỏ kiểm phiên | Test upstream call count hoặc HTTP 401 bị fail |
+| Hành vi                | Mutation có chủ đích                                            | Test phải phát hiện                            |
+| ---------------------- | --------------------------------------------------------------- | ---------------------------------------------- |
+| Đối chiếu nến và MA    | Đổi giá trị OHLCV hoặc làm lệch warm-up                         | Assertion giá trị nến/MA độc lập bị fail       |
+| Cách ly pair/timeframe | Bỏ một thành phần khóa hoặc cho response cũ ghi đè lựa chọn mới | Test tách khóa hoặc E2E đổi lựa chọn bị fail   |
+| TTL và snapshot        | Kéo dài TTL hoặc cập nhật `dataTime` ở cache hit                | Test trước/sau TTL hoặc snapshot bị fail       |
+| Single-flight và lỗi   | Bỏ gộp request hoặc giữ rejection cho request sau               | Test đếm upstream hoặc thử lại sau lỗi bị fail |
+| Cooldown và phiên      | Bỏ chặn upstream trong cooldown hoặc bỏ kiểm phiên              | Test upstream call count hoặc HTTP 401 bị fail |
 
 Chạy từng mutation sau khi test gốc đã pass. Test phải fail ở assertion liên quan, không phải do syntax, import hoặc cấu hình. Khôi phục mutation ngay sau lượt chạy và xác nhận test gốc pass lại. Mutant còn sống yêu cầu sửa test hoặc giải thích vì sao mutation không đổi hành vi thuộc phạm vi. Bước 07 chỉ chốt danh sách này, Bước 08 thực hiện khi có implementation. Kiểm độ nhạy của fake theo Testware vẫn áp dụng, kể cả với fake ngoài danh sách ưu tiên.
 
 ## Điểm cần review
 
-| Điều kiện dễ bị bỏ sót | Kết quả cần kiểm | Task |
-| --- | --- | --- |
-| Response cũ đến sau khi đổi pair/timeframe | Không gắn dữ liệu cũ vào nhãn mới. Chart khác không tải lại | 2, 4 |
-| Lịch sử ngắn, có khoảng trống hoặc có nến đang mở | Không tạo nến giả. MA dùng nến thật, có nhãn tạm và xử lý thiếu mẫu | 2, 4 |
-| Nến đóng trong thời gian cache còn hạn | `dataTime` và `isClosed` vẫn thuộc snapshot ban đầu | 2, 4 |
-| Nhiều request cùng khóa khi cache rỗng hoặc provider lỗi | Gộp lời gọi đang chạy, không giữ lỗi trong cache | 2, 4 |
-| Binance trả 429/418 trong khi khóa khác còn cache | Dừng upstream theo `Retry-After`, vẫn trả cache còn hạn và không tự retry | 2, 4 |
+| Điều kiện dễ bị bỏ sót                                   | Kết quả cần kiểm                                                          | Task |
+| -------------------------------------------------------- | ------------------------------------------------------------------------- | ---- |
+| Response cũ đến sau khi đổi pair/timeframe               | Không gắn dữ liệu cũ vào nhãn mới. Chart khác không tải lại               | 2, 4 |
+| Lịch sử ngắn, có khoảng trống hoặc có nến đang mở        | Không tạo nến giả. MA dùng nến thật, có nhãn tạm và xử lý thiếu mẫu       | 2, 4 |
+| Nến đóng trong thời gian cache còn hạn                   | `dataTime` và `isClosed` vẫn thuộc snapshot ban đầu                       | 2, 4 |
+| Nhiều request cùng khóa khi cache rỗng hoặc provider lỗi | Gộp lời gọi đang chạy, không giữ lỗi trong cache                          | 2, 4 |
+| Binance trả 429/418 trong khi khóa khác còn cache        | Dừng upstream theo `Retry-After`, vẫn trả cache còn hạn và không tự retry | 2, 4 |
 
 ## Công việc
 
@@ -161,17 +161,17 @@ Chạy từng mutation sau khi test gốc đã pass. Test phải fail ở assert
 
 ### Task 4: Viết test tự động trước build và xác nhận trạng thái fail
 
-- [ ] Sau khi chốt cách kiểm chứng và điểm kiểm thử, dùng skill `tdd`. Viết test qua public interface của Task 1–2. Chỉ thêm harness cần cho test, chưa triển khai hành vi production.
-- [ ] Xếp test thành các lát hành vi để Bước 08 triển khai lần lượt: contract và dữ liệu, provider/service, cache và lỗi upstream, HTTP/session, rồi flow UI. Mỗi lát ghi test red đầu tiên và expected result. Không cố định chi tiết nội bộ cho toàn bộ implementation từ Bước 07.
-- [ ] Viết hoặc mở rộng E2E dùng API thật với upstream giả lập. Không dùng mock response tại browser để tuyên bố đã kiểm flow xuyên suốt.
-- [ ] Chạy từng nhóm test bằng script đúng của workspace. Lưu lệnh, test name, assertion và nguyên nhân fail. Phân biệt thiếu module/harness với fail ở hành vi chưa build. Không dùng `skip`, `todo` hoặc assertion luôn đúng để thay test.
-- [ ] Kiểm test đang có không bị sửa expected result để phù hợp contract mới khi production chưa chuyển đổi. Ghi riêng test regression đang pass và test mới đang red.
-- [ ] Kiểm từng test theo bảng anti-pattern trước khi bàn giao. Không dùng lỗi import do thiếu module làm bằng chứng assertion đã kiểm được hành vi. Ghi test đó chưa tới assertion và yêu cầu chạy lại ở Bước 08.
-- [ ] Với fake/harness mới, ghi phép làm hỏng hành vi mà fake thay thế. Nếu chưa thể chạy mutation do thiếu implementation, ghi chưa kiểm chứng và chuyển thành gate bắt buộc ở bước 08, không ghi đã chứng minh fake [[9]](#ref-9).
+- [x] Sau khi chốt cách kiểm chứng và điểm kiểm thử, dùng skill `tdd`. Viết test qua public interface của Task 1–2. Chỉ thêm harness cần cho test, chưa triển khai hành vi production.
+- [x] Xếp test thành các lát hành vi để Bước 08 triển khai lần lượt: contract và dữ liệu, provider/service, cache và lỗi upstream, HTTP/session, rồi flow UI. Mỗi lát ghi test red đầu tiên và expected result. Không cố định chi tiết nội bộ cho toàn bộ implementation từ Bước 07.
+- [x] Viết hoặc mở rộng E2E dùng API thật với upstream giả lập. Không dùng mock response tại browser để tuyên bố đã kiểm flow xuyên suốt.
+- [x] Chạy từng nhóm test bằng script đúng của workspace. Lưu lệnh, test name, assertion và nguyên nhân fail. Phân biệt thiếu module/harness với fail ở hành vi chưa build. Không dùng `skip`, `todo` hoặc assertion luôn đúng để thay test.
+- [x] Kiểm test đang có không bị sửa expected result để phù hợp contract mới khi production chưa chuyển đổi. Ghi riêng test regression đang pass và test mới đang red.
+- [x] Kiểm từng test theo bảng anti-pattern trước khi bàn giao. Không dùng lỗi import do thiếu module làm bằng chứng assertion đã kiểm được hành vi. Ghi test đó chưa tới assertion và yêu cầu chạy lại ở Bước 08.
+- [x] Với fake/harness mới, ghi phép làm hỏng hành vi mà fake thay thế. Nếu chưa thể chạy mutation do thiếu implementation, ghi chưa kiểm chứng và chuyển thành gate bắt buộc ở bước 08, không ghi đã chứng minh fake [[9]](#ref-9).
 
 **Điều kiện đạt:** test cho Bước 08 tồn tại và đã được chạy. Trạng thái red có nguyên nhân rõ. Bước 07 chỉ hoàn thành phần test trước build theo abstract plan, chưa hoàn thành chu trình TDD. Bước 08 chạy lại red, triển khai tối thiểu để green theo từng lát, rồi review/refactor và chạy lại test. Không tuyên bố mutant check đã đạt khi test gốc chưa pass. Bước 07 không tuyên bố flow REST đã đạt hoặc baseline đã đo.
 
-- [ ] Chạy kiểm tra phù hợp và tạo commit riêng cho Task 4 theo mục Commit khi hoàn tất Task. Ghi rõ trạng thái red có chủ đích trong commit.
+- [x] Chạy kiểm tra phù hợp và tạo commit riêng cho Task 4 theo mục Commit khi hoàn tất Task. Ghi rõ trạng thái red có chủ đích trong commit.
 
 ### Task 5: Review, kiểm tra tài liệu và bàn giao
 

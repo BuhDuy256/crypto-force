@@ -1,14 +1,16 @@
-﻿# Changelog
+# Changelog
 
 Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình phát triển.
 
 ## [Unreleased]
 
+- Test trước build REST Market Data cho Task 4: shared contract, provider/service, adapter/cache, HTTP/session và E2E qua API thật với upstream giả lập. Shared/HTTP đang red. Module production còn thiếu chặn suite provider và startup E2E. Chưa hoàn tất TDD, mutation hoặc baseline.
+
 ### Added
 
 - Protocol baseline REST Market Data cho Task 3 của Bước 07: định nghĩa phép đo, cache rỗng/hit/single-flight, workload đề xuất, replay/smoke và evidence chạy lại. Workload và ngưỡng hiệu năng còn Proposed. Chưa đo baseline hoặc xác nhận capacity.
-- Thiết kế kiểm chứng REST Market Data cho Task 2 của Bước 07: ma trận requirement/kịch bản/evidence, partitions và biên, fixture với expected literal, cache/cooldown, E2E/accessibility, log và mutation dự kiến. Chưa viết hoặc chạy test REST mới.
-- Test basis REST Market Data, đối chiếu sáu SC WCAG, sáu interface kiểm thử được product owner duyệt và khảo sát harness từ source cho Task 1 của Bước 07. Chưa viết test hoặc đo baseline.
+- Thiết kế kiểm chứng REST Market Data cho Task 2 của Bước 07: ma trận requirement/kịch bản/evidence, partitions và biên, fixture với expected literal, cache/cooldown, E2E/accessibility, log và mutation dự kiến. Kết quả test trước build ghi riêng ở Task 4.
+- Test basis REST Market Data, đối chiếu sáu SC WCAG, sáu interface kiểm thử được product owner duyệt và khảo sát harness từ source cho Task 1 của Bước 07. Chưa đo baseline.
 - Frontend Realtime dùng HTTP mock: pair chung, 1/2/4 chart với timeframe riêng, nến, volume, MA(20), giá/thay đổi 24h và sidebar. Các chart có trạng thái đang tải, rỗng, lỗi và thử lại riêng.
 - Schema HTTP nháp cho Market Data, fixtures tất định và MSW handlers. Browser suite riêng kiểm UI mock và worker thật, gồm responsive, bàn phím, accessibility và dữ liệu cũ đến sau.
 - Bản nháp use case Market Data, câu hỏi mở, kế hoạch và bằng chứng hoàn thành Bước 2. API contract production chưa được chốt.
