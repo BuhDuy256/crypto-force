@@ -59,7 +59,7 @@ Tên file test cụ thể và interface test harness được chốt sau khi đ�
 
 ## Chọn cách kiểm thử
 
-Task 2 hoàn thiện bảng này theo nhóm requirement và rủi ro cụ thể. Chọn level thấp nhất đủ phát hiện lỗi, chỉ dùng E2E cho hành vi cần đi qua toàn flow. Contract là loại kiểm tra, không phải một test level riêng [[2]](#ref-2) [[12, Bước 2]](#ref-12).
+Bảng này nêu cách kiểm thử theo nhóm hành vi. Lý do chọn level/type/technique, partitions, mô hình trạng thái và ma trận từng nhóm rule nằm trong tài liệu kiểm chứng [[13, Chọn level, type và technique]](#ref-13). Chọn level thấp nhất đủ phát hiện lỗi, chỉ dùng E2E cho hành vi cần đi qua toàn flow. Contract là loại kiểm tra, không phải một test level riêng [[2]](#ref-2) [[12, Bước 2]](#ref-12).
 
 | Nhóm hành vi | Rủi ro cần giảm | Level | Type | Technique |
 | --- | --- | --- | --- | --- |
@@ -127,19 +127,19 @@ Chạy từng mutation sau khi test gốc đã pass. Test phải fail ở assert
 
 ### Task 2: Thiết kế kịch bản và dữ liệu đối chiếu
 
-- [ ] Hoàn thiện bảng chọn cách kiểm thử theo rủi ro. Ghi lý do chọn level, type và technique cho mỗi nhóm rule. Đọc skill technique tương ứng, không chọn chỉ theo tên công cụ.
-- [ ] Lập ma trận bao phủ các requirement REST còn hiệu lực, gồm cả accessibility. Mỗi dòng ghi precondition, thao tác, expected result, level, type, technique, code test dự kiến và evidence cần lưu. Từ technique đã chọn, xác định partitions, giá trị biên, trạng thái/chuyển trạng thái hoặc tổ hợp điều kiện cần kiểm.
-- [ ] Thiết kế contract: enum pair/timeframe, query thiếu/sai/thừa, kiểu số hữu hạn, OHLCV, thứ tự và mốc nến, nến đang mở, `warmupCount`, `dataTime`, summary và lỗi HTTP [[5]](#ref-5) [[6]](#ref-6).
-- [ ] Thiết kế fixture có expected literal: lịch sử đủ 519 nến, 500 nến, ít hơn mẫu MA(20), rỗng, có khoảng trống và dữ liệu sai. Với 519 nến, 19 nến chỉ khởi động MA và tối đa 500 nến được vẽ. Các số này suy từ giới hạn hiển thị và mẫu MA đã chốt [[3]](#ref-3) [[5]](#ref-5).
-- [ ] Thiết kế service test bằng provider giả lập. Kiểm service không biết payload Binance, kiểm dữ liệu sai và mapping lỗi. Kiểm adapter chuẩn hóa riêng bằng response Binance cố định, không gọi Binance trong regression test.
-- [ ] Thiết kế cache test bằng clock điều khiển được: trước/đúng/sau TTL 5 giây, tách khóa pair/timeframe/số nến, single-flight thành công và thất bại, không cache lỗi, giữ snapshot. Kiểm cooldown 429/418, 403, timeout 5 giây và API không retry [[5]](#ref-5).
-- [ ] Thiết kế E2E: mở mặc định, đổi pair/timeframe, ẩn/hiện chart, phản hồi cũ, lỗi chart/sidebar độc lập, thử lại, hết phiên, hạn chờ Web 10 giây, nhãn nến/MA, đọc nến, zoom và màn hình hẹp [[3]](#ref-3).
-- [ ] Thiết kế kiểm dependency boundaries và log có pair/timeframe, thời gian upstream/service và cache hit/miss. Phân biệt assertion tự động với việc review source.
-- [ ] Gắn các mutation dự kiến với test cụ thể. Ghi phần kiểm tự động, phần review và phần chỉ chạy được sau khi implementation đã pass.
+- [x] Hoàn thiện bảng chọn cách kiểm thử theo rủi ro. Ghi lý do chọn level, type và technique cho mỗi nhóm rule. Đọc skill technique tương ứng, không chọn chỉ theo tên công cụ.
+- [x] Lập ma trận bao phủ các requirement REST còn hiệu lực, gồm cả accessibility. Mỗi dòng ghi precondition, thao tác, expected result, level, type, technique, code test dự kiến và evidence cần lưu. Từ technique đã chọn, xác định partitions, giá trị biên, trạng thái/chuyển trạng thái hoặc tổ hợp điều kiện cần kiểm.
+- [x] Thiết kế contract: enum pair/timeframe, query thiếu/sai/thừa, kiểu số hữu hạn, OHLCV, thứ tự và mốc nến, nến đang mở, `warmupCount`, `dataTime`, summary và lỗi HTTP [[5]](#ref-5) [[6]](#ref-6).
+- [x] Thiết kế fixture có expected literal: lịch sử đủ 519 nến, 500 nến, ít hơn mẫu MA(20), rỗng, có khoảng trống và dữ liệu sai. Với 519 nến, 19 nến chỉ khởi động MA và tối đa 500 nến được vẽ. Các số này suy từ giới hạn hiển thị và mẫu MA đã chốt [[3]](#ref-3) [[5]](#ref-5).
+- [x] Thiết kế service test bằng provider giả lập. Kiểm service không biết payload Binance, kiểm dữ liệu sai và mapping lỗi. Kiểm adapter chuẩn hóa riêng bằng response Binance cố định, không gọi Binance trong regression test.
+- [x] Thiết kế cache test bằng clock điều khiển được: trước/đúng/sau TTL 5 giây, tách khóa pair/timeframe/số nến, single-flight thành công và thất bại, không cache lỗi, giữ snapshot. Kiểm cooldown 429/418, 403, timeout 5 giây và API không retry [[5]](#ref-5).
+- [x] Thiết kế E2E: mở mặc định, đổi pair/timeframe, ẩn/hiện chart, phản hồi cũ, lỗi chart/sidebar độc lập, thử lại, hết phiên, hạn chờ Web 10 giây, nhãn nến/MA, đọc nến, zoom và màn hình hẹp [[3]](#ref-3).
+- [x] Thiết kế kiểm dependency boundaries và log có pair/timeframe, thời gian upstream/service và cache hit/miss. Phân biệt assertion tự động với việc review source.
+- [x] Gắn các mutation dự kiến với test cụ thể. Ghi phần kiểm tự động, phần review và phần chỉ chạy được sau khi implementation đã pass.
 
 **Điều kiện đạt:** test có thể phát hiện dữ liệu sai dù fixture và mock trả thành công. Đối chiếu nến đóng theo khóa pair/timeframe/openTime, không so nến đang mở ở hai thời điểm khác nhau.
 
-- [ ] Chạy kiểm tra phù hợp và tạo commit riêng cho Task 2 theo mục Commit khi hoàn tất Task.
+- [x] Chạy kiểm tra phù hợp và tạo commit riêng cho Task 2 theo mục Commit khi hoàn tất Task.
 
 ### Task 3: Chốt protocol baseline REST
 
@@ -193,3 +193,4 @@ Chạy từng mutation sau khi test gốc đã pass. Test phải fail ở assert
 10. <a id="ref-10"></a>[Những thứ cần đạt được trong lúc build Market Data](../../goal.md)
 11. <a id="ref-11"></a>[Market Data sẽ thêm dòng nào vào CV?](../../cv-goal.md)
 12. <a id="ref-12"></a>[Lean Testing Workflow (v1)](../../../draft/testing/lean-testing-workflow.md)
+13. <a id="ref-13"></a>[Kiểm chứng REST tải lịch sử](../../../../../testing/test-scopes/TS-002-market-data/rest-verification.md)

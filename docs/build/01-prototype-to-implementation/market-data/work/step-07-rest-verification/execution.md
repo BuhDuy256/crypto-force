@@ -25,7 +25,7 @@ Chỉ kiểm tra biến có giá trị, không in hoặc lưu giá trị. Kết 
 
 ### Review và phần chuyển tiếp
 
-Product owner đã duyệt sáu interface ngày 2026-11-20 theo yêu cầu của kế hoạch và skill `tdd`. Interface dùng để thiết kế và viết test ở các Task tiếp theo. Các Task 2–5 chưa triển khai.
+Product owner đã duyệt sáu interface ngày 2026-11-20 theo yêu cầu của kế hoạch và skill `tdd`. Interface dùng để thiết kế và viết test ở các Task tiếp theo. Kết quả Task 2 nằm bên dưới. Các Task 3–5 chưa triển khai.
 
 Các việc cần cho Bước 08 đã ghi theo điểm kiểm thử: đổi shared contract, dựng provider/service và route có phiên, cập nhật Web và mock, bổ sung harness đi qua API thật. Timeout cụ thể, protocol baseline, fixtures và ma trận kịch bản được xử lý ở các Task sau của Bước 07 [[1]](#ref-1) [[2]](#ref-2).
 
@@ -42,6 +42,27 @@ Các việc cần cho Bước 08 đã ghi theo điểm kiểm thử: đổi shar
 Không chạy `pnpm check`. Không cập nhật Graphify vì không sửa code.
 
 Task 1 được lưu trong commit riêng chứa bảy file tài liệu đã kiểm tra. Xác nhận mã commit bằng lịch sử Git và báo cho product owner trước khi chuyển Task tiếp theo [[1, Commit khi hoàn tất Task]](#ref-1).
+
+## Task 2: Kịch bản và dữ liệu đối chiếu
+
+Ngày thực hiện: 2026-11-20. Phạm vi chỉ là thiết kế kiểm chứng trong tài liệu [[2]](#ref-2). Chưa viết test, fixture code hoặc production. Chưa chạy browser, mutation hoặc baseline.
+
+Đã thiết kế cách chọn level/type/technique, partitions và giá trị biên, fixture có MA/OHLCV literal, mô hình cache/cooldown, decision table phiên/query và threat model REST. Ma trận gắn requirement với precondition, thao tác, expected, test file dự kiến và evidence cần lưu. E2E tách phần DOM, canvas và screen reader. Mutation/fault gắn với kịch bản cụ thể, chỉ thực hiện sau khi test gốc green.
+
+Kiểm tra hiện diện ID trong ma trận tìm đủ 49 rule Confirmed của vòng REST: lấy các dòng Confirmed trong use case, loại rule refresh chỉ từ polling (MK-13), rồi tìm từng ID trong phần ma trận. Đây chỉ là kiểm traceability bằng tên, không chứng minh 49 requirement đã được kiểm hành vi. Đã đọc từng nhóm expected trong quá trình thiết kế.
+
+Các gate trước khi viết assertion tương ứng:
+
+- Mốc bắt đầu TTL và hết hạn đúng biên đang Proposed. Đã gửi lựa chọn tới product owner. Chưa coi đề xuất là quyết định sản phẩm.
+- Ưu tiên 401 khi cả phiên và query đều sai đang Proposed. Case đã có expected tối thiểu là từ chối và không gọi provider.
+- Chuỗi giá theo số chữ số thập phân chờ metadata có nguồn theo quyết định đã chốt. Không tự đặt tick size trong fixture.
+- Hành vi khi provider trả vượt limit và mã lỗi HTTP cho payload upstream không parse được chưa có oracle cụ thể. Phải xác nhận trong lát contract/adapter trước assertion tương ứng. Các nhóm dữ liệu domain sai đã có expected 502.
+
+Các gate này không chặn ghi thiết kế case hoặc expected đã có nguồn. Chúng chặn assertion áp quyết định chưa được duyệt. Workload và protocol baseline vẫn thuộc Task 3. Task 4 tạo test/harness từ thiết kế, không gọi Binance trong regression.
+
+Kiểm tra tài liệu: Prettier qua CLI trực tiếp đạt cho các file Task 2. `pnpm check:docs` trả `check-docs: docs OK`. `git diff --check` đạt. Reviewer độc lập dùng `review-change` không có finding cho thiết kế và cập nhật tiến độ. Không chạy test app, build, `pnpm check` hoặc Graphify vì chỉ sửa Markdown.
+
+Task 2 được lưu bằng commit riêng cùng cập nhật plan, scope README, tracker và changelog. Mã commit được xác nhận trong Git và báo cho product owner sau khi tạo thành công.
 
 ## References
 
