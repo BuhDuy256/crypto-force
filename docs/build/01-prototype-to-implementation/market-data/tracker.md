@@ -10,7 +10,7 @@ Các step theo kế hoạch tổng quan [[1]](#ref-1). Trạng thái khởi tạ
 | --- | --- | --- | --- | --- |
 | 01 | Chọn phạm vi của flow REST đầu tiên | Hoàn thành | [Phạm vi REST đầu tiên](work/step-01-rest-scope/plan.md) | Đã thống nhất multi-chart, MA và thông tin thị trường cho REST. Giữ live/phục hồi ở vòng WebSocket. Prettier và check:docs đạt ngày 2026-11-20 |
 | 02 | Hoàn thiện frontend bằng mock data | Hoàn thành | [Frontend bằng mock](work/step-02-mock-frontend/plan.md) | Multi-chart, pair/timeframe, nến/volume/MA, summary và trạng thái lỗi đã kiểm chứng. Browser 10/10, Web 9/9, shared 34/34; typecheck, scoped lint, build guard và review đạt ngày 2026-11-20. [Bằng chứng và ảnh](work/step-02-mock-frontend/execution.md) |
-| 03 | Phân tích và chốt requirements cho REST | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |
+| 03 | Phân tích và chốt requirements cho REST | Hoàn thành | [Requirements REST](work/step-03-rest-requirements/plan.md) | [Use case](../../../UCs/market-data.md) MK-01 đến MK-62, QA-09 đến QA-11, [phân tích và baseline](../../../testing/test-scopes/TS-002-market-data/rest-requirement-gap-analysis.md), OQ-032/082/083/084 đóng. check:docs không có lỗi mới, review-change đã xử lý findings ngày 2026-11-20. [Quyết định và thay đổi UI](work/step-03-rest-requirements/execution.md) |
 | 04 | Thiết kế ranh giới và luồng xử lý REST | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |
 | 05 | Thiết kế contract nến và API REST | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |
 | 06 | Thiết kế database và cache | Chưa bắt đầu | Chưa tạo | Chưa ghi nhận |

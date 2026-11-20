@@ -6,7 +6,7 @@
 
 Kế hoạch đi từ frontend dùng mock đến REST, sau đó bổ sung WebSocket và kiểm chứng các mục tiêu về chức năng, thiết kế, độ tin cậy và hiệu năng [[1]](#ref-1) [[2]](#ref-2).
 
-> Các đường dẫn bên dưới tính từ gốc repo. **Proposed:** tạo `docs/UCs/market-data.md` và `docs/testing/market-data.md` khi bắt đầu giai đoạn tương ứng. Tài liệu testing ghi phân tích yêu cầu, kịch bản và kết quả cần thiết cho flow, không triển khai full STLC.
+> Các đường dẫn bên dưới tính từ gốc repo. **Proposed:** tạo `docs/UCs/market-data.md` và test scope `docs/testing/test-scopes/TS-002-market-data/` khi bắt đầu giai đoạn tương ứng. Test scope có một file phân tích requirements cho mỗi increment REST, REST polling và WebSocket. Mỗi file ghi trạng thái requirements trước phân tích. Tài liệu testing ghi phân tích yêu cầu, kịch bản và kết quả cần thiết cho flow, không triển khai full STLC.
 
 ## Thứ tự triển khai và cập nhật docs
 
@@ -21,7 +21,7 @@ Kế hoạch đi từ frontend dùng mock đến REST, sau đó bổ sung WebSoc
 3. **Phân tích và chốt requirements cho REST.**
    - **Docs:** hoàn thiện `docs/UCs/market-data.md` với phạm vi, main flow, alternative flow, exception flow, business rules và acceptance criteria. Làm rõ lịch sử nến, pair/timeframe, nến đang mở và hành vi khi tải dữ liệu thất bại.
    - **Docs:** cập nhật `docs/UCs/quality-attributes.md` với tiêu chí chất lượng áp dụng cho REST. Giá trị chưa được chốt phải giữ trạng thái đề xuất.
-   - **Docs:** ghi kết quả phân tích vào `docs/testing/market-data.md`: nguồn đối chiếu, điểm thiếu hoặc mâu thuẫn và kết quả giải quyết. Đối chiếu thêm một baseline độc lập trước khi kết luận yêu cầu đủ để thiết kế test.
+   - **Docs:** ghi kết quả phân tích vào `docs/testing/test-scopes/TS-002-market-data/rest-requirement-gap-analysis.md`: trạng thái requirements trước phân tích, nguồn đối chiếu, điểm thiếu hoặc mâu thuẫn và kết quả giải quyết. Đối chiếu thêm một baseline độc lập trước khi kết luận yêu cầu đủ để thiết kế test.
    - **Docs:** ghi quyết định còn mở vào `docs/open-questions.md`. Cập nhật `docs/UCs/README.md` để người đọc tìm được tài liệu Market Data.
 
 4. **Thiết kế ranh giới và luồng xử lý REST.**
@@ -41,23 +41,25 @@ Kế hoạch đi từ frontend dùng mock đến REST, sau đó bổ sung WebSoc
    - **Docs:** ghi các quyết định có trade-off vào `docs/architecture/30-decisions.md`, gồm phương án đã cân nhắc và điều kiện cần xem lại. Điều chỉnh thiết kế API nếu quyết định lưu trữ làm thay đổi contract.
 
 7. **Chốt cách kiểm chứng REST và baseline.**
-   - **Docs:** bổ sung `docs/testing/market-data.md` với kịch bản chức năng, contract, dữ liệu và lỗi provider. Liên kết các kịch bản với yêu cầu cần kiểm chứng.
+   - **Docs:** bổ sung tài liệu kiểm chứng của increment trong `docs/testing/test-scopes/TS-002-market-data/` với kịch bản chức năng, contract, dữ liệu và lỗi provider. Liên kết các kịch bản với yêu cầu cần kiểm chứng.
    - **Docs:** bổ sung kiểm chứng service qua provider giả lập, schema nến dùng chung và dependency boundaries. Ghi kịch bản E2E xem nến, đổi pair/timeframe. Nếu triển khai multi-chart, kiểm tra đổi timeframe một chart không làm tải lại chart khác.
    - **Docs:** xác định workload, môi trường và cách ghi kết quả baseline REST trong cùng file. Chọn các phép đo phục vụ mục tiêu trong `goal.md` và `cv-goal.md`, giữ điều kiện để so sánh với WebSocket sau này.
    - **Docs:** xác định trước các nhóm đo ưu tiên: capacity kèm latency và dữ liệu đúng, freshness kèm request upstream và fan-out, recovery kèm đối soát nến. Bước REST thu thập baseline áp dụng được, bước WebSocket bổ sung các phép đo còn lại.
    - **Docs:** chọn phép đo bổ sung theo phạm vi: bandwidth, CPU/RAM/event-loop lag, tỷ lệ thời gian dữ liệu bị cũ và thời gian hiện chart đầu tiên. Ghi rõ phép đo nào thực hiện hoặc hoãn, không mặc định phải tối ưu toàn bộ chỉ số.
    - Chỉ cập nhật `docs/testing/test-strategy.md` nếu cần thay đổi chiến lược hoặc công cụ chung của repo.
 
+   - Sau khi chốt cách kiểm chứng, viết test tự động cho flow REST trước khi build. Test fail cho tới khi Bước 8 build xong phần tương ứng.
+
 8. **Build và kiểm chứng flow REST xuyên suốt.**
    - Triển khai contract dùng chung → provider adapter → service → API → nối frontend. Bổ sung test và observability theo từng phần.
-   - Hoàn thành REST tải lịch sử trước, sau đó bổ sung REST polling thành bước chạy được riêng. Cập nhật hành vi polling, cơ chế và kết quả kiểm chứng lần lượt trong UCs, kiến trúc và tài liệu testing trước khi chuyển sang WebSocket.
-   - **Docs:** cập nhật kết quả thực chạy, điều kiện đo và đường dẫn evidence trong `docs/testing/market-data.md`. Đối chiếu hành vi thực tế với UCs và thiết kế. Mọi thay đổi hành vi phải được chốt lại trong UCs trước khi coi flow đã hoàn thành.
+   - Hoàn thành REST tải lịch sử trước, sau đó bổ sung REST polling thành bước chạy được riêng. Trước khi build polling, ghi phân tích requirements vào `docs/testing/test-scopes/TS-002-market-data/rest-polling-requirement-gap-analysis.md` và viết test trước. Cập nhật hành vi polling, cơ chế và kết quả kiểm chứng lần lượt trong UCs, kiến trúc và tài liệu testing trước khi chuyển sang WebSocket.
+   - **Docs:** cập nhật kết quả thực chạy, điều kiện đo và đường dẫn evidence trong tài liệu kiểm chứng của increment trong `docs/testing/test-scopes/TS-002-market-data/`. Đối chiếu hành vi thực tế với UCs và thiết kế. Mọi thay đổi hành vi phải được chốt lại trong UCs trước khi coi flow đã hoàn thành.
    - Giữ commit và diff cho từng bước REST tải lịch sử → REST polling → WebSocket. Lưu lệnh chạy, cấu hình và kết quả baseline để có thể chạy lại các phiên bản dùng cho phép so sánh.
 
 9. **Phân tích và chốt requirements cho WebSocket.**
    - **Docs:** mở rộng `docs/UCs/market-data.md` với cập nhật trực tiếp, thay đổi pair/timeframe, mất kết nối, dữ liệu cũ và phục hồi đồng bộ theo góc nhìn người dùng.
    - **Docs:** cập nhật `docs/UCs/quality-attributes.md` với tiêu chí độ mới dữ liệu, tải đồng thời, latency, phục hồi và tính toàn vẹn dữ liệu cần kiểm chứng. Phân biệt mục tiêu với kết quả đã đo.
-   - **Docs:** bổ sung phân tích tác động và kịch bản mới vào `docs/testing/market-data.md`. Ghi quyết định chưa chốt vào `docs/open-questions.md`.
+   - **Docs:** ghi phân tích tác động vào `docs/testing/test-scopes/TS-002-market-data/websocket-requirement-gap-analysis.md`. Ghi quyết định chưa chốt vào `docs/open-questions.md`.
 
 10. **Thiết kế WebSocket và xem lại thiết kế REST.**
     - **Docs:** cập nhật `docs/architecture/10-market-data.md` với luồng realtime, shared subscriptions, vòng đời subscription, chuyển từ lịch sử sang realtime, reconnect và REST backfill. Làm rõ cách xử lý nến thiếu, trùng hoặc đến không đúng thứ tự.
@@ -67,17 +69,19 @@ Kế hoạch đi từ frontend dùng mock đến REST, sau đó bổ sung WebSoc
     - **Docs:** ghi quyết định chuyển sang WebSocket và trade-off trong `docs/architecture/30-decisions.md`.
 
 11. **Chốt cách kiểm chứng WebSocket trước khi build.**
-    - **Docs:** mở rộng `docs/testing/market-data.md` với kịch bản subscription, nhiều client, chuyển pair/timeframe, gián đoạn kết nối và đối soát dữ liệu sau phục hồi.
+    - **Docs:** mở rộng tài liệu kiểm chứng của increment trong `docs/testing/test-scopes/TS-002-market-data/` với kịch bản subscription, nhiều client, chuyển pair/timeframe, gián đoạn kết nối và đối soát dữ liệu sau phục hồi.
     - **Docs:** xác định bộ dữ liệu tham chiếu và cách đối chiếu nến đóng sau reconnect/backfill. Kiểm tra nến thiếu, trùng khóa pair/timeframe/thời gian mở và lệch OHLCV. Đo phục hồi đến khi chart nhận cập nhật mới và bù đủ nến đóng bị thiếu.
     - **Docs:** ghi phép so sánh REST–WebSocket với cùng workload và cấu hình máy. Phân biệt backend-to-chart latency với source-to-chart delay. Giữ định nghĩa chỉ số nhất quán giữa requirements, thiết kế và kết quả đo.
     - **Docs:** tách phép so sánh REST polling–WebSocket cho freshness và request upstream khỏi phép so sánh trước/sau shared subscriptions cho capacity và fan-out. Giữ các điều kiện còn lại tương đương để đánh giá tác động của shared subscriptions. Không dựng baseline yếu chỉ để tạo mức cải thiện.
     - **Docs:** chốt điều kiện một client được tính vào capacity: nhận đúng dữ liệu và đạt ngưỡng latency đã thống nhất. Ghi workload, thời lượng, cấu hình máy/cache, chu kỳ polling, nguồn thật hoặc phát lại và cách kiểm soát timestamp. Đếm riêng request browser → API, REST upstream và subscription upstream.
     - **Docs:** bổ sung kịch bản chẩn đoán chart chậm hoặc ngừng cập nhật bằng log/metric theo pair/timeframe. Xác định cách lưu timeline để giải thích nguyên nhân upstream, backend hoặc client.
 
+    - Sau khi chốt cách kiểm chứng, viết test tự động cho WebSocket trước khi build. Test fail cho tới khi Bước 12 build xong phần tương ứng.
+
 12. **Build WebSocket và hoàn thiện bằng chứng.**
     - Build cập nhật trực tiếp xuyên suốt trước, sau đó hoàn thiện shared subscriptions, phục hồi và xử lý client chậm theo thiết kế đã chốt. Kiểm chứng từng phần trước khi đánh giá tải tổng thể.
     - Giữ phiên bản và điều kiện đo trước/sau shared subscriptions nếu muốn dùng dòng CV quy kết mức tăng capacity cho cơ chế chia sẻ subscription. Chỉ nêu quan hệ nguyên nhân khi kết quả so sánh hỗ trợ.
-    - **Docs:** cập nhật kết quả chức năng, phục hồi và hiệu năng trong `docs/testing/market-data.md`, kèm đường dẫn evidence và giới hạn của kết quả.
+    - **Docs:** cập nhật kết quả chức năng, phục hồi và hiệu năng trong tài liệu kiểm chứng của increment trong `docs/testing/test-scopes/TS-002-market-data/`, kèm đường dẫn evidence và giới hạn của kết quả.
     - **Docs:** lưu kết quả E2E, đối soát nến và timeline của tình huống chẩn đoán trong cùng tài liệu. **Proposed:** đặt dữ liệu đo, log và trace cần thiết trong `docs/testing/evidence/market-data/`, liên kết tới đúng phiên bản code đã kiểm chứng.
     - **Docs:** đối chiếu lại `docs/UCs/market-data.md`, `docs/UCs/quality-attributes.md` và các tài liệu kiến trúc đã sửa. Ghi các quyết định cuối cùng vào ADR khi có trade-off.
     - **Tài liệu làm việc:** đối chiếu từng mục trong `goal.md` và các nhóm chỉ số đã chọn từ `cv-goal.md` với đường dẫn bằng chứng. Ghi kết quả đối chiếu và dòng CV đã điền số liệu trong folder của step 12 thuộc `work/`. Ghi rõ mục đã đạt, chưa đạt hoặc hoãn. Chỉ dùng kết quả có bằng chứng và ghi rõ capacity từ load test.

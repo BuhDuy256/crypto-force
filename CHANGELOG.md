@@ -9,6 +9,9 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 - Frontend Realtime dùng HTTP mock: pair chung, 1/2/4 chart với timeframe riêng, nến, volume, MA(20), giá/thay đổi 24h và sidebar. Các chart có trạng thái đang tải, rỗng, lỗi và thử lại riêng.
 - Schema HTTP nháp cho Market Data, fixtures tất định và MSW handlers. Browser suite riêng kiểm UI mock và worker thật, gồm responsive, bàn phím, accessibility và dữ liệu cũ đến sau.
 - Bản nháp use case Market Data, câu hỏi mở, kế hoạch và bằng chứng hoàn thành Bước 2. API contract production chưa được chốt.
+- Requirements Market Data cho vòng REST tải lịch sử: rule đã chốt cho nến đang mở, MA, volume, sidebar, timeframe, lựa chọn mặc định, 500 nến mỗi chart, exception flow và accessibility, kèm gap analysis với hai baseline độc lập. Ngưỡng hiệu năng REST còn Proposed.
+- Test scope TS-002 Market Data kiểm thử theo increment REST, REST polling, WebSocket, không dùng template STLC; mỗi increment có file phân tích requirements.
+- Trạng thái `Dropped` cho rule bị bỏ trong `docs/UCs/`, được `check:docs` chấp nhận.
 - Monorepo TypeScript strict với React Router, Express, worker pg-boss, shared schemas và strategy/backtest engine; PostgreSQL chạy bằng Docker Compose.
 - Landing page có SEO metadata, giao diện responsive và trang 404; design tokens, font self-host, hỗ trợ bàn phím và reduced motion.
 - Authentication với Better Auth: email/password, xác minh email, reset password, Google OAuth tùy cấu hình và cookie session; gửi email qua Resend. Giao diện Auth có validation, error summary và kiểm soát đích redirect nội bộ.
@@ -21,6 +24,7 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Changed
 
+- Kế hoạch Market Data viết test tự động sau khi chốt cách kiểm chứng và trước khi build từng increment.
 - Tổ chức yêu cầu sản phẩm trong `docs/UCs/`, bắt đầu với Authentication; kiến trúc ghi cơ chế và tham chiếu requirement ID. Tám quality attribute scenario chuyển sang `Confirmed` theo ủy quyền của product owner ngày 2026-11-20; cột Nguồn ghi lý do từng số đo để product owner có thể phủ quyết.
 - Tập trung conventions cho code, testware và tài liệu tại `docs/conventions/`; `AGENTS.md` hướng dẫn khi nào đọc và dùng từng quy tắc. Thêm skills viết use case, architecture và review thay đổi.
 - Chốt baseline bảo mật OWASP ASVS 5.0 L1 cùng một số mục L2 và rủi ro chấp nhận trong [ADR-002](docs/architecture/30-decisions.md). Requirement Auth và gap analysis nằm trong [Authentication](docs/UCs/authentication.md); các gap chưa được coi là đã triển khai.

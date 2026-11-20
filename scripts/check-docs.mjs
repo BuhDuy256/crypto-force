@@ -32,7 +32,7 @@ const ID_AS_OBJECT = new RegExp(
   'giu',
 );
 const PURPOSE = /^Đọc file này (để biết|để|giúp) /;
-const STATUSES = ['Confirmed', 'Inferred', 'Proposed'];
+const STATUSES = ['Confirmed', 'Inferred', 'Proposed', 'Dropped'];
 const GAP_STATUSES = ['Closed', 'Accepted', 'Open'];
 const VAGUE = [
   'nhanh',
@@ -365,7 +365,7 @@ export function checkFile(file, text, io = {}) {
         if (!STATUSES.includes(firstWord(status))) {
           add(
             row.line,
-            `Status "${status}" is not Confirmed, Inferred or Proposed. See ${USE_CASES}#rule-có-số-đo.`,
+            `Status "${status}" is not Confirmed, Inferred, Proposed or Dropped. See ${USE_CASES}#rule-có-số-đo.`,
           );
         }
       }

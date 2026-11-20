@@ -86,7 +86,7 @@ Kiểm phiên ở Web phục vụ điều hướng và hiển thị, không thay
 2. <a id="ref-2"></a>[Project: Crypto Force](../../AGENTS.md) và [Project Brief](../UCs/sources/project-brief.md)
 3. <a id="ref-3"></a>[API bootstrap](../../apps/api/src/index.ts), [Worker bootstrap](../../apps/worker/src/index.ts), [Web routes](../../apps/web/app/routes.ts) và [Engine entry point](../../packages/engine/src/index.ts)
 4. <a id="ref-4"></a>[Security](23-security.md)
-5. <a id="ref-5"></a>[Prototype → Implementation Roadmap](../build/01-prototype-to-implementation/roadmap.md)
+5. <a id="ref-5"></a>[Prototype → Implementation Roadmap](../build/01-prototype-to-implementation/draft/implementation-plan/roadmap.md)
 6. <a id="ref-6"></a>[Architectural Decisions](30-decisions.md)
 7. <a id="ref-7"></a>[System States & Lifecycle](20-state-machine.md)
 8. <a id="ref-8"></a>[Data Model & Persistence](21-database.md)

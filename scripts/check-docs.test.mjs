@@ -183,9 +183,14 @@ test('rule row without source, with a value without number, or without a measure
   assert.ok(
     has(
       messages(UC, useCase([goodRow.replace('Confirmed', 'Done')])),
-      /not Confirmed, Inferred or Proposed/,
+      /not Confirmed, Inferred, Proposed or Dropped/,
     ),
   );
+});
+
+test('a dropped rule keeps its row with the status Dropped', () => {
+  const row = goodRow.replace('Confirmed', 'Dropped (product owner bỏ rule, 2026-11-20)');
+  assert.ok(!has(messages(UC, useCase([row])), /not Confirmed/));
 });
 
 test('vague term in a rule fails', () => {
@@ -277,7 +282,7 @@ test('a rule table without "Giá trị" fails, and a status with extra text afte
   assert.ok(
     has(
       messages(UC, useCase([goodRow.replace('Confirmed', 'Confirmed?')])),
-      /not Confirmed, Inferred or Proposed/,
+      /not Confirmed, Inferred, Proposed or Dropped/,
     ),
   );
   assert.ok(

@@ -18,12 +18,12 @@ Các mục tiêu lấy từ [cv-goal.md](cv-goal.md).
 
 Yêu cầu và hành vi nằm trong `docs/UCs/`. Cơ chế đáp ứng nằm trong `docs/architecture/`. Kịch bản, kết quả và dữ liệu kiểm chứng nằm trong `docs/testing/`. Code và test tự động nằm trong các workspace.
 
-> **Proposed:** Dùng `docs/testing/market-data.md` và `docs/testing/evidence/market-data/` cho tài liệu kiểm chứng gọn và dữ liệu đo. Repo chưa có hai đường dẫn này. Không dùng `test-scopes/TS-xxx-*` cho phần này vì cấu trúc đó dành cho bộ tài liệu STLC. Không tạo đủ 6 phase STLC.
+> Tài liệu kiểm chứng nằm trong test scope `docs/testing/test-scopes/TS-002-market-data/`, không dùng template STLC. Mỗi increment có một file phân tích requirements. **Proposed:** đặt dữ liệu đo trong `docs/testing/evidence/market-data/`. Repo chưa có đường dẫn này.
 
 1. **Một dòng trong CV:**
    - **Đã có:** `docs/UCs/quality-attributes.md` là nơi bổ sung workload và tiêu chí chấp nhận về sức tải, độ trễ Market Data.
    - **Ví dụ dự kiến:** `apps/api/test/performance/market-data.k6.js` chứa kịch bản load test REST/WebSocket bằng k6.
-   - **Ví dụ dự kiến:** `docs/testing/market-data.md` ghi kịch bản benchmark, môi trường, lệnh chạy và kết quả trước/sau. `docs/testing/evidence/market-data/benchmark-before.json` và `benchmark-after.json` lưu dữ liệu đo dùng cho dòng CV.
+   - **Ví dụ dự kiến:** tài liệu kiểm chứng trong `docs/testing/test-scopes/TS-002-market-data/` ghi kịch bản benchmark, môi trường, lệnh chạy và kết quả trước/sau. `docs/testing/evidence/market-data/benchmark-before.json` và `benchmark-after.json` lưu dữ liệu đo dùng cho dòng CV.
 
 2. **Thiết kế ranh giới và khả năng thay provider:**
    - **Ví dụ dự kiến:** `docs/UCs/market-data.md` mô tả dữ liệu nến và hành vi người dùng cần nhận, độc lập với Binance hoặc provider cụ thể.
@@ -37,19 +37,19 @@ Yêu cầu và hành vi nằm trong `docs/UCs/`. Cơ chế đáp ứng nằm tro
    - **Đã có:** `docs/build/01-prototype-to-implementation/market-data/goal.md` ghi mục tiêu của flow Market Data.
    - Các commit và diff trong Git thể hiện từng bước REST → polling → WebSocket. Mỗi bước có code chạy được và giữ REST cho lịch sử/backfill.
    - **Đã có:** `docs/architecture/10-market-data.md` là nơi bổ sung trách nhiệm của REST và WebSocket qua từng bước.
-   - **Ví dụ dự kiến:** `docs/UCs/market-data.md` ghi hành vi của từng flow. `docs/testing/market-data.md` ghi các kịch bản đã kiểm và kết quả cho từng bước REST, polling, WebSocket.
+   - **Ví dụ dự kiến:** `docs/UCs/market-data.md` ghi hành vi của từng flow. tài liệu kiểm chứng trong `docs/testing/test-scopes/TS-002-market-data/` ghi các kịch bản đã kiểm và kết quả cho từng bước REST, polling, WebSocket.
 
 4. **Thiết kế luồng realtime:**
    - **Ví dụ dự kiến:** `docs/UCs/market-data.md` mô tả cập nhật nến, đổi pair/timeframe và kết quả người dùng quan sát được.
    - **Đã có:** `docs/architecture/10-market-data.md` là nơi bổ sung data-flow diagram, sequence tải lịch sử rồi nhận cập nhật, subscribe/unsubscribe theo pair/timeframe.
    - **Ví dụ dự kiến:** `apps/api/src/services/market-data.service.ts` chứa phần điều phối subscription. `apps/api/test/market-data/subscriptions.test.ts` kiểm tra chia sẻ subscription và chuyển cập nhật tới đúng client.
-   - **Ví dụ dự kiến:** `docs/testing/market-data.md` ghi kịch bản subscribe/unsubscribe, nhiều client cùng stream và đổi pair/timeframe, kèm kết quả kiểm chứng.
+   - **Ví dụ dự kiến:** tài liệu kiểm chứng trong `docs/testing/test-scopes/TS-002-market-data/` ghi kịch bản subscribe/unsubscribe, nhiều client cùng stream và đổi pair/timeframe, kèm kết quả kiểm chứng.
 
 5. **Xử lý lỗi và phục hồi:**
    - **Ví dụ dự kiến:** `docs/UCs/market-data.md` mô tả hành vi khi mất kết nối và khi dữ liệu được đồng bộ lại. `docs/UCs/quality-attributes.md` đã có là nơi bổ sung tiêu chí phục hồi đo được.
    - **Đã có:** `docs/architecture/10-market-data.md` là nơi bổ sung sequence mất kết nối → reconnect → REST backfill → đồng bộ xong.
    - **Ví dụ dự kiến:** `apps/api/test/market-data/recovery.test.ts` kiểm tra phục hồi và đối chiếu nến sau backfill. `apps/api/test/support/binance-ws-server.ts` giả lập upstream WebSocket để tạo mất kết nối có kiểm soát.
-   - **Ví dụ dự kiến:** `docs/testing/market-data.md` ghi kịch bản ngắt kết nối và kết quả đối chiếu. `docs/testing/evidence/market-data/recovery.log` lưu timeline sự cố, `candle-reconciliation.json` lưu kết quả kiểm tra nến thiếu, trùng hoặc lệch OHLCV.
+   - **Ví dụ dự kiến:** tài liệu kiểm chứng trong `docs/testing/test-scopes/TS-002-market-data/` ghi kịch bản ngắt kết nối và kết quả đối chiếu. `docs/testing/evidence/market-data/recovery.log` lưu timeline sự cố, `candle-reconciliation.json` lưu kết quả kiểm tra nến thiếu, trùng hoặc lệch OHLCV.
 
 6. **Tách trách nhiệm giữa các module:**
    - **Đã có:** `docs/architecture/10-market-data.md` là nơi bổ sung component diagram và trách nhiệm của adapter, service, chart.
@@ -60,13 +60,13 @@ Yêu cầu và hành vi nằm trong `docs/UCs/`. Cơ chế đáp ứng nằm tro
    - **Đã có:** `apps/api/src/configs/logger.ts` là cấu hình logger của API.
    - **Ví dụ dự kiến:** `apps/api/test/market-data/observability.test.ts` kiểm tra log có ngữ cảnh pair/timeframe khi upstream lỗi hoặc phục hồi.
    - **Đã có:** `docs/architecture/10-market-data.md` là nơi bổ sung vị trí ghi log/metric và cách phân biệt lỗi upstream, backend, client chậm.
-   - **Ví dụ dự kiến:** `docs/testing/market-data.md` ghi kết quả chẩn đoán một lần chart chậm hoặc ngừng cập nhật, liên kết log/metric trong `docs/testing/evidence/market-data/`.
+   - **Ví dụ dự kiến:** tài liệu kiểm chứng trong `docs/testing/test-scopes/TS-002-market-data/` ghi kết quả chẩn đoán một lần chart chậm hoặc ngừng cập nhật, liên kết log/metric trong `docs/testing/evidence/market-data/`.
 
 8. **Demo chức năng có thể kiểm chứng:**
    - **Ví dụ dự kiến:** `docs/UCs/market-data.md` ghi flow xem nến, đổi timeframe và hành vi độc lập của từng chart khi có multi-chart.
    - **Ví dụ dự kiến:** `apps/web/e2e/market-data/chart.spec.ts` kiểm tra flow xem nến và đổi timeframe. Khi có multi-chart, bổ sung kiểm tra đổi timeframe một chart không làm tải lại chart khác.
    - **Ví dụ dự kiến:** `docs/build/01-prototype-to-implementation/market-data/demo.md` chứa hướng dẫn chạy và các bước demo flow thật.
-   - **Ví dụ dự kiến:** `docs/testing/market-data.md` ghi kết quả kiểm tra flow, liên kết screenshot hoặc trace trong `docs/testing/evidence/market-data/` khi cần minh họa.
+   - **Ví dụ dự kiến:** tài liệu kiểm chứng trong `docs/testing/test-scopes/TS-002-market-data/` ghi kết quả kiểm tra flow, liên kết screenshot hoặc trace trong `docs/testing/evidence/market-data/` khi cần minh họa.
 
 9. **Lập luận về trade-off:**
    - **Đã có:** `docs/architecture/30-decisions.md` là nơi bổ sung ADR về lựa chọn WebSocket, vai trò REST và shared subscriptions, kèm phương án thay thế, lợi ích, chi phí và điều kiện xem xét lại.

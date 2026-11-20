@@ -1,0 +1,23 @@
+# TS-002: Market Data
+
+Đọc file này để biết TS-002 kiểm thử đối tượng nào, dựa trên test basis nào, và tìm tài liệu kiểm thử của từng increment.
+
+## Đối tượng kiểm thử
+
+| Mục | Nội dung |
+| --- | --- |
+| Test object | Xem thị trường trên Realtime: lịch sử nến, pair, timeframe, multi-chart, volume và MA |
+| Test basis | [Market Data](../../../UCs/market-data.md) và [Quality Attributes](../../../UCs/quality-attributes.md), phiên bản chốt cho từng increment ghi trong file gap analysis tương ứng |
+| Trong phạm vi | Ba increment: REST tải lịch sử, REST polling, WebSocket |
+| Ngoài phạm vi | Tín hiệu BUY/SELL, strategy và các màn hình khác của Realtime |
+| Code test | `apps/web/e2e/market-data/`, `packages/shared` và `apps/api` theo Project Structure |
+
+Test scope này không dùng template STLC. Mỗi increment có một file phân tích requirements. File ghi trạng thái requirements trước phân tích, gap, baseline độc lập và kết luận. Test của mỗi increment được viết sau khi chốt cách kiểm chứng và trước khi build increment đó.
+
+## Tài liệu theo increment
+
+| Increment | Phân tích requirements | Trạng thái |
+| --- | --- | --- |
+| REST tải lịch sử | [rest-requirement-gap-analysis.md](rest-requirement-gap-analysis.md) | Đạt cho test chức năng, 2026-11-20 |
+| REST polling | `rest-polling-requirement-gap-analysis.md` | Chưa bắt đầu |
+| WebSocket | `websocket-requirement-gap-analysis.md` | Chưa bắt đầu |

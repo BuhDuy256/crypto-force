@@ -46,7 +46,7 @@ Rule nằm trong bảng có các cột sau *(check-docs)*:
 - **Giá trị** là số kèm đơn vị khi rule có đại lượng (thời gian, số lần, độ dài, kích thước, tỷ lệ). Rule không có đại lượng ghi `—` ở cả cột Giá trị và cột Đo tại. Giá trị khác `—` phải chứa chữ số, và khi đó cột Đo tại không được rỗng *(check-docs)*.
 - **Đo tại** nêu điểm bắt đầu và điểm kết thúc của phép đo, hoặc nơi quan sát giá trị.
 - **Nguồn** theo [Giá trị cụ thể có nguồn](docs.md#giá-trị-cụ-thể-có-nguồn); không để trống *(check-docs)*.
-- **Trạng thái** là `Confirmed` (product owner đã xác nhận, kể cả khi agent chốt theo ủy quyền), `Inferred` (suy ra từ prototype, chưa xác nhận) hoặc `Proposed` (đề xuất, chưa xác nhận) *(check-docs)*.
+- **Trạng thái** là `Confirmed` (product owner đã xác nhận, kể cả khi agent chốt theo ủy quyền), `Inferred` (suy ra từ prototype, chưa xác nhận) `Proposed` (đề xuất, chưa xác nhận) hoặc `Dropped` (product owner đã bỏ rule; giữ ID, ghi lý do sau trạng thái) *(check-docs)*.
 - Cột Rule không dùng từ mơ hồ không đo được: "nhanh", "chậm", "kịp thời", "hợp lý", "phù hợp", "vài", "một số", "tối ưu", "thân thiện", "dễ dùng", "linh hoạt", "nếu cần", "khi cần", "v.v.", "đáng kể". Thay từ đó bằng số đo *(check-docs)*.
 
 Luồng thay thế và luồng ngoại lệ nằm trong bảng `ID | Điều kiện | Phản hồi người dùng thấy | Nguồn | Trạng thái`.

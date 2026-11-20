@@ -28,6 +28,7 @@ test-scopes/
 5. ID trong file (ví dụ `IN-01`, `RC-02`, `MD-01`, `MD-01-CI-03`) chỉ có hiệu lực trong test scope chứa file đó. Khi tham chiếu tới ID của test scope khác, thêm ID của test scope làm prefix, ví dụ `TS-001/MD-01`.
 6. Requirement ID do người phân tích đặt ở Phase 01. Mỗi tiền tố được khai báo trong bảng tiền tố của Requirement Readiness, kèm nhóm và section của tài liệu nguồn. Tiền tố không được trùng với tiền tố ID mà các template STLC dùng, vì cùng một ID sẽ chỉ hai thứ khác nhau trong một test scope. *(check: `pnpm check:stlc`)*
 7. Thư mục test scope chỉ chứa tài liệu. Code test nằm trong các workspace theo [Project Structure](../../conventions/project-structure.md); test log và tool report link tới code test và evidence.
+8. Một test scope có thể không dùng template STLC khi product owner chọn cách kiểm thử theo increment, ví dụ TS-002. Khi đó `README.md` ghi lý do và bảng file theo increment. Mỗi increment có file `<increment>-requirement-gap-analysis.md`, bắt đầu bằng trạng thái requirements trước phân tích. Quy ước 2 và 3 không áp dụng.
 
 ## Phase, template và skill
 
@@ -49,3 +50,4 @@ Phase skill gọi tới các skill về technique (`test-technique-*`) và các 
 | ID | Thư mục | Đối tượng kiểm thử |
 | --- | --- | --- |
 | TS-001 | [TS-001-auth/](TS-001-auth/README.md) | Authentication: Sign in, Google, Create account và Verify email, Reset password, phiên và Sign out |
+| TS-002 | [TS-002-market-data/](TS-002-market-data/README.md) | Market Data: REST tải lịch sử, REST polling, WebSocket. Không dùng template STLC, mỗi increment có file phân tích requirements riêng |

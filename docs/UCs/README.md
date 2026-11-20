@@ -29,7 +29,7 @@ flowchart LR
 
 | File | Vùng chức năng |
 | --- | --- |
-| [market-data.md](market-data.md) | Bản nháp xem lịch sử thị trường trên Realtime |
+| [market-data.md](market-data.md) | Xem lịch sử thị trường trên Realtime: multi-chart, pair, timeframe, nến, volume, MA, trạng thái tải và lỗi |
 | [authentication.md](authentication.md) | Sign in, Continue with Google, Create account và Verify email, Reset password, phiên và Sign out, bảo mật, accessibility của Auth |
 | [quality-attributes.md](quality-attributes.md) | Quality attribute scenario toàn hệ thống: modifiability, scalability, performance, realtime, reliability, observability |
 | [sources/project-brief.md](sources/project-brief.md) | Đề bài gốc: mục tiêu, module, architectural drivers, MVP |

@@ -12,6 +12,7 @@ Growth scenario: thay đổi dự kiến của hệ thống.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | QA-01 | Developer | Thêm Strategy MACD | Lúc phát triển, đã có MA, RSI, Bollinger, Support/Resistance | Strategy engine | MACD dùng được trong backtest, composite và Search mà không sửa code của backtest, evaluation, Search, API hay UI | 0 file production thay đổi ngoài file của Strategy mới và 1 chỗ đăng ký Strategy | Đề bài [[2, §17, §26]](#ref-2); số đo do agent đề xuất, theo hình mẫu "implements Strategy + register" của đề bài | Confirmed (theo ủy quyền của product owner, 2026-11-20) |
 | QA-02 | Developer | Thêm cách sinh candidate mới (Domain-guided, Genetic) bên cạnh Random Search | Lúc phát triển | Strategy Search | Backtest và Leaderboard nhận candidate mới mà không cần biết candidate được sinh thế nào | 0 file thay đổi trong backtest và Leaderboard | Đề bài [[2, §17, §26]](#ref-2); số đo do agent đề xuất, từ yêu cầu "Backtester vẫn giữ nguyên" | Confirmed (theo ủy quyền của product owner, 2026-11-20) |
+| QA-09 | Developer | Thêm provider dữ liệu thị trường thứ hai bên cạnh Binance | Lúc phát triển, Realtime đã hiển thị lịch sử nến từ Binance | Market Data | Realtime hiển thị lịch sử nến từ provider mới với cùng dữ liệu nến mà frontend đang nhận | 0 file frontend thay đổi | Đề bài [[2, §4]](#ref-2) yêu cầu thêm adapter mà frontend không phải thay đổi | Confirmed (theo ủy quyền của product owner, 2026-11-20) |
 
 ## Scalability và Performance
 
@@ -19,6 +20,8 @@ Growth scenario: thay đổi dự kiến của hệ thống.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | QA-03 | Strategy Search | Gửi 10.000 candidate cần backtest, mỗi candidate mất 2 giây với một worker | Vận hành bình thường | Backtest | Thêm worker làm tổng thời gian giảm theo số worker | Tổng thời gian với N worker không quá 1,2 × 20.000 / N giây, với N từ 1 tới 8 | Đề bài [[2, §26]](#ref-2) cho 2 giây và 10.000 candidate; hệ số 1,2 và N ≤ 8 do agent đề xuất để chừa 20% overhead cho queue và ghi kết quả | Confirmed (theo ủy quyền của product owner, 2026-11-20) |
 | QA-04 | Người dùng | Chạy backtest cho 1.000 strategy | Vận hành bình thường | Backtest | Backtest chạy song song qua job queue, giao diện vẫn dùng được trong lúc chạy | Phản hồi của API cho người dùng khác dưới 500 ms ở percentile 95 trong lúc chạy | Đề bài [[2, §17]](#ref-2) cho 1.000 strategy; 500 ms do agent đề xuất, là ngưỡng mà thao tác trên giao diện vẫn được cảm nhận là liền mạch | Confirmed (theo ủy quyền của product owner, 2026-11-20) |
+| QA-10 | Người dùng | Mở Realtime với lựa chọn mặc định 4 chart | Vận hành bình thường, chưa có cập nhật trực tiếp | Market Data và Realtime | Cả 4 chart hiển thị lịch sử nến, volume và MA | Dưới 2 giây ở percentile 95, đo từ lúc mở Realtime tới lúc chart cuối cùng hiển thị nến | Agent đề xuất: 4 chart × 500 nến là một lần tải nhỏ; chờ workload và môi trường đo của bước kiểm chứng hiệu năng | Proposed |
+| QA-11 | Người dùng | Đổi timeframe của một chart | Vận hành bình thường, chưa có cập nhật trực tiếp | Market Data và Realtime | Chart đó hiển thị lịch sử theo timeframe mới, các chart khác giữ dữ liệu | Dưới 1 giây ở percentile 95, đo từ lúc chọn timeframe tới lúc chart hiển thị nến mới | Agent đề xuất: chỉ một chart tải lại; chờ workload và môi trường đo của bước kiểm chứng hiệu năng | Proposed |
 
 ## Realtime
 

@@ -62,13 +62,10 @@
 | --- | --- | --- | --- | --- | --- |
 | <a id="oq-030"></a>OQ-030 | Chọn pair trong Search có mở Realtime với pair đó không? | Đã thống nhất pair chung cho mọi chart trên Realtime. Chuyển pair từ Search chưa được chốt [[16]](#ref-16) | Mô hình subscribe WebSocket, Market Data Service | High | [[5]](#ref-5) [[6]](#ref-6) |
 | <a id="oq-031"></a>OQ-031 | Tín hiệu BUY/SELL trên chart được tính realtime từ rules của strategy, hay chỉ minh họa? | Badge tín hiệu hiện với mọi source | Engine có nằm trên luồng realtime không | High | [[5]](#ref-5) |
-| <a id="oq-032"></a>OQ-032 | "Load 1,000 past candles" áp dụng cho một chart hay tất cả, và có giới hạn không? | Prototype chỉ có toast. Bản nháp làm mới từng chart, chưa chốt cách nối lịch sử [[16]](#ref-16) | API lấy nến lịch sử | Medium | [[5]](#ref-5) |
 | <a id="oq-033"></a>OQ-033 | Overlay cố định theo signal source, hay người dùng tự chọn? | Chart chỉ có MA(20) | — | Low | [[5]](#ref-5) |
 | <a id="oq-034"></a>OQ-034 | Cờ onboarding tính theo tài khoản hay theo thiết bị? Có Hide riêng từng bước không? | Done dựa trên cờ lưu trong trình duyệt | — | Low | [[5]](#ref-5) |
 | <a id="oq-035"></a>OQ-035 | Có báo mất kết nối khi người dùng đã tạm dừng Live không? | Chưa thể hiện | — | Low | [[5]](#ref-5) |
-| <a id="oq-082"></a>OQ-082 | Khi chưa đủ nến cho MA(20), hiển thị thế nào? Nến đang mở có được tính vào mẫu không? | Bản nháp hiển thị chưa đủ dữ liệu thay vì số không | Requirements Market Data | Medium | [[16]](#ref-16) |
-| <a id="oq-083"></a>OQ-083 | MA và volume của sidebar theo chart nào? Volume là nến cuối hay cả vùng, dùng đơn vị base hay quote? | Bản nháp dùng chart đầu tiên, ghi timeframe, volume của nến cuối | Requirements Market Data | Medium | [[16]](#ref-16) |
-| <a id="oq-084"></a>OQ-084 | Lịch sử có bao gồm nến đang mở không? Người dùng phân biệt nến đang mở với nến đã đóng thế nào? | Bản nháp chưa đánh dấu trạng thái đóng nến | Requirements và contract Market Data | Medium | [[16]](#ref-16) |
+| <a id="oq-085"></a>OQ-085 | Khi cập nhật trực tiếp thêm nến mới, chart giữ cố định 500 nến gần nhất hay số nến tăng dần? | Vòng tải lịch sử không thêm nến sau khi tải xong. Mỗi chart tối đa 500 nến [[16, Xem lịch sử thị trường]](#ref-16) | Requirements polling và WebSocket | Low | [[16]](#ref-16) |
 
 ## News & Sentiment
 
@@ -124,6 +121,10 @@
 
 | ID | Câu hỏi | Trạng thái | Kết quả | Ghi tại |
 | --- | --- | --- | --- | --- |
+| <a id="oq-032"></a>OQ-032 | "Load 1,000 past candles" áp dụng cho một chart hay tất cả, và có giới hạn không? | Dropped | Product owner bỏ thao tác tải thêm lịch sử khỏi Realtime | [[16, Xem lịch sử thị trường]](#ref-16) |
+| <a id="oq-082"></a>OQ-082 | Khi chưa đủ nến cho MA(20), hiển thị thế nào? Nến đang mở có được tính vào mẫu không? | Resolved | Không vẽ điểm MA thiếu mẫu, hiển thị chưa đủ dữ liệu. MA phủ mọi nến đang hiển thị khi lịch sử đủ. Nến đang mở được tính, điểm MA của nó có nhãn giá trị tạm | [[16, Xem lịch sử thị trường]](#ref-16) |
+| <a id="oq-083"></a>OQ-083 | MA và volume của sidebar theo chart nào? Volume là nến cuối hay cả vùng, dùng đơn vị base hay quote? | Resolved | Sidebar không hiển thị MA và volume. Mỗi chart hiển thị MA và volume của chính nó. Volume theo base asset | [[16, Xem lịch sử thị trường]](#ref-16) |
+| <a id="oq-084"></a>OQ-084 | Lịch sử có bao gồm nến đang mở không? Người dùng phân biệt nến đang mở với nến đã đóng thế nào? | Resolved | Lịch sử gồm nến đang mở, có nhãn chữ “đang mở”. Màn hình hiển thị thời điểm dữ liệu | [[16, Xem lịch sử thị trường]](#ref-16) |
 | <a id="oq-070"></a>OQ-070 | Run backtest chạy ở server hay chỉ trong trình duyệt? Run có tiếp tục sau khi Sign out không? | Resolved | Chạy ở server trong `apps/worker` qua `pg-boss`, nên run tiếp tục sau khi Sign out | [[7, Tech Stack]](#ref-7) |
 | <a id="oq-071"></a>OQ-071 | Có mở bài gốc không? Có lưu toàn văn không? | Resolved | Có. Schema News gồm `content` và `url` | [[13, §14]](#ref-13) |
 | <a id="oq-072"></a>OQ-072 | Khi đăng nhập trên thiết bị khác, dữ liệu nào cần đồng bộ? | Resolved | Library, Runs và Notifications lưu trong PostgreSQL nên đồng bộ theo tài khoản. Bản nháp của Strategy Engine và Composite builder vẫn lưu trong trình duyệt | [[7, Tech Stack]](#ref-7) [[3, Bản nháp]](#ref-3) |
