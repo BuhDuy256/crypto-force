@@ -111,17 +111,19 @@ Chạy từng mutation sau khi test gốc đã pass. Test phải fail ở assert
 
 ### Task 1: Chốt test basis, interface và cách chạy test
 
-- [ ] Đọc conventions về code, cấu trúc và test trước khi sửa test. Dùng Graphify để tìm schema, Web query, API composition root và test harness đang có.
-- [ ] Đọc các việc chuyển tiếp từ Bước 05 và Bước 06. Đối chiếu contract thiết kế với schema mock. Ghi nơi test sẽ gọi, signature dự kiến và phần Bước 08 phải triển khai.
-- [ ] Dùng skill `codebase-design` để thiết kế interface nhỏ theo nhu cầu caller thật. Ghi input/output, invariant, lỗi, quy tắc thời gian và dependency được truyền vào. Giữ chi tiết Binance và cache bên trong implementation, không tạo abstraction chỉ để test.
-- [ ] Lập bảng public interface dùng làm điểm kiểm thử: shared schema, service/provider, adapter/decorator, HTTP API và UI. Mỗi dòng ghi nơi khai báo dự kiến, signature, dependency thay được, lỗi bắt được và phần không chứng minh được. Trình bảng này để người dùng review trước khi viết test, theo skill `tdd`.
-- [ ] Kiểm tra script, cấu hình E2E, database test và cách chặn outbound từ source. Chỉ kiểm sự hiện diện của biến môi trường, không in secret. Ghi rõ phần chưa kiểm tra.
-- [ ] Đọc nguyên văn WCAG 2.2 cho mô tả chart, màu, reflow, bàn phím, focus và status message. Đối chiếu SC 1.1.1, 1.4.1, 1.4.10, 2.1.1, 2.4.7, 4.1.3 với hành vi đã chốt [[3]](#ref-3) [[7]](#ref-7).
-- [ ] Tạo phần test basis trong `rest-verification.md`. Phân loại requirement áp dụng, Dropped, gap đã Accepted và hành vi chỉ áp dụng từ polling. Không tính làm mới lỗi giữ dữ liệu cũ (MK-13) vào vòng này.
+- [x] Đọc conventions về code, cấu trúc và test trước khi sửa test. Dùng Graphify để tìm schema, Web query, API composition root và test harness đang có.
+- [x] Đọc các việc chuyển tiếp từ Bước 05 và Bước 06. Đối chiếu contract thiết kế với schema mock. Ghi nơi test sẽ gọi, signature dự kiến và phần Bước 08 phải triển khai.
+- [x] Dùng skill `codebase-design` để thiết kế interface nhỏ theo nhu cầu caller thật. Ghi input/output, invariant, lỗi, quy tắc thời gian và dependency được truyền vào. Giữ chi tiết Binance và cache bên trong implementation, không tạo abstraction chỉ để test.
+- [x] Lập bảng public interface dùng làm điểm kiểm thử: shared schema, service/provider, adapter/decorator, HTTP API và UI. Mỗi dòng ghi nơi khai báo dự kiến, signature, dependency thay được, lỗi bắt được và phần không chứng minh được. Trình bảng này để người dùng review trước khi viết test, theo skill `tdd`.
+- [x] Kiểm tra script, cấu hình E2E, database test và cách chặn outbound từ source. Chỉ kiểm sự hiện diện của biến môi trường, không in secret. Ghi rõ phần chưa kiểm tra.
+- [x] Đọc nguyên văn WCAG 2.2 cho mô tả chart, màu, reflow, bàn phím, focus và status message. Đối chiếu SC 1.1.1, 1.4.1, 1.4.10, 2.1.1, 2.4.7, 4.1.3 với hành vi đã chốt [[3]](#ref-3) [[7]](#ref-7).
+- [x] Tạo phần test basis trong `rest-verification.md`. Phân loại requirement áp dụng, Dropped, gap đã Accepted và hành vi chỉ áp dụng từ polling. Không tính làm mới lỗi giữ dữ liệu cũ (MK-13) vào vòng này.
+
+Đầu ra Task 1 nằm trong tài liệu kiểm chứng và execution. Product owner đã duyệt sáu interface ngày 2026-11-20. Task 1 hoàn tất sau khi kiểm tra tài liệu và tạo commit riêng thành công.
 
 **Điều kiện đạt:** interface và điểm kiểm thử đã được review trước khi viết test. Mỗi test có nguồn expected result rõ. Không còn nhận định môi trường lấy từ tài liệu mong muốn thay cho source.
 
-- [ ] Chạy kiểm tra phù hợp và tạo commit riêng cho Task 1 theo mục Commit khi hoàn tất Task.
+- [x] Chạy kiểm tra phù hợp và tạo commit riêng cho Task 1 theo mục Commit khi hoàn tất Task.
 
 ### Task 2: Thiết kế kịch bản và dữ liệu đối chiếu
 

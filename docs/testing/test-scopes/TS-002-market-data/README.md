@@ -16,8 +16,8 @@ Test scope này không dùng template STLC. Mỗi increment có một file phân
 
 ## Tài liệu theo increment
 
-| Increment | Phân tích requirements | Trạng thái |
-| --- | --- | --- |
-| REST tải lịch sử | [rest-requirement-gap-analysis.md](rest-requirement-gap-analysis.md) | Đạt cho test chức năng, 2026-11-20 |
-| REST polling | `rest-polling-requirement-gap-analysis.md` | Chưa bắt đầu |
-| WebSocket | `websocket-requirement-gap-analysis.md` | Chưa bắt đầu |
+| Increment | Phân tích requirements | Kiểm chứng | Trạng thái |
+| --- | --- | --- | --- |
+| REST tải lịch sử | [rest-requirement-gap-analysis.md](rest-requirement-gap-analysis.md) | [rest-verification.md](rest-verification.md) | Có test basis và sáu interface đã được product owner duyệt ngày 2026-11-20. Chưa viết test REST mới hoặc đo baseline |
+| REST polling | `rest-polling-requirement-gap-analysis.md` | Chưa tạo | Chưa bắt đầu |
+| WebSocket | `websocket-requirement-gap-analysis.md` | Chưa tạo | Chưa bắt đầu |

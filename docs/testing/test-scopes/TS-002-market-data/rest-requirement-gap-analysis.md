@@ -47,11 +47,11 @@ Brief, prototype và Open Questions được đọc tại commit `b836aa4`. Use 
 
 Các mục baseline khác được xử lý như sau: pair riêng cho từng chart và nhớ layout khác quyết định đã chốt (MK-07, MK-37). Availability theo tháng không áp dụng khi chưa vận hành production. Thời gian chờ khi bị giới hạn request, offline và báo thiếu nến thuộc lỗi chung hoặc quyết định MK-35. Danh sách gap và quyết định nằm trong Gap analysis của use case [[2, Gap analysis]](#ref-2).
 
-Số SC của WCAG lấy từ bản Recommendation ngày 12/12/2024. Chỉ phần 1.1.1 được đọc nguyên văn. Tên và mức của các SC còn lại lấy từ bản tóm tắt của trang đó, cần đối chiếu lại nguyên văn khi thiết kế test accessibility.
+Sáu SC của WCAG đã được đọc nguyên văn từ bản Recommendation ngày 12/12/2024 vào ngày 2026-11-20. Mức A/AA và phạm vi đối chiếu nằm trong tài liệu kiểm chứng REST [[8, Đối chiếu WCAG 2.2]](#ref-8). Đây là đối chiếu test basis, chưa phải bằng chứng sản phẩm đạt WCAG AA.
 
 ## Kết luận
 
-Requirements của vòng tải lịch sử đủ để thiết kế test chức năng: mọi gap có quyết định Closed hoặc Accepted và không còn câu hỏi mở chặn vòng này. Test accessibility (MK-46 đến MK-50, MK-58) cần đối chiếu nguyên văn số SC của WCAG trước khi thiết kế. Làm mới lỗi giữ dữ liệu cũ (MK-13) áp dụng từ vòng cập nhật định kỳ, không có test trong vòng này. Ngưỡng hiệu năng của mở Realtime (QA-10) và đổi timeframe (QA-11) còn Proposed. Test hiệu năng chỉ được thiết kế sau khi chốt workload và môi trường đo.
+Requirements của vòng tải lịch sử đủ để thiết kế test chức năng: mọi gap có quyết định Closed hoặc Accepted và không còn câu hỏi mở chặn vòng này. Test accessibility dùng đối chiếu nguyên văn đã ghi, nhưng mô tả nến cuối chưa chứng minh tương đương toàn bộ thông tin chart; cần giữ giới hạn này khi thiết kế và báo kết quả [[8]](#ref-8). Làm mới lỗi giữ dữ liệu cũ (MK-13) áp dụng từ vòng cập nhật định kỳ, không có test trong vòng này. Ngưỡng hiệu năng của mở Realtime (QA-10) và đổi timeframe (QA-11) còn Proposed. Test hiệu năng chỉ được thiết kế sau khi chốt workload và môi trường đo.
 
 ## References
 
@@ -62,3 +62,4 @@ Requirements của vòng tải lịch sử đủ để thiết kế test chức 
 5. <a id="ref-5"></a>[Realtime](../../../design/prototype/docs/requirements/realtime.md)
 6. <a id="ref-6"></a>[Open Questions](../../../open-questions.md)
 7. <a id="ref-7"></a>W3C, _Web Content Accessibility Guidelines (WCAG) 2.2_, W3C Recommendation, 12/12/2024. <https://www.w3.org/TR/WCAG22/>
+8. <a id="ref-8"></a>[Kiểm chứng REST tải lịch sử](rest-verification.md)
