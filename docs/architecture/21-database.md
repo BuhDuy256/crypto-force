@@ -17,6 +17,7 @@
 | Tài khoản, danh tính đăng nhập, phiên và dữ liệu xác thực tạm | PostgreSQL; schema/migration do API sở hữu, Better Auth thao tác qua Drizzle adapter | Có trong migration ứng dụng |
 | Bộ đếm giới hạn request | PostgreSQL; rate limiter của Better Auth | Có bảng `rate_limit`, tồn tại qua lần khởi động process |
 | Hạ tầng queue | PostgreSQL; pg-boss quản lý schema nội bộ, Worker khởi động queue | Không thuộc ERD bảng ứng dụng |
+| Market Data (nến, summary) | Không lưu bền; cache ngắn hạn trong process API [[8, ADR-006]](#ref-8) | Không có bảng |
 | Dữ liệu trình duyệt | Router context và TanStack Query cache | Không phải bản lưu bền của dữ liệu server |
 
 Database ứng dụng hiện có các bảng trong ERD dưới đây. Chưa có schema cho Strategy Version, Experiment, market data hay kết quả backtest trong migration; mô hình domain của chúng được xác định khi triển khai module tương ứng [[2]](#ref-2) [[3]](#ref-3).
@@ -110,6 +111,7 @@ FK, UNIQUE và NOT NULL được PostgreSQL bảo vệ. Thời hạn, tiêu th�
 | Schema sở hữu bởi ứng dụng | `apps/api/src/database/schema/index.ts` export schema Auth; migration nằm trong `apps/api/drizzle/` |
 | Toàn vẹn dữ liệu | Quan hệ bắt buộc dùng FK; dữ liệu tạm không có FK cần logic ứng dụng quản lý vòng đời |
 | Queue | Worker khởi động pg-boss trên cùng `DATABASE_URL`; pg-boss quản lý schema nội bộ riêng. ERD trên chỉ bao gồm bảng trong migration của ứng dụng, không phải bảng nội bộ của queue [[7]](#ref-7) |
+| Market Data vòng REST | Không lưu nến vào PostgreSQL; lý do và điều kiện xét lại trong [[8, ADR-006]](#ref-8) |
 
 ## Rủi ro
 
@@ -126,3 +128,4 @@ FK, UNIQUE và NOT NULL được PostgreSQL bảo vệ. Thời hạn, tiêu th�
 5. <a id="ref-5"></a>[Docker Compose](../../docker-compose.yml), [API bootstrap](../../apps/api/src/index.ts) và [Workspace commands](../../package.json)
 6. <a id="ref-6"></a>[Security](23-security.md)
 7. <a id="ref-7"></a>[Worker bootstrap](../../apps/worker/src/index.ts)
+8. <a id="ref-8"></a>[Architectural Decisions](30-decisions.md)

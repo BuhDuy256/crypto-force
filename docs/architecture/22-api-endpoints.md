@@ -50,7 +50,7 @@ Trạng thái: thiết kế cho vòng REST tải lịch sử, chưa triển khai
 
 - `pair` và `timeframe` phải thuộc enum trong `packages/shared` (MK-30, MK-32). Query thiếu, sai giá trị hoặc thừa tham số trả 400.
 - Client không gửi số nến. Server quyết định số nến: số nến tối đa trên một chart (MK-33) cộng nến khởi động MA (ADR-004), để client không tăng tải lên provider.
-- Response có `Cache-Control: no-store`. Dữ liệu thay đổi theo thời gian; cache phía server thuộc thiết kế database và cache.
+- Response có `Cache-Control: no-store`. API cache dữ liệu ngắn hạn phía server; `dataTime` cho biết thời điểm API nhận dữ liệu, nên response từ cache không đổi contract [[9, Cache và giới hạn request]](#ref-9).
 - Middleware dùng chung của router ứng dụng kiểm phiên: gọi `auth.api.getSession` với header của request, đổi bằng `fromNodeHeaders` của `better-auth/node`. Endpoint này của Better Auth yêu cầu header và trả `null` khi không có phiên hợp lệ [[4]](#ref-4).
 
 #### Lỗi Market Data

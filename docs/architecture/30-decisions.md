@@ -148,7 +148,7 @@ MA trên chart và MA trong strategy có thể lệch nhau nếu hai bản cài 
 
 ### Bối cảnh
 
-Giá hiển thị theo số chữ số thập phân của pair, giá khác 0 không hiển thị thành 0 (MK-44) [[8, Quy tắc]](#ref-8). Danh sách pair là enum nhỏ trong `packages/shared`. Binance công bố bước giá (tick size) trong filter `PRICE_FILTER` của mỗi symbol trong `exchangeInfo`; theo tài liệu, mọi filter của symbol là optional [[12]](#ref-12).
+Giá hiển thị theo số chữ số thập phân của pair, giá khác 0 không hiển thị thành 0 (MK-44) [[8, Xem lịch sử thị trường]](#ref-8). Danh sách pair là enum nhỏ trong `packages/shared`. Binance công bố bước giá (tick size) trong filter `PRICE_FILTER` của mỗi symbol trong `exchangeInfo`; theo tài liệu, mọi filter của symbol là optional [[12]](#ref-12).
 
 ### Phương án đã xét
 
@@ -168,6 +168,33 @@ Chọn hằng số theo pair. Giá trị lấy từ tick size trong `exchangeInf
 - Thêm pair phải thêm số chữ số thập phân cùng lúc; schema dùng chung bắt buộc mỗi pair có giá trị.
 - Xét lại khi danh sách pair do người dùng chọn tự do, hoặc khi thêm provider có bước giá khác Binance.
 
+## ADR-006: Cache Market Data trong process API, không lưu vào PostgreSQL
+
+**Status:** Accepted (2026-11-20)
+
+### Bối cảnh
+
+Mỗi chart hiển thị tối đa 500 nến gần nhất (MK-33). Vòng REST không tự cập nhật chart (MK-27) [[8, Xem lịch sử thị trường]](#ref-8). Binance giới hạn request weight theo IP và khóa IP khi client tiếp tục gửi request sau 429 [[13]](#ref-13). Không có cache, số request tới Binance tăng theo số lần mở Realtime. API chạy một instance trên VPS. Project chỉ thêm Redis khi đo được bottleneck.
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Cache trong process API, TTL ngắn, decorator quanh provider | Không thêm hạ tầng; mức trần request tới Binance cố định theo số khóa; Service và adapter không đổi | Mất khi khởi động lại; mỗi instance có cache riêng |
+| Lưu nến vào PostgreSQL, đồng bộ từ Binance | Giữ được lịch sử dài cho backtest; ít phụ thuộc Binance khi đọc | Cần job đồng bộ, lấp khoảng trống và đối soát với nguồn (MK-35, MK-51); nến đang mở vẫn phải lấy từ Binance |
+| Redis dùng chung | Cache chung cho nhiều instance | Thêm dịch vụ khi chưa có số đo cần nó |
+| Không cache | Đơn giản nhất | Số request tới Binance tăng theo số người dùng; dễ chạm giới hạn IP |
+
+### Quyết định
+
+Chọn cache trong process API với TTL 5 giây, gộp request trùng và không cache lỗi. Decorator cài `MarketDataProvider` và được bọc ở composition root [[10, Cache và giới hạn request]](#ref-10). Không lưu Market Data vào PostgreSQL ở vòng REST.
+
+### Hệ quả
+
+- Khi provider trả thành công, Binance nhận tối đa 504 weight mỗi phút từ một instance [[10, Cache và giới hạn request]](#ref-10). Lỗi không được cache, nên khi Binance lỗi, số lời gọi tăng theo số lần thử lại.
+- Dữ liệu có thể cũ tới 5 giây; `dataTime` cho biết thời điểm thật của dữ liệu (MK-27).
+- Xét lại khi chạy hơn một instance API, khi backtest cần dữ liệu thị trường dài hạn, hoặc khi vòng WebSocket đổi cách lấy nến đang mở.
+
 ## References
 
 1. <a id="ref-1"></a>[Authentication](../UCs/authentication.md)
@@ -182,3 +209,4 @@ Chọn hằng số theo pair. Giá trị lấy từ tick size trong `exchangeInf
 10. <a id="ref-10"></a>[Market Data & Realtime Updates](10-market-data.md)
 11. <a id="ref-11"></a>[Quality Attributes](../UCs/quality-attributes.md)
 12. <a id="ref-12"></a>Binance Spot API, General endpoints, Exchange information, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-endpoints>
+13. <a id="ref-13"></a>Binance Spot API, General API Information (Limits) và response của `GET /api/v3/exchangeInfo?symbol=BTCUSDT`, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/limits>

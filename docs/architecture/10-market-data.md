@@ -9,7 +9,8 @@
 | Driver | Cơ chế đáp ứng |
 | --- | --- |
 | Thêm provider thứ hai mà frontend không đổi (QA-09) | Service chỉ phụ thuộc interface `MarketDataProvider`; adapter chuẩn hóa dữ liệu provider sang kiểu domain. Provider được truyền từ composition root ([Provider và cách thay thế](#provider-và-cách-thay-thế), ADR-003) |
-| Mở Realtime với các chart mặc định trong thời gian mục tiêu (QA-10, MK-31) | Mỗi chart và sidebar gửi request riêng, chạy song song ([Mở Realtime](#mở-realtime)) |
+| Mở Realtime với các chart mặc định trong thời gian mục tiêu (QA-10, MK-31) | Mỗi chart và sidebar gửi request riêng, chạy song song ([Mở Realtime](#mở-realtime)). Cache ngắn hạn trong API trả ngay khi khóa đã có dữ liệu ([Cache và giới hạn request](#cache-và-giới-hạn-request)) |
+| Số request tới Binance không tăng theo số người dùng và không chạm giới hạn theo IP | Cache theo khóa, gộp request trùng, dừng gọi Binance khi bị giới hạn ([Cache và giới hạn request](#cache-và-giới-hạn-request), ADR-006) |
 | Đổi timeframe chỉ tải lại chart tương ứng (QA-11, MK-06) | Request và cache phía Web theo khóa pair và timeframe của từng chart |
 | Lịch sử gồm nến đang mở, giới hạn số nến trên chart (MK-25, MK-33) | Provider trả số nến gần nhất theo yêu cầu, gồm nến đang mở |
 | Mỗi chart hiển thị thời điểm dữ liệu của nó (MK-27) | Response lịch sử nến có `dataTime` ([Contract nến](#contract-nến-và-chuẩn-hóa)); Web hiển thị |
@@ -33,9 +34,11 @@ flowchart LR
     W[Web: Realtime page, query hooks, app/api] -- HTTP /api --> R[Route và Controller Market Data]
     R --> S[Market Data Service]
     S --> I[[MarketDataProvider interface]]
+    K[Cache decorator] -. implements .-> I
+    K --> B
     B[Binance adapter] -. implements .-> I
     B -- HTTPS REST --> X[Binance]
-    C[Composition root: index.ts, app.ts] -. tạo và truyền .-> B
+    C[Composition root: index.ts, app.ts] -. tạo, bọc và truyền .-> K
 ```
 
 | Thành phần | Vị trí đề xuất | Trách nhiệm | Không làm |
@@ -45,6 +48,7 @@ flowchart LR
 | Market Data Service | `apps/api/src/services/market-data.service.ts` | Tính số nến cần lấy, gọi provider, kiểm nến, phân loại lỗi, ghi log ngữ cảnh | Phụ thuộc Express hoặc kiểu dữ liệu của Binance |
 | `MarketDataProvider` | `apps/api/src/providers/market-data/market-data-provider.ts` | Interface và kiểu domain mà mọi provider trả về | Chứa logic của một provider cụ thể |
 | Binance adapter | `apps/api/src/providers/market-data/binance.provider.ts` | Gọi Binance, áp timeout, chuẩn hóa response sang kiểu domain | Kiểm nghiệp vụ; tạo nến thiếu; import Express, `services/`, `repositories/`, `database/` |
+| Cache decorator | `apps/api/src/providers/market-data/cached-market-data.provider.ts` | Cài `MarketDataProvider`, bọc provider khác: cache theo khóa, gộp request trùng | Biết provider cụ thể; kiểm nghiệp vụ; cache lỗi |
 | Composition root | `apps/api/src/index.ts`, `app.ts`, `api/routes/index.ts` | Tạo provider từ cấu hình và truyền qua `AppDependencies`, `ApiRouterDependencies` | — |
 
 `providers/` là layer mới ngang hàng với `repositories/`: repository là đầu ra tới PostgreSQL, provider là đầu ra tới API bên ngoài. Chuẩn hóa dữ liệu Binance nằm trong adapter, không nằm trong `mappers/`, để kiểu dữ liệu của Binance không ra khỏi adapter. Ranh giới import cần thêm vào `eslint.config.js` cùng lúc với folder [[2, Dependency rules]](#ref-2):
@@ -123,6 +127,46 @@ Adapter Binance đọc REST API Spot [[8]](#ref-8):
 | `dataTime` | Đồng hồ của API lúc nhận response | Không dùng thời gian của Binance |
 
 Adapter không kiểm nghiệp vụ. Service kiểm nến sau chuẩn hóa ([Xử lý lỗi](#xử-lý-lỗi)).
+
+## Cache và giới hạn request
+
+Vòng REST không lưu dữ liệu Market Data vào PostgreSQL ([Data Model](21-database.md), ADR-006). Cache phía server nằm trong bộ nhớ process API, trong một decorator cài cùng interface `MarketDataProvider`. Composition root bọc adapter Binance bằng decorator này. Service và adapter không biết có cache.
+
+| Thuộc tính | Nến | Summary |
+| --- | --- | --- |
+| Khóa | `pair` + `timeframe` + số nến yêu cầu | `pair` |
+| Thời gian sống (TTL) | 5 giây, cấu hình của API | 5 giây, cấu hình của API |
+| Giá trị cache | Kết quả đã chuẩn hóa của provider, gồm `dataTime` và `isClosed` lúc nhận | Kết quả đã chuẩn hóa của provider |
+
+Quy tắc:
+
+- **Gộp request trùng (single-flight).** Khi khóa chưa có giá trị còn hạn, request đầu tiên gọi provider. Các request cùng khóa đến trong lúc đó chờ chung kết quả này.
+- **Không cache lỗi.** Lỗi của provider trả cho mọi request đang chờ, rồi bị bỏ. Request sau gọi lại provider, nên thử lại của chart (MK-12) có hiệu lực ngay.
+- **Không làm mới chủ động.** Giá trị hết hạn bị thay ở request tiếp theo. Vòng REST không tự cập nhật chart (MK-27), nên không cần làm mới nền.
+- **`dataTime` và `isClosed` đi cùng giá trị cache.** `dataTime` vẫn là thời điểm API nhận response của provider, không phải thời điểm request, nên chart hiển thị đúng tuổi của dữ liệu (MK-27). Nến đóng trong lúc giá trị còn hạn vẫn có `isClosed: false`, khớp với `dataTime`.
+- **Không cache HTTP.** Response giữ `Cache-Control: no-store`. Cache phía Web do TanStack Query quản lý theo khóa của từng chart (MK-14, MK-17) [[4]](#ref-4).
+
+### Giới hạn request của Binance
+
+Binance giới hạn request weight theo IP, không theo API key. Giới hạn hiện hành nằm trong `rateLimits` của `exchangeInfo` [[10]](#ref-10):
+
+| Dữ liệu | Giá trị đọc ngày 2026-11-20 |
+| --- | --- |
+| Giới hạn `REQUEST_WEIGHT` | 6000 weight mỗi phút mỗi IP |
+| Weight của `klines` | 2, với mọi `limit` tới 1000. Số nến yêu cầu là 500 cộng nến khởi động, dưới 1000 |
+| Weight của `ticker/24hr` cho một symbol | 2 |
+
+Một lần mở Realtime gửi 4 request nến (MK-31) và 1 request summary, tức 10 weight khi cache trống. Không có cache, khoảng 600 lần mở Realtime mỗi phút sẽ chạm giới hạn. Có cache, mỗi khóa gọi Binance tối đa 12 lần mỗi phút. Với 3 pair (MK-32) và 6 timeframe (MK-30) có 18 khóa nến và 3 khóa summary. Khi provider trả thành công, mức trần là 21 × 12 × 2 = 504 weight mỗi phút, khoảng 8% giới hạn, không phụ thuộc số người dùng. Lỗi không được cache, nên khi Binance lỗi (5xx, timeout, 403), mỗi lần thử lại của người dùng tạo một lời gọi mới; single-flight chỉ gộp các lời gọi đồng thời cùng khóa.
+
+Adapter Binance xử lý tín hiệu giới hạn, vì đó là hành vi riêng của Binance:
+
+| Tín hiệu | Hành vi của adapter | Kết quả với Web |
+| --- | --- | --- |
+| Header weight đã dùng. Tài liệu Binance ghi mẫu `X-MBX-USED-WEIGHT-(intervalNum)(intervalLetter)`; tên `X-MBX-USED-WEIGHT-1M` suy từ giới hạn 1 phút, chưa xác nhận trên response thật | Ghi vào log của adapter | Không đổi |
+| HTTP 429 hoặc 418 | Đọc `Retry-After` (giây). Không gọi Binance tới hết thời gian đó; mọi lời gọi trong lúc này trả lỗi nguồn không khả dụng ngay | 503 `MARKET_DATA_UNAVAILABLE` [[4]](#ref-4). Khóa có giá trị cache còn hạn được decorator trả, không tới adapter |
+| HTTP 403 | Lỗi nguồn không khả dụng | 503 `MARKET_DATA_UNAVAILABLE` |
+
+API không tự thử lại khi Binance lỗi. Thử lại là thao tác của người dùng trên từng chart (MK-12). Binance khóa IP từ 2 phút tới 3 ngày khi client tiếp tục gửi request sau 429 [[10]](#ref-10), nên adapter phải dừng gửi ngay.
 
 ## Luồng xử lý
 
@@ -205,6 +249,8 @@ Mục tiêu là phân biệt ba nguyên nhân khi chart chậm hoặc lỗi: ups
 | Kết quả Market Data | Một log của service cho mỗi request | Pair, timeframe, số nến yêu cầu và nhận, thời gian gọi provider, tổng thời gian service, kết quả, nhóm lỗi |
 | Chi tiết lỗi upstream | Log của service, mức warn | Status hoặc lỗi mạng của provider; không đưa vào response (MK-39) |
 | Nến sai | Log của service, mức error | Pair, timeframe, loại vi phạm, thời gian mở của nến sai |
+| Cache | Log của decorator, mức debug | Khóa, cache hit hoặc miss, request có chờ chung lời gọi provider hay không |
+| Giới hạn Binance | Log của adapter; mức warn khi nhận 429 hoặc 418 | Weight đã dùng, `Retry-After` |
 | Thời gian phía client | Test hiệu năng của Web | Từ thao tác tới lúc chart có nến (QA-10, QA-11) |
 
 Cách đọc: thời gian provider gần bằng tổng thời gian thì nguyên nhân ở upstream. Tổng thời gian service lớn hơn nhiều thời gian provider thì nguyên nhân ở backend. Thời gian client lớn hơn nhiều thời gian response thì nguyên nhân ở client hoặc mạng. Vòng REST chưa thêm hệ thống metric riêng. Vòng WebSocket mở rộng bảng này cho kết nối và độ trễ event (QA-05, QA-06).
@@ -220,10 +266,14 @@ Cách đọc: thời gian provider gần bằng tổng thời gian thì nguyên 
 | Quyền truy cập | Endpoint Market Data yêu cầu phiên [[4]](#ref-4) |
 | Số chữ số thập phân của pair | Hằng số trong metadata pair của `packages/shared` [[6, ADR-005]](#ref-6) |
 | Số nến | Server quyết định; client không gửi số nến [[4]](#ref-4) |
+| Lưu trữ và cache | Không lưu Market Data vào PostgreSQL; cache 5 giây trong process API qua decorator của provider [[6, ADR-006]](#ref-6) |
+| Giới hạn Binance | Adapter dừng gọi Binance theo `Retry-After` khi nhận 429 hoặc 418; API không tự thử lại |
 
 ## Rủi ro và giới hạn
 
-- Binance giới hạn số request theo IP. Mỗi lần mở Realtime gửi một request cho mỗi chart và một request summary, chưa có cache. Thiết kế cache và cách xử lý giới hạn request thuộc bước thiết kế database và cache.
+- Cache nằm trong process. Mỗi instance API có cache riêng và tự gọi Binance, nên mức trần weight nhân theo số instance trên cùng IP. Xét lại khi chạy hơn một instance API.
+- Mức trần 504 weight mỗi phút chỉ đúng khi tập pair và timeframe giữ nguyên. Thêm pair hoặc timeframe phải tính lại.
+- TTL 5 giây chưa có số đo. Xem lại khi đo QA-10 và độ tươi của dữ liệu.
 - QA-10 và QA-11 còn Proposed. Thiết kế chưa có số đo để chứng minh đạt ngưỡng.
 - Interface `MarketDataProvider` nằm trong `apps/api`. Worker không dùng được interface này khi backtest cần dữ liệu thị trường (ADR-003).
 - Schema nháp `packages/shared/src/schemas/market-data.schema.ts` của UI mock chưa khớp contract nến: thiếu timeframe 1d (MK-30), có `ma20` (ngược ADR-004), thiếu `isClosed`, `warmupCount` và `dataTime`. Schema được sửa ở bước build [[7]](#ref-7).
@@ -243,3 +293,4 @@ Cách đọc: thời gian provider gần bằng tổng thời gian thì nguyên 
 7. <a id="ref-7"></a>`packages/shared/src/schemas/market-data.schema.ts` tại commit `298d585`
 8. <a id="ref-8"></a>Binance Spot API, Market Data endpoints, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints>
 9. <a id="ref-9"></a>`apps/api/src/configs/auth.ts` tại commit `3b9ca0e`
+10. <a id="ref-10"></a>Binance Spot API, General API Information (Limits) và response của `GET /api/v3/exchangeInfo?symbol=BTCUSDT`, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/limits>
