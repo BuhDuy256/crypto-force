@@ -1,6 +1,6 @@
 # Knowledge Documentation
 
-Đọc file này để biết một file kiến thức trong `docs/lessons/` phải trông thế nào: chủ đề, cấu trúc, nguồn, nhãn và link.
+Đọc file này để biết một file kiến thức trong `docs/knowledge/` phải trông thế nào: chủ đề, cấu trúc, nguồn, nhãn và link.
 
 Quy tắc chung cho mọi tài liệu nằm trong [Documentation Conventions](docs.md). File này chỉ thêm quy tắc riêng của tầng Knowledge. Quy tắc áp dụng cho file kiến thức. `README.md` của folder theo Documentation Conventions và không cần section `## Tóm tắt`.
 

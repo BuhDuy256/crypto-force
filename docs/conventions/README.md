@@ -12,7 +12,7 @@ Mỗi tầng trả lời đúng một câu hỏi và nằm ở một chỗ riên
 | Convention | File output (code, test, tài liệu) phải trông thế nào? | `docs/conventions/` | Các bước làm, lịch sử lỗi |
 | Skill | Làm thế nào để tạo ra output đó? | `.agents/skills/` | Định dạng output; skill link tới file convention |
 | Lesson | Agent đã làm sai gì trong quá trình làm việc mà nhìn file kết quả không thấy được? | [`LESSONS.md`](../../LESSONS.md) | Quy tắc kiểm được trên file kết quả |
-| Knowledge | Đã học được gì về kỹ thuật, công cụ hoặc phương pháp, và nguồn nào chứng minh? | [`docs/lessons/`](../lessons/README.md) | Quy tắc bắt buộc; lỗi hành vi của agent |
+| Knowledge | Đã học được gì về kỹ thuật, công cụ hoặc phương pháp, và nguồn nào chứng minh? | [`docs/knowledge/`](../knowledge/README.md) | Quy tắc bắt buộc; lỗi hành vi của agent |
 | Check | Vi phạm bị chặn thế nào? | `eslint.config.js`, `scripts/check-*.mjs`, `.claude/hooks/`, `.github/workflows/ci.yml`; review của skill `review-change` cho phần máy không kiểm được | Diễn giải quy tắc; message nêu cách sửa và link tới file convention |
 | Router | Khi nào đọc gì, chạy lệnh nào? | [`AGENTS.md`](../../AGENTS.md) | Nội dung quy tắc |
 
@@ -23,7 +23,7 @@ flowchart LR
     R[Router<br/>AGENTS.md] --> C[Convention<br/>docs/conventions]
     R --> S[Skill]
     R --> L[Lesson<br/>LESSONS.md]
-    R --> N[Knowledge<br/>docs/lessons]
+    R --> N[Knowledge<br/>docs/knowledge]
     C -. trích nguồn .-> N
     S -. trích nguồn .-> N
     S -- link --> C
@@ -72,4 +72,4 @@ Một quy tắc kiểm được bằng máy thì được chặn theo thứ tự
 | [use-cases.md](use-cases.md) | Tài liệu trong `docs/UCs/` |
 | [architecture.md](architecture.md) | Tài liệu trong `docs/architecture/`, ADR |
 | [mermaid.md](mermaid.md) | Diagram trong mọi tài liệu |
-| [knowledge.md](knowledge.md) | File kiến thức trong `docs/lessons/` |
+| [knowledge.md](knowledge.md) | File kiến thức trong `docs/knowledge/` |

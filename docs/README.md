@@ -12,7 +12,7 @@
 | [testing/](testing/README.md) | Test strategy và test scope |
 | [development/](development/README.md) | CI/CD và quy trình phát triển |
 | [conventions/](conventions/README.md) | Quy tắc cho code, test và tài liệu; các tầng quy tắc của repo |
-| [lessons/](lessons/README.md) | Kiến thức thu được khi làm dự án, có nguồn: pattern, anti-pattern, kết quả research |
+| [knowledge/](knowledge/README.md) | Kiến thức thu được khi làm dự án, có nguồn: pattern, anti-pattern, kết quả research |
 | [open-questions.md](open-questions.md) | Câu hỏi sản phẩm và kỹ thuật chưa được quyết, mức ưu tiên và kết quả |
 
 `UCs/` nói hệ thống phải làm gì, nhìn từ bên ngoài. `architecture/` nói hệ thống được dựng thế nào để làm điều đó, và trỏ về ID trong `UCs/`. Test trỏ về ID trong `UCs/`.

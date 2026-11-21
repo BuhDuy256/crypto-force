@@ -21,7 +21,7 @@ const SKIPPED = [
   /^docs\/testing\/stlc-template\//,
 ];
 /** Folders where the structure rules apply (title line, purpose line, ID rules). */
-const STRUCTURED = /^docs\/(UCs|architecture|conventions|lessons)\//;
+const STRUCTURED = /^docs\/(UCs|architecture|conventions|knowledge)\//;
 const UC_DIR = /^docs\/UCs\/(?!sources\/)/;
 const ARCH_DIR = /^docs\/architecture\//;
 

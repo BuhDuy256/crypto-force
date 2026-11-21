@@ -264,4 +264,4 @@ Phần B chỉ chi tiết tới mức Task. Agent chi tiết hóa các Task này
 11. <a id="ref-11"></a>[Project Structure](../../../../../conventions/project-structure.md)
 12. <a id="ref-12"></a>[Architecture Decisions](../../../../../architecture/30-decisions.md)
 13. <a id="ref-13"></a>[ImpossibleBench: Measuring LLMs' Propensity of Exploiting Test Cases](https://arxiv.org/html/2510.20270v1), truy cập ngày 2026-11-21
-14. <a id="ref-14"></a>[Anti-pattern khi code dựa trên test có sẵn](../../../../../lessons/test-gaming-anti-patterns.md)
+14. <a id="ref-14"></a>[Anti-pattern khi code dựa trên test có sẵn](../../../../../knowledge/test-gaming-anti-patterns.md)

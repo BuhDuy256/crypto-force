@@ -53,7 +53,7 @@ Mỗi loại quy tắc có một nơi sở hữu; mô hình các tầng nằm tr
 | Viết hoặc sửa use case (`docs/UCs/`) | Skill `write-use-case`, [Use Case Documentation](docs/conventions/use-cases.md) |
 | Viết hoặc sửa tài liệu kiến trúc (`docs/architecture/`) | Skill `write-architecture-doc`, [Architecture Documentation](docs/conventions/architecture.md) |
 | Cần biết sản phẩm phải làm gì, hệ thống được dựng thế nào | [Use Cases](docs/UCs/README.md), [Architecture](docs/architecture/README.md) |
-| Ghi hoặc tra cứu kiến thức có nguồn (pattern, anti-pattern, kết quả research) | [Knowledge](docs/lessons/README.md), [Knowledge Documentation](docs/conventions/knowledge.md). Lỗi hành vi đã xảy ra của agent không thuộc Knowledge: ghi trong `LESSONS.md` theo skill `correct` |
+| Ghi hoặc tra cứu kiến thức có nguồn (pattern, anti-pattern, kết quả research) | [Knowledge](docs/knowledge/README.md), [Knowledge Documentation](docs/conventions/knowledge.md). Lỗi hành vi đã xảy ra của agent không thuộc Knowledge: ghi trong `LESSONS.md` theo skill `correct` |
 | Hook hoặc `pnpm check` báo lỗi | Sửa theo message của rule. Không thêm `eslint-disable`, `@ts-expect-error` hoặc comment để lách rule |
 | Người dùng chỉ ra lỗi của agent, hoặc một lỗi có thể lặp lại | Skill `correct`: chặn lỗi ở tầng cao nhất làm được (cấu trúc, type, lint, test) trước khi viết văn bản |
 | Trước khi báo hoàn thành | Chọn kiểm tra theo mục Kiểm chứng theo thay đổi. Thay đổi code, test, hoặc tài liệu trong `docs/UCs`, `docs/architecture`, `docs/conventions`: skill `review-change`. Thay đổi hành vi giao diện ở `apps/web`: kiểm hành vi trên trình duyệt bằng skill `playwright-cli`. Báo rõ phạm vi đã kiểm và phần chưa kiểm |

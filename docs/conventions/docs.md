@@ -6,7 +6,7 @@ Quy tắc ở đây áp dụng cho mọi tài liệu trong `docs/`. Mỗi loại
 
 ## Cấu trúc file
 
-1. Dòng 1 là heading cấp 1 (`# Title`). Dòng nội dung đầu tiên sau heading là đúng một câu mô tả mục đích của file, bắt đầu bằng "Đọc file này để biết …", "Đọc file này để …" hoặc "Đọc file này giúp …" *(check-docs, với `docs/UCs/`, `docs/architecture/`, `docs/conventions/`, `docs/lessons/`)*.
+1. Dòng 1 là heading cấp 1 (`# Title`). Dòng nội dung đầu tiên sau heading là đúng một câu mô tả mục đích của file, bắt đầu bằng "Đọc file này để biết …", "Đọc file này để …" hoặc "Đọc file này giúp …" *(check-docs, với `docs/UCs/`, `docs/architecture/`, `docs/conventions/`, `docs/knowledge/`)*.
 2. File chưa có nội dung chỉ có heading cấp 1 và dòng mục đích. Không thêm section `Purpose`, `Status` hoặc placeholder.
 3. Không áp dụng hai quy tắc trên cho source code, file được generate và file có định dạng riêng (ví dụ evidence của test, file vendored).
 4. Không chia quá nhiều heading nhỏ. Dùng đoạn văn cho lập luận, bullet cho ý song song, bảng cho so sánh và cho tập rule có ID, diagram khi hình giúp hiểu nhanh hơn chữ. Quy tắc viết diagram nằm trong [Mermaid](mermaid.md).
@@ -83,4 +83,4 @@ Câu hỏi chưa được quyết chỉ được ghi trong [`open-questions.md`]
 | Diagram trong mọi tài liệu | [Mermaid](mermaid.md) |
 | `docs/testing/test-scopes/` | [Quy ước của test scope](../testing/test-scopes/README.md), template trong `docs/testing/stlc-template/` và `pnpm check:stlc` |
 | `docs/design/` | [Design](../design/README.md), mục How to Use |
-| `docs/lessons/` | [Knowledge Documentation](knowledge.md) |
+| `docs/knowledge/` | [Knowledge Documentation](knowledge.md) |
