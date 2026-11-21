@@ -2,7 +2,51 @@
 
 Đọc file này để biết kết quả thực chạy và phần còn lại của Bước 08.
 
-## Task 6: Baseline đang chạy
+## Task 6: Kết quả baseline REST
+
+### Kết quả cuối Task 6
+
+Đã kết thúc các lượt đo được chọn. Công cụ v1/v2/v3/v4 được commit trước lượt đo tương ứng tại `aa22312`, `738e780`, `f8d760f` và `1fededf`. Evidence tổng hợp nằm tại [task-06-summary.json](../../../../../testing/evidence/market-data/task-06-summary.json). Từng thư mục run giữ config, manifest, commands, samples, reconciliation, upstream và resource log. Sáu file gzip đã được giải nén và đối chiếu cả raw SHA256 lẫn gzip SHA256. Không có file chưa nén vượt 5.000.000 byte trong các cohort v2–v4.
+
+Môi trường: Windows local, Web production build, replay HTTP có delay 50 ms, một API instance. API, replay, generator/browser và PostgreSQL cùng host. Kết quả không thay phép đo trên VPS. Chưa đo riêng RTT hoặc CPU/RAM của Chromium. Resource log chưa tách được nguyên nhân tranh chấp tài nguyên.
+
+API có 47.245 request được gán steady theo thời điểm bắt đầu burst, không gồm warm-up. Có 2.446 request lỗi, đều nằm ở default/50. Đây là tổng 18 lượt request steady trong JSON, không gồm cohort v1 bị hủy. Request thuộc burst steady có thể hoàn tất sau cửa sổ steady. Latency HTTP chỉ mô tả theo quyết định clock của product owner. Percentile tách endpoint/cache/outcome nằm trong `api[].groups` của JSON và summary từng run. Không gộp hoặc lấy trung bình percentile giữa lần lặp.
+
+| Cohort / client | Request steady lần 1 / 2 / 3 | Request lỗi lần 1 / 2 / 3 |
+| --- | --- | --- |
+| default / 1 | 145 / 145 / 145 | 0 / 0 / 0 |
+| default / 10 | 1400 / 1350 / 1400 | 0 / 0 / 0 |
+| default / 50 | 3805 / 5800 / 7040 | 2340 / 106 / 0 |
+| diverse / 1 | 145 / 145 / 145 | 0 / 0 / 0 |
+| diverse / 10 | 1450 / 1450 / 1450 | 0 / 0 / 0 |
+| diverse / 50 | 7095 / 7050 / 7085 | 0 / 0 / 0 |
+
+Micro được chọn có 900 batch và 3.600 request đo: 3 × 100 miss + 3 × 100 hit + 3 × 100 × 10 single-flight. Mỗi batch single-flight có một upstream call và chín join. Cả 900 batch đúng trạng thái, toàn bộ 3.600 mẫu hợp lệ. Ba lượt hit v2 được giữ riêng, không trộn với hit v3. Các số p95 dưới đây dùng clock đơn điệu Node, làm tròn một chữ số để trình bày.
+
+| Trạng thái / cohort | Mẫu thành công mỗi lần lặp | p95 ms lần 1 / 2 / 3 | Failure |
+| --- | --- | --- | --- |
+| miss / v2 | 100 | 153.8 / 138.2 / 121.8 | 0 |
+| hit / v3 | 100 | 28.9 / 26.0 / 26.7 | 0 |
+| single-flight / v2 | 1000 | 319.6 / 296.0 / 541.0 | 0 |
+
+UI được chọn có 720 thao tác chính: 2 × 3 × 100 cho hai flow chính, cộng 4 × 30 cho lượt phụ. Loại 50 warm-up của mười lượt đầy đủ, ba warm-up của lượt v2 bị dừng, và năm warm-up cùng tám mẫu chính của lượt v3 bị dừng khỏi bảng này. Hai lỗi trong bảng thuộc open-cold v2, cùng có Auth 429. Cả hai mẫu lỗi vẫn nằm trong mẫu số 100 của lần lặp. Percentile chỉ tính mẫu hợp lệ. Mốc cuối là apply một chart khi đổi timeframe, hoặc đủ bốn chart khi mở/đổi pair.
+
+| Lượt UI | Mẫu chính | Lỗi | p50 / p95 / p99 apply đủ chart, ms |
+| --- | --- | --- | --- |
+| rest-v2-ui-open-cold-1 | 100 | 1 | 450.3 / 760.6 / 2016.7 |
+| rest-v2-ui-open-cold-2 | 100 | 1 | 471.8 / 830.5 / 2167.3 |
+| rest-v2-ui-open-cold-3 | 100 | 0 | 584.2 / 1222.7 / 1505.0 |
+| rest-v3-ui-timeframe-cold-1 | 100 | 0 | 362.9 / 413.1 / 439.8 |
+| rest-v3-ui-timeframe-cold-2 | 100 | 0 | 368.7 / 410.5 / 441.6 |
+| rest-v3-ui-timeframe-cold-3 | 100 | 0 | 363.1 / 409.2 / 438.6 |
+| rest-v3-ui-pair-cold-1 | 30 | 0 | 472.6 / 601.8 / 687.1 |
+| rest-v3-ui-open-hot-1 | 30 | 0 | 194.2 / 243.3 / 300.3 |
+| rest-v4-ui-timeframe-hot-1 | 30 | 0 | 369.6 / 400.7 / 403.5 |
+| rest-v4-ui-pair-hot-1 | 30 | 0 | 481.2 / 574.4 / 603.1 |
+
+Tất cả response HTTP 200 đã ghi reconciliation trong v2–v4 đều hợp lệ. Phạm vi kiểm server này gồm chuẩn bị, warm-up, lượt chính và lượt bị dừng. Với API, mọi sample client thành công đều có reconciliation hợp lệ. Phép ghép request ID phía UI chỉ kiểm các mẫu chính hợp lệ của profile đầy đủ v3/v4 được chọn. Mọi ID trong body của các mẫu đó ghép được tới reconciliation hợp lệ. UI v2 chưa có ID phía browser, nên chỉ kiểm oracle tại browser và ledger server riêng. Chưa có bằng chứng từng canvas đã paint. **QA-10 và QA-11: Inconclusive. Capacity: Inconclusive.** Không có ngưỡng HTTP latency, lỗi hoặc capacity được duyệt.
+
+Smoke Binance đúng một lượt đã đối chiếu 518 nến đóng và summary, có header quota. Không có load test hoặc retry Binance thật. Các lượt bị hủy, lỗi và thay đổi harness được giữ ở các mục dưới. Task 7–10 chưa thực hiện.
 
 ### Kết quả cohort v2 và chuẩn bị cohort v3
 
@@ -18,7 +62,7 @@ Source Better Auth `1.7.25` trong `dist/api/rate-limiter/index.mjs` cập nhật
 
 Cohort v3 thay đổi bước chuẩn bị. Nếu Auth trả 429 trước thao tác được đo, runner chờ theo `X-Retry-After` rồi reload một lần. Runner phải thấy đủ bốn chart trước khi bắt đầu đo. Nếu 429 xảy ra trong thao tác được đo, mẫu vẫn lỗi và không retry. Runner ghi request start, server request ID, snapshot time và ảnh của mẫu lỗi.
 
-Micro hit v3 kiểm tuổi snapshot prime trước khi đo. Guard 1000 ms lấy từ think time 6000 ms trừ TTL 5000 ms. Khi tuổi prime đạt 4000 ms, runner chờ 6000 ms rồi prime lại. Runner ghi thao tác chuẩn bị riêng. TTL production và số mẫu chính không đổi. Ba lượt hit v3 sẽ được giữ riêng với các lượt v2.
+Micro hit v3 kiểm tuổi snapshot prime trước khi đo. Guard 1000 ms lấy từ think time 6000 ms trừ TTL 5000 ms. Khi tuổi prime đạt 4000 ms, runner chờ 6000 ms rồi prime lại. Runner ghi thao tác chuẩn bị riêng. TTL production và số mẫu chính không đổi. Ba lượt hit v3 được giữ riêng với các lượt v2.
 
 Bốn test helper đã pass. Bốn mutant làm assertion fail: dùng prime gần hết hạn, prime lại không cần thiết, bỏ chờ header Auth và bỏ chờ chart sẵn sàng. Sau khi khôi phục, cả bốn test pass. Preflight trên browser production với Auth thật cũng kiểm bước phục hồi sau 429. Preflight không cung cấp mẫu latency baseline.
 
@@ -26,13 +70,15 @@ Source k6 `v2.4.0`, `lib/netext/httpext/tracer.go`, dùng `time.Now().UnixNano()
 
 **Quyết định product owner, 2026-11-21:** giữ 18 lượt API làm số liệu mô tả và ghi rõ giới hạn clock. Không đo lại API trong Task 6. Quyết định này không xác nhận HTTP latency hoặc capacity đạt yêu cầu. Yêu cầu clock đơn điệu vẫn áp dụng cho các lượt baseline đủ điều kiện trong tương lai. Runner v3 chặn mode API mặc định để tránh tạo thêm lượt có cùng giới hạn mà không ghi rõ.
 
-### Chuẩn bị ban đầu
+### Cohort v3 và v4
 
 Cohort v3 đã hoàn tất ba lượt micro-hit, ba lượt UI timeframe-cold, pair-cold và open-hot. Mỗi lượt micro-hit có 100/100 mẫu, không failure hoặc reconciliation sai. Mỗi lượt timeframe-cold có 100/100 mẫu hợp lệ. p95 apply lần lượt 413,1 / 410,5 / 409,2 ms. Mỗi lượt timeframe-cold ghi một Auth 429 trong bước chuẩn bị và phục hồi theo header.
 
 Lượt v3 timeframe-hot dừng trong bước chuẩn bị action 8. Runner đã giữ năm mẫu warm-up và tám mẫu chính. Request 4h trong bước chuẩn bị trả 503 sau provider timeout. Resource log ghi event-loop p95 tối đa 2753,56 ms và khoảng cách hai mẫu resource tối đa 3385,25 ms. Các số này chưa xác định được nguyên nhân chậm. Summary của lượt này ghi không đủ điều kiện baseline. Không tăng timeout hoặc thêm retry cho 503.
 
-Cohort v4 chỉ chạy lại timeframe-hot và chạy pair-hot, mỗi profile đủ 30 mẫu chính. Thay đổi runner chỉ thêm lựa chọn hai profile này qua `--hot-tail`. Script, config và manifest v4 phải được commit trước lượt đo. Những profile v2/v3 đã hoàn tất vẫn giữ nguyên.
+Cohort v4 chỉ chạy lại timeframe-hot và chạy pair-hot, mỗi profile đủ 30 mẫu chính. Thay đổi runner chỉ thêm lựa chọn hai profile này qua `--hot-tail`. Script, config và manifest v4 đã được commit tại `1fededf` trước lượt đo. Những profile v2/v3 đã hoàn tất vẫn giữ nguyên.
+
+### Chuẩn bị ban đầu
 
 Người dùng đã duyệt cài k6 ngoài repository, smoke Binance một lượt và commit evidence. File raw lớn hơn 5 MB được nén gzip và lưu SHA256 trong manifest. Không có ủy quyền load test Binance thật.
 
@@ -458,4 +504,4 @@ Không chạy `pnpm check`, toàn bộ test API hoặc baseline. Task 5 không s
 
 ## Phần còn lại
 
-Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất trong commit `b7be50f`. Task 6 đang chạy baseline theo kết quả đầu tài liệu. Người dùng đã duyệt ba quyết định vận hành. Quyết định xử lý clock native k6 còn chờ. Task 7–10 chưa thực hiện. Không đánh dấu Bước 08 hoàn thành.
+Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất trong commit `b7be50f`. Trạng thái và quyết định của Task 6 nằm tại [Kết quả baseline REST](#task-6-kết-quả-baseline-rest). Task 7–10 chưa thực hiện. Không đánh dấu Bước 08 hoàn thành.

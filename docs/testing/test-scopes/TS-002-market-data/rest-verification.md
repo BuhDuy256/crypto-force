@@ -424,7 +424,7 @@ Lượt phụ, dev build, lượt thiếu mẫu và lượt có dữ liệu sai 
 
 Chưa có ngưỡng latency HTTP, tỷ lệ lỗi hoặc capacity REST được duyệt. Do đó không tự đặt SLO mới cho những chỉ số này. Dữ liệu sai luôn làm lượt đo không đủ điều kiện đạt tải. Capacity lịch sử, nếu được xác nhận sau này, phải ghi kèm request throughput, số client, mix/cache, môi trường và tiêu chí đã duyệt. Con số đó không thay số client đang nhận cập nhật realtime trong mục tiêu CV [[31]](#ref-31).
 
-Riêng 18 lượt API của Bước 08 Task 6, product owner chấp thuận giữ số liệu mô tả dù native k6 dùng wall clock. Quyết định và giới hạn kết luận nằm trong [kết quả Task 6](../../../build/01-prototype-to-implementation/market-data/work/step-08-rest-build/execution.md#task-6-baseline-đang-chạy). Các lượt baseline đủ điều kiện trong tương lai vẫn phải dùng clock đơn điệu.
+Riêng 18 lượt API của Bước 08 Task 6, product owner chấp thuận giữ số liệu mô tả dù native k6 dùng wall clock. Quyết định và giới hạn kết luận nằm trong [kết quả Task 6](../../../build/01-prototype-to-implementation/market-data/work/step-08-rest-build/execution.md#task-6-kết-quả-baseline-rest). Các lượt baseline đủ điều kiện trong tương lai vẫn phải dùng clock đơn điệu.
 
 ## References
 

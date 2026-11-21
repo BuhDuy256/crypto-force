@@ -1,0 +1,11 @@
+{
+  "generatorApiHealthRoundTripMs": [
+    3.5337000000290573,
+    2.863500000035856,
+    1.6781999999657273,
+    1.551099999982398,
+    1.5301000000326894
+  ],
+  "apiReplayRtt": "Unmeasured separately from the configured replay delay.",
+  "browserApiRtt": "Resource timing includes request and server work."
+}

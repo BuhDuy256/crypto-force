@@ -204,15 +204,17 @@ Chỉ bắt đầu sau khi Task 5 green và bốn quyết định ở mục Quy�
 - [x] Cài `k6`. Viết script theo bảng workload `k6` và script tổng hợp p50/p95/p99 nearest-rank từ raw samples [[3, Workload baseline đã duyệt]](#ref-3).
 - [x] Thêm instrumentation browser cho mốc body/apply/draw. Chứng minh mốc draw gắn với lượt vẽ dữ liệu đúng lựa chọn. Nếu không chứng minh được, ghi thời gian hiển thị Inconclusive.
 - [x] Commit script đo, instrumentation, manifest và ngưỡng trước lượt đo đầu tiên. Sửa script sau khi thấy kết quả thì tính là cohort mới và ghi lý do.
-- [ ] Chạy lượt API: cache rỗng, cache hit, single-flight có barrier, steady state 1/10/50 client cho hai cohort, ba lần lặp.
-- [ ] Chạy lượt UI với Web production build: lượt chính 100 thao tác × 3 lần lặp cho mở Realtime và đổi timeframe. Lượt phụ cho đổi pair và cache nóng.
-- [ ] Đối chiếu mọi response thành công với manifest replay. Lượt có dữ liệu sai không đủ điều kiện kết luận.
+- [x] Chạy lượt API: cache rỗng, cache hit, single-flight có barrier, steady state 1/10/50 client cho hai cohort, ba lần lặp.
+- [x] Chạy lượt UI với Web production build: lượt chính 100 thao tác × 3 lần lặp cho mở Realtime và đổi timeframe. Lượt phụ cho đổi pair và cache nóng.
+- [x] Đối chiếu mọi response thành công với manifest replay. Lượt có dữ liệu sai không đủ điều kiện kết luận.
 - [x] Chạy smoke Binance thật một lượt. Lưu header quota và kết quả đối chiếu nến đóng.
-- [ ] Ghi QA-10/QA-11 theo điều kiện kết luận đã duyệt [[3, Ngưỡng và quyền kết luận]](#ref-3). Khi Failed, báo product owner, không đổi ngưỡng.
+- [x] Ghi QA-10/QA-11 theo điều kiện kết luận đã duyệt [[3, Ngưỡng và quyền kết luận]](#ref-3). Khi Failed, báo product owner, không đổi ngưỡng.
+
+Kết quả: [execution.md](execution.md#task-6-kết-quả-baseline-rest). Product owner chọn giữ 18 lượt API làm số liệu mô tả do native k6 dùng wall clock. QA-10/QA-11 và capacity là `Inconclusive`. Các lượt lỗi hoặc bị dừng vẫn được giữ trong evidence.
 
 **Điều kiện đạt:** mỗi lượt có thư mục evidence đủ file theo protocol. Kết quả ghi nhãn môi trường. Không ghi capacity đạt vì chưa có ngưỡng latency HTTP, lỗi hoặc capacity được duyệt.
 
-- [ ] Chạy kiểm tra phù hợp và tạo commit cho Task 6.
+- [x] Chạy kiểm tra phù hợp và tạo commit cho Task 6.
 
 #### Task 7: Chốt tài liệu REST tải lịch sử
 

@@ -4,9 +4,12 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ## [Unreleased]
 
-- Test trước build REST Market Data đã green qua Bước 08 Task 5: shared contract, provider/service, Binance adapter, cache decorator, HTTP/session và flow UI qua API thật. Task 6 đang thu baseline, chưa kết luận capacity.
+- Test trước build REST Market Data đã green qua Bước 08 Task 5: shared contract, provider/service, Binance adapter, cache decorator, HTTP/session và flow UI qua API thật. Task 6 đã kết thúc thu số liệu; QA-10/QA-11 và capacity là Inconclusive.
 
 ### Changed
+
+- Hoàn tất Task 6: lưu 18 lượt API mô tả, chín lượt micro được chọn và mười lượt UI đầy đủ (720 thao tác chính). Giữ riêng các lượt bị dừng và lỗi. QA-10/QA-11 vẫn Inconclusive vì apply chưa chứng minh canvas paint; capacity chưa có ngưỡng. Evidence có summary JSON, manifest, raw samples, reconciliation và hash gzip.
+
 
 - Baseline REST Task 6: product owner chọn giữ 18 lượt API làm số liệu mô tả do giới hạn wall clock. Ba lượt timeframe-cold v3 đủ 100 mẫu mỗi lượt, không có mẫu lỗi. Lượt timeframe-hot v3 dừng sau tám mẫu chính vì chuẩn bị chart gặp provider timeout/503. Runner thêm `--hot-tail` để đo đủ hai profile phụ còn thiếu trong cohort v4, giữ nguyên lượt bị dừng.
 
@@ -30,10 +33,10 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 - Bốn file Knowledge rút từ Bước 08 Task 5: vòng đời fetch của TanStack Query v5, test deadline bằng clock của Playwright, status và mô tả cho công nghệ hỗ trợ, lỗi khi dùng mutation để chứng minh test. Mỗi nhận định trích source của phiên bản đang dùng, docs chính thức hoặc evidence của Task 5, hoặc mang nhãn `Inferred`/`Agent đề xuất`.
 - Tầng Knowledge trong `docs/knowledge/` cho kiến thức có nguồn thu được khi làm dự án, kèm convention `docs/conventions/knowledge.md`. `check:docs` kiểm dòng mục đích và References của folder này. File đầu tiên ghi anti-pattern khi code dựa trên test có sẵn, theo ImpossibleBench, METR và danh mục TDD anti-pattern của James Carr. Kế hoạch Bước 08 trích file này thay cho bản chép.
-- Kế hoạch Bước 08 Market Data: build REST tải lịch sử theo năm lát red → green, đo baseline, chốt tài liệu, rồi build REST polling. Mỗi Task kết thúc bằng commit. Ba quyết định vận hành còn chờ duyệt: cài `k6`, smoke Binance thật và lưu evidence. Plan nêu anti-pattern khi code dựa trên test có sẵn, bốn loại sửa test được phép, testware Market Data chỉ đọc mặc định và rule ESLint chặn code chỉ phục vụ test. Product owner quyết định không dùng screen reader ở Bước 08. Accessibility chỉ kiểm ở mức khai báo bằng Playwright, có ghi các điểm lệch Playwright không phát hiện được và cách giảm. Chưa triển khai code.
-- Protocol baseline REST Market Data cho Task 3 của Bước 07: định nghĩa phép đo, cache rỗng/hit/single-flight, workload đề xuất, replay/smoke và evidence chạy lại. Workload và ngưỡng hiệu năng còn Proposed. Chưa đo baseline hoặc xác nhận capacity.
+- Kế hoạch Bước 08 Market Data: build REST tải lịch sử theo năm lát red → green, đo baseline, chốt tài liệu, rồi build REST polling. Mỗi Task kết thúc bằng commit. Ba quyết định vận hành đã được duyệt khi bắt đầu Task 6: cài `k6`, smoke Binance thật và lưu evidence. Plan nêu anti-pattern khi code dựa trên test có sẵn, bốn loại sửa test được phép, testware Market Data chỉ đọc mặc định và rule ESLint chặn code chỉ phục vụ test. Product owner quyết định không dùng screen reader ở Bước 08. Accessibility chỉ kiểm ở mức khai báo bằng Playwright, có ghi các điểm lệch Playwright không phát hiện được và cách giảm. Code đã được build qua Task 5.
+- Protocol baseline REST Market Data cho Task 3 của Bước 07: định nghĩa phép đo, cache rỗng/hit/single-flight, workload đề xuất, replay/smoke và evidence chạy lại. Workload và ngưỡng QA-10/QA-11 đã được duyệt. Task 6 đã thu số liệu với giới hạn kết luận ghi trong execution. Chưa xác nhận capacity.
 - Thiết kế kiểm chứng REST Market Data cho Task 2 của Bước 07: ma trận requirement/kịch bản/evidence, partitions và biên, fixture với expected literal, cache/cooldown, E2E/accessibility, log và mutation dự kiến. Kết quả test trước build ghi riêng ở Task 4.
-- Test basis REST Market Data, đối chiếu sáu SC WCAG, sáu interface kiểm thử được product owner duyệt và khảo sát harness từ source cho Task 1 của Bước 07. Chưa đo baseline.
+- Test basis REST Market Data, đối chiếu sáu SC WCAG, sáu interface kiểm thử được product owner duyệt và khảo sát harness từ source cho Task 1 của Bước 07. Kết quả đo sau build nằm trong execution Bước 08 Task 6.
 - Frontend Realtime dùng HTTP mock: pair chung, 1/2/4 chart với timeframe riêng, nến, volume, MA(20), giá/thay đổi 24h và sidebar. Các chart có trạng thái đang tải, rỗng, lỗi và thử lại riêng.
 - Schema HTTP nháp cho Market Data, fixtures tất định và MSW handlers. Browser suite riêng kiểm UI mock và worker thật, gồm responsive, bàn phím, accessibility và dữ liệu cũ đến sau.
 - Bản nháp use case Market Data, câu hỏi mở, kế hoạch và bằng chứng hoàn thành Bước 2. API contract production chưa được chốt.
