@@ -117,7 +117,14 @@ export default tseslint.config(
   },
 
   {
-    files: ['*.js', '**/*.config.{js,ts}', '.claude/hooks/*.mjs', 'scripts/*.mjs'],
+    files: [
+      '*.js',
+      '**/*.config.{js,ts}',
+      '.claude/hooks/*.mjs',
+      'scripts/*.mjs',
+      'apps/api/perf/**/*.mjs',
+      'apps/api/perf/**/*.js',
+    ],
     ...tseslint.configs.disableTypeChecked,
   },
 
@@ -130,8 +137,27 @@ export default tseslint.config(
       '**/*.config.{js,ts}',
       '.claude/hooks/*.mjs',
       'scripts/*.mjs',
+      'apps/api/perf/**/*.mjs',
+      'apps/api/perf/**/*.js',
     ],
     languageOptions: { globals: globals.node },
+  },
+
+  {
+    files: ['apps/api/perf/**/workload.js'],
+    languageOptions: {
+      globals: {
+        __ENV: 'readonly',
+        __VU: 'readonly',
+        __ITER: 'readonly',
+        open: 'readonly',
+        console: 'readonly',
+      },
+    },
+  },
+  {
+    files: ['apps/api/perf/**/browser.mjs', 'apps/api/perf/**/preflight.mjs'],
+    languageOptions: { globals: globals.browser },
   },
 
   {

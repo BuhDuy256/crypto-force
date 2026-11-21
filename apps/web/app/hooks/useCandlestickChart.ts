@@ -103,6 +103,10 @@ export function useCandlestickChart(history: CandleHistory) {
     instance.current.candles.setData(series.current.candles);
     instance.current.volume.setData(series.current.volume);
     instance.current.ma20.setData(series.current.ma20);
+    performance.mark('market-data:apply', {
+      detail: { pair: history.pair, timeframe: history.timeframe, ...series.current },
+    });
+    performance.clearMarks('market-data:apply');
     instance.current.chart.timeScale().fitContent();
     instance.current.chart.clearCrosshairPosition();
     setSelected(null);

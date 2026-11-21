@@ -109,7 +109,7 @@ Product owner duyệt ngày 2026-11-21: mỗi Task kết thúc bằng ít nhất
 
 ## Quyết định cần duyệt và quyết định của agent
 
-Các quyết định dưới đây thay đổi cách vận hành hoặc gọi dịch vụ ngoài. Product owner duyệt quyết định commit theo Task ngày 2026-11-21. Ba quyết định còn lại cần duyệt trước Task 6.
+Các quyết định dưới đây thay đổi cách vận hành hoặc gọi dịch vụ ngoài. Product owner đã duyệt cả bốn quyết định ngày 2026-11-21. Người dùng duyệt ba quyết định vận hành khi yêu cầu chạy Task 6.
 
 | Quyết định              | Đề xuất                                                                                                                                                    | Lý do                                                                                                                      | Task     |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------- |
@@ -201,8 +201,8 @@ Các quyết định sau do agent chốt theo ủy quyền của product owner. 
 
 Chỉ bắt đầu sau khi Task 5 green và bốn quyết định ở mục Quyết định đã được duyệt.
 
-- [ ] Cài `k6`. Viết script theo bảng workload `k6` và script tổng hợp p50/p95/p99 nearest-rank từ raw samples [[3, Workload baseline đã duyệt]](#ref-3).
-- [ ] Thêm instrumentation browser cho mốc body/apply/draw. Chứng minh mốc draw gắn với lượt vẽ dữ liệu đúng lựa chọn. Nếu không chứng minh được, ghi thời gian hiển thị Inconclusive.
+- [x] Cài `k6`. Viết script theo bảng workload `k6` và script tổng hợp p50/p95/p99 nearest-rank từ raw samples [[3, Workload baseline đã duyệt]](#ref-3).
+- [x] Thêm instrumentation browser cho mốc body/apply/draw. Chứng minh mốc draw gắn với lượt vẽ dữ liệu đúng lựa chọn. Nếu không chứng minh được, ghi thời gian hiển thị Inconclusive.
 - [ ] Commit script đo, instrumentation, manifest và ngưỡng trước lượt đo đầu tiên. Sửa script sau khi thấy kết quả thì tính là cohort mới và ghi lý do.
 - [ ] Chạy lượt API: cache rỗng, cache hit, single-flight có barrier, steady state 1/10/50 client cho hai cohort, ba lần lặp.
 - [ ] Chạy lượt UI với Web production build: lượt chính 100 thao tác × 3 lần lặp cho mở Realtime và đổi timeframe. Lượt phụ cho đổi pair và cache nóng.

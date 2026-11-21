@@ -2,6 +2,37 @@
 
 Đọc file này để biết kết quả thực chạy và phần còn lại của Bước 08.
 
+## Task 6: Chuẩn bị baseline
+
+Người dùng đã duyệt cài k6 ngoài repository, smoke Binance một lượt và commit evidence. File raw lớn hơn 5 MB được nén gzip và lưu SHA256 trong manifest. Không có ủy quyền load test Binance thật.
+
+GitHub API `repos/grafana/k6/releases/latest` trả bản stable `v2.4.0`. Archive Windows amd64 có SHA256 `aaa90b3afc336faf90172c7addf45c4f41305f6f188e3d564f79466e80ac68e3`. Binary được cài tại `%LOCALAPPDATA%/crypto-force-tools/k6-2.4.0/`. Lệnh version trả `k6.exe v2.4.0`, commit `dd9395906d`, Go `1.26.11`, Windows amd64.
+
+Harness nằm trong `apps/api/perf/market-data/`. Replay nhận HTTP từ adapter Binance thật. Auth và session dùng PostgreSQL riêng có hậu tố `_market_data_perf_test`. Cache dùng clock thật và TTL 5000 ms. Không dùng MSW. Email được giữ trong bộ nhớ. Outbound ngoài loopback bị chặn trong process benchmark. Chỉ kiểm password khi tạo tài khoản dùng response rỗng ở boundary Pwned Passwords.
+
+Fixture hiệu năng dùng số nguyên. Mỗi khóa có 519 nến, 19 nến warm-up và 500 điểm MA. Generator tạo raw input và manifest tham chiếu trước đo. Runner không dùng mapper production để tính expected. Các lựa chọn kỹ thuật của agent được ghi trong `config.json` kèm lý do. Chúng không thêm ngưỡng sản phẩm.
+
+Instrumentation dùng User Timing sau ba lệnh `setData`. Detail chứa series đã áp dụng. Runner đối chiếu toàn bộ nến hiển thị, volume và MA với manifest. Runner ghi riêng body và apply. Mốc apply không chứng minh canvas đã vẽ xong. Thời gian hiển thị và kết luận mở Realtime/đổi timeframe (QA-10/QA-11) phải giữ `Inconclusive` nếu chưa có bằng chứng draw.
+
+Runner UI dùng context mới cho từng mẫu. Khi đo chiều 1m → 5m hoặc SOLUSDT → BTCUSDT, runner tìm QueryClient qua cây React và gọi API public `removeQueries` cho khóa đích đang inactive. Đây là thao tác chuẩn bị benchmark để xóa Query cache theo protocol. Product không export API riêng cho runner. Cách tìm QueryClient phụ thuộc cấu trúc React và phải fail nếu không tìm thấy.
+
+Diff `eslint.config.js` thuộc T3: thêm runtime globals và tắt type-aware rules riêng cho script JavaScript của harness, tương tự `scripts/*.mjs`. Rules production và testware không đổi. Không có thay đổi testware Market Data chỉ đọc.
+
+Chưa chạy baseline hoặc smoke thật trong giai đoạn chuẩn bị. Chưa có kết luận latency hoặc capacity.
+
+### Kiểm công cụ đo trước lượt đầu
+
+- Web production build, Web typecheck và 10/10 test Web đạt. Lint theo phạm vi và `check:docs` đạt.
+- `checks.mjs` có chín assertion cho nearest-rank, fixture và phân bố khóa. Chín fault lần lượt làm assertion fail: kết quả rỗng thành 0, làm tròn rank xuống, p95 thành p94, thiếu khóa, thiếu nến, MA đầu sai, MA cuối sai, thiếu pair và phân bố khóa lệch. Sau mỗi lần khôi phục, cả chín assertion pass.
+- Preflight browser dùng production build, sign-in thật và bốn chart. Toàn bộ nến hiển thị, volume và MA khớp oracle. Fault replay tăng close của nến index 30 lên 1 làm assertion nến fail. Sau khi tắt fault và hết TTL, preflight pass.
+- Mutant production tính MA từ high thay close làm preflight fail tại assertion MA: giá trị đầu 10103 thay 10099. Đã khôi phục source, build lại và xác nhận preflight pass. Không giữ mẫu latency từ các lượt preflight.
+- Preflight single-flight phát 10 request cùng khóa sau TTL. Cả 10 trả 200, cùng snapshot, một call upstream và chín log join. Barrier giữ trạng thái released để không mất tín hiệu nếu join cuối tới trước HTTP replay.
+- PostgreSQL binary là `17.10`. Docker inspect trả `NanoCpus=0`, `Memory=0`. Ba listener chỉ nghe `127.0.0.1`. Manifest mỗi run đọc version SQL, migration, kích thước DB, số user/session và giới hạn container thực tế.
+
+Reviewer độc lập phát hiện năm blocker trước đo. Phân bố khóa đã tách vòng pair khỏi vòng timeframe. Micro-batch đã tách latency thành công/lỗi. Manifest đã bỏ placeholder môi trường. Lượt hit so toàn bộ body với snapshot prime. Phần độ nhạy được bổ sung bằng các fault ở trên. Reconciliation ghi boolean và khóa khi sai. Chi tiết từng trường sai chưa được lưu riêng.
+
+Reviewer đã kiểm lại năm blocker và logic barrier. Không còn blocker trong phạm vi kiểm lại. Lượt đo chưa bắt đầu tại thời điểm commit công cụ đo.
+
 ## Task 1: Shared contract và Web
 
 HEAD bắt đầu: `be781f3aa9b5e65ec4ad7cc314bad570175c8195`.
