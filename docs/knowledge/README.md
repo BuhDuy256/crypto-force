@@ -17,6 +17,10 @@ Folder này là tầng Knowledge: kiến thức có nguồn thu được khi là
 | File | Subject |
 | --- | --- |
 | [test-gaming-anti-patterns.md](test-gaming-anti-patterns.md) | Anti-pattern khi code dựa trên test có sẵn: viết code chỉ để pass test, sửa test để hết lỗi, sửa bộ đo |
+| [tanstack-query-v5-fetch-lifecycle.md](tanstack-query-v5-fetch-lifecycle.md) | TanStack Query v5: state `pending` khi retry, hủy request khi observer rời đi, dùng lại fetch đang chạy |
+| [playwright-clock-deadline-testing.md](playwright-clock-deadline-testing.md) | Clock giả của Playwright: timer 0 ms trong lúc clock chạy, test deadline ở giá trị biên |
+| [accessible-status-and-description.md](accessible-status-and-description.md) | Live region, mô tả bằng `aria-describedby`, giữ focus khi nút Retry rời DOM |
+| [mutation-testing-pitfalls.md](mutation-testing-pitfalls.md) | Mutation cho kết luận sai: mutant tương đương, oracle chờ quá lâu, lượt chạy 0 test |
 
 ## References
 
