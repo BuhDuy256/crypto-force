@@ -28,7 +28,7 @@ Hành vi và số đo nằm trong Authentication [[1]](#ref-1). Bảng dưới c
 | API → Google | OAuth redirect, kiểm state và xác định danh tính provider | Không đồng nhất phiên Google với phiên Crypto Force |
 | API → dịch vụ email | Mailer giữ credential Resend; link dùng origin cấu hình | Email có token; chế độ console trong development là ngoại lệ log có chủ đích |
 | API → Pwned Passwords | Gửi prefix hash, không gửi nguyên password; timeout và fallback danh sách cục bộ | Khi dịch vụ lỗi, chỉ còn danh sách password phổ biến |
-| Log của API | Pino redact cookie, authorization và Set-Cookie | Redaction theo trường đã cấu hình, không bảo đảm che mọi chuỗi token trong log tùy ý |
+| Log của API | Pino redact cookie, authorization và Set-Cookie. Log HTTP chỉ ghi nguyên path tĩnh của router ứng dụng; path dưới `/api/auth/` ghi dạng `/api/auth/{*splat}`, path khác ghi `/unmatched`, nên token trong path của link reset password không vào log. Không ghi query | Redaction theo trường đã cấu hình, không bảo đảm che mọi chuỗi token trong log tùy ý |
 | Worker → PostgreSQL | Worker có kết nối queue riêng | Chưa có handler và contract nghiệp vụ để mô tả authorization theo job |
 
 Các boundary hiện có được xác định từ API bootstrap, cấu hình Auth, password-check service và logger [[4]](#ref-4). Cơ chế riêng của Auth bên dưới là phần bảo vệ đã triển khai; các API dữ liệu nghiên cứu và job chưa có code để xác nhận kiểm quyền sở hữu tài nguyên.

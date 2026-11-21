@@ -2,7 +2,7 @@
 
 Đọc file này để biết cách hệ thống lấy và cập nhật historical, realtime market data, hỗ trợ nhiều timeframe và xử lý khi mất kết nối.
 
-> **Trạng thái:** thiết kế cho vòng REST tải lịch sử, chưa triển khai. Web hiện dùng dữ liệu mock qua MSW; `apps/api` chưa có code Market Data [[1]](#ref-1). Cập nhật định kỳ và WebSocket được thiết kế ở vòng sau, file này giữ chỗ cho các phần đó.
+> **Trạng thái:** vòng REST tải lịch sử đã triển khai theo thiết kế trong file này. Web gọi API thật; API gọi Binance qua cache decorator và Binance adapter tạo tại `apps/api/src/index.ts` [[1]](#ref-1). Kết quả kiểm chứng nằm trong [Kiểm chứng REST tải lịch sử](../testing/test-scopes/TS-002-market-data/rest-verification.md#kết-quả-thực-chạy). Cập nhật định kỳ và WebSocket được thiết kế ở vòng sau, file này giữ chỗ cho các phần đó.
 
 ## Drivers
 
@@ -23,7 +23,7 @@
 | Thời hạn chờ trước khi báo lỗi, thử lại riêng từng chart (MK-12, MK-34) | Web đo thời hạn chờ; API đặt timeout gọi provider ngắn hơn để trả lỗi có phân loại trước ([Xử lý lỗi](#xử-lý-lỗi)) |
 | Lỗi không lộ chi tiết kỹ thuật (MK-39) | Response lỗi chỉ có mã và thông điệp chung; chi tiết upstream chỉ nằm trong log |
 | Chỉ hiển thị dữ liệu của lựa chọn hiện tại (MK-14, MK-17) | Web gắn dữ liệu với khóa pair và timeframe của request; response của khóa cũ không hiển thị cho khóa mới |
-| Chỉ chọn pair và timeframe được hỗ trợ (MK-30, MK-32) | API validate pair và timeframe bằng schema dùng chung trước khi gọi provider. Schema hiện có chưa khớp rule, xem [Rủi ro và giới hạn](#rủi-ro-và-giới-hạn) |
+| Chỉ chọn pair và timeframe được hỗ trợ (MK-30, MK-32) | API validate pair và timeframe bằng schema strict dùng chung trước khi gọi provider |
 | Phiên hết hạn khi xem Realtime (MK-40) | Endpoint Market Data yêu cầu phiên và trả 401 khi phiên không hợp lệ; Web chuyển sang màn chặn workspace (ADR-001). Contract trong API Contracts [[4]](#ref-4) |
 | Hiển thị, accessibility và màn hình hẹp (MK-02, MK-10, MK-11, MK-15, MK-26, MK-38, MK-41 đến MK-43, MK-46 đến MK-50, MK-58 đến MK-62) | Thuộc Web; không cần cơ chế backend ngoài nến và thời điểm dữ liệu |
 
@@ -41,10 +41,10 @@ flowchart LR
     C[Composition root: index.ts, app.ts] -. tạo, bọc và truyền .-> K
 ```
 
-| Thành phần | Vị trí đề xuất | Trách nhiệm | Không làm |
+| Thành phần | Vị trí | Trách nhiệm | Không làm |
 | --- | --- | --- | --- |
-| Web Market Data | `apps/web/app/api/market-data.ts`, `hooks/useMarketData.ts`, `pages/Realtime` (đã có, dùng mock) | Gọi API theo pair và timeframe, đo thời hạn chờ, tính MA, hiển thị trạng thái | Gọi Binance; biết provider nào đang dùng |
-| Route và Controller | `apps/api/src/api/routes/market-data.route.ts`, `api/controllers/market-data.controller.ts` | Validate query bằng schema của `packages/shared`, gọi service, trả response | Gọi provider trực tiếp |
+| Web Market Data | `apps/web/app/api/market-data.ts`, `hooks/useMarketData.ts`, `pages/Realtime` | Gọi API theo pair và timeframe, đo thời hạn chờ, tính MA, hiển thị trạng thái | Gọi Binance; biết provider nào đang dùng |
+| Route, Controller và middleware phiên | `apps/api/src/api/routes/market-data.route.ts`, `api/controllers/market-data.controller.ts`, `api/middlewares/session.middleware.ts` | Kiểm phiên, validate query bằng schema của `packages/shared`, gọi service, trả response | Gọi provider trực tiếp |
 | Market Data Service | `apps/api/src/services/market-data.service.ts` | Tính số nến cần lấy, gọi provider, kiểm nến, phân loại lỗi, ghi log ngữ cảnh | Phụ thuộc Express hoặc kiểu dữ liệu của Binance |
 | `MarketDataProvider` | `apps/api/src/providers/market-data/market-data-provider.ts` | Interface và kiểu domain mà mọi provider trả về | Chứa logic của một provider cụ thể |
 | Binance adapter | `apps/api/src/providers/market-data/binance.provider.ts` | Gọi Binance, áp timeout, chuẩn hóa response sang kiểu domain | Kiểm nghiệp vụ; tạo nến thiếu; import Express, `services/`, `repositories/`, `database/` |
@@ -120,7 +120,7 @@ Provider phải trả tối đa `limit` nến. Adapter Binance truyền nguyên 
 
 ### Chuẩn hóa từ Binance
 
-Adapter Binance đọc REST API Spot [[8]](#ref-8):
+Adapter Binance đọc REST API Spot [[7]](#ref-7):
 
 | Kiểu domain | Nguồn Binance | Quy tắc |
 | --- | --- | --- |
@@ -151,7 +151,7 @@ Quy tắc:
 
 ### Giới hạn request của Binance
 
-Binance giới hạn request weight theo IP, không theo API key. Giới hạn hiện hành nằm trong `rateLimits` của `exchangeInfo` [[10]](#ref-10):
+Binance giới hạn request weight theo IP, không theo API key. Giới hạn hiện hành nằm trong `rateLimits` của `exchangeInfo` [[9]](#ref-9):
 
 | Dữ liệu | Giá trị đọc ngày 2026-11-20 |
 | --- | --- |
@@ -165,11 +165,11 @@ Adapter Binance xử lý tín hiệu giới hạn, vì đó là hành vi riêng 
 
 | Tín hiệu | Hành vi của adapter | Kết quả với Web |
 | --- | --- | --- |
-| Header weight đã dùng. Tài liệu Binance ghi mẫu `X-MBX-USED-WEIGHT-(intervalNum)(intervalLetter)`; tên `X-MBX-USED-WEIGHT-1M` suy từ giới hạn 1 phút, chưa xác nhận trên response thật | Ghi vào log của adapter | Không đổi |
+| Header weight đã dùng. Tài liệu Binance ghi mẫu `X-MBX-USED-WEIGHT-(intervalNum)(intervalLetter)`. Smoke Binance thật ngày 2026-11-21 nhận `x-mbx-used-weight-1m` và `x-mbx-used-weight` trên cả request nến và summary [[10]](#ref-10) | Ghi vào log của adapter | Không đổi |
 | HTTP 429 hoặc 418 | Đọc `Retry-After` (giây). Không gọi Binance tới hết thời gian đó; mọi lời gọi trong lúc này trả lỗi nguồn không khả dụng ngay | 503 `MARKET_DATA_UNAVAILABLE` [[4]](#ref-4). Khóa có giá trị cache còn hạn được decorator trả, không tới adapter |
 | HTTP 403 | Lỗi nguồn không khả dụng | 503 `MARKET_DATA_UNAVAILABLE` |
 
-API không tự thử lại khi Binance lỗi. Thử lại là thao tác của người dùng trên từng chart (MK-12). Binance khóa IP từ 2 phút tới 3 ngày khi client tiếp tục gửi request sau 429 [[10]](#ref-10), nên adapter phải dừng gửi ngay.
+API không tự thử lại khi Binance lỗi. Thử lại là thao tác của người dùng trên từng chart (MK-12). Binance khóa IP từ 2 phút tới 3 ngày khi client tiếp tục gửi request sau 429 [[9]](#ref-9), nên adapter phải dừng gửi ngay.
 
 ## Luồng xử lý
 
@@ -240,7 +240,9 @@ sequenceDiagram
 
 Lỗi đã phân loại là `AppError`; error handler hiện có chỉ trả `code` và `message` của `AppError`, lỗi khác trả lỗi chung [[3]](#ref-3). Mã HTTP và `code` của từng nhóm nằm trong API Contracts [[4]](#ref-4).
 
-Timeout gọi provider của API phải ngắn hơn thời hạn chờ của chart (MK-34). Khi đó API kịp trả lỗi có phân loại và log trước khi Web tự hết hạn. Giá trị timeout là cấu hình của API.
+Timeout gọi provider của API phải ngắn hơn thời hạn chờ của chart (MK-34). Khi đó API kịp trả lỗi có phân loại và log trước khi Web tự hết hạn. Giá trị timeout là cấu hình của API: composition root đặt 5000 ms. Nguồn: agent đề xuất theo ủy quyền của product owner, theo timeout của harness REST. Lý do: còn khoảng một nửa thời hạn chờ của chart để API trả lỗi [[1]](#ref-1). Tác động: upstream trả chậm hơn 5000 ms nhận `503 / MARKET_DATA_UNAVAILABLE`, dù chart còn chờ được tới hết thời hạn chờ (MK-34). Deadline của adapter bao phủ cả nhận response và đọc body.
+
+Web chỉ đặt thời hạn chờ cho request nến, vì thời hạn chờ (MK-34) chỉ nói về chart. Request summary dựa vào timeout của API để kết thúc. Quyết định này do agent chốt theo ủy quyền của product owner.
 
 ## Observability
 
@@ -248,10 +250,10 @@ Mục tiêu là phân biệt ba nguyên nhân khi chart chậm hoặc lỗi: ups
 
 | Bằng chứng | Nơi ghi | Trường |
 | --- | --- | --- |
-| Request HTTP | `pino-http` hiện có trong `app.ts` [[5]](#ref-5) | Method, URL, status, thời gian response |
+| Request HTTP | `pino-http` trong `app.ts` [[5]](#ref-5) | Method, path, status, thời gian response. Chỉ bốn path tĩnh của router ứng dụng được ghi nguyên. Path dưới `/api/auth/` ghi dạng `/api/auth/{*splat}`, path khác ghi `/unmatched`, để token trong path (ví dụ link reset password) không vào log. Không ghi query, header phiên hoặc message của lỗi ngoài dự kiến |
 | Kết quả Market Data | Một log của service cho mỗi request | Pair, timeframe, số nến yêu cầu và nhận, thời gian gọi provider, tổng thời gian service, kết quả, nhóm lỗi |
-| Chi tiết lỗi upstream | Log của service, mức warn | Status hoặc lỗi mạng của provider; không đưa vào response (MK-39) |
-| Nến sai | Log của service, mức error | Pair, timeframe, loại vi phạm, thời gian mở của nến sai |
+| Chi tiết lỗi upstream | Log của service, mức warn | Status hoặc tên/code lỗi mạng của provider, không ghi message hoặc payload; không đưa vào response (MK-39) |
+| Nến sai | Log của service, mức error | Pair, timeframe, loại vi phạm, vị trí và thời gian mở của nến sai |
 | Cache | Log của decorator, mức debug | Khóa, cache hit hoặc miss, request có chờ chung lời gọi provider hay không |
 | Giới hạn Binance | Log của adapter; mức warn khi nhận 429 hoặc 418 | Weight đã dùng, `Retry-After` |
 | Thời gian phía client | Test hiệu năng của Web | Từ thao tác tới lúc chart có nến (QA-10, QA-11) |
@@ -276,24 +278,26 @@ Cách đọc: thời gian provider gần bằng tổng thời gian thì nguyên 
 
 - Cache nằm trong process. Mỗi instance API có cache riêng và tự gọi Binance, nên mức trần weight nhân theo số instance trên cùng IP. Xét lại khi chạy hơn một instance API.
 - Mức trần 504 weight mỗi phút chỉ đúng khi tập pair và timeframe giữ nguyên. Thêm pair hoặc timeframe phải tính lại.
-- TTL 5 giây chưa có số đo. Xem lại khi đo QA-10 và độ tươi của dữ liệu.
-- QA-10 và QA-11 đã duyệt ngày 2026-11-21. Thiết kế chưa có số đo để chứng minh đạt ngưỡng.
+- TTL 5 giây mới có số đo hit/miss trên replay local, chưa có số đo độ tươi của dữ liệu. Xem lại khi đo polling.
+- Thời gian mở Realtime (QA-10) và đổi timeframe (QA-11) đã đo trên Windows local với replay 50 ms, nhưng kết quả là `Inconclusive`: mốc cuối là lúc chart áp dụng dữ liệu, chưa chứng minh canvas đã vẽ [[11]](#ref-11).
+- Baseline local ở mức tải cao nhất có request lỗi do hết thời gian chờ phía máy phát tải. Máy phát tải, API, replay và PostgreSQL chạy cùng máy, nên chưa xác định nguyên nhân thuộc API hay máy đo. Chưa có ngưỡng latency, lỗi hoặc capacity REST được duyệt [[11]](#ref-11).
+- Better Auth bật rate limit lưu trong database [[8]](#ref-8). Ngoài rule riêng cho Sign in, các path Auth dùng mặc định của `better-auth@1.7.25`: cửa sổ 10 giây, tối đa 100 request, đọc từ source thư viện [[1]](#ref-1). Trong baseline UI, chuỗi thao tác mở Realtime liên tục nhận Auth 429 ở bước kiểm phiên [[11]](#ref-11). `Inferred`: một người dùng thao tác bình thường khó chạm giới hạn này; xét lại khi nhiều người dùng đi ra từ cùng IP.
 - Interface `MarketDataProvider` nằm trong `apps/api`. Worker không dùng được interface này khi backtest cần dữ liệu thị trường (ADR-003).
-- Schema nháp `packages/shared/src/schemas/market-data.schema.ts` của UI mock chưa khớp contract nến: thiếu timeframe 1d (MK-30), có `ma20` (ngược ADR-004), thiếu `isClosed`, `warmupCount` và `dataTime`. Schema được sửa ở bước build [[7]](#ref-7).
 - Summary không có thời điểm dữ liệu, vì MK-27 chỉ áp dụng cho chart và MK-60 không yêu cầu thời điểm trên sidebar. Thêm trường này không phá contract hiện có.
-- Mỗi request Market Data gọi `getSession` và đọc phiên từ PostgreSQL, vì cấu hình Better Auth không bật cookie cache [[9]](#ref-9). Xem lại khi đo QA-10.
+- Mỗi request Market Data gọi `getSession` và đọc phiên từ PostgreSQL, vì cấu hình Better Auth không bật cookie cache [[8]](#ref-8). Xem lại khi đo QA-10.
 - `isClosed` và `dataTime` dựa vào đồng hồ của API. Đồng hồ lệch với Binance có thể đánh dấu sai nến cuối gần thời điểm đóng.
 - Thiết kế chưa mô tả cập nhật định kỳ, WebSocket và phục hồi kết nối.
 
 ## References
 
-1. <a id="ref-1"></a>[Kế hoạch dựng frontend Realtime bằng mock](../build/01-prototype-to-implementation/market-data/work/step-02-mock-frontend/plan.md)
+1. <a id="ref-1"></a>[Kết quả build REST Market Data](../build/01-prototype-to-implementation/market-data/work/step-08-rest-build/execution.md)
 2. <a id="ref-2"></a>[Project Structure](../conventions/project-structure.md)
-3. <a id="ref-3"></a>`apps/api/src/api/middlewares/error-handler.middleware.ts`, `apps/api/src/errors/app-error.ts` tại commit `298d585`
+3. <a id="ref-3"></a>`apps/api/src/api/middlewares/error-handler.middleware.ts`, `apps/api/src/errors/app-error.ts` tại commit `caf7ffb`
 4. <a id="ref-4"></a>[API Contracts](22-api-endpoints.md)
-5. <a id="ref-5"></a>`apps/api/src/app.ts` tại commit `298d585`
+5. <a id="ref-5"></a>`apps/api/src/app.ts` tại commit `caf7ffb`
 6. <a id="ref-6"></a>[Architectural Decisions](30-decisions.md)
-7. <a id="ref-7"></a>`packages/shared/src/schemas/market-data.schema.ts` tại commit `298d585`
-8. <a id="ref-8"></a>Binance Spot API, Market Data endpoints, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints>
-9. <a id="ref-9"></a>`apps/api/src/configs/auth.ts` tại commit `3b9ca0e`
-10. <a id="ref-10"></a>Binance Spot API, General API Information (Limits) và response của `GET /api/v3/exchangeInfo?symbol=BTCUSDT`, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/limits>
+7. <a id="ref-7"></a>Binance Spot API, Market Data endpoints, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints>
+8. <a id="ref-8"></a>`apps/api/src/configs/auth.ts` tại commit `caf7ffb`
+9. <a id="ref-9"></a>Binance Spot API, General API Information (Limits) và response của `GET /api/v3/exchangeInfo?symbol=BTCUSDT`, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/limits>
+10. <a id="ref-10"></a>Evidence smoke Binance: [`upstream.json`](../testing/evidence/market-data/rest-v1-binance-smoke/upstream.json)
+11. <a id="ref-11"></a>[Kiểm chứng REST tải lịch sử](../testing/test-scopes/TS-002-market-data/rest-verification.md)

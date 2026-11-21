@@ -218,13 +218,15 @@ Kết quả: [execution.md](execution.md#task-6-kết-quả-baseline-rest). Prod
 
 #### Task 7: Chốt tài liệu REST tải lịch sử
 
-- [ ] Đối chiếu hành vi thực tế với UCs [[4]](#ref-4), quality attributes [[5]](#ref-5) và thiết kế [[6]](#ref-6) [[7]](#ref-7). Chốt lại tài liệu sản phẩm cho mọi khác biệt.
-- [ ] Ghi kết quả thực chạy, điều kiện đo và đường dẫn evidence vào `rest-verification.md`. Cập nhật README scope. Sửa câu cũ mà kết quả mới làm sai (LL-007).
-- [ ] Chạy Prettier, `pnpm check:docs` và `review-change` cho tài liệu đã sửa.
+- [x] Đối chiếu hành vi thực tế với UCs [[4]](#ref-4), quality attributes [[5]](#ref-5) và thiết kế [[6]](#ref-6) [[7]](#ref-7). Chốt lại tài liệu sản phẩm cho mọi khác biệt.
+- [x] Ghi kết quả thực chạy, điều kiện đo và đường dẫn evidence vào `rest-verification.md`. Cập nhật README scope. Sửa câu cũ mà kết quả mới làm sai (LL-007).
+- [x] Chạy Prettier, `pnpm check:docs` và `review-change` cho tài liệu đã sửa.
+
+Kết quả: [execution.md](execution.md#task-7-chốt-tài-liệu-rest-tải-lịch-sử). Không đổi rule trong `docs/UCs/`. Các requirement chưa đủ evidence ghi Inconclusive trong tài liệu kiểm chứng.
 
 **Điều kiện đạt:** flow REST tải lịch sử có evidence cho từng requirement trong phạm vi, hoặc ghi rõ phần Inconclusive và lý do.
 
-- [ ] Tạo commit cho Task 7. Commit này đánh dấu mốc so sánh REST tải lịch sử.
+- [x] Tạo commit cho Task 7. Commit này đánh dấu mốc so sánh REST tải lịch sử.
 
 ### Phần B: REST polling
 

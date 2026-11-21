@@ -46,7 +46,7 @@ UI được chọn có 720 thao tác chính: 2 × 3 × 100 cho hai flow chính, 
 
 Tất cả response HTTP 200 đã ghi reconciliation trong v2–v4 đều hợp lệ. Phạm vi kiểm server này gồm chuẩn bị, warm-up, lượt chính và lượt bị dừng. Với API, mọi sample client thành công đều có reconciliation hợp lệ. Phép ghép request ID phía UI chỉ kiểm các mẫu chính hợp lệ của profile đầy đủ v3/v4 được chọn. Mọi ID trong body của các mẫu đó ghép được tới reconciliation hợp lệ. UI v2 chưa có ID phía browser, nên chỉ kiểm oracle tại browser và ledger server riêng. Chưa có bằng chứng từng canvas đã paint. **QA-10 và QA-11: Inconclusive. Capacity: Inconclusive.** Không có ngưỡng HTTP latency, lỗi hoặc capacity được duyệt.
 
-Smoke Binance đúng một lượt đã đối chiếu 518 nến đóng và summary, có header quota. Không có load test hoặc retry Binance thật. Các lượt bị hủy, lỗi và thay đổi harness được giữ ở các mục dưới. Task 7–10 chưa thực hiện.
+Smoke Binance đúng một lượt đã đối chiếu 518 nến đóng và summary, có header quota. Không có load test hoặc retry Binance thật. Các lượt bị hủy, lỗi và thay đổi harness được giữ ở các mục dưới.
 
 ### Kết quả cohort v2 và chuẩn bị cohort v3
 
@@ -502,6 +502,58 @@ Accessibility ở mức khai báo theo [giới hạn kiểm accessibility](acces
 
 Không chạy `pnpm check`, toàn bộ test API hoặc baseline. Task 5 không sửa code API production. Thay đổi phía API chỉ nằm ở test server.
 
+## Task 7: Chốt tài liệu REST tải lịch sử
+
+HEAD bắt đầu: `caf7ffb`. Task 7 chỉ sửa tài liệu, không sửa code hoặc testware.
+
+### Đối chiếu hành vi thực tế với tài liệu
+
+| Tài liệu | Khác biệt | Xử lý |
+| --- | --- | --- |
+| `docs/architecture/10-market-data.md` | Trạng thái còn ghi chưa triển khai. Rủi ro còn ghi schema nháp chưa khớp contract. Header weight ghi chưa xác nhận trên response thật | Ghi đã triển khai. Bỏ rủi ro schema nháp. Ghi tên header nhận được trong smoke Binance |
+| `docs/architecture/10-market-data.md` | Thiết kế chỉ ghi timeout API là cấu hình. Code đặt 5000 ms ở composition root. Web không đặt hạn chờ cho summary | Ghi giá trị, nguồn và lý do theo Task 4. Ghi quyết định hạn chờ chỉ cho request nến theo Task 5 |
+| `docs/architecture/10-market-data.md`, `23-security.md` | Log HTTP ghi "method, URL". Code chỉ ghi path tĩnh, `/api/auth/{*splat}` hoặc `/unmatched`, không ghi query | Ghi chính sách path theo `httpLogPath` trong `apps/api/src/app.ts` |
+| `docs/architecture/10-market-data.md` | Rủi ro về thời gian mở Realtime, đổi timeframe (QA-10, QA-11) và TTL ghi chưa có số đo | Ghi kết quả Inconclusive, request hết thời gian chờ ở 50 client và Auth 429 trong baseline, kèm link tới kết quả |
+| `docs/architecture/22-api-endpoints.md`, `00-system.md`, `README.md` | Endpoint Market Data và Binance ghi chưa triển khai. Web xử lý 400/502 ghi không có thử lại | Ghi đã triển khai. Ghi Retry cho mọi lỗi chart, theo Task 5 và quy tắc chart lỗi có thử lại (MK-12) |
+| `docs/UCs/market-data.md` | Sáu rule accessibility ghi "số SC chưa đối chiếu nguyên văn". Bước 07 đã đọc nguyên văn sáu SC ngày 2026-11-20 | Sửa cột Nguồn. Rule và giá trị không đổi |
+| `docs/UCs/quality-attributes.md` | Không có khác biệt. Kết quả đo thuộc tài liệu kiểm chứng | Không sửa |
+
+Không có hành vi thực tế nào cần đổi rule trong `docs/UCs/`. Hạn chờ 10 giây (MK-34) và tối đa 500 nến (MK-33) ghi "xem lại khi đo hiệu năng". Số đo apply không chứng minh mốc vẽ, nên Task 7 không đổi hai giá trị này.
+
+### Kết quả trong tài liệu kiểm chứng
+
+`rest-verification.md` có mục Kết quả thực chạy: kết quả từng suite, tóm tắt mutation, bảng kết quả theo requirement, baseline, smoke Binance và phần chưa kiểm. Các câu cũ đã sai sau Bước 08 được sửa: interface chưa có, file test dự kiến, harness E2E bị chặn, mutation chưa chạy, `k6` chưa cài, thư mục evidence chưa có, tên header weight chưa xác nhận. Ký tự lỗi encoding trong danh sách file schema đã sửa. README của TS-002 ghi trạng thái mới.
+
+Requirement có kết quả khác Passed:
+
+- Rời Realtime rồi mở lại về mặc định (MK-37): chưa có test, Inconclusive. Reload Passed.
+- Đọc nến bằng thao tác chạm (MK-41): chưa kiểm. Chuột và bàn phím Passed.
+- Mọi điều khiển dùng được bằng bàn phím (MK-46): Inconclusive, chọn pair và số chart bằng phím chưa có evidence.
+- Tập pair và timeframe (MK-30, MK-32): Passed ở contract và API; số lựa chọn trên UI chưa có assertion.
+- Dòng MA/volume đang tải (MK-62): Passed khi đổi pair; đổi timeframe chưa có assertion.
+- Nến sai không được vẽ (MK-45): Passed ở API; UI qua API thật chưa có scenario dữ liệu sai.
+- Múi giờ thiết bị (MK-43): chỉ kiểm Asia/Bangkok.
+- Thay provider mà frontend không đổi (QA-09): Inconclusive, vì chưa thêm provider thật thứ hai để đo số đo của scenario.
+- Thời gian mở Realtime, đổi timeframe (QA-10, QA-11) và capacity: Inconclusive, theo kết quả Task 6.
+- Mô tả chart và thông báo trạng thái (MK-47, MK-48): Passed ở mức khai báo, không kiểm screen reader theo quyết định của product owner.
+
+### Review và kiểm chứng
+
+Reviewer độc lập theo skill `review-change` báo 2 finding high, 6 medium và 11 low. Đã sửa tất cả:
+
+- High: lỗi ở mặc định/50 client được ghi là response 503. Evidence cho thấy mọi lỗi phía client có status 0 sau khoảng 10 giây, tức `k6` hết thời gian chờ; server chỉ ghi 221 response 503 ở lần lặp 1. Đã sửa câu ở `rest-verification.md` và `10-market-data.md`.
+- High: MK-46 ghi Passed dù chọn pair và số chart bằng phím chưa có evidence. Đã đổi thành Inconclusive.
+- Medium: MK-30/MK-32, MK-62 và MK-45 ghi Passed nhiều hơn evidence; đã tách phần Inconclusive. Commit của từng suite được ghi riêng. Tác động của timeout 5000 ms được ghi. Nguồn `app.ts` và error handler đổi sang commit `caf7ffb`.
+- Low: câu "đề xuất" và "dự kiến" còn sót, nhãn mutant Task 1, nguồn của MK-50/MK-59 và MK-61, lượt UTC của MK-43, nhãn lượt UI phụ, lượt thường của API, ID đứng một mình, nguồn của rate limit Better Auth, nguồn `packages/shared` trong `00-system.md`, số đo bị chép sang `10-market-data.md`, checkbox plan và CHANGELOG.
+
+| Lệnh | Kết quả |
+| --- | --- |
+| `pnpm --filter @crypto-force/web exec playwright test --config playwright.market-data-rest.config.ts --workers=1` trên `caf7ffb` | 24/24 pass. Chạy lại vì `aa22312` sửa hook vẽ chart sau lượt Task 5 |
+| `... --config playwright.market-data.config.ts --project=ui --workers=1` trên `caf7ffb` | 9/9 pass |
+| `pnpm check:docs`, `git diff --check` | Đạt |
+
+Lượt E2E đầu bị lỗi trước khi chạy test: webServer hết 60 giây và shell trong sandbox không tìm thấy `playwright`. Lượt chạy ngoài sandbox trong bảng mới là evidence. Không chạy `pnpm check`.
+
 ## Phần còn lại
 
-Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất trong commit `b7be50f`. Trạng thái và quyết định của Task 6 nằm tại [Kết quả baseline REST](#task-6-kết-quả-baseline-rest). Task 7–10 chưa thực hiện. Không đánh dấu Bước 08 hoàn thành.
+Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất trong commit `b7be50f`. Trạng thái và quyết định của Task 6 nằm tại [Kết quả baseline REST](#task-6-kết-quả-baseline-rest). Task 7 chốt tài liệu REST tải lịch sử. Commit của Task 7 là mốc so sánh REST tải lịch sử. Task 8–10 chưa thực hiện. Không đánh dấu Bước 08 hoàn thành.

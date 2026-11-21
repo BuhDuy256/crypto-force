@@ -20,7 +20,7 @@ flowchart LR
     CF --> G[Google: xác thực danh tính]
     CF --> R[Resend: gửi email]
     CF --> P[Pwned Passwords: kiểm password bị lộ]
-    CF -. tích hợp theo thiết kế, chưa triển khai .-> BI[Binance: dữ liệu thị trường]
+    CF --> BI[Binance: dữ liệu thị trường]
     CF -. tích hợp theo thiết kế, chưa triển khai .-> L[LLM: sentiment]
 ```
 
@@ -34,18 +34,18 @@ flowchart LR
     A --> R[Mailer: Resend hoặc console]
     A --> P[Pwned Passwords API]
     W[Worker: pg-boss] --> D
-    A -. Market Data qua MarketDataProvider, chưa triển khai .-> BI[Binance REST]
+    A -- Market Data qua MarketDataProvider --> BI[Binance REST]
 ```
 
 Các kết nối nét liền trong sơ đồ là cơ chế đã có trong source; kết nối nét đứt là tích hợp trong thiết kế chưa có adapter triển khai. Việc một integration có code không khẳng định dịch vụ đó đã được cấu hình trên môi trường deploy.
 
 | Container/package | Trách nhiệm | Phần đã triển khai |
 | --- | --- | --- |
-| Web | Render UI, điều hướng và giữ server state phía client | Landing, Auth, màn 404, workspace layout/header và lớp chặn phiên; nội dung các tab nghiệp vụ là placeholder |
-| API | HTTP boundary, orchestration, truy cập dữ liệu và gọi provider dữ liệu thị trường | Better Auth, health, cấu hình Auth công khai, security headers, logging và error handling; Market Data mới có thiết kế [[10]](#ref-10) |
+| Web | Render UI, điều hướng và giữ server state phía client | Landing, Auth, màn 404, workspace layout/header, lớp chặn phiên và Realtime xem lịch sử nến qua API; các tab nghiệp vụ khác là placeholder |
+| API | HTTP boundary, orchestration, truy cập dữ liệu và gọi provider dữ liệu thị trường | Better Auth, health, cấu hình Auth công khai, security headers, logging, error handling và Market Data REST tải lịch sử qua Binance adapter có cache [[10]](#ref-10) |
 | PostgreSQL | Persistence của ứng dụng và queue | Schema ứng dụng gồm dữ liệu tài khoản/phiên và rate limit; pg-boss quản lý schema queue riêng |
 | Worker | Thực thi job nền ngoài vòng đời HTTP request | Khởi động/dừng pg-boss; chưa đăng ký job handler |
-| `packages/shared` | Contracts và validation dùng chung | Schema Auth và environment |
+| `packages/shared` | Contracts và validation dùng chung | Schema Auth, environment, Market Data và metadata pair [[3]](#ref-3) |
 | `packages/engine` | Tính toán domain tất định, không I/O | Entry point chưa export module tính toán |
 
 Nguồn hiện trạng: bootstrap API/Worker, route config và entry point engine [[3]](#ref-3). Worker không nằm trên đường xử lý request Auth hiện tại.
@@ -85,7 +85,7 @@ Kiểm phiên ở Web phục vụ điều hướng và hiển thị, không thay
 
 1. <a id="ref-1"></a>[Authentication](../UCs/authentication.md)
 2. <a id="ref-2"></a>[Project: Crypto Force](../../AGENTS.md) và [Project Brief](../UCs/sources/project-brief.md)
-3. <a id="ref-3"></a>[API bootstrap](../../apps/api/src/index.ts), [Worker bootstrap](../../apps/worker/src/index.ts), [Web routes](../../apps/web/app/routes.ts) và [Engine entry point](../../packages/engine/src/index.ts)
+3. <a id="ref-3"></a>[API bootstrap](../../apps/api/src/index.ts), [Worker bootstrap](../../apps/worker/src/index.ts), [Web routes](../../apps/web/app/routes.ts), [Engine entry point](../../packages/engine/src/index.ts) và [Shared exports](../../packages/shared/src/index.ts)
 4. <a id="ref-4"></a>[Security](23-security.md)
 5. <a id="ref-5"></a>[Prototype → Implementation Roadmap](../build/01-prototype-to-implementation/draft/implementation-plan/roadmap.md)
 6. <a id="ref-6"></a>[Architectural Decisions](30-decisions.md)

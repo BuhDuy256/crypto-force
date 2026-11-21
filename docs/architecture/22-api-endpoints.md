@@ -10,19 +10,19 @@
 | Không có phiên thì chặn workspace (SS-03), Sign out thu hồi phiên (SS-01) | `get-session` và `sign-out` dùng cookie session |
 | Chỉ nhận origin và đích chuyển tiếp hợp lệ (SEC-02, RD-06) | Better Auth kiểm origin/callback; Web kiểm `next` trước khi điều hướng |
 | Giới hạn request Auth và gửi email (SI-06, GO-08, SEC-07) | Better Auth trả 429 cùng `X-Retry-After`; Web chuyển lỗi thành `AuthRequestError` |
-| Xem lịch sử nến và summary của pair (Market Data, MK-08, MK-25, MK-33) | [Endpoint Market Data](#endpoint-market-data) (thiết kế, chưa triển khai) |
+| Xem lịch sử nến và summary của pair (Market Data, MK-08, MK-25, MK-33) | [Endpoint Market Data](#endpoint-market-data) |
 | Phiên hết hạn khi xem Realtime (MK-40) | Endpoint Market Data trả 401 `UNAUTHENTICATED`; Web chuyển sang màn chặn workspace |
 | Lỗi theo nhóm, không lộ chi tiết upstream (MK-12, MK-18, MK-39, MK-45) | [Lỗi Market Data](#lỗi-market-data) |
 
 ## Thành phần
 
-`createApp` mount Better Auth bằng `toNodeHandler` trước `express.json()`, vì Better Auth tự đọc body. Router `/api` của ứng dụng được mount sau đó; nó hiện có health và cấu hình Auth công khai [[2]](#ref-2).
+`createApp` mount Better Auth bằng `toNodeHandler` trước `express.json()`, vì Better Auth tự đọc body. Router `/api` của ứng dụng được mount sau đó; nó có health, cấu hình Auth công khai và hai endpoint Market Data [[2]](#ref-2).
 
 ## Ranh giới giao tiếp
 
 | Bên gọi → bên nhận | Transport và contract | Hiện trạng |
 | --- | --- | --- |
-| Trình duyệt → API | HTTP cùng origin, prefix `/api` | Health, cấu hình công khai và Better Auth |
+| Trình duyệt → API | HTTP cùng origin, prefix `/api` | Health, cấu hình công khai, Better Auth và Market Data |
 | Google/hộp thư → API qua trình duyệt | Callback OAuth hoặc link kiểm token | Thuộc namespace `/api/auth/*`, sau đó chuyển về route Web |
 | API → PostgreSQL | Drizzle adapter và connection pool | Chi tiết schema nằm trong Database |
 | Worker → PostgreSQL | pg-boss | Queue bootstrap; chưa có contract payload job nghiệp vụ |
@@ -41,7 +41,7 @@ Nguồn: `health.route.ts`, `auth-config.route.ts` và bootstrap API [[2]](#ref-
 
 ### Endpoint Market Data
 
-Trạng thái: thiết kế cho vòng REST tải lịch sử, chưa triển khai. Web hiện gọi hai path này qua mock [[8]](#ref-8). Kiểu response là contract nến trong Market Data; bảng dưới không định nghĩa lại trường [[9, Contract nến và chuẩn hóa]](#ref-9).
+Trạng thái: đã triển khai cho vòng REST tải lịch sử. Web gọi hai path này qua `app/api/market-data.ts` [[8]](#ref-8). Kiểu response là contract nến trong Market Data; bảng dưới không định nghĩa lại trường [[9, Contract nến và chuẩn hóa]](#ref-9).
 
 | Method | Path | Query | Session | Response thành công |
 | --- | --- | --- | --- | --- |
@@ -60,9 +60,9 @@ Body theo envelope của router ứng dụng: `{ "error": { "code": string, "mes
 | Nhóm | HTTP | `code` | Web xử lý |
 | --- | --- | --- | --- |
 | Không có phiên hợp lệ | 401 | `UNAUTHENTICATED` | Chuyển sang màn chặn workspace (MK-40) |
-| Input không hợp lệ | 400 | `INVALID_QUERY` | Không xảy ra từ UI; hiển thị lỗi chung |
+| Input không hợp lệ | 400 | `INVALID_QUERY` | Không xảy ra từ UI; lỗi chung của chart hoặc sidebar kèm thử lại |
 | Nguồn dữ liệu không khả dụng hoặc hết timeout | 503 | `MARKET_DATA_UNAVAILABLE` | Lỗi của chart hoặc sidebar kèm thử lại (MK-12, MK-18) |
-| Dữ liệu nguồn sai, gồm payload upstream không parse được | 502 | `MARKET_DATA_INVALID` | Lỗi của chart, không vẽ nến (MK-45) |
+| Dữ liệu nguồn sai, gồm payload upstream không parse được | 502 | `MARKET_DATA_INVALID` | Lỗi của chart kèm thử lại, không vẽ nến (MK-45) |
 | Lỗi không lường trước | 500 | `INTERNAL_ERROR` | Lỗi kèm thử lại |
 
 503 cho nguồn không khả dụng, vì đây là tình trạng tạm thời và thử lại có thể thành công. 502 cho dữ liệu nguồn sai, vì upstream đã trả lời nhưng response không dùng được. Web phân nhánh theo `code`, không theo status.
@@ -85,7 +85,7 @@ Body là JSON; tham số trong cột Input là query khi method là GET. Các gi
 | GET, POST | `/api/auth/callback/google` | Tham số phản hồi OAuth, gồm `code`, `state` hoặc lỗi | Better Auth hoàn tất OAuth, tạo session khi hợp lệ, redirect về Web |
 | POST | `/api/auth/sign-out` | Cookie session nếu có | Kết thúc phiên hiện tại và xóa cookie; Web xóa cache sau response thành công |
 
-Các endpoint bắt đầu đăng nhập, gửi email và kiểm link không yêu cầu phiên đăng nhập sẵn; token/state và origin vẫn phải hợp lệ. `get-session` cho phép kiểm cả trạng thái chưa đăng nhập. Sign out sử dụng cookie của phiên cần kết thúc. Cookie và các trường token trả bởi thư viện không được log [[5]](#ref-5).
+Các endpoint bắt đầu đăng nhập, gửi email và kiểm link không yêu cầu phiên đăng nhập sẵn; token/state và origin vẫn phải hợp lệ. `get-session` cho phép kiểm cả trạng thái chưa đăng nhập. Sign out sử dụng cookie của phiên cần kết thúc. Cookie, các trường token trả bởi thư viện và token trong path của link reset password không được log [[5]](#ref-5).
 
 ### Surface HTTP kế thừa từ Better Auth
 
@@ -127,7 +127,7 @@ Worker mới khởi động pg-boss, chưa có job handler hoặc payload schema
 
 | Hạng mục | Quyết định |
 | --- | --- |
-| Quyền sở hữu route | Better Auth sở hữu `/api/auth/*`; router Express của ứng dụng sở hữu `/api/health` và `/api/auth-config` |
+| Quyền sở hữu route | Better Auth sở hữu `/api/auth/*`; router Express của ứng dụng sở hữu `/api/health`, `/api/auth-config` và `/api/market-data/*` |
 | Callback | URL callback backend thuộc `/api/auth/*`; route form `/reset-password` và route `/sign-up/verify` là Web UI, không thay thế endpoint kiểm token |
 | Cấu hình Google | API trả capability công khai; Auth layout dùng false nếu không đọc được cấu hình, không suy ra secret từ phía client |
 | Truy cập Market Data | Yêu cầu phiên. Realtime là màn hình workspace (MK-40). Endpoint công khai cho phép bên ngoài dùng API như proxy tới Binance và tiêu giới hạn request theo IP của server. Xét lại nếu có trang công khai cần dữ liệu thị trường, ví dụ landing |
