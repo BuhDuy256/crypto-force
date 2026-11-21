@@ -32,7 +32,7 @@ const hashFile = (file) => hash(readFileSync(file));
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
 const base = JSON.parse(readFileSync(resolve(directory, 'config.json'), 'utf8'));
 const command = process.argv[2];
-const cohortPrefix = 'rest-v3';
+const cohortPrefix = process.argv.includes('--hot-tail') ? 'rest-v4' : 'rest-v3';
 const privateDirectory = resolve(root, 'node_modules/.cache/market-data-perf');
 mkdirSync(privateDirectory, { recursive: true });
 mkdirSync(evidence, { recursive: true });
@@ -505,6 +505,8 @@ if (command === 'prepare') {
         repeat <= (assetCache === 'cold' && action !== 'pair' ? 3 : 1);
         repeat++
       ) {
+        if (process.argv.includes('--hot-tail') && (assetCache !== 'hot' || action === 'open'))
+          continue;
         if (process.argv.includes('--remaining-ui') && assetCache === 'cold' && action === 'open')
           continue;
         const run = `${cohortPrefix}-ui-${action}-${assetCache}-${repeat}`;

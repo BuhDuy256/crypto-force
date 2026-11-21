@@ -44,6 +44,6 @@
     "cacheHitPreparation": "The 1000 ms guard is the approved 6000 ms think time minus the 5000 ms TTL. A near-expiry prime waits 6000 ms before priming again. The extra wait occurs before timing starts.",
     "authPreparation": "Setup retries once after Auth returns 429. The retry uses X-Retry-After from the real response. Auth uses the production rate-limit configuration. A 429 during the measured action remains an error.",
     "uiObservation": "Parsed Market Data responses record the server request ID. Each sample records request starts and timeOrigin. The runner requests a screenshot after an invalid sample.",
-    "httpClock": "Native k6 HTTP timings use UnixNano wall-clock differences. Monotonic timing is not verified. The protocol decision is pending."
+    "httpClock": "Native k6 HTTP timings use UnixNano wall-clock differences. The product owner permits descriptive API results for Task 6. Monotonic timing remains unverified."
   }
 }

@@ -22,9 +22,17 @@ Micro hit v3 kiểm tuổi snapshot prime trước khi đo. Guard 1000 ms lấy 
 
 Bốn test helper đã pass. Bốn mutant làm assertion fail: dùng prime gần hết hạn, prime lại không cần thiết, bỏ chờ header Auth và bỏ chờ chart sẵn sàng. Sau khi khôi phục, cả bốn test pass. Preflight trên browser production với Auth thật cũng kiểm bước phục hồi sau 429. Preflight không cung cấp mẫu latency baseline.
 
-Source k6 `v2.4.0`, `lib/netext/httpext/tracer.go`, dùng `time.Now().UnixNano()` cho HTTP timing. Vì vậy các giá trị latency API v2 chỉ mang tính mô tả. Chúng chưa đáp ứng yêu cầu clock đơn điệu. Mô tả clock chung trong manifest v2 đã ghi quá mức bằng chứng. Raw và percentile vẫn được giữ nguyên. Quyết định xử lý protocol đang chờ product owner. Runner v3 chặn mode API mặc định để tránh tạo thêm lượt có cùng giới hạn mà không ghi rõ.
+Source k6 `v2.4.0`, `lib/netext/httpext/tracer.go`, dùng `time.Now().UnixNano()` cho HTTP timing. Vì vậy các giá trị latency API v2 chỉ mang tính mô tả. Chúng chưa đáp ứng yêu cầu clock đơn điệu. Mô tả clock chung trong manifest v2 đã ghi quá mức bằng chứng. Manifest giữ mô tả cũ trong `clockErratum`. Raw và percentile vẫn được giữ nguyên.
+
+**Quyết định product owner, 2026-11-21:** giữ 18 lượt API làm số liệu mô tả và ghi rõ giới hạn clock. Không đo lại API trong Task 6. Quyết định này không xác nhận HTTP latency hoặc capacity đạt yêu cầu. Yêu cầu clock đơn điệu vẫn áp dụng cho các lượt baseline đủ điều kiện trong tương lai. Runner v3 chặn mode API mặc định để tránh tạo thêm lượt có cùng giới hạn mà không ghi rõ.
 
 ### Chuẩn bị ban đầu
+
+Cohort v3 đã hoàn tất ba lượt micro-hit, ba lượt UI timeframe-cold, pair-cold và open-hot. Mỗi lượt micro-hit có 100/100 mẫu, không failure hoặc reconciliation sai. Mỗi lượt timeframe-cold có 100/100 mẫu hợp lệ. p95 apply lần lượt 413,1 / 410,5 / 409,2 ms. Mỗi lượt timeframe-cold ghi một Auth 429 trong bước chuẩn bị và phục hồi theo header.
+
+Lượt v3 timeframe-hot dừng trong bước chuẩn bị action 8. Runner đã giữ năm mẫu warm-up và tám mẫu chính. Request 4h trong bước chuẩn bị trả 503 sau provider timeout. Resource log ghi event-loop p95 tối đa 2753,56 ms và khoảng cách hai mẫu resource tối đa 3385,25 ms. Các số này chưa xác định được nguyên nhân chậm. Summary của lượt này ghi không đủ điều kiện baseline. Không tăng timeout hoặc thêm retry cho 503.
+
+Cohort v4 chỉ chạy lại timeframe-hot và chạy pair-hot, mỗi profile đủ 30 mẫu chính. Thay đổi runner chỉ thêm lựa chọn hai profile này qua `--hot-tail`. Script, config và manifest v4 phải được commit trước lượt đo. Những profile v2/v3 đã hoàn tất vẫn giữ nguyên.
 
 Người dùng đã duyệt cài k6 ngoài repository, smoke Binance một lượt và commit evidence. File raw lớn hơn 5 MB được nén gzip và lưu SHA256 trong manifest. Không có ủy quyền load test Binance thật.
 

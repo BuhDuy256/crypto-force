@@ -1,0 +1,11 @@
+{
+  "version": "159.0.8154.6",
+  "headless": true,
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "deviceScaleFactor": 1,
+  "serviceWorkers": "block",
+  "draw": "Inconclusive. No public chart callback confirms completion of this selection paint."
+}

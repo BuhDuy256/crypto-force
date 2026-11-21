@@ -1,0 +1,9 @@
+{
+  "run": "rest-v3-ui-timeframe-hot-1",
+  "count": 8,
+  "warmupCount": 5,
+  "eligibleForBaseline": false,
+  "outcome": "Setup timed out before action 8. The 4h request returned 503 after provider timeout. No completed action was removed.",
+  "display": "Inconclusive",
+  "nextCohort": "rest-v4"
+}

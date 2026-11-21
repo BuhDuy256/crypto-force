@@ -44,7 +44,7 @@
     "cacheHitPreparation": "The 1000 ms guard is the approved 6000 ms think time minus the 5000 ms TTL. A near-expiry prime waits 6000 ms before priming again. The extra wait occurs before timing starts.",
     "authPreparation": "Setup retries once after Auth returns 429. The retry uses X-Retry-After from the real response. Auth uses the production rate-limit configuration. A 429 during the measured action remains an error.",
     "uiObservation": "Parsed Market Data responses record the server request ID. Each sample records request starts and timeOrigin. The runner requests a screenshot after an invalid sample.",
-    "httpClock": "Native k6 HTTP timings use UnixNano wall-clock differences. Monotonic timing is not verified. The protocol decision is pending."
+    "httpClock": "Native k6 HTTP timings use UnixNano wall-clock differences. The product owner permits descriptive API results for Task 6. Monotonic timing remains unverified."
   },
   "api": {
     "cohorts": ["default", "diverse"],
@@ -66,12 +66,12 @@
   "firstMeasurement": "Not started",
   "accountCount": 50,
   "sessionCount": "Created by real Auth before each measured run",
-  "sourceDigest": "eef5c48df649948827bf9ad55c5fea2b347153dbf075b0e77bcec613fde36549",
-  "run": "rest-v3",
+  "sourceDigest": "1a84c3e35c69265619e1ef15c975b431122464d7548599eb531d71bd4f887066",
+  "run": "rest-v4",
   "origin": "http://127.0.0.1:5195",
-  "commit": "738e780571d1f73f7e674b2f89e715e9dc56d326",
-  "dirtyDiffHash": "09e00516065fdfbfcd95754b5dfb650fdc86c31567f54a14b78e4439e23a6c79",
-  "dirtyFiles": "M apps/api/perf/market-data/browser.mjs\n M apps/api/perf/market-data/config.json\n M apps/api/perf/market-data/run.mjs\n M eslint.config.js\n?? apps/api/perf/market-data/helper-mutations.mjs\n?? apps/api/perf/market-data/helpers.test.mjs\n?? apps/api/perf/market-data/prepare-charts.mjs\n?? apps/api/perf/market-data/prime-cache.mjs\n?? apps/api/perf/market-data/ready-preflight.mjs\n?? docs/testing/evidence/market-data/rest-v2-api-default-1-1/\n?? docs/testing/evidence/market-data/rest-v2-api-default-1-2/\n?? docs/testing/evidence/market-data/rest-v2-api-default-1-3/\n?? docs/testing/evidence/market-data/rest-v2-api-default-10-1/\n?? docs/testing/evidence/market-data/rest-v2-api-default-10-2/\n?? docs/testing/evidence/market-data/rest-v2-api-default-10-3/\n?? docs/testing/evidence/market-data/rest-v2-api-default-50-1/\n?? docs/testing/evidence/market-data/rest-v2-api-default-50-2/\n?? docs/testing/evidence/market-data/rest-v2-api-default-50-3/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-1-1/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-1-2/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-1-3/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-10-1/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-10-2/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-10-3/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-50-1/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-50-2/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-50-3/\n?? docs/testing/evidence/market-data/rest-v2-micro-hit-1/\n?? docs/testing/evidence/market-data/rest-v2-micro-hit-2/\n?? docs/testing/evidence/market-data/rest-v2-micro-hit-3/\n?? docs/testing/evidence/market-data/rest-v2-micro-miss-1/\n?? docs/testing/evidence/market-data/rest-v2-micro-miss-2/\n?? docs/testing/evidence/market-data/rest-v2-micro-miss-3/\n?? docs/testing/evidence/market-data/rest-v2-micro-single-flight-1/\n?? docs/testing/evidence/market-data/rest-v2-micro-single-flight-2/\n?? docs/testing/evidence/market-data/rest-v2-micro-single-flight-3/\n?? docs/testing/evidence/market-data/rest-v2-ui-open-cold-1/\n?? docs/testing/evidence/market-data/rest-v2-ui-open-cold-2/\n?? docs/testing/evidence/market-data/rest-v2-ui-open-cold-3/\n?? docs/testing/evidence/market-data/rest-v2-ui-timeframe-cold-1/",
+  "commit": "f8d760f3e054e3f9d611dcc18f73938556d441c4",
+  "dirtyDiffHash": "75215c96f364582c2e453bce9fa8a1df71aabdcee66ee5a8370a1668c9f9002e",
+  "dirtyFiles": "M apps/api/perf/market-data/config.json\n M apps/api/perf/market-data/run.mjs\n M docs/build/01-prototype-to-implementation/market-data/work/step-08-rest-build/execution.md\n M docs/testing/test-scopes/TS-002-market-data/rest-verification.md\n?? docs/testing/evidence/market-data/rest-v3-micro-hit-1/\n?? docs/testing/evidence/market-data/rest-v3-micro-hit-2/\n?? docs/testing/evidence/market-data/rest-v3-micro-hit-3/\n?? docs/testing/evidence/market-data/rest-v3-ui-open-hot-1/\n?? docs/testing/evidence/market-data/rest-v3-ui-pair-cold-1/\n?? docs/testing/evidence/market-data/rest-v3-ui-timeframe-cold-1/\n?? docs/testing/evidence/market-data/rest-v3-ui-timeframe-cold-2/\n?? docs/testing/evidence/market-data/rest-v3-ui-timeframe-cold-3/\n?? docs/testing/evidence/market-data/rest-v3-ui-timeframe-hot-1/",
   "lockfileHash": "59c044ea8bbf2ff11311c9bcc130f162d37a9e3997b844dff8c46ba64353f11d",
   "fixtureHash": "494311daa4d8fb4ff2d6a532b2ba50d9b5bba7ec77d5684d17ca066dc6a3bea2",
   "node": "v22.23.5",
@@ -83,7 +83,7 @@
     "cpu": "13th Gen Intel(R) Core(TM) i7-1355U",
     "logicalCores": 12,
     "ram": 16857645056,
-    "freeRam": 3399954432,
+    "freeRam": 3334565888,
     "topology": "Browser, k6, API, replay, and Docker Desktop PostgreSQL share this Windows host.",
     "cpuGovernor": "Unknown",
     "databaseDescription": "Dedicated _market_data_perf_test database. No production account data.",
@@ -92,7 +92,7 @@
       "version": "PostgreSQL 17.10 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
       "bytes": "8533683",
       "users": "50",
-      "sessions": "473",
+      "sessions": "485",
       "migrations": [
         {
           "id": 1,
@@ -111,5 +111,5 @@
     "clock": "Mode-specific clocks: native k6 HTTP timing uses a wall clock. Node micro and browser UI use performance.now. Host synchronization is not independently verified."
   },
   "buildHash": "de74c5eb7bd463ec26e6a080bb27f2f64292e57650451176bdf82f24c921489f",
-  "startedUtc": "2026-11-21T11:05:35.653Z"
+  "startedUtc": "2026-11-21T12:06:52.942Z"
 }

@@ -1,0 +1,7 @@
+{
+  "mode": "ui",
+  "assetCache": "cold",
+  "action": "timeframe",
+  "repeat": 3,
+  "actions": 100
+}
