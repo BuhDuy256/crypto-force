@@ -111,7 +111,7 @@ Mức ưu tiên: **High** là sai thì kết quả hệ thống mất giá trị
 
 ## Công cụ
 
-`Vitest` và `Playwright` là **Confirmed**; các công cụ còn lại là **Proposed**. Một loại test chỉ được thêm công cụ khi loại test đó được giữ lại trong strategy.
+`Vitest`, `Playwright` và `k6` cho load test REST là **Confirmed**; các công cụ còn lại là **Proposed**. `k6` cho WebSocket vẫn Proposed. Product owner duyệt `k6` cho REST ngày 2026-11-21. Một loại test chỉ được thêm công cụ khi loại test đó được giữ lại trong strategy.
 
 | Công cụ | Dùng cho loại test | Rủi ro |
 | --- | --- | --- |

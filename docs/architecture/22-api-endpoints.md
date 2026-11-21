@@ -51,7 +51,7 @@ Trạng thái: thiết kế cho vòng REST tải lịch sử, chưa triển khai
 - `pair` và `timeframe` phải thuộc enum trong `packages/shared` (MK-30, MK-32). Query thiếu, sai giá trị hoặc thừa tham số trả 400.
 - Client không gửi số nến. Server quyết định số nến: số nến tối đa trên một chart (MK-33) cộng nến khởi động MA (ADR-004), để client không tăng tải lên provider.
 - Response có `Cache-Control: no-store`. API cache dữ liệu ngắn hạn phía server; `dataTime` cho biết thời điểm API nhận dữ liệu, nên response từ cache không đổi contract [[9, Cache và giới hạn request]](#ref-9).
-- Middleware dùng chung của router ứng dụng kiểm phiên: gọi `auth.api.getSession` với header của request, đổi bằng `fromNodeHeaders` của `better-auth/node`. Endpoint này của Better Auth yêu cầu header và trả `null` khi không có phiên hợp lệ [[4]](#ref-4).
+- Middleware dùng chung của router ứng dụng kiểm phiên: gọi `auth.api.getSession` với header của request, đổi bằng `fromNodeHeaders` của `better-auth/node`. Endpoint này của Better Auth yêu cầu header và trả `null` khi không có phiên hợp lệ [[4]](#ref-4). Kiểm phiên chạy trước kiểm query. Request không có phiên hợp lệ nhận 401 `UNAUTHENTICATED` kể cả khi query cũng sai, để người chưa đăng nhập không thấy quy tắc validation. Product owner duyệt ngày 2026-11-21.
 
 #### Lỗi Market Data
 
@@ -62,7 +62,7 @@ Body theo envelope của router ứng dụng: `{ "error": { "code": string, "mes
 | Không có phiên hợp lệ | 401 | `UNAUTHENTICATED` | Chuyển sang màn chặn workspace (MK-40) |
 | Input không hợp lệ | 400 | `INVALID_QUERY` | Không xảy ra từ UI; hiển thị lỗi chung |
 | Nguồn dữ liệu không khả dụng hoặc hết timeout | 503 | `MARKET_DATA_UNAVAILABLE` | Lỗi của chart hoặc sidebar kèm thử lại (MK-12, MK-18) |
-| Dữ liệu nguồn sai | 502 | `MARKET_DATA_INVALID` | Lỗi của chart, không vẽ nến (MK-45) |
+| Dữ liệu nguồn sai, gồm payload upstream không parse được | 502 | `MARKET_DATA_INVALID` | Lỗi của chart, không vẽ nến (MK-45) |
 | Lỗi không lường trước | 500 | `INTERNAL_ERROR` | Lỗi kèm thử lại |
 
 503 cho nguồn không khả dụng, vì đây là tình trạng tạm thời và thử lại có thể thành công. 502 cho dữ liệu nguồn sai, vì upstream đã trả lời nhưng response không dùng được. Web phân nhánh theo `code`, không theo status.

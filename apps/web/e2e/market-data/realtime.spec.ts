@@ -191,10 +191,10 @@ test('updates all charts and keeps summary independent of the first timeframe', 
     if (request.url().includes('/api/market-data/summary?')) summaryRequests.push(request.url());
   });
   await page.goto('/realtime');
-  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('123 USDT');
+  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('123.00 USDT');
   summaryRequests.length = 0;
   await selectPair(page, 'ETHUSDT');
-  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('234 USDT');
+  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('234.00 USDT');
   await expect(page.getByLabel('Change 24h', { exact: true })).toHaveText('-1.25%');
   for (const timeframe of ['1m', '5m', '15m', '1h']) {
     await expect(
@@ -202,13 +202,13 @@ test('updates all charts and keeps summary independent of the first timeframe', 
     ).toBeVisible();
   }
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
-    'Close 220 · Volume 600 · MA(20) 210.5',
+    'Close 220.00 · Volume 600 · MA(20) 210.50',
   );
   await expect(page.getByLabel('Summary MA20', { exact: true })).toHaveText('210.5');
   await selectTimeframe(page, 1, '5m');
   await expect(page.getByLabel('Summary volume', { exact: true })).toHaveText('1,200');
   await expect(page.getByRole('heading', { name: 'Chart 1 · 5m', exact: true })).toBeVisible();
-  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('234 USDT');
+  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('234.00 USDT');
   await expect(page.getByLabel('Change 24h', { exact: true })).toHaveText('-1.25%');
   expect(summaryRequests).toHaveLength(1);
 });
@@ -227,21 +227,21 @@ test('keeps the new pair when an older response is released last', async ({ page
     if (pair === 'ETHUSDT') released.resolve();
   });
   await page.goto('/realtime');
-  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('123 USDT');
+  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('123.00 USDT');
   await selectPair(page, 'ETHUSDT');
   await received.promise;
-  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('234 USDT');
+  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('234.00 USDT');
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveCount(0);
   await selectPair(page, 'SOLUSDT');
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
-    'Close 320 · Volume 600 · MA(20) 310.5',
+    'Close 320.00 · Volume 600 · MA(20) 310.50',
   );
   gate.resolve();
   await released.promise;
   await expect(page.getByLabel('SOLUSDT 1m candlesticks, volume and MA(20)')).toBeVisible();
-  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('345 USDT');
+  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('345.00 USDT');
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
-    'Close 320 · Volume 600 · MA(20) 310.5',
+    'Close 320.00 · Volume 600 · MA(20) 310.50',
   );
 });
 
@@ -305,7 +305,7 @@ test('keeps candles after a failed refresh and handles missing MA and summary er
   );
   await page.goto('/realtime');
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
-    'Close 103 · Volume 90 · MA(20) Not enough data',
+    'Close 103.00 · Volume 90 · MA(20) Not enough data',
   );
   await expect(page.getByLabel('Summary MA20', { exact: true })).toHaveText('Not enough data');
   await expect(page.getByLabel('Summary volume', { exact: true })).toHaveText('90');
@@ -318,7 +318,7 @@ test('keeps candles after a failed refresh and handles missing MA and summary er
     page.getByText('Could not refresh candles. Previous data remains visible.', { exact: true }),
   ).toBeVisible();
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
-    'Close 103 · Volume 90 · MA(20) Not enough data',
+    'Close 103.00 · Volume 90 · MA(20) Not enough data',
   );
   await expect(
     page.getByText('Chart information refresh failed. Previous values remain visible.', {
@@ -330,7 +330,7 @@ test('keeps candles after a failed refresh and handles missing MA and summary er
     route.fulfill({ json: { pair: 'BTCUSDT', lastPrice: 123, change24hPercent: 2.4 } }),
   );
   await page.getByRole('button', { name: 'Retry summary', exact: true }).click();
-  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('123 USDT');
+  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('123.00 USDT');
   expect(requests).toEqual(['1m']);
 });
 

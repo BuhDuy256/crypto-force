@@ -8,7 +8,7 @@ Các bước dùng checkbox để theo dõi tiến độ.
 
 **Kiến trúc:** kiểm contract dùng chung, service qua provider giả lập, adapter qua HTTP giả lập và flow Web → API qua E2E. Đo riêng cache hit và cache miss. REST tải lịch sử chỉ cung cấp baseline cho các phép đo áp dụng được.
 
-**Công cụ:** Vitest, Playwright và ESLint theo Test Strategy [[2]](#ref-2). Công cụ load test còn Proposed, chọn khi chốt workload.
+**Công cụ:** Vitest, Playwright và ESLint theo Test Strategy [[2]](#ref-2). Công cụ load test là `k6`, product owner duyệt ngày 2026-11-21.
 
 **Test basis:** hành vi Market Data [[3]](#ref-3), quality attributes [[4]](#ref-4), thiết kế provider/cache [[5]](#ref-5), contract HTTP [[6]](#ref-6) và phân tích requirements REST [[7]](#ref-7).
 

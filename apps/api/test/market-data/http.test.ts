@@ -6,6 +6,7 @@ import { createServer } from 'node:http';
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { createApp } from '../../src/app';
+import { createBinanceMarketDataProvider } from '../../src/providers/market-data/binance.provider';
 import {
   controlClock,
   createHarness,
@@ -69,6 +70,19 @@ async function errorBody(response: Response) {
 
 it.each(['candles?pair=BTCUSDT&timeframe=1m', 'summary?pair=BTCUSDT'])(
   'rejects missing session for %s without calling the provider',
+  async (path) => {
+    const response = await get(path, '');
+    expect(response.status).toBe(401);
+    expect(await errorBody(response)).toMatchObject({
+      error: { code: 'UNAUTHENTICATED' },
+    });
+    expect(provider.getCandles).not.toHaveBeenCalled();
+    expect(provider.getSummary).not.toHaveBeenCalled();
+  },
+);
+
+it.each(['candles?pair=BTCUSDT&timeframe=abc', 'summary?pair=DOGEUSDT'])(
+  'checks the session before the query for %s',
   async (path) => {
     const response = await get(path, '');
     expect(response.status).toBe(401);
@@ -178,3 +192,43 @@ it('returns the selected pair summary without fetching candles', async () => {
   expect(provider.getSummary).toHaveBeenCalledExactlyOnceWith('ETHUSDT');
   expect(provider.getCandles).not.toHaveBeenCalled();
 });
+
+it('rejects excess provider candles with 502 instead of truncating them', async () => {
+  provider.getCandles.mockResolvedValue({ candles: candles(520), dataTime: 1735720799999 });
+  const response = await get('candles?pair=BTCUSDT&timeframe=1m');
+  expect(response.status).toBe(502);
+  expect(await errorBody(response)).toMatchObject({ error: { code: 'MARKET_DATA_INVALID' } });
+  expect(provider.getCandles).toHaveBeenCalledExactlyOnceWith({
+    pair: 'BTCUSDT',
+    timeframe: '1m',
+    limit: 519,
+  });
+});
+
+it.each(['candles', 'summary'] as const)(
+  'returns 502 for malformed upstream JSON on %s',
+  async (resource) => {
+    const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(
+      new Response('Private malformed payload {', {
+        headers: { 'content-type': 'application/json' },
+      }),
+    );
+    const adapter = createBinanceMarketDataProvider({
+      fetch,
+      now: () => 1735720799999,
+      timeoutMs: 5000,
+      logger: h.logger,
+    });
+    provider.getCandles.mockImplementation((input) => adapter.getCandles(input));
+    provider.getSummary.mockImplementation((pair) => adapter.getSummary(pair));
+    const path =
+      resource === 'candles' ? 'candles?pair=BTCUSDT&timeframe=1m' : 'summary?pair=BTCUSDT';
+    const response = await get(path);
+    expect(response.status).toBe(502);
+    const rawBody: unknown = await response.clone().json();
+    expect(JSON.stringify(rawBody)).not.toContain('Private malformed payload');
+    const body = await errorBody(response);
+    expect(body).toMatchObject({ error: { code: 'MARKET_DATA_INVALID' } });
+    expect(fetch).toHaveBeenCalledTimes(1);
+  },
+);

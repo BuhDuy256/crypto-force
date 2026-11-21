@@ -167,3 +167,15 @@ it('aborts at the configured timeout and never accepts a late response', async (
   expect(fetch).toHaveBeenCalledTimes(1);
   await expect(result).rejects.toThrow();
 });
+
+it('rejects an upstream response above the requested limit', async () => {
+  const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(Response.json(klines(520)));
+  const provider = createBinanceMarketDataProvider({
+    fetch,
+    now: () => 1735720799999,
+    timeoutMs: 5000,
+    logger: capturingLogger().logger,
+  });
+  await expect(provider.getCandles(request)).rejects.toThrow();
+  expect(fetch).toHaveBeenCalledTimes(1);
+});

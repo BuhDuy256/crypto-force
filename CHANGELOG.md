@@ -6,6 +6,10 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 - Test trước build REST Market Data cho Task 4: shared contract, provider/service, adapter/cache, HTTP/session và E2E qua API thật với upstream giả lập. Shared/HTTP đang red. Module production còn thiếu chặn suite provider và startup E2E. Chưa hoàn tất TDD, mutation hoặc baseline.
 
+### Changed
+
+- Chốt các quyết định còn Proposed của Bước 07 Market Data. TTL cache tính từ lúc provider trả kết quả thành công và hết hạn khi đủ 5 giây. API kiểm phiên trước query. Ba pair có tick size 0.01. Mọi giá hiển thị, gồm OHLC và MA, làm tròn half-up và luôn đủ 2 chữ số. Provider trả vượt limit và payload không parse được trả 502. Workload baseline, công cụ `k6` và ngưỡng QA-10/QA-11 kèm điều kiện kết luận đã được duyệt. Test mới và expected giá đã sửa đang red vì chưa có code production.
+
 ### Added
 
 - Protocol baseline REST Market Data cho Task 3 của Bước 07: định nghĩa phép đo, cache rỗng/hit/single-flight, workload đề xuất, replay/smoke và evidence chạy lại. Workload và ngưỡng hiệu năng còn Proposed. Chưa đo baseline hoặc xác nhận capacity.

@@ -53,10 +53,10 @@ Kiểm tra hiện diện ID trong ma trận tìm đủ 49 rule Confirmed của v
 
 Các gate trước khi viết assertion tương ứng:
 
-- Mốc bắt đầu TTL và hết hạn đúng biên đang Proposed. Đã gửi lựa chọn tới product owner. Chưa coi đề xuất là quyết định sản phẩm.
-- Ưu tiên 401 khi cả phiên và query đều sai đang Proposed. Case đã có expected tối thiểu là từ chối và không gọi provider.
-- Chuỗi giá theo số chữ số thập phân chờ metadata có nguồn theo quyết định đã chốt. Không tự đặt tick size trong fixture.
-- Hành vi khi provider trả vượt limit và mã lỗi HTTP cho payload upstream không parse được chưa có oracle cụ thể. Phải xác nhận trong lát contract/adapter trước assertion tương ứng. Các nhóm dữ liệu domain sai đã có expected 502.
+- Mốc bắt đầu TTL và hết hạn đúng biên: product owner đã duyệt ngày 2026-11-21. TTL tính từ lúc provider resolve thành công, hết hạn khi elapsed >= 5000 ms. Assertion biên đã thêm vào `cached-provider.test.ts`.
+- Ưu tiên 401 khi cả phiên và query đều sai: product owner đã duyệt ngày 2026-11-21. Assertion 401 `UNAUTHENTICATED` và provider count 0 đã thêm vào `http.test.ts` cho candles và summary.
+- Tick size của ba pair: product owner đã duyệt ngày 2026-11-21. Cả ba có tick size 0.01, hiển thị 2 chữ số, nguồn ghi trong ADR-005. Quy tắc làm tròn half-up và hiển thị luôn đủ 2 chữ số đã duyệt cùng ngày. Phạm vi gồm giá cuối, OHLC và MA, không gồm volume. Expected giá trong `msw-smoke.spec.ts`, `realtime.spec.ts` và `rest-history.spec.ts` đổi theo quyết định này, không phải do test cũ sai. `rest-history.spec.ts` có assertion giá summary qua API và adapter thật, với Binance thay bằng HTTP fake. Literal giá của fixture `decimal` ghi trong tài liệu kiểm chứng.
+- Provider vượt limit: adapter và service từ chối, không cắt. HTTP trả 502 / MARKET_DATA_INVALID [[2, Partitions và giá trị biên]](#ref-2). Payload upstream không parse được trả `502 / MARKET_DATA_INVALID`, cùng mã lỗi dữ liệu domain sai [[2, Partitions và giá trị biên]](#ref-2). Product owner duyệt hai quyết định này ngày 2026-11-21. Các nhóm dữ liệu domain sai đã có expected 502.
 
 Các gate này không chặn ghi thiết kế case hoặc expected đã có nguồn. Chúng chặn assertion áp quyết định chưa được duyệt. Workload và protocol baseline vẫn thuộc Task 3. Task 4 tạo test/harness từ thiết kế, không gọi Binance trong regression.
 
@@ -70,7 +70,7 @@ Ngày thực hiện: 2026-11-20. Đã thiết kế protocol trong tài liệu ki
 
 Protocol giữ thời gian chart đầu tiên/đủ bốn chart/đổi timeframe, latency HTTP, tỷ lệ lỗi, đối chiếu nến đóng và request count/weight riêng. Thiết kế tách rỗng/hit/single-flight, giữ TTL production 5 giây. Replay đi qua adapter thật, có oracle độc lập và ledger upstream. Môi trường, raw samples, lỗi, tài nguyên và command được lưu theo từng lượt khi chạy ở Bước 08.
 
-Workload do agent đề xuất có nguồn, lý do và tác động riêng cho từng giá trị. Đã trình riêng workload và khuyến nghị giữ ngưỡng mở Realtime/đổi timeframe ở Proposed. Chưa ghi product owner duyệt workload hoặc ngưỡng. Protocol cho phép đo mô tả khi ngưỡng chưa chốt, không ghi Passed hoặc capacity đã đạt. Chỉ chạy workload sau khi được duyệt và có implementation tương ứng.
+Workload do agent đề xuất có nguồn, lý do và tác động riêng cho từng giá trị. Đã trình riêng workload và khuyến nghị giữ ngưỡng mở Realtime/đổi timeframe ở Proposed. Product owner duyệt workload ngày 2026-11-21, với số mẫu UI chia lượt chính (mở mặc định, đổi timeframe, browser cache lạnh) và lượt phụ chỉ mô tả. Sau đó, product owner duyệt ngưỡng QA-10, QA-11 và điều kiện kết luận cùng ngày. Lượt không đủ điều kiện kết luận chỉ mô tả số đo, không ghi Passed hoặc capacity đã đạt. Chỉ chạy workload khi có implementation tương ứng. Công cụ phát tải là `k6`, duyệt ngày 2026-11-21.
 
 Task 4 tiếp tục test/harness theo thiết kế chức năng. Công cụ phát tải, instrumentation vẽ chart và script benchmark phải được cụ thể hóa trước khi chạy baseline. Nếu chưa chứng minh canvas đã vẽ, chỉ báo thời gian apply dữ liệu và ghi thời gian hiển thị là Inconclusive.
 
@@ -82,7 +82,7 @@ Không chạy test app, build, browser, baseline, `pnpm check` hoặc Graphify v
 
 Ngày thực hiện: 2026-11-20. Chỉ thêm test, fixture và harness. Không sửa production hoặc expected của test nháp cũ. Product owner yêu cầu để các quyết định cần duyệt lại sau.
 
-Chưa viết assertion cho biên TTL, ưu tiên phiên/query cùng sai, metadata giá hoặc mã lỗi của payload parse hỏng. Workload và ngưỡng baseline vẫn Proposed.
+Test HTTP cho payload parse hỏng đã bổ sung. Giá đã format vẫn cần kiểm theo contract hiển thị. Workload và ngưỡng baseline đã duyệt ngày 2026-11-21.
 
 ### Các lát red cho Bước 08
 
@@ -92,7 +92,7 @@ Chưa viết assertion cho biên TTL, ưu tiên phiên/query cùng sai, metadata
 | Summary query: `market-summary-input.schema.test.ts` | `accepts summary pair BTCUSDT`: nhận pair. Từ chối key thừa, thiếu hoặc pair lặp                                                                                           | 7 test fail trước expect vì export marketSummaryInputSchema chưa tồn tại. TypeError khi gọi safeParse không chứng minh validation                             |
 | Service: `service.test.ts`                           | `keeps 0 real candles with warmup 0`: gọi provider với limit 519, trả warmupCount 0 và snapshot. Các prefix khác kiểm cửa sổ                                               | Chưa tới assertion vì thiếu services/market-data.service.ts                                                                                                   |
 | Adapter: `binance.test.ts`                           | `maps every closed candle and requests the specified source key`: đúng URL/query, OHLCV và base volume khớp manifest                                                       | Chưa tới assertion vì thiếu providers/market-data/binance.provider.ts                                                                                         |
-| Cache: `cached-provider.test.ts`                     | `shares pending work and preserves the received snapshot on a fresh hit`: một provider call cho hai waiter và lần đọc cache. Giữ dataTime/isClosed                         | Chưa tới assertion vì thiếu providers/market-data/cached-market-data.provider.ts. Không assert biên TTL đang Proposed                                         |
+| Cache: `cached-provider.test.ts`                     | `shares pending work and preserves the received snapshot on a fresh hit`: một provider call cho hai waiter và lần đọc cache. Giữ dataTime/isClosed                         | Chưa tới assertion vì thiếu providers/market-data/cached-market-data.provider.ts. Assertion biên TTL thêm ngày 2026-11-21 sau khi duyệt                                         |
 | Provider contract: `provider-contract.test.ts`       | `serves a fresh snapshot while a different key is blocked by upstream cooldown`: cache BTC vẫn trả sau khi ETH nhận 429. Summary SOL bị chặn. Tổng hai HTTP call           | Chưa tới assertion vì thiếu adapter/decorator                                                                                                                 |
 | HTTP: `http.test.ts`                                 | `rejects missing session for candles?pair=BTCUSDT&timeframe=1m without calling the provider`: 401, UNAUTHENTICATED và không gọi provider                                   | 13 test tới assertion status, đều fail vì nhận 404. Route chưa build. Case thu hồi phiên dừng ở request thành công ban đầu, chưa tới sign-out                 |
 | UI: `rest-history.spec.ts`                           | `opens four default charts through the real API with no browser worker`: BTC, 5m/15m/1h/4h, MA 608.5, attribution, không Load history. Bốn upstream candles và một summary | Playwright thu thập 10 test. API startup fail vì thiếu adapter. Cả 10 test chưa tới setup phiên hoặc assertion UI                                             |
@@ -184,7 +184,7 @@ Tên test red đầu tiên, expected và nguyên nhân fail lịch sử nằm �
 
 Fixture và oracle chuẩn nằm trong tài liệu kiểm chứng [[2, Fixture và oracle độc lập]](#ref-2). Reviewer Task 4 đã đối chiếu 518 reference rows của nến đóng. Bước 08 giữ literal theo khóa pair/timeframe/openTime và kiểm mọi nến đóng. Không lấy output của implementation làm expected. Các bộ full/500/short/empty/gap/decimal/summary/invalid/selection kiểm các miền dữ liệu khác nhau. Không so hai snapshot nến đang mở tại hai thời điểm khác nhau.
 
-Các quyết định chưa duyệt vẫn **Proposed**: mốc bắt đầu và biên TTL, thứ tự ưu tiên khi phiên/query cùng sai, workload, công cụ phát tải và ngưỡng mở Realtime/đổi timeframe (QA-10, QA-11). Metadata giá cần nguồn tick size. Provider vượt limit và payload upstream parse hỏng cần oracle trước assertion tương ứng. Không suy ra việc bắt đầu Task 5 là duyệt các quyết định này [[2, Partitions và giá trị biên]](#ref-2) [[2, Mô hình cache và cooldown]](#ref-2) [[2, Decision table và threat model REST]](#ref-2) [[2, Ngưỡng và quyền kết luận]](#ref-2).
+Workload, công cụ phát tải `k6` và ngưỡng mở Realtime/đổi timeframe (QA-10, QA-11) đã duyệt ngày 2026-11-21. Các quyết định này được product owner duyệt trực tiếp, không suy ra từ việc bắt đầu Task 5 [[2, Partitions và giá trị biên]](#ref-2) [[2, Mô hình cache và cooldown]](#ref-2) [[2, Decision table và threat model REST]](#ref-2) [[2, Ngưỡng và quyền kết luận]](#ref-2).
 
 Evidence cần thu khi Bước 08 triển khai:
 

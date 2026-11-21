@@ -162,9 +162,20 @@ Giá hiển thị theo số chữ số thập phân của pair, giá khác 0 kh�
 
 Chọn hằng số theo pair. Giá trị lấy từ tick size trong `exchangeInfo` của Binance lúc build và ghi nguồn cạnh hằng số [[10, Quyết định]](#ref-10).
 
+Giá trị tra ngày 2026-11-21 từ `GET /api/v3/exchangeInfo`, filter `PRICE_FILTER` [[12]](#ref-12). Product owner duyệt ngày 2026-11-21.
+
+| Pair | `tickSize` | Số chữ số thập phân |
+| --- | --- | --- |
+| BTCUSDT | 0.01 | 2 |
+| ETHUSDT | 0.01 | 2 |
+| SOLUSDT | 0.01 | 2 |
+
+Khi giá có nhiều chữ số hơn số chữ số của pair, Web làm tròn half-up lúc hiển thị: chữ số bỏ đi từ 5 trở lên thì làm tròn lên. Giá luôn hiển thị đủ số chữ số của pair, kể cả số 0 ở cuối. Quy tắc áp dụng cho mọi giá hiển thị: giá cuối, open/high/low/close và MA. Volume không phải giá, không theo quy tắc này. Ví dụ `100.125` hiển thị `100.13`, `153.6` hiển thị `153.60`, `68608` hiển thị `68,608.00`. Chỉ làm tròn khi hiển thị; giá trị domain không đổi. Product owner duyệt ngày 2026-11-21.
+
 ### Hệ quả
 
 - Khi symbol không có `PRICE_FILTER`, người build chọn giá trị theo giá thực tế của pair và ghi lý do cạnh hằng số.
+- Binance có thể đổi tick size của symbol. Hằng số không tự cập nhật. Giá trị chỉ đúng tại ngày tra; khi Binance đổi, cập nhật hằng số và ngày tra.
 - Thêm pair phải thêm số chữ số thập phân cùng lúc; schema dùng chung bắt buộc mỗi pair có giá trị.
 - Xét lại khi danh sách pair do người dùng chọn tự do, hoặc khi thêm provider có bước giá khác Binance.
 

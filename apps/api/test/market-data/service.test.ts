@@ -85,3 +85,17 @@ it.each([{ high: 0 }, { volume: -1 }, { openTime: 1735689600001 }, { isClosed: '
     await expect(service.getCandleHistory({ pair: 'BTCUSDT', timeframe: '1m' })).rejects.toThrow();
   },
 );
+
+it('rejects 520 candles when the provider limit is 519', async () => {
+  const getCandles = vi.fn().mockResolvedValue({ candles: candles(520), dataTime: 1735720799999 });
+  const service = createMarketDataService({
+    provider: { getCandles, getSummary: vi.fn() },
+    logger: capturingLogger().logger,
+  });
+  await expect(service.getCandleHistory({ pair: 'BTCUSDT', timeframe: '1m' })).rejects.toThrow();
+  expect(getCandles).toHaveBeenCalledExactlyOnceWith({
+    pair: 'BTCUSDT',
+    timeframe: '1m',
+    limit: 519,
+  });
+});

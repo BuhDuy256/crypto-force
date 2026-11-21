@@ -50,7 +50,7 @@ test('opens four default charts through the real API with no browser worker', as
       page.getByRole('combobox', { name: `Timeframe for chart ${index + 1}` }),
     ).toHaveText(timeframe);
   }
-  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('608.5');
+  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('608.50');
   await expect(page.getByRole('link', { name: /TradingView/ }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: /Load history/i })).toHaveCount(0);
   expect(await page.evaluate(() => navigator.serviceWorker.controller)).toBeNull();
@@ -66,13 +66,13 @@ test('changes one timeframe without requesting summary or the other charts again
   request,
 }) => {
   await page.goto('/realtime');
-  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('608.5');
+  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('608.50');
   const before = (await (await request.get(`${control}/__rest/ledger`)).json()) as {
     ledger: string[];
   };
   await selectTimeframe(page, 1, '1d');
   await expect(page.getByRole('combobox', { name: 'Timeframe for chart 1' })).toHaveText('1d');
-  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('608.5');
+  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('608.50');
   const after = (await (await request.get(`${control}/__rest/ledger`)).json()) as {
     ledger: string[];
   };
@@ -114,7 +114,7 @@ test('shows insufficient MA samples as text', async ({ page, request }) => {
   expect((await request.post(`${control}/__rest/reset/short`)).status()).toBe(200);
   await page.goto('/realtime');
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('Not enough data');
-  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('118');
+  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('118.00');
 });
 
 test('reloads with the default pair and chart selection', async ({ page }) => {
@@ -157,7 +157,7 @@ test('shows the selected pair while an earlier upstream request is held', async 
     .toBe(true);
   await page.getByRole('combobox', { name: 'Pair', exact: true }).click();
   await page.getByRole('option', { name: 'ETHUSDT', exact: true }).click();
-  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('718');
+  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('718.00');
   await expect(page.getByLabel('Last price', { exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Pair', exact: true })).toHaveText('ETHUSDT');
   expect((await request.post(`${control}/__rest/release`)).status()).toBe(200);
@@ -167,12 +167,21 @@ test('isolates a chart error and recovers through its retry control', async ({ p
   expect((await request.post(`${control}/__rest/reset/chart-error`)).status()).toBe(200);
   await page.goto('/realtime');
   await expect(page.getByRole('button', { name: 'Retry chart 1', exact: true })).toBeVisible();
-  await expect(page.getByLabel('Chart 2 values', { exact: true })).toContainText('608.5');
+  await expect(page.getByLabel('Chart 2 values', { exact: true })).toContainText('608.50');
   await expect(page.getByLabel('Last price', { exact: true })).toBeVisible();
   await expect(page.getByText('Private upstream sentinel.', { exact: true })).toHaveCount(0);
   expect((await request.post(`${control}/__rest/reset/full`)).status()).toBe(200);
   await page.getByRole('button', { name: 'Retry chart 1', exact: true }).click();
-  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('608.5');
+  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('608.50');
+});
+
+test('formats the last price half-up with exactly two decimals', async ({ page }) => {
+  // The fake ticker returns 618.125 for BTCUSDT and 218.5 for ETHUSDT. Rule: ADR-005, approved 2026-11-21.
+  await page.goto('/realtime');
+  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('618.13 USDT');
+  await page.getByRole('combobox', { name: 'Pair', exact: true }).click();
+  await page.getByRole('option', { name: 'ETHUSDT', exact: true }).click();
+  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('218.50 USDT');
 });
 
 test('removes MA and volume from the summary sidebar', async ({ page }) => {

@@ -33,7 +33,7 @@ test('loads the workspace and candle response through the development worker', a
     page.getByText('Development preview · Mock market data', { exact: true }),
   ).toBeVisible();
   await expect(page.locator('.tv-lightweight-charts')).toHaveCount(4);
-  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('68,608 USDT');
+  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('68,608.00 USDT');
   await expect(page.getByLabel('Summary MA20', { exact: true })).toHaveText('67,971.5');
   const result = await page.evaluate(async () => {
     const response = await fetch('/api/market-data/candles?pair=BTCUSDT&timeframe=1m');
@@ -53,9 +53,9 @@ test('loads the workspace and candle response through the development worker', a
   });
   await page.getByRole('combobox', { name: 'Pair', exact: true }).click();
   await page.getByRole('option', { name: 'SOLUSDT', exact: true }).click();
-  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('153.6 USDT');
+  await expect(page.getByLabel('Last price', { exact: true })).toHaveText('153.60 USDT');
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
-    'Close 153.6 · Volume 2,400 · MA(20) 152.175',
+    'Close 153.60 · Volume 2,400 · MA(20) 152.18',
   );
   const invalid = await page.evaluate(async () => {
     const response = await fetch('/api/market-data/candles?pair=INVALID&timeframe=1m');

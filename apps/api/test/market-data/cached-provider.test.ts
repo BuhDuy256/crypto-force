@@ -1,9 +1,9 @@
 // Checks cache behavior through the provider boundary. Run API Vitest with test/market-data.
 // The _test DB is required by global setup. Expected: docs/testing/test-scopes/TS-002-market-data/rest-verification.md cache state table.
-// No exact TTL boundary or delayed-resolution TTL assertion is approved yet.
+// TTL starts when the inner provider resolves (approved 2026-11-21): fresh while elapsed < ttlMs.
 // Single-flight and rejected-promise retention mutations must run after the original tests pass.
 import type { MarketPair } from '@crypto-force/shared';
-import { expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createCachedMarketDataProvider } from '../../src/providers/market-data/cached-market-data.provider';
 import { candles, capturingLogger, deferred } from './fixtures';
 
@@ -71,15 +71,13 @@ it('rejects all waiters and retries only on the next caller', async () => {
 it('separates pair, timeframe, limit and summary namespaces', async () => {
   const provider = {
     getCandles: vi.fn().mockResolvedValue({ candles: [], dataTime: 1 }),
-    getSummary: vi
-      .fn()
-      .mockImplementation((pair: MarketPair) =>
-        Promise.resolve({
-          pair,
-          lastPrice: pair === 'ETHUSDT' ? 218.5 : 618.125,
-          change24hPercent: pair === 'ETHUSDT' ? 0 : -1.25,
-        }),
-      ),
+    getSummary: vi.fn().mockImplementation((pair: MarketPair) =>
+      Promise.resolve({
+        pair,
+        lastPrice: pair === 'ETHUSDT' ? 218.5 : 618.125,
+        change24hPercent: pair === 'ETHUSDT' ? 0 : -1.25,
+      }),
+    ),
   };
   const cache = createCachedMarketDataProvider({
     provider,
@@ -110,4 +108,39 @@ it('separates pair, timeframe, limit and summary namespaces', async () => {
   await cache.getSummary('BTCUSDT');
   await cache.getSummary('ETHUSDT');
   expect(provider.getSummary.mock.calls).toEqual([['BTCUSDT'], ['ETHUSDT']]);
+});
+
+describe('TTL counted from provider resolution, not from request start', () => {
+  // Request starts at clock 0, provider resolves at 2000. Each read starts from a fresh cache.
+  it.each([
+    { readAt: 6999, providerCalls: 1 },
+    { readAt: 7000, providerCalls: 2 },
+    { readAt: 7001, providerCalls: 2 },
+  ])(
+    'read at $readAt makes $providerCalls provider calls in total',
+    async ({ readAt, providerCalls }) => {
+      const pending = deferred<{ candles: ReturnType<typeof candles>; dataTime: number }>();
+      const provider = {
+        getCandles: vi
+          .fn()
+          .mockReturnValueOnce(pending.promise)
+          .mockResolvedValue({ candles: [], dataTime: 2 }),
+        getSummary: vi.fn(),
+      };
+      let now = 0;
+      const cache = createCachedMarketDataProvider({
+        provider,
+        now: () => now,
+        ttlMs: 5000,
+        logger: capturingLogger().logger,
+      });
+      const first = cache.getCandles(request);
+      now = 2000;
+      pending.resolve({ candles: candles(1), dataTime: 1 });
+      await first;
+      now = readAt;
+      await cache.getCandles(request);
+      expect(provider.getCandles).toHaveBeenCalledTimes(providerCalls);
+    },
+  );
 });

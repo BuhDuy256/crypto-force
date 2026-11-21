@@ -108,6 +108,8 @@ Giá và volume dùng JSON number, vì engine tính bằng float64 và Web vẽ 
 
 Service yêu cầu provider số nến hiển thị (MK-33) cộng số nến khởi động (mẫu của MK-24 trừ một). Khi provider trả ít nến hơn, Service đặt `warmupCount` bằng số nến vượt quá số nến hiển thị, tối thiểu là 0. Như vậy chart vẫn hiển thị đủ nến có thật và MA thiếu mẫu ở các nến đầu (MK-15, MK-24).
 
+Provider phải trả tối đa `limit` nến. Adapter Binance truyền nguyên `limit` vào query upstream và từ chối response vượt giới hạn trước khi trả snapshot. Service cũng kiểm giới hạn khi nhận dữ liệu từ provider. Response vượt giới hạn là dữ liệu nguồn sai: API trả `502 / MARKET_DATA_INVALID`, không cắt phần dư. Đây là kiểm tra phòng vệ cho vi phạm contract. Response bị adapter từ chối không được cache.
+
 ### Summary
 
 | Trường | Kiểu | Ý nghĩa | Driver |
@@ -126,7 +128,7 @@ Adapter Binance đọc REST API Spot [[8]](#ref-8):
 | Summary | `GET /api/v3/ticker/24hr`, `lastPrice`, `priceChangePercent` | Đổi chuỗi sang number |
 | `dataTime` | Đồng hồ của API lúc nhận response | Không dùng thời gian của Binance |
 
-Adapter không kiểm nghiệp vụ. Service kiểm nến sau chuẩn hóa ([Xử lý lỗi](#xử-lý-lỗi)).
+Adapter từ chối payload không parse được JSON hoặc không đọc được các trường nguồn cần dùng. Adapter báo lỗi dữ liệu nguồn có kiểu để API trả `502 / MARKET_DATA_INVALID`, không lộ payload upstream. Response lỗi không được cache. Adapter không kiểm nghiệp vụ. Service kiểm nến sau chuẩn hóa ([Xử lý lỗi](#xử-lý-lỗi)).
 
 ## Cache và giới hạn request
 
@@ -135,13 +137,14 @@ Vòng REST không lưu dữ liệu Market Data vào PostgreSQL ([Data Model](21-
 | Thuộc tính | Nến | Summary |
 | --- | --- | --- |
 | Khóa | `pair` + `timeframe` + số nến yêu cầu | `pair` |
-| Thời gian sống (TTL) | 5 giây, cấu hình của API | 5 giây, cấu hình của API |
+| Thời gian sống (TTL) | 5 giây, cấu hình của API. Tính từ lúc provider resolve thành công | 5 giây, cấu hình của API. Tính từ lúc provider resolve thành công |
 | Giá trị cache | Kết quả đã chuẩn hóa của provider, gồm `dataTime` và `isClosed` lúc nhận | Kết quả đã chuẩn hóa của provider |
 
 Quy tắc:
 
 - **Gộp request trùng (single-flight).** Khi khóa chưa có giá trị còn hạn, request đầu tiên gọi provider. Các request cùng khóa đến trong lúc đó chờ chung kết quả này.
 - **Không cache lỗi.** Lỗi của provider trả cho mọi request đang chờ, rồi bị bỏ. Request sau gọi lại provider, nên thử lại của chart (MK-12) có hiệu lực ngay.
+- **Mốc và biên TTL.** TTL bắt đầu khi provider bên trong resolve thành công, theo clock của API. Mốc này không phải lúc request vào và không phải `dataTime`. Giá trị còn hạn khi thời gian đã qua nhỏ hơn TTL, hết hạn khi thời gian đã qua lớn hơn hoặc bằng TTL. Upstream trả chậm không làm giảm thời gian tái sử dụng. Product owner duyệt ngày 2026-11-21.
 - **Không làm mới chủ động.** Giá trị hết hạn bị thay ở request tiếp theo. Vòng REST không tự cập nhật chart (MK-27), nên không cần làm mới nền.
 - **`dataTime` và `isClosed` đi cùng giá trị cache.** `dataTime` vẫn là thời điểm API nhận response của provider, không phải thời điểm request, nên chart hiển thị đúng tuổi của dữ liệu (MK-27). Nến đóng trong lúc giá trị còn hạn vẫn có `isClosed: false`, khớp với `dataTime`.
 - **Không cache HTTP.** Response giữ `Cache-Control: no-store`. Cache phía Web do TanStack Query quản lý theo khóa của từng chart (MK-14, MK-17) [[4]](#ref-4).
@@ -274,7 +277,7 @@ Cách đọc: thời gian provider gần bằng tổng thời gian thì nguyên 
 - Cache nằm trong process. Mỗi instance API có cache riêng và tự gọi Binance, nên mức trần weight nhân theo số instance trên cùng IP. Xét lại khi chạy hơn một instance API.
 - Mức trần 504 weight mỗi phút chỉ đúng khi tập pair và timeframe giữ nguyên. Thêm pair hoặc timeframe phải tính lại.
 - TTL 5 giây chưa có số đo. Xem lại khi đo QA-10 và độ tươi của dữ liệu.
-- QA-10 và QA-11 còn Proposed. Thiết kế chưa có số đo để chứng minh đạt ngưỡng.
+- QA-10 và QA-11 đã duyệt ngày 2026-11-21. Thiết kế chưa có số đo để chứng minh đạt ngưỡng.
 - Interface `MarketDataProvider` nằm trong `apps/api`. Worker không dùng được interface này khi backtest cần dữ liệu thị trường (ADR-003).
 - Schema nháp `packages/shared/src/schemas/market-data.schema.ts` của UI mock chưa khớp contract nến: thiếu timeframe 1d (MK-30), có `ma20` (ngược ADR-004), thiếu `isClosed`, `warmupCount` và `dataTime`. Schema được sửa ở bước build [[7]](#ref-7).
 - Summary không có thời điểm dữ liệu, vì MK-27 chỉ áp dụng cho chart và MK-60 không yêu cầu thời điểm trên sidebar. Thêm trường này không phá contract hiện có.
