@@ -13,6 +13,7 @@ import {
 } from '~/components/ui/select';
 import { useCandleHistory } from '~/hooks/useMarketData';
 import { CandlestickChart } from './CandlestickChart';
+import { toChartSeries } from '~/utils/market-chart';
 
 export function MarketChartCard({
   chartId,
@@ -27,7 +28,7 @@ export function MarketChartCard({
 }) {
   const query = useCandleHistory(pair, timeframe);
   const last = query.data?.candles.at(-1);
-  const ma = query.data?.ma20.at(-1);
+  const ma = query.data ? toChartSeries(query.data).ma20.at(-1) : undefined;
   return (
     <Card role="region" aria-label={`Chart ${chartId}`} className="min-w-0 gap-3 py-4">
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 px-4">
@@ -88,9 +89,18 @@ export function MarketChartCard({
             {last ? (
               <>
                 <p className="text-xs text-muted-foreground" aria-label={`Chart ${chartId} values`}>
-                  Close {last.close.toLocaleString('en-US')} · Volume{' '}
-                  {last.volume.toLocaleString('en-US')} · MA(20){' '}
-                  {ma ? ma.value.toLocaleString('en-US') : 'Not enough data'}
+                  Close{' '}
+                  {last.close.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}{' '}
+                  · Volume {last.volume.toLocaleString('en-US')} · MA(20){' '}
+                  {ma
+                    ? ma.value.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : 'Not enough data'}
                 </p>
                 <CandlestickChart history={query.data} />
               </>

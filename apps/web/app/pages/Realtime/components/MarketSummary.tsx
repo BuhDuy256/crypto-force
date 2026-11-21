@@ -4,6 +4,7 @@ import { Button } from '~/components/ui/button';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Separator } from '~/components/ui/separator';
 import { useCandleHistory, useMarketSummary } from '~/hooks/useMarketData';
+import { toChartSeries } from '~/utils/market-chart';
 
 export function MarketSummary({
   pair,
@@ -15,7 +16,7 @@ export function MarketSummary({
   const summary = useMarketSummary(pair);
   const history = useCandleHistory(pair, timeframe);
   const last = history.data?.candles.at(-1);
-  const ma = history.data?.ma20.at(-1);
+  const ma = history.data ? toChartSeries(history.data).ma20.at(-1) : undefined;
   return (
     <Card role="region" aria-label="Market summary" className="h-fit min-w-0 gap-4">
       <CardHeader>
@@ -48,7 +49,11 @@ export function MarketSummary({
           <dl className="grid grid-cols-2 gap-2 text-sm">
             <dt className="text-muted-foreground">Last price</dt>
             <dd className="text-right font-mono" aria-label="Last price">
-              {summary.data.lastPrice.toLocaleString('en-US')} USDT
+              {summary.data.lastPrice.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}{' '}
+              USDT
             </dd>
             <dt className="text-muted-foreground">Change (24h)</dt>
             <dd aria-label="Change 24h" className="text-right font-mono">
@@ -71,7 +76,12 @@ export function MarketSummary({
           <dl className="grid grid-cols-2 gap-2 text-sm">
             <dt className="text-muted-foreground">MA(20) · {timeframe}</dt>
             <dd aria-label="Summary MA20" className="text-right font-mono">
-              {ma ? ma.value.toLocaleString('en-US') : 'Not enough data'}
+              {ma
+                ? ma.value.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : 'Not enough data'}
             </dd>
             <dt className="text-muted-foreground">Volume · {timeframe}</dt>
             <dd aria-label="Summary volume" className="text-right font-mono">

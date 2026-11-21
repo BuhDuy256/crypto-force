@@ -8,6 +8,8 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Changed
 
+- Bước 08 Task 1: chuyển contract REST Market Data sang snapshot có `isClosed`, `warmupCount`, `dataTime` và timeframe `1d`. Web tính MA(20), ẩn nến warm-up và hiển thị giá đủ hai chữ số. Shared Market Data 116 test, Web logic 10 test, UI mock 9 test và MSW 1 test đạt. Các lát provider/service/API chưa build.
+
 - Chốt các quyết định còn Proposed của Bước 07 Market Data. TTL cache tính từ lúc provider trả kết quả thành công và hết hạn khi đủ 5 giây. API kiểm phiên trước query. Ba pair có tick size 0.01. Mọi giá hiển thị, gồm OHLC và MA, làm tròn half-up và luôn đủ 2 chữ số. Provider trả vượt limit và payload không parse được trả 502. Workload baseline, công cụ `k6` và ngưỡng QA-10/QA-11 kèm điều kiện kết luận đã được duyệt. Test mới và expected giá đã sửa đang red vì chưa có code production.
 
 ### Added
@@ -37,6 +39,8 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 - Thêm skills Better Auth (hướng dẫn chung, bảo mật, tạo auth, email/password, organization, 2FA) và skill review UI; bỏ skill `diagnosing-bugs`.
 
 ### Changed
+
+- Bước 08 Task 1: chuyển contract REST Market Data sang snapshot có `isClosed`, `warmupCount`, `dataTime` và timeframe `1d`. Web tính MA(20), ẩn nến warm-up và hiển thị giá đủ hai chữ số. Shared Market Data 116 test, Web logic 10 test, UI mock 9 test và MSW 1 test đạt. Các lát provider/service/API chưa build.
 
 - Bàn giao Bước 08 cho REST Market Data: sáu interface đã duyệt, thứ tự red → green, fixture/oracle, evidence còn thiếu, gate mutation/fake và điều kiện chạy baseline. Tài liệu bàn giao đã được review độc lập. Trạng thái hoàn thành Bước 07 có hiệu lực khi commit riêng Task 5 thành công. Workload, ngưỡng và quyết định chưa duyệt giữ Proposed. Chưa hoàn tất TDD hoặc đo baseline.
 - Kế hoạch Market Data viết test tự động sau khi chốt cách kiểm chứng và trước khi build từng increment.

@@ -23,6 +23,7 @@ export {
   candleHistoryInputSchema,
   candleHistorySchema,
   marketSummarySchema,
+  marketSummaryInputSchema,
 } from './schemas/market-data.schema';
 export type {
   MarketPair,

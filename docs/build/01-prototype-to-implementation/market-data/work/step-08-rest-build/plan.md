@@ -133,18 +133,18 @@ Các quyết định sau do agent chốt theo ủy quyền của product owner. 
 
 #### Task 1: Lát 1, shared contract và chuyển Web
 
-- [ ] Xác nhận Node, pnpm và Docker Compose bằng lệnh thực tế. Ghi commit HEAD bắt đầu Bước 08.
-- [ ] Kiểm Vitest và Playwright có chặn `only` hay không bằng config và source. Ghi số test của từng suite Market Data làm mốc so sánh.
-- [ ] Chạy lại ba test shared. Đối chiếu số pass/fail với kết quả Task 4 của Bước 07 [[2, Các lát red cho Bước 08]](#ref-2). Ghi chênh lệch nếu có.
-- [ ] Chạy `graphify affected` cho `candleHistorySchema`, `candleHistoryInputSchema` và `marketSummarySchema`.
-- [ ] Sửa schema theo contract nến [[6]](#ref-6): thêm `1d`, query strict, `isClosed`, `warmupCount`, `dataTime`, bỏ `ma20`. Thêm `marketSummaryInputSchema` vào public exports.
-- [ ] Chuyển các nơi Web đọc `ma20` sang MA tính ở Web từ nến có thật. Không vẽ warm-up. Cập nhật mock fixture theo contract mới.
-- [ ] Xử lý test nháp theo mục Quyết định. Chạy test Web logic và hai spec mock (`realtime.spec.ts`, `msw-smoke.spec.ts`) từng file một.
-- [ ] Chạy mutation của shared contract: bỏ strict, bỏ một invariant của snapshot. Test tương ứng phải fail.
+- [x] Xác nhận Node, pnpm và Docker Compose bằng lệnh thực tế. Ghi commit HEAD bắt đầu Bước 08.
+- [x] Kiểm Vitest và Playwright có chặn `only` hay không bằng config và source. Ghi số test của từng suite Market Data làm mốc so sánh.
+- [x] Chạy lại ba test shared. Đối chiếu số pass/fail với kết quả Task 4 của Bước 07 [[2, Các lát red cho Bước 08]](#ref-2). Ghi chênh lệch nếu có.
+- [x] Chạy `graphify affected` cho `candleHistorySchema`, `candleHistoryInputSchema` và `marketSummarySchema`.
+- [x] Sửa schema theo contract nến [[6]](#ref-6): thêm `1d`, query strict, `isClosed`, `warmupCount`, `dataTime`, bỏ `ma20`. Thêm `marketSummaryInputSchema` vào public exports.
+- [x] Chuyển các nơi Web đọc `ma20` sang MA tính ở Web từ nến có thật. Không vẽ warm-up. Cập nhật mock fixture theo contract mới.
+- [x] Xử lý test nháp theo mục Quyết định. Chạy test Web logic và hai spec mock (`realtime.spec.ts`, `msw-smoke.spec.ts`) từng file một.
+- [x] Chạy mutation của shared contract: bỏ strict, bỏ một invariant của snapshot. Test tương ứng phải fail.
 
 **Điều kiện đạt:** 116 test shared tới assertion. Test REST contract và summary query pass. `pnpm check:exports`, typecheck shared/Web/API (API còn red do thiếu module của lát 2–4, ghi rõ), ESLint file đã sửa đạt.
 
-- [ ] Chạy kiểm tra phù hợp và tạo commit cho Task 1.
+- [x] Chạy kiểm tra phù hợp và tạo commit cho Task 1.
 
 #### Task 2: Lát 2, provider interface, service và Binance adapter
 

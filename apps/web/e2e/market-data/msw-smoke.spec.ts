@@ -34,7 +34,7 @@ test('loads the workspace and candle response through the development worker', a
   ).toBeVisible();
   await expect(page.locator('.tv-lightweight-charts')).toHaveCount(4);
   await expect(page.getByLabel('Last price', { exact: true })).toHaveText('68,608.00 USDT');
-  await expect(page.getByLabel('Summary MA20', { exact: true })).toHaveText('67,971.5');
+  await expect(page.getByLabel('Summary MA20', { exact: true })).toHaveText('67,971.50');
   const result = await page.evaluate(async () => {
     const response = await fetch('/api/market-data/candles?pair=BTCUSDT&timeframe=1m');
     return { status: response.status, body: (await response.json()) as unknown };
@@ -43,13 +43,8 @@ test('loads the workspace and candle response through the development worker', a
   expect(result.body).toMatchObject({
     pair: 'BTCUSDT',
     timeframe: '1m',
-    ma20: [
-      { openTime: 1799972340000, value: 67703.5 },
-      { openTime: 1799972400000, value: 67770.5 },
-      { openTime: 1799972460000, value: 67837.5 },
-      { openTime: 1799972520000, value: 67904.5 },
-      { openTime: 1799972580000, value: 67971.5 },
-    ],
+    warmupCount: 0,
+    dataTime: 1799972640000,
   });
   await page.getByRole('combobox', { name: 'Pair', exact: true }).click();
   await page.getByRole('option', { name: 'SOLUSDT', exact: true }).click();

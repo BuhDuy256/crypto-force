@@ -35,7 +35,9 @@ function candleResponse(url: string) {
           ? 900_000
           : timeframe === '1h'
             ? 3_600_000
-            : 14_400_000;
+            : timeframe === '4h'
+              ? 14_400_000
+              : 86_400_000;
   const volumeStep = timeframe === '5m' ? 60 : 30;
   return {
     pair,
@@ -47,8 +49,10 @@ function candleResponse(url: string) {
       low: base + index - 1,
       close: base + index + 1,
       volume: (index + 1) * volumeStep,
+      isClosed: true,
     })),
-    ma20: [{ openTime: 1799971200000 + 19 * interval, value: base + 10.5 }],
+    warmupCount: 0,
+    dataTime: 1799971200000 + 20 * interval,
   };
 }
 test.beforeEach(async ({ page }) => {
@@ -172,10 +176,10 @@ test('resizes the grid and supports keyboard timeframe selection on mobile', asy
   await page.keyboard.press('Enter');
   await expect(page.getByRole('option', { name: '1m', exact: true })).toBeFocused();
   await page.keyboard.press('End');
-  await expect(page.getByRole('option', { name: '4h', exact: true })).toBeFocused();
+  await expect(page.getByRole('option', { name: '1d', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(selector).toHaveText('4h');
-  await expect(page.getByLabel('BTCUSDT 4h candlesticks, volume and MA(20)')).toBeVisible();
+  await expect(selector).toHaveText('1d');
+  await expect(page.getByLabel('BTCUSDT 1d candlesticks, volume and MA(20)')).toBeVisible();
 });
 
 async function selectPair(page: Page, pair: string) {
@@ -204,7 +208,7 @@ test('updates all charts and keeps summary independent of the first timeframe', 
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
     'Close 220.00 · Volume 600 · MA(20) 210.50',
   );
-  await expect(page.getByLabel('Summary MA20', { exact: true })).toHaveText('210.5');
+  await expect(page.getByLabel('Summary MA20', { exact: true })).toHaveText('210.50');
   await selectTimeframe(page, 1, '5m');
   await expect(page.getByLabel('Summary volume', { exact: true })).toHaveText('1,200');
   await expect(page.getByRole('heading', { name: 'Chart 1 · 5m', exact: true })).toBeVisible();
@@ -256,7 +260,15 @@ test('isolates slow, empty, invalid and failed candle responses and retries one 
     requests.push(timeframe ?? '');
     if (timeframe === '1m') await gate.promise;
     if (timeframe === '5m')
-      return route.fulfill({ json: { pair: 'BTCUSDT', timeframe: '5m', candles: [], ma20: [] } });
+      return route.fulfill({
+        json: {
+          pair: 'BTCUSDT',
+          timeframe: '5m',
+          candles: [],
+          warmupCount: 0,
+          dataTime: 1799971200000,
+        },
+      });
     if (timeframe === '15m') return route.fulfill({ json: { invalid: 'internal payload' } });
     if (timeframe === '1h' && !recover)
       return route.fulfill({ status: 503, json: { stack: 'internal stack' } });
@@ -298,7 +310,7 @@ test('keeps candles after a failed refresh and handles missing MA and summary er
     if (timeframe === '1m' && failRefresh)
       return route.fulfill({ status: 500, json: { message: 'internal payload' } });
     const data = candleResponse(route.request().url());
-    return route.fulfill({ json: { ...data, candles: data.candles.slice(0, 3), ma20: [] } });
+    return route.fulfill({ json: { ...data, candles: data.candles.slice(0, 3) } });
   });
   await page.route('**/api/market-data/summary?*', (route) =>
     route.fulfill({ status: 503, json: { stack: 'internal stack' } }),
