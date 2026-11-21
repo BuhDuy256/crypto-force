@@ -5,6 +5,8 @@ import { logger } from './configs/logger';
 import { createDatabase } from './database/client';
 import { createAuthEmails } from './services/auth-email.service';
 import { createMailer } from './services/mailer';
+import { createBinanceMarketDataProvider } from './providers/market-data/binance.provider';
+import { createCachedMarketDataProvider } from './providers/market-data/cached-market-data.provider';
 
 const { db, pool } = createDatabase(env.DATABASE_URL);
 const mailer = createMailer(
@@ -17,7 +19,23 @@ const auth = createAuth({
   emails: createAuthEmails(mailer, env.BETTER_AUTH_URL),
   logger,
 });
-const app = createApp({ logger, auth, authConfig: { google: isGoogleEnabled(env) } });
+const marketDataProvider = createCachedMarketDataProvider({
+  provider: createBinanceMarketDataProvider({
+    fetch: globalThis.fetch,
+    now: Date.now,
+    timeoutMs: 5000,
+    logger,
+  }),
+  now: Date.now,
+  ttlMs: 5000,
+  logger,
+});
+const app = createApp({
+  logger,
+  auth,
+  authConfig: { google: isGoogleEnabled(env) },
+  marketDataProvider,
+});
 
 const server = app.listen(env.API_PORT, () => {
   logger.info({ port: env.API_PORT }, 'API listening');

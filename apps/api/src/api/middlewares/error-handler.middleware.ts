@@ -11,6 +11,6 @@ export const errorHandler: ErrorRequestHandler = (error: unknown, req, res, _nex
     return;
   }
 
-  req.log.error({ err: error }, 'Unhandled error');
+  req.log.error({ errorType: 'unexpected' }, 'The HTTP request failed.');
   res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
 };

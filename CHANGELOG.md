@@ -4,9 +4,11 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ## [Unreleased]
 
-- Test trước build REST Market Data: shared contract, provider/service, Binance adapter và cache decorator đã green qua Bước 08 Task 3. HTTP/session và startup E2E còn chờ tích hợp. Chưa đo baseline toàn flow.
+- Test trước build REST Market Data: shared contract, provider/service, Binance adapter, cache decorator và HTTP/session đã green qua Bước 08 Task 4. Flow UI qua API thật còn chờ Task 5. Chưa đo baseline toàn flow.
 
 ### Changed
+
+- Bước 08 Task 4: nối hai endpoint Market Data qua service và provider có cache. Kiểm phiên Better Auth trước query, trả mã lỗi theo contract và `Cache-Control: no-store`. Log HTTP có method/path/status/duration, che token trong path Auth, bỏ path không có route, header phiên, query và message lỗi ngoài dự kiến. Thêm test log, reset callback và response 503.
 
 - Bước 08 Task 3: thêm cache decorator theo pair/timeframe/limit và namespace summary. TTL tính từ lúc provider trả thành công, gộp request đang chờ, không cache lỗi và giữ snapshot khi hit. Cache còn hạn vẫn trả dữ liệu trong cooldown Binance. Thêm test vòng đời summary và log hit/miss/join.
 

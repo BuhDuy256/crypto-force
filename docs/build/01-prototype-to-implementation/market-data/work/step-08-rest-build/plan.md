@@ -173,15 +173,15 @@ Các quyết định sau do agent chốt theo ủy quyền của product owner. 
 
 #### Task 4: Lát 4, HTTP và session
 
-- [ ] Chạy lại `http.test.ts`. Ghi số test fail vì 404 trước khi build.
-- [ ] Mở rộng `createApp` để nhận `marketDataProvider`. Dựng service, controller, route và middleware kiểm phiên qua Better Auth `getSession`. Tạo adapter và bọc cache tại `src/index.ts`.
-- [ ] Mapping lỗi: 400 `INVALID_QUERY`, 401 `UNAUTHENTICATED`, 502 `MARKET_DATA_INVALID`, 503 `MARKET_DATA_UNAVAILABLE`, 500 `INTERNAL_ERROR`, `Cache-Control: no-store` [[7]](#ref-7).
-- [ ] Bổ sung assertion log còn thiếu ở Bước 07: method/path/status/duration và không lộ cookie, token hoặc secret [[3, Log và dependency boundaries]](#ref-3).
-- [ ] Chạy mutation: bỏ kiểm phiên, bỏ strict query, cho lỗi upstream lộ chi tiết.
+- [x] Chạy lại `http.test.ts`. Ghi số test fail vì 404 trước khi build.
+- [x] Mở rộng `createApp` để nhận `marketDataProvider`. Dựng service, controller, route và middleware kiểm phiên qua Better Auth `getSession`. Tạo adapter và bọc cache tại `src/index.ts`.
+- [x] Mapping lỗi: 400 `INVALID_QUERY`, 401 `UNAUTHENTICATED`, 502 `MARKET_DATA_INVALID`, 503 `MARKET_DATA_UNAVAILABLE`, 500 `INTERNAL_ERROR`, `Cache-Control: no-store` [[7]](#ref-7).
+- [x] Bổ sung assertion log còn thiếu ở Bước 07: method/path/status/duration và không lộ cookie, token hoặc secret [[3, Log và dependency boundaries]](#ref-3).
+- [x] Chạy mutation: bỏ kiểm phiên, bỏ strict query, cho lỗi upstream lộ chi tiết.
 
 **Điều kiện đạt:** `http.test.ts` và toàn bộ `test/market-data` pass, cả lượt thường và lượt `--sequence.shuffle`. Test Auth của API không regression. Typecheck API đạt.
 
-- [ ] Chạy kiểm tra phù hợp và tạo commit cho Task 4.
+- [x] Chạy kiểm tra phù hợp và tạo commit cho Task 4.
 
 #### Task 5: Lát 5, flow UI qua API thật
 

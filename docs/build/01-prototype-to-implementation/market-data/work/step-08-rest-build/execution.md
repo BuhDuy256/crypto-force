@@ -160,6 +160,73 @@ Lệnh shuffle đầu dùng `pnpm test` bị pnpm từ chối option trước kh
 
 Reviewer độc lập đã đọc diff, source và conventions theo skill `review-change`. Không có finding trong các mục checklist. Reviewer dùng evidence test và mutation của tác giả, không chạy lại test. Task 3 kết thúc bằng commit riêng theo kế hoạch.
 
+## Task 4: HTTP và session
+
+HEAD bắt đầu: `e6e0f97`. Node thực chạy là `22.23.5`. Lệnh Node/pnpm cần quyền ngoài sandbox. Integration dùng database `_test` do harness tạo lại từ migration. Không gọi Binance thật.
+
+`createApp` nhận provider, dựng service và nối router/controller Market Data. Middleware gọi Better Auth `getSession` với `fromNodeHeaders` trước kiểm query. Health và Auth config vẫn công khai. `src/index.ts` tạo Binance adapter và cache decorator. TTL là 5000 ms đã duyệt. Timeout adapter 5000 ms là agent chọn theo harness REST hiện có, để API có thời gian trả lỗi trước timeout chart 10 giây. Trước Task 4 chưa có adapter trong composition root. Không thay timeout của Web.
+
+HTTP giữ mapping lỗi từ service: 502 cho dữ liệu invalid, 503 cho nguồn không khả dụng, 500 cho lỗi ngoài dự kiến. Query sai trả 400, phiên không hợp lệ trả 401. Router đặt `no-store` trước kiểm phiên. Logger chỉ serialize method/path/status và duration, bỏ query/header/raw error. Path của Auth dùng route pattern, URL không có route dùng `/unmatched`. Middleware lỗi ngoài dự kiến ghi nhóm lỗi thay vì message có thể chứa secret. Không thêm `as` trong production.
+
+Đã kiểm source package cài đặt `better-auth@1.7.25`: `dist/integrations/node.mjs` chuyển Node headers thành `Headers`; `dist/api/routes/session.d.mts` yêu cầu headers và trả session hoặc null. HTTP test dùng Better Auth thật, gồm phiên hết hạn và phiên đã thu hồi.
+
+### Red, green và testware
+
+- Lượt đầu: 18/18 test HTTP fail tại assertion vì nhận 404. Thêm 8 test: hai case unavailable và sáu case log cho status 200/400/401/502/503/500. Lượt trước build có 26/26 fail vì 404.
+- Sau khi nối HTTP: 25 pass, một test log fail do `req.url` bị Express rút thành `/summary`. Sửa production dùng `originalUrl` và bỏ query. HTTP đạt 26/26.
+- Sau review, HTTP thêm hai regression log dùng reset callback Auth và URL không có route. HTTP hiện có 28 test. Tổng năm suite trong `test/market-data` là 90 = HTTP 28 + service 30 + Binance 23 + cache 8 + contract 1. Phạm vi Market Data là 88 = 90 trừ hai regression log dùng chung. Không cộng test ở `test/auth` hoặc smoke vào tổng này. Bốn suite ngoài HTTP giữ nguyên số test của Task 3.
+- Test mới được phép theo plan. Nguồn expected là bảng lỗi trong `docs/architecture/22-api-endpoints.md` và bảng log trong `docs/testing/test-scopes/TS-002-market-data/rest-verification.md`. Log kiểm field và duration hữu hạn không âm, không snapshot câu message.
+- T3: thêm type cho callback fake chuyển tiếp adapter để ESLint không nhận tham số `any`. Input, expected và assertion của test cũ giữ nguyên. Các fake vẫn nhận payload invalid để kiểm validation runtime. Comment đầu suite ghi fault đã thực chạy.
+- Đã chạy `git diff --stat 32fffa5 --` với danh sách testware chỉ đọc trong plan. Task 4 chỉ sửa `http.test.ts`; thay đổi testware của Task 1–3 giữ nguyên và có phân loại ở các phần trên.
+
+`check:exports` phát hiện `CandleRequest` và `CandleSnapshot` không có importer production khi provider đã được nối vào app. Đã bỏ hai từ khóa `export`, giữ nguyên type và interface provider. Không thêm caller giả hoặc nới cấu hình kiểm tra.
+
+### Mutation
+
+Tám mutant đầu chạy 26 test HTTP. Tất cả fail tại assertion. Sau từng mutant, khôi phục production và xác nhận 26/26 pass. Mutant path sau review chạy 28 test, fail hai assertion chống lộ token. Khôi phục production rồi xác nhận 28/28 pass.
+
+| Mutant | Test fail |
+| --- | --- |
+| Bỏ kiểm session | 7: thiếu phiên, thứ tự validation, revoked, expired và log 401 |
+| Strip query thay strict | 3: tham số thừa của nến/summary và log 400 |
+| Trả message lỗi ngoài dự kiến trong response | 1: envelope 500 không còn che chi tiết |
+| Ghi status log sai | 6: từng nhóm status |
+| Bỏ duration khỏi log | 6: từng nhóm status |
+| Serialize header/query vào log | 6: phát hiện cookie/token/query sentinel |
+| Ghi message lỗi chứa secret vào log | 1: log 500 |
+| Đổi unavailable từ 503 thành 500 | 3: nến, summary và log 503 |
+| Bỏ chính sách path đã che dữ liệu | 2: log chứa reset token thật và token trong path không có route |
+
+### Sửa finding sau review
+
+Reviewer phát hiện logger toàn app vẫn ghi reset token của Better Auth trong path. Lỗi có ở request serializer và completion log. Đã xác nhận trên `better-auth@1.7.25`, `dist/api/routes/password.mjs`: link email có `/reset-password/:token`. Hai regression HTTP mới chạy red: 26 pass, 2 fail tại assertion log chứa token. Sau sửa, 28/28 pass. Test reset callback còn kiểm redirect 302 tới màn reset và giữ token ở đích, để chứng minh thay đổi log không làm hỏng callback.
+
+Áp dụng `correct`: `httpLogPath` là nơi duy nhất chọn path cho request serializer và cả completion log thành công/lỗi. Chỉ bốn endpoint tĩnh của app được ghi path. Auth dùng `/api/auth/{*splat}`, đường dẫn khác dùng `/unmatched`. Request gốc không bị đổi. Thêm regression cho URL chưa biết để route mới không vô tình ghi dữ liệu trong path. Không thêm rule lint theo cú pháp hoặc sửa Lesson Learned.
+
+### Kiểm chứng Task 4
+
+| Lệnh hoặc phạm vi | Kết quả |
+| --- | --- |
+| `pnpm --filter @crypto-force/api exec vitest run` | Lượt đầu: 248 pass, 1 fail trong 249 test. Market Data 88/88 pass. Test Auth TC-204 vượt timeout 5000 ms khi tạo database mới |
+| Cùng lệnh, chạy lại trước sửa finding path | 249/249 pass, không thay timeout hoặc test Auth |
+| Cùng lệnh, lượt cuối sau sửa finding path | 251/251 pass trong 13 file. Tổng là 90 test trong năm suite `test/market-data` và 161 test Auth/smoke ngoài năm suite này |
+| `pnpm --filter @crypto-force/api exec vitest run test/auth/security.test.ts` | Chạy lại suite có lỗi: 19/19 pass, không sửa test hoặc tăng timeout |
+| `pnpm --filter @crypto-force/api exec vitest run test/market-data --sequence.shuffle` | 88/88 pass, seed `1795228999439` |
+| Cùng lệnh sau sửa finding path | 90/90 pass, seed `1795229988362`: 88 Market Data và hai regression log dùng chung |
+| `pnpm --filter @crypto-force/api typecheck` | Đạt sau khi sửa type callback fake và bỏ export thừa |
+| ESLint các file production và HTTP test đã sửa | Đạt |
+| `pnpm --filter @crypto-force/api build` | Đạt |
+| `pnpm check:exports` | Đạt sau khi bỏ export của hai type không có caller production |
+| `graphify update .` | Đạt, cập nhật AST cục bộ sau khi bỏ export type. Không chạy label hoặc gọi LLM |
+| `pnpm check:docs` | Đạt |
+| Prettier các file Task 4 và `git diff --check` | Đạt. Markdown bị `.prettierignore` bỏ qua |
+
+Sau sửa finding, đã chạy lại ESLint cho `app.ts` và HTTP test, typecheck API, build API, `check:docs`, Prettier, `git diff --check` và cập nhật graph. Các kiểm tra này đạt. Lượt toàn API cuối với hai test mới đạt 251/251. Không tăng timeout hoặc sửa test Auth.
+
+Reviewer đã kiểm lại phần sửa, đóng finding high và không có finding mới. Review chỉ đọc, dùng evidence của các lượt test/mutation đã chạy, không chạy lại test. Task 4 kết thúc bằng commit riêng theo plan.
+
+Không chạy `pnpm check`, E2E, browser hoặc baseline. Task 4 không sửa UI. Task 5 còn kiểm flow UI qua API thật.
+
 ## Phần còn lại
 
-Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất kiểm chứng và review. Task 4–10 chưa thực hiện. Ba quyết định vận hành của Task 6 đang chờ product owner duyệt. Không đánh dấu Bước 08 hoàn thành.
+Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất kiểm chứng và review. Task 5–10 chưa thực hiện. Ba quyết định vận hành của Task 6 đang chờ product owner duyệt. Không đánh dấu Bước 08 hoàn thành.

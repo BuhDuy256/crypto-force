@@ -5,13 +5,13 @@ import type {
   MarketTimeframe,
 } from '@crypto-force/shared';
 
-export interface CandleRequest {
+interface CandleRequest {
   pair: MarketPair;
   timeframe: MarketTimeframe;
   limit: number;
 }
 
-export type CandleSnapshot = Pick<CandleHistory, 'candles' | 'dataTime'>;
+type CandleSnapshot = Pick<CandleHistory, 'candles' | 'dataTime'>;
 
 export interface MarketDataProvider {
   getCandles(request: CandleRequest): Promise<CandleSnapshot>;
