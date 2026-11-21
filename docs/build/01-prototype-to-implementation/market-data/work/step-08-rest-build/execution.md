@@ -227,6 +227,160 @@ Reviewer đã kiểm lại phần sửa, đóng finding high và không có find
 
 Không chạy `pnpm check`, E2E, browser hoặc baseline. Task 4 không sửa UI. Task 5 còn kiểm flow UI qua API thật.
 
+## Task 5: Flow UI qua API thật
+
+HEAD bắt đầu: `31b3175`. Node `22.23.5`, pnpm `9.15.9`. Docker Desktop chưa chạy khi bắt đầu, agent đã khởi động. PostgreSQL 17 báo healthy trước lượt red. Lệnh Node/pnpm/Docker cần quyền ngoài sandbox. Không gọi Binance thật.
+
+### Red
+
+`pnpm --filter @crypto-force/web exec playwright test --config playwright.market-data-rest.config.ts` thu thập 11 test, không phải 10 như plan ghi. Test thứ 11 kiểm giá làm tròn half-up (ADR-005), được thêm sau khi plan được viết. Lượt đầu timeout webServer 60 giây khi Docker vừa bật và Vite tối ưu dependency lần đầu. Lượt red dùng làm mốc: API startup thành công, test tới assertion UI, 4 pass và 7 fail:
+
+- 4 test fail tại assertion UI: timeframe mặc định là 1m thay vì 5m (MK-31), không có Retry chart 1 vì chart 1 không phải 5m, và sidebar còn MA/Volume (MK-60).
+- 3 test fail trong `beforeEach`: sign-up nhận 429 vì Better Auth giới hạn sign-up theo IP, và cả 11 test cùng gửi từ 127.0.0.1.
+
+### Build
+
+- API client Web: lỗi có `code` theo envelope của API. Web phân nhánh theo `code`, không theo status. Chart có deadline 10 giây tính từ lúc gửi request tới lúc đọc xong body (MK-34). Deadline dùng `setTimeout` để clock của trang điều khiển được. Payload sai contract trả lỗi `MARKET_DATA_INVALID`. Vẫn gọi HTTP cùng origin.
+- 401 `UNAUTHENTICATED` chạy lại kiểm phiên của workspace layout. Root boundary hiện màn chặn đăng nhập tại URL hiện tại theo ADR-001 (MK-40).
+- Realtime: mặc định 5m/15m/1h/4h (MK-31), bỏ Load history (MK-61), sidebar chỉ còn giá, thay đổi 24 giờ và trạng thái (MK-60).
+- Mỗi chart có status `role="status"` và `aria-live="polite"` luôn có trong DOM. Khi trống, status dùng `sr-only` thay vì bị ẩn (MK-48). Chart có mô tả bằng chữ (MK-47). Nến đang mở và MA tạm có nhãn chữ (MK-26, MK-28). Mỗi chart có thời điểm dữ liệu (MK-27). Trang ghi múi giờ, trục và crosshair dùng múi giờ thiết bị (MK-43).
+- Chart đọc giá trị một nến bằng chuột hoặc phím Left/Right/Home/End, và zoom bằng +/- (MK-41, MK-46). Nến tăng rỗng ruột, nến giảm đặc (MK-49).
+- `marketPairPriceDecimals` trong `packages/shared` thực hiện ADR-005. Trước Task 5, hằng số này chưa có trong code. Giá format theo số chữ số của pair.
+
+Không thêm type assertion để lách type checker trong `src/` hoặc `app/`. Chỉ có `as const` cho literal: `priceFormat` của chart và `marketPairPriceDecimals`. Không export helper chỉ cho test. `MarketDataRequestError` và `marketPairPriceDecimals` có caller production.
+
+### Quyết định của agent
+
+Agent chốt các quyết định dưới theo ủy quyền của product owner. Product owner có thể bác bỏ khi review.
+
+| Quyết định                                                                                                                                              | Lý do                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Deadline 10 giây chỉ áp dụng cho request nến, không áp dụng cho summary                                                                                 | MK-34 chỉ nói về chart. Không có nguồn cho thời hạn của sidebar                                                                     |
+| Status ở trạng thái Ready để trống, không thông báo "đã tải"                                                                                            | MK-48 chỉ yêu cầu loading, rỗng và lỗi. Bốn chart cùng báo đã tải gây nhiễu cho người dùng screen reader                            |
+| Retry dùng `aria-disabled` khi đang tải và ở lại DOM từ lần lỗi đầu tới khi có data. Sau khi retry thành công, focus chuyển vào vùng chart hoặc sidebar | Thuộc tính `disabled` làm mất focus. Nút Retry rời DOM sau khi thành công, nên focus sẽ rơi về body nếu không chuyển (MK-38, MK-46) |
+| Phím Left/Right/Home/End chọn nến, +/- zoom                                                                                                             | MK-46 không miễn chức năng chart. Lightweight Charts không có thao tác bàn phím                                                     |
+| Nhãn múi giờ ghi tên IANA, ví dụ `Times in Asia/Bangkok`                                                                                                | MK-43 yêu cầu màn hình ghi múi giờ. Thời điểm dữ liệu dùng dạng ngắn `GMT+7`                                                        |
+
+### Testware
+
+Đã chạy `git diff --stat 32fffa5 --` với danh sách testware chỉ đọc. Ngoài thay đổi của Task 1–4, Task 5 sửa bốn file sau.
+
+| File                         | Loại         | Thay đổi và nguồn                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rest-history.spec.ts`       | T3           | Sign-up gửi `x-forwarded-for` với một địa chỉ 10.x riêng cho mỗi test, giống E2E Auth. Expected và assertion hành vi giữ nguyên. Header comment cập nhật theo trạng thái hiện tại                                                                                                                                                                                                                                                                                                                                                     |
+| `rest-history.spec.ts`       | Thêm test    | 13 test mới, liệt kê ở mục Test mới                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `market-data-rest-server.ts` | Thêm harness | Scenario `web-hold`, `gap`, `flat`, `open`, `summary-error`. Scenario cũ không đổi. App ngoài bọc `createApp` để giữ request của `web-hold`; app ngoài cũng tắt `x-powered-by` như `createApp`, nên header response không đổi. `web-hold` giữ request HTTP trước API, nên timeout Web không dựa vào timeout 5 giây của API (`rest-verification.md`, E2E và phần kiểm thủ công)                                                                                                                                                        |
+| `realtime.spec.ts`           | T1           | Spec mock kiểm mặc định 1m, Load history, MA/volume ở sidebar và làm mới lỗi giữ nến cũ. Ba hành vi sau đã Dropped hoặc chỉ thuộc vòng polling (MK-09, MK-16, MK-13); nguồn mới là MK-31, MK-60, MK-61. Mỗi test giữ ý đồ cũ trên timeframe mới: chia sẻ request dùng 1d thay 4h, lỗi chart chuyển sang 5m/15m/1h/4h. Expected lấy từ công thức fixture, ví dụ volume chart 5m là 20 × 60 = 1,200. Phần refresh giữ nến cũ bị bỏ khỏi test thứ 7. Test accessibility vào trạng thái lỗi bằng cách đổi timeframe thay cho Load history |
+| `msw-smoke.spec.ts`          | T1           | Assertion `Summary MA20` (MK-09 đã Dropped) chuyển sang dòng giá trị của chart 1 (MK-29). Expected tính tay từ fixture mock: close 67000 + 67 × 24 = 68,608.00, MA 67000 + 67 × 14.5 = 67,971.50, volume 24 × 100 = 2,400                                                                                                                                                                                                                                                                                                             |
+
+Số test: REST 11 → 24. Mock UI giữ 9 test. MSW giữ 1 test.
+
+### Test mới
+
+| Test                                    | Requirement                                 | Oracle                                                                                                                                                                                                 |
+| --------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Hủy request của pair cũ                 | MK-14, MK-17                                | Request BTC/5m của browser kết thúc `failed` khi đổi sang ETHUSDT, nên response sau release không tới trang. Sau release và đổi timeframe chart 2, chart 1 vẫn 718.00 và không có 608.50               |
+| Request chart sau 9999, 10000, 10001 ms | MK-34                                       | Clock dừng trước request. Ở 9999 ms, status vẫn Loading và response được release kết thúc `finished`. Ở 10000 và 10001 ms, request bị abort, chart báo lỗi kèm Retry, response tới muộn không thay lỗi |
+| Phiên bị thu hồi                        | MK-40                                       | Sign-out ở context khác bằng cookie của trang. Đổi timeframe nhận 401, màn chặn hiện tại `/realtime`. Đăng nhập lại thì quay về Realtime và có dữ liệu                                                 |
+| Nến đang mở và bàn phím ở Asia/Bangkok  | MK-24, MK-26 đến MK-28, MK-41, MK-43, MK-46 | Literal tính tay: dataTime 2025-01-02 19:14:59.999 UTC hiển thị `Jan 3, 2025, 02:14 GMT+7`. Home chọn nến index 19 lúc 08:35 với OHLCV 119/120/118/119/29 và MA 109.50                                 |
+| Status chỉ đổi ở chart liên quan        | MK-48                                       | Status có sẵn trước thay đổi và vẫn là cùng phần tử. Chart 1 đổi đúng 1 lần, chart 2–4 không đổi, focus giữ ở timeframe chart 2                                                                        |
+| Retry bằng bàn phím                     | MK-12, MK-38, MK-46, MK-48, MK-58           | Chỉ chart 1 lỗi. Retry bị giữ upstream: nút có `aria-disabled="true"` và giữ focus. Enter lần hai không tạo request. Browser gửi đúng 1 request, rồi focus ở vùng chart 1                              |
+| Cây accessibility của Chromium          | MK-47, MK-48                                | Role, name và description của chart, cùng role và `live` của status, khớp giữa Playwright và `Accessibility.getPartialAXTree`                                                                          |
+| Giá trị của fixture gap và tăng/giảm    | MK-35, MK-36                                | Gap: MA 2200 / 20 = 110.00. Flat: MA (18 × 100 + 101 + 100) / 20 = 100.05. Hình nến (MK-49) chỉ có trong ảnh trình duyệt                                                                               |
+| Status qua retry lỗi                    | MK-12, MK-48                                | Lỗi → Loading → lỗi đổi đúng 2 lần text của cùng phần tử status. Status chart 2–4 không đổi                                                                                                            |
+| Mô tả khi rỗng và thiếu MA              | MK-11, MK-15, MK-47, MK-48                  | Bốn status báo rỗng. Fixture 19 nến: description `Close 118.00 · Volume 28 · MA(20) Not enough data` cùng hướng dẫn phím                                                                               |
+| Retry sidebar                           | MK-18, MK-46                                | Chỉ summary lỗi. Retry bằng Enter hiện 618.13 USDT, focus ở sidebar, không có request nến mới                                                                                                          |
+
+Hai lỗi driver gặp khi viết test mới đã sửa trước lượt green. Thứ nhất, app dev render trong React `StrictMode`, nên request đầu của mỗi query bị hủy. Helper nay theo dõi request cuối cùng khớp URL. Thứ hai, timer 0 ms tạo trong lúc `runFor` đang chạy được Playwright đặt lùi 1 ms (`coreBundle.js` của `playwright-core@1.65.1`, `addTimer`). Vì vậy các kiểm sau deadline dùng `runFor(1)`. Hai lỗi này không đổi expected.
+
+Test mới phát hiện một lỗi production trước lượt green: status rỗng dùng `empty:hidden` nên bị loại khỏi cây accessibility. Live region không tồn tại trước khi trạng thái đổi. Lỗi đã sửa bằng `sr-only`.
+
+Test Retry giữ upstream phát hiện lỗi production thứ hai: TanStack Query v5 đưa query chưa có data về `pending` khi retry. Nút Retry rời DOM trong lúc tải, focus mất, rồi nút xuất hiện lại khi retry lỗi. Lỗi đã sửa: nút Retry ở lại từ lần lỗi đầu (`errorUpdateCount > 0`) tới khi có data, cho cả chart và sidebar.
+
+### Mutation
+
+Script áp từng mutant, chạy các test liên quan, khôi phục file, rồi chạy lại cùng test.
+
+| Mutant                                                   | Test fail                                               | Sau khôi phục |
+| -------------------------------------------------------- | ------------------------------------------------------- | ------------- |
+| Driver: ETH trả giá BTC (giữ dữ liệu pair cũ)            | 2/2: held và release, nhận 618.00 thay 718.00           | 2/2 pass      |
+| Production: MA dùng high thay close (tính MA sai)        | 2/2: mặc định và nến đang mở, nhận 609.50               | 2/2 pass      |
+| Driver: lỗi 5m lan sang mọi interval                     | 2/2: chart 2 không có 608.50, status chart khác báo lỗi | 2/2 pass      |
+| Production: deadline 9999 ms                             | 1/1: request bị abort ở 9999 ms                         | 1/1 pass      |
+| Production: deadline 10001 ms                            | 1/1: request chưa kết thúc ở 10000 ms                   | 1/1 pass      |
+| Production: bỏ chuyển màn chặn khi 401                   | 1/1: không có màn chặn                                  | 1/1 pass      |
+| Production: status ẩn khi trống                          | 2/2: status không tìm thấy, cây Chromium khác expected  | 2/2 pass      |
+| Production: vẽ nến warm-up                               | 1/1: Home không chọn được nến index 19                  | 1/1 pass      |
+| Production: retry không giữ focus                        | 1/1: vùng chart 1 không có focus                        | 1/1 pass      |
+| Production: không chuyển tiếp abort của caller tới fetch | 1/1: request BTC/5m cũ chưa kết thúc sau 3 giây         | 1/1 pass      |
+| Production: deadline 10002 ms                            | 1/1: request chưa kết thúc ở 10001 ms                   | 1/1 pass      |
+| Driver: fixture gap giữ nến index 10                     | 1/1: MA 110.50 thay 110.00                              | 1/1 pass      |
+| Production: thay phần tử status ở mỗi trạng thái         | 1/1: phần tử mới không có bộ đếm thay đổi               | 1/1 pass      |
+| Production: chart không liên kết mô tả                   | 1/1: description chỉ còn hướng dẫn phím                 | 1/1 pass      |
+| Production: retry sidebar không giữ focus                | 1/1: sidebar không có focus                             | 1/1 pass      |
+
+Mutant "Retry không bị chặn khi đang tải" (bỏ `if (query.isFetching) return;`) sống sót: test vẫn thấy đúng 1 request. Đây là mutant tương đương. TanStack Query v5 không hủy fetch đang chạy của query chưa có data, nên `refetch()` lần hai dùng lại promise cũ. Guard được giữ làm lớp phòng thủ. MK-38 được bảo đảm bởi `aria-disabled` và hành vi dedupe này.
+
+Lượt mutation đầu của bốn mutant gap, status, mô tả và retry sidebar báo 0 pass/0 fail, vì `pnpm` tạm thời không tìm thấy trong shell. Lượt đó không tính là evidence. Bảng trên ghi lượt chạy lại.
+
+### Xử lý review
+
+Reviewer độc lập đọc diff, conventions và evidence theo skill `review-change`. Kết quả gồm 1 finding high, 5 medium và 14 low.
+
+| Finding                                                                                                            | Xử lý                                                                                                                                                                                                                             |
+| ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| High: test response cũ sau release không kiểm outcome. Request cũ bị Web hủy, nên response không bao giờ tới trang | Test đổi tên và assert request cũ `failed` trước 3 giây. Mutant "không chuyển tiếp abort" làm test fail. Lần thử đầu với poll 10 giây không bắt được mutant, vì deadline 10 giây của Web cũng làm request `failed`; oracle đã sửa |
+| Medium: test status dựa vào deadline thật 10 giây                                                                  | Giữ nguyên. Deadline bắt đầu khi request được gửi, sau khi module đã tải. Trước release, test chỉ chờ chart 2–4 tải xong. Rủi ro chỉ còn khi máy rất chậm sau lúc gửi request                                                     |
+| Medium: MK-47/MK-48 chưa kiểm trạng thái rỗng, lỗi và thiếu MA                                                     | Thêm test status qua retry lỗi và test mô tả khi rỗng và thiếu MA                                                                                                                                                                 |
+| Medium: MK-38 không có assertion                                                                                   | Retry giữ upstream, kiểm `aria-disabled`, focus và số request của browser. Test này phát hiện lỗi `pending` của TanStack ở trên                                                                                                   |
+| Medium: tên test gap/flat nói "draws"; thiếu mutant                                                                | Đổi tên. Thêm mutant driver gap                                                                                                                                                                                                   |
+| Medium: header file test không ghi fault đã thử                                                                    | Header spec và test server ghi fault đã thử                                                                                                                                                                                       |
+| Low: mutant 10001 ms, comment sau deadline, zoom ledger không có chờ                                               | Thêm mutant 10002 ms, sửa comment, bỏ assertion ledger của zoom; zoom có evidence trình duyệt                                                                                                                                     |
+| Low: retry sidebar mất focus                                                                                       | Sidebar dùng cùng `useRetryFocus`. Thêm test và mutant                                                                                                                                                                            |
+| Low: app ngoài của test server bật `x-powered-by`                                                                  | Tắt `x-powered-by` như `createApp`                                                                                                                                                                                                |
+| Low: nguồn volume 2,400, câu "bản ghi lời đọc" cũ, comment MK-13, claim `as`, header không ghi đường dẫn ảnh       | Đã sửa                                                                                                                                                                                                                            |
+| Low: `let email` dùng chung, URL 5185 lặp                                                                          | Giữ: config có `workers: 1`, comment ghi điều kiện này                                                                                                                                                                            |
+| Low: query bị pause khi offline không có status                                                                    | Giữ, ngoài phạm vi Task 5. Ghi lại để xét khi có requirement mất mạng                                                                                                                                                             |
+| Low: `MARKET_DATA_INVALID` và `INVALID_QUERY` vẫn có Retry                                                         | Giữ: MK-12 yêu cầu chart lỗi có thử lại. Web vẫn không vẽ nến khi dữ liệu sai                                                                                                                                                     |
+| Low: regex data time trong spec mock                                                                               | Giữ: dataTime của mock hiển thị theo múi giờ máy chạy test, nên không có literal ổn định                                                                                                                                          |
+
+### Kiểm trên trình duyệt
+
+Dùng `playwright-cli`, Chromium, Windows 11, múi giờ Asia/Bangkok. API test server và Web dev 5185 chạy cùng harness của E2E. Ảnh nằm trong `docs/testing/evidence/market-data/2026-11-21-rest-ui-browser/`.
+
+| Requirement                                     | Kết quả                                                                                                       | Evidence                                    |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| Canvas, attribution (MK-02)                     | Passed: 4 chart vẽ nến, volume và MA, mỗi chart có logo TradingView                                           | `01-default-1440.png`                       |
+| Warm-up không vẽ, MA phủ nến đầu (MK-24, MK-33) | Passed: nến trái nhất là 08:35 (index 19), MA bắt đầu ở 109.50                                                | `02-keyboard-zoom-first-visible-candle.png` |
+| Crosshair (MK-41, MK-43)                        | Passed: hover nến 09:20 hiện O 128, MA 118.50, khớp công thức fixture. Nhãn thời gian GMT+7                   | `03-mouse-crosshair.png`                    |
+| Zoom và kéo (MK-42, MK-61)                      | Passed: zoom bằng phím, kéo bằng chuột dừng ở nến đầu đã tải. Ledger giữ 5 upstream call                      | `02`, `04-mouse-drag.png`                   |
+| Gap (MK-35, MK-36)                              | Passed: sau 07:45 là 07:55, không có nến 07:50. MA chỉ có điểm cuối 110                                       | `05-gap.png`                                |
+| Nến tăng/giảm ngoài màu (MK-49)                 | Passed: nến tăng rỗng ruột, nến giảm đặc. Hướng nến vẫn phân biệt được khi bật forced colors                  | `06`, `07`                                  |
+| Focus nhìn thấy (MK-58)                         | Passed: viền focus ở chart và ô timeframe. Thứ tự Tab: pair → số chart → timeframe → chart → link TradingView | `02`, `09-320px-focus-timeframe.png`        |
+| 320 CSS px (MK-50, MK-59)                       | Passed: `scrollWidth` 320 = `innerWidth` 320, 4 chart cùng x = 16 và xếp một cột                              | `08-320px-full-page.png`                    |
+
+Finding hiển thị, không chặn requirement: nhãn tick đầu và cuối của trục thời gian bị cắt ("1, 10:00", "Jan 3, 0"). Ở chiều rộng hẹp, nhãn giá chồng lên nhãn volume. Canvas giữ màu nền tối khi bật forced colors. Lightweight Charts tạo `id="tv-attr-logo"` lặp lại ở mỗi chart.
+
+Accessibility ở mức khai báo theo [giới hạn kiểm accessibility](accessibility-verification-limits.md). MK-47 và MK-48 Passed ở mức khai báo qua hai test cây accessibility và status. Phần screen reader đọc ra không kiểm, theo quyết định của product owner ngày 2026-11-21. Câu yêu cầu kiểm screen reader và các câu liên quan trong `rest-verification.md` đã cập nhật theo quyết định này.
+
+### Kiểm chứng Task 5
+
+| Lệnh hoặc phạm vi                                                                                     | Kết quả                                                                                                |
+| ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `pnpm --filter @crypto-force/web exec playwright test --config playwright.market-data-rest.config.ts` | 24/24 pass, lượt cuối sau khi xử lý review                                                             |
+| `... --config playwright.market-data.config.ts --project=ui --workers=1`                              | 9/9 pass                                                                                               |
+| `... --config playwright.market-data.config.ts --project=msw --workers=1`                             | 1/1 pass                                                                                               |
+| `pnpm --filter @crypto-force/web test`                                                                | 10/10 pass                                                                                             |
+| `pnpm --filter @crypto-force/shared test`                                                             | 149/149 pass                                                                                           |
+| Typecheck shared, Web, API                                                                            | Đạt. Lượt đầu API báo `number \| undefined` ở test server, đã sửa bằng cùng mặc định 1m của `klines()` |
+| ESLint các file `.ts`/`.tsx` đã sửa                                                                   | Đạt                                                                                                    |
+| `pnpm check:exports`                                                                                  | Đạt                                                                                                    |
+| `pnpm check:docs`                                                                                     | Đạt sau khi tách tham chiếu ADR-001 khỏi trích dẫn `docs/UCs` trong comment                            |
+| Prettier các file code, `git diff --check`                                                            | Đạt                                                                                                    |
+| `graphify update .`                                                                                   | Đạt, AST cục bộ                                                                                        |
+
+Không chạy `pnpm check`, toàn bộ test API hoặc baseline. Task 5 không sửa code API production. Thay đổi phía API chỉ nằm ở test server.
+
 ## Phần còn lại
 
-Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất kiểm chứng và review. Task 5–10 chưa thực hiện. Ba quyết định vận hành của Task 6 đang chờ product owner duyệt. Không đánh dấu Bước 08 hoàn thành.
+Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất kiểm chứng, mutation, kiểm trên trình duyệt và review, và được lưu trong commit riêng. Task 6–10 chưa thực hiện. Ba quyết định vận hành của Task 6 đang chờ product owner duyệt. Không đánh dấu Bước 08 hoàn thành.

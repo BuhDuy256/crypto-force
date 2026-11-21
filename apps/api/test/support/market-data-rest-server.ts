@@ -1,6 +1,12 @@
 // Runs a real Express API and Auth against a dedicated _market_data_rest_test DB.
 // Starts from playwright.market-data-rest.config.ts. Only upstream HTTP uses a fake.
-// Missing adapter/cache modules prevent startup until Step 08. No outbound sensitivity claim is made.
+// Scenarios: full, empty, short, held (upstream BTC/5m waits for release), chart-error (5m 503),
+// summary-error (24h ticker 503),
+// unavailable, gap (index 10 removed), flat (flat, rising and falling candles), open (last 5m candle
+// open, other timeframes empty) and web-hold (the HTTP request for BTC/5m candles waits for release
+// before the API handles it, so the Web deadline can end it without an API or upstream timeout).
+// Faults tried: ETH rows without the +100 offset and a 5m error sent for every interval made the
+// related E2E tests fail; the gap fixture that keeps index 10 made the gap test fail.
 import { once } from 'node:events';
 import { fileURLToPath } from 'node:url';
 import { drizzle } from 'drizzle-orm/node-postgres';
@@ -61,6 +67,10 @@ const ledger: string[] = [];
 const unexpected: string[] = [];
 let scenario = 'full';
 let held = deferred<Response>();
+let webHeld = deferred<undefined>();
+let webHeldCount = 0;
+// Close time of the last of 519 5m candles: that candle is open, the earlier ones are closed.
+const OPEN_5M_DATA_TIME = 1735689600000 + 519 * 300000 - 1;
 const fakeFetch: typeof globalThis.fetch = (input) => {
   const url = new URL(input instanceof Request ? input.url : String(input));
   if (
@@ -87,6 +97,8 @@ const fakeFetch: typeof globalThis.fetch = (input) => {
     url.searchParams.get('interval') === '5m'
   )
     return held.promise;
+  if (scenario === 'summary-error' && url.pathname === '/api/v3/ticker/24hr')
+    return Promise.resolve(new Response('Private upstream sentinel.', { status: 503 }));
   if (url.pathname === '/api/v3/ticker/24hr')
     return Promise.resolve(
       Response.json({
@@ -103,10 +115,22 @@ const fakeFetch: typeof globalThis.fetch = (input) => {
     '4h': 14400000,
     '1d': 86400000,
   };
-  const body = klines(
-    scenario === 'empty' ? 0 : scenario === 'short' ? 19 : 519,
-    intervals[url.searchParams.get('interval') ?? '1m'],
-  );
+  const interval = url.searchParams.get('interval') ?? '1m';
+  // Same default as klines(): an interval outside the table uses 1m.
+  const step = intervals[interval] ?? 60000;
+  const body =
+    scenario === 'gap'
+      ? klines(21, step).filter((_, index) => index !== 10)
+      : scenario === 'flat'
+        ? flatKlines(step)
+        : klines(
+            scenario === 'empty' || (scenario === 'open' && interval !== '5m')
+              ? 0
+              : scenario === 'short'
+                ? 19
+                : 519,
+            step,
+          );
   if (url.searchParams.get('symbol') === 'ETHUSDT') {
     for (const row of body) {
       for (const index of [1, 2, 3, 4]) row[index] = String(Number(row[index]) + 100);
@@ -114,6 +138,18 @@ const fakeFetch: typeof globalThis.fetch = (input) => {
   }
   return Promise.resolve(Response.json(body));
 };
+// 20 candles at 100 with volume 0, then one rising (100/102/99/101) and one falling (101/102/99/100).
+function flatKlines(interval: number) {
+  return klines(22, interval).map((row, index) => {
+    const ohlc =
+      index < 20
+        ? ['100', '100', '100', '100']
+        : index === 20
+          ? ['100', '102', '99', '101']
+          : ['101', '102', '99', '100'];
+    return [row[0], ...ohlc, index < 20 ? '0' : '5', ...row.slice(6)];
+  });
+}
 // Auth password checks use an empty Pwned Passwords response. Other external fetch calls are blocked.
 const nativeFetch = globalThis.fetch;
 globalThis.fetch = (input, init) => {
@@ -128,10 +164,11 @@ globalThis.fetch = (input, init) => {
   return Promise.reject(new Error('The REST test server blocked an external request.'));
 };
 function provider() {
+  const receivedAt = scenario === 'open' ? OPEN_5M_DATA_TIME : 1800000000000;
   return createCachedMarketDataProvider({
     provider: createBinanceMarketDataProvider({
       fetch: fakeFetch,
-      now: () => 1800000000000,
+      now: () => receivedAt,
       timeoutMs: 5000,
       logger,
     }),
@@ -146,13 +183,34 @@ const marketDataProvider = {
   getSummary: (...args: Parameters<typeof current.getSummary>) => current.getSummary(...args),
 };
 const dependencies = { logger, auth, authConfig: { google: false }, marketDataProvider };
-const app = createApp(dependencies);
+const app = express();
+// Same response headers as createApp, which also disables x-powered-by.
+app.disable('x-powered-by');
+app.use((req, _res, next) => {
+  if (
+    scenario === 'web-hold' &&
+    req.path === '/api/market-data/candles' &&
+    req.query.pair === 'BTCUSDT' &&
+    req.query.timeframe === '5m'
+  ) {
+    webHeldCount += 1;
+    void webHeld.promise.then(() => {
+      next();
+    });
+    return;
+  }
+  next();
+});
+app.use(createApp(dependencies));
 const control = express();
 // Control endpoints are confined to this test entrypoint and loopback listener.
 control.post('/__rest/reset/:scenario', (req, res) => {
   scenario = req.params.scenario;
   held.resolve(Response.json(klines(519, 300000)));
   held = deferred<Response>();
+  webHeld.resolve(undefined);
+  webHeld = deferred<undefined>();
+  webHeldCount = 0;
   ledger.length = 0;
   unexpected.length = 0;
   current = provider();
@@ -160,10 +218,11 @@ control.post('/__rest/reset/:scenario', (req, res) => {
 });
 control.post('/__rest/release', (_req, res) => {
   held.resolve(Response.json(klines(519, 300000)));
+  webHeld.resolve(undefined);
   res.json({ released: true });
 });
 control.get('/__rest/ledger', (_req, res) => {
-  res.json({ ledger, unexpected });
+  res.json({ ledger, unexpected, webHeld: webHeldCount });
 });
 control.get('/__rest/mail', (_req, res) => {
   res.json(sent);

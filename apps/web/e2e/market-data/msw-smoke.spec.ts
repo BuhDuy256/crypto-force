@@ -34,7 +34,10 @@ test('loads the workspace and candle response through the development worker', a
   ).toBeVisible();
   await expect(page.locator('.tv-lightweight-charts')).toHaveCount(4);
   await expect(page.getByLabel('Last price', { exact: true })).toHaveText('68,608.00 USDT');
-  await expect(page.getByLabel('Summary MA20', { exact: true })).toHaveText('67,971.50');
+  // MA and volume are shown on each chart, not in the sidebar (MK-29, MK-60).
+  await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
+    'Close 68,608.00 · Volume 2,400 · MA(20) 67,971.50',
+  );
   const result = await page.evaluate(async () => {
     const response = await fetch('/api/market-data/candles?pair=BTCUSDT&timeframe=1m');
     return { status: response.status, body: (await response.json()) as unknown };

@@ -1,7 +1,7 @@
+import { useId } from 'react';
 import { marketTimeframeSchema, type MarketPair, type MarketTimeframe } from '@crypto-force/shared';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader } from '~/components/ui/card';
-import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Skeleton } from '~/components/ui/skeleton';
 import {
   Select,
@@ -12,8 +12,9 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { useCandleHistory } from '~/hooks/useMarketData';
+import { useRetryFocus } from '~/hooks/useRetryFocus';
 import { CandlestickChart } from './CandlestickChart';
-import { toChartSeries } from '~/utils/market-chart';
+import { formatDateTime, formatPrice, formatVolume, toChartSeries } from '~/utils/market-chart';
 
 export function MarketChartCard({
   chartId,
@@ -27,10 +28,32 @@ export function MarketChartCard({
   onTimeframeChange: (id: number, timeframe: MarketTimeframe) => void;
 }) {
   const query = useCandleHistory(pair, timeframe);
-  const last = query.data?.candles.at(-1);
-  const ma = query.data ? toChartSeries(query.data).ma20.at(-1) : undefined;
+  const valuesId = useId();
+  const history = query.data;
+  const last = history?.candles.at(-1);
+  const ma = history ? toChartSeries(history).ma20.at(-1) : undefined;
+  const loading = query.isFetching && !history;
+  // The status element stays in the DOM and only its text changes, so assistive technology
+  // announces each change without a focus move (MK-48).
+  const status = loading
+    ? 'Loading candles…'
+    : query.isError
+      ? 'Cannot load candle history.'
+      : history && !last
+        ? 'No candle history for this selection.'
+        : '';
+  // A retry without data puts the query back to pending. Keep the Retry button from the first error
+  // until data arrives, so it keeps focus while the retry loads (MK-38, MK-46).
+  const showRetry = !history && query.errorUpdateCount > 0;
+  const { containerRef, onRetry } = useRetryFocus<HTMLDivElement>(showRetry);
   return (
-    <Card role="region" aria-label={`Chart ${chartId}`} className="min-w-0 gap-3 py-4">
+    <Card
+      ref={containerRef}
+      role="region"
+      tabIndex={-1}
+      aria-label={`Chart ${chartId}`}
+      className="min-w-0 gap-3 py-4 outline-none"
+    >
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 px-4">
         <h2 className="font-semibold">
           {pair}{' '}
@@ -57,76 +80,46 @@ export function MarketChartCard({
         </Select>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 px-4">
-        {query.isPending ? (
-          <div role="status">
-            <p>Loading candles…</p>
-            <Skeleton className="h-[280px] w-full" />
-          </div>
+        <p role="status" aria-live="polite" className={status ? 'text-sm' : 'sr-only'}>
+          {status}
+        </p>
+        {loading ? <Skeleton className="h-[280px] w-full" /> : null}
+        {showRetry ? (
+          // aria-disabled keeps focus on the button while the retry loads (MK-38).
+          <Button
+            variant="outline"
+            className="self-start"
+            aria-disabled={query.isFetching}
+            onClick={(event) => {
+              if (query.isFetching) return;
+              onRetry(event.currentTarget);
+              void query.refetch();
+            }}
+          >
+            Retry chart {chartId}
+          </Button>
         ) : null}
-        {query.isError ? (
-          <Alert variant="destructive">
-            <AlertDescription>
-              <p>
-                {query.data
-                  ? 'Could not refresh candles. Previous data remains visible.'
-                  : 'Cannot load candle history.'}
-              </p>
-              <Button
-                variant="outline"
-                className="text-foreground"
-                disabled={query.isFetching}
-                onClick={() => {
-                  void query.refetch();
-                }}
-              >
-                Retry chart {chartId}
-              </Button>
-            </AlertDescription>
-          </Alert>
-        ) : null}
-        {query.data ? (
+        {history && last ? (
           <>
-            {last ? (
-              <>
-                <p className="text-xs text-muted-foreground" aria-label={`Chart ${chartId} values`}>
-                  Close{' '}
-                  {last.close.toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}{' '}
-                  · Volume {last.volume.toLocaleString('en-US')} · MA(20){' '}
-                  {ma
-                    ? ma.value.toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })
-                    : 'Not enough data'}
-                </p>
-                <CandlestickChart history={query.data} />
-              </>
-            ) : (
-              <p>No candle history for this selection.</p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              {query.isFetching
-                ? 'Refreshing candles…'
-                : query.isError
-                  ? 'Refresh failed'
-                  : 'Data loaded'}{' '}
-              · {timeframe}
+            {/* The chart description points to the inner span: a description taken from an
+                element with aria-label would read the label instead of the values (MK-47). */}
+            <p className="text-xs text-muted-foreground" aria-label={`Chart ${chartId} values`}>
+              <span id={valuesId}>
+                {last.isClosed ? '' : 'Open candle · '}Close {formatPrice(pair, last.close)} ·
+                Volume {formatVolume(last.volume)} · MA(20){' '}
+                {ma
+                  ? `${formatPrice(pair, ma.value)}${last.isClosed ? '' : ' (provisional)'}`
+                  : 'Not enough data'}
+              </span>
             </p>
+            <CandlestickChart history={history} describedBy={valuesId} />
           </>
         ) : null}
-        <Button
-          variant="outline"
-          className="self-start"
-          disabled={query.isFetching}
-          onClick={() => {
-            void query.refetch();
-          }}
-        >
-          Load history<span className="sr-only"> for chart {chartId}</span>
-        </Button>
+        {history ? (
+          <p className="text-xs text-muted-foreground">
+            Data time {formatDateTime(history.dataTime)} · {timeframe}
+          </p>
+        ) : null}
       </CardContent>
     </Card>
   );

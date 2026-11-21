@@ -17,6 +17,10 @@ export function RealtimePage() {
         chartCount={workspace.chartCount}
         onChartCountChange={workspace.setChartCount}
       />
+      {/* Chart times use the device time zone; the page names it (docs/UCs/market-data.md, MK-43). */}
+      <p className="text-xs text-muted-foreground">
+        Times in {Intl.DateTimeFormat().resolvedOptions().timeZone}
+      </p>
       <div className="grid min-w-0 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
         <div className={cn('grid min-w-0 gap-4', workspace.chartCount > 1 && 'lg:grid-cols-2')}>
           {workspace.slots.map((slot) => (
@@ -29,7 +33,7 @@ export function RealtimePage() {
             />
           ))}
         </div>
-        <MarketSummary pair={workspace.pair} timeframe={workspace.slots[0]?.timeframe ?? '1m'} />
+        <MarketSummary pair={workspace.pair} />
       </div>
     </section>
   );

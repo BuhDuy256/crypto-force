@@ -24,6 +24,7 @@ export {
   candleHistorySchema,
   marketSummarySchema,
   marketSummaryInputSchema,
+  marketPairPriceDecimals,
 } from './schemas/market-data.schema';
 export type {
   MarketPair,

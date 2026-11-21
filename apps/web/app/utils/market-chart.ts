@@ -1,4 +1,4 @@
-import type { CandleHistory } from '@crypto-force/shared';
+import { marketPairPriceDecimals, type CandleHistory, type MarketPair } from '@crypto-force/shared';
 import type { UTCTimestamp } from 'lightweight-charts';
 
 export function toChartSeries(history: CandleHistory) {
@@ -24,4 +24,33 @@ export function toChartSeries(history: CandleHistory) {
     })),
     ma20,
   };
+}
+
+/**
+ * Price with the pair decimals, rounded half-up only for display (ADR-005). Intl rounds with
+ * `halfExpand`, which equals half-up for the positive prices of the contract.
+ */
+export function formatPrice(pair: MarketPair, value: number) {
+  const digits = marketPairPriceDecimals[pair];
+  return value.toLocaleString('en-US', {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
+export function formatVolume(value: number) {
+  return value.toLocaleString('en-US');
+}
+
+/** Date and time in the device time zone, with the zone name (docs/UCs/market-data.md, MK-43). */
+export function formatDateTime(epochMs: number) {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+    timeZoneName: 'short',
+  }).format(epochMs);
 }

@@ -4,9 +4,11 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ## [Unreleased]
 
-- Test trước build REST Market Data: shared contract, provider/service, Binance adapter, cache decorator và HTTP/session đã green qua Bước 08 Task 4. Flow UI qua API thật còn chờ Task 5. Chưa đo baseline toàn flow.
+- Test trước build REST Market Data đã green qua Bước 08 Task 5: shared contract, provider/service, Binance adapter, cache decorator, HTTP/session và flow UI qua API thật. Chưa đo baseline toàn flow.
 
 ### Changed
+
+- Bước 08 Task 5: Realtime đọc dữ liệu qua API thật với mặc định 5m/15m/1h/4h, không còn Load history và sidebar không còn MA/volume. Chart có hạn chờ 10 giây, phiên hết hạn chuyển sang màn chặn đăng nhập, status luôn có trong DOM để thông báo trạng thái, mô tả bằng chữ, nhãn nến đang mở và MA tạm, thời điểm dữ liệu, múi giờ thiết bị, đọc nến và zoom bằng bàn phím, nến tăng rỗng ruột. Retry giữ focus. Giá format theo số chữ số của pair (ADR-005). E2E REST từ 11 lên 24 test. Có ảnh kiểm trên trình duyệt. Screen reader không kiểm theo quyết định của product owner.
 
 - Bước 08 Task 4: nối hai endpoint Market Data qua service và provider có cache. Kiểm phiên Better Auth trước query, trả mã lỗi theo contract và `Cache-Control: no-store`. Log HTTP có method/path/status/duration, che token trong path Auth, bỏ path không có route, header phiên, query và message lỗi ngoài dự kiến. Thêm test log, reset callback và response 503.
 

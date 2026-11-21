@@ -82,3 +82,14 @@ export type MarketPair = z.infer<typeof marketPairSchema>;
 export type MarketTimeframe = z.infer<typeof marketTimeframeSchema>;
 export type CandleHistory = z.infer<typeof candleHistorySchema>;
 export type MarketSummary = z.infer<typeof marketSummarySchema>;
+
+/**
+ * Display decimals of each pair price (docs/architecture/30-decisions.md, ADR-005). Source: Binance
+ * `GET /api/v3/exchangeInfo`, `PRICE_FILTER.tickSize` 0.01 for each pair, read on 2026-11-21.
+ * Update the values and the date when Binance changes the tick size.
+ */
+export const marketPairPriceDecimals = {
+  BTCUSDT: 2,
+  ETHUSDT: 2,
+  SOLUSDT: 2,
+} as const satisfies Record<MarketPair, number>;

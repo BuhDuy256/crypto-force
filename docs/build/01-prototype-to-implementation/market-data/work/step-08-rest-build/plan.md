@@ -185,17 +185,17 @@ Các quyết định sau do agent chốt theo ủy quyền của product owner. 
 
 #### Task 5: Lát 5, flow UI qua API thật
 
-- [ ] Chạy lại `rest-history.spec.ts` với config REST. Xác nhận API startup thành công và test tới assertion UI.
-- [ ] Web xử lý timeout chart 10 giây, 401 chặn workspace và mã lỗi theo contract. Giữ cách gọi HTTP cùng origin.
-- [ ] Bổ sung test cho response cũ tới sau khi release và timeout transport Web. Bước 07 chỉ kiểm lúc request cũ còn bị giữ [[2, Fixture, evidence và gate còn lại]](#ref-2).
-- [ ] Chạy mutation của E2E driver: giữ dữ liệu pair cũ, tính MA sai, cho lỗi một chart lan sang chart khác.
-- [ ] Kiểm trên trình duyệt bằng skill `playwright-cli`: canvas, vùng warm-up, crosshair, gap, zoom/kéo, nến tăng/giảm ngoài màu, focus nhìn thấy, 320 px. Lưu ảnh làm evidence.
-- [ ] Kiểm accessibility bằng Playwright theo [giới hạn kiểm accessibility](accessibility-verification-limits.md): status có trong DOM trước khi đổi trạng thái, `aria-live="polite"`, so role/name với cây accessibility của Chromium cho MK-47/MK-48, mỗi lần chuyển trạng thái chỉ đổi status của chart liên quan. Không dùng screen reader, theo quyết định của product owner ngày 2026-11-21.
-- [ ] Cập nhật câu yêu cầu kiểm screen reader trong `rest-verification.md` theo quyết định trên.
+- [x] Chạy lại `rest-history.spec.ts` với config REST. Xác nhận API startup thành công và test tới assertion UI.
+- [x] Web xử lý timeout chart 10 giây, 401 chặn workspace và mã lỗi theo contract. Giữ cách gọi HTTP cùng origin.
+- [x] Bổ sung test cho response cũ tới sau khi release và timeout transport Web. Bước 07 chỉ kiểm lúc request cũ còn bị giữ [[2, Fixture, evidence và gate còn lại]](#ref-2).
+- [x] Chạy mutation của E2E driver: giữ dữ liệu pair cũ, tính MA sai, cho lỗi một chart lan sang chart khác.
+- [x] Kiểm trên trình duyệt bằng skill `playwright-cli`: canvas, vùng warm-up, crosshair, gap, zoom/kéo, nến tăng/giảm ngoài màu, focus nhìn thấy, 320 px. Lưu ảnh làm evidence.
+- [x] Kiểm accessibility bằng Playwright theo [giới hạn kiểm accessibility](accessibility-verification-limits.md): status có trong DOM trước khi đổi trạng thái, `aria-live="polite"`, so role/name với cây accessibility của Chromium cho MK-47/MK-48, mỗi lần chuyển trạng thái chỉ đổi status của chart liên quan. Không dùng screen reader, theo quyết định của product owner ngày 2026-11-21.
+- [x] Cập nhật câu yêu cầu kiểm screen reader trong `rest-verification.md` theo quyết định trên.
 
 **Điều kiện đạt:** 10 test E2E REST và test mới pass. Spec mock không regression. Phần kiểm thủ công có kết quả riêng cho từng requirement.
 
-- [ ] Chạy kiểm tra phù hợp, `review-change` cho Phần A code, và tạo commit cho Task 5.
+- [x] Chạy kiểm tra phù hợp, `review-change` cho Phần A code, và tạo commit cho Task 5.
 
 #### Task 6: Baseline REST tải lịch sử
 
