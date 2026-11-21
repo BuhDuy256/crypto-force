@@ -1,0 +1,100 @@
+{
+  "protocol": "docs/testing/test-scopes/TS-002-market-data/rest-verification.md",
+  "seed": 20261121,
+  "source": "HTTP replay through production Binance adapter, real Auth/session and PostgreSQL",
+  "apiInstances": 1,
+  "ttlMs": 5000,
+  "upstreamTimeoutMs": 5000,
+  "chartTimeoutMs": 10000,
+  "retry": 0,
+  "replayLatencyMs": 50,
+  "apiWarmupSeconds": 30,
+  "apiSteadySeconds": 180,
+  "thinkSeconds": 6,
+  "uiWarmupActions": 5,
+  "mainActions": 100,
+  "mainRepeats": 3,
+  "secondaryActions": 30,
+  "percentile": "nearest-rank ceil(p*N)",
+  "qa10P95StrictlyBelowMs": 2000,
+  "qa11P95StrictlyBelowMs": 1000,
+  "httpLatencyThreshold": null,
+  "errorRateThreshold": null,
+  "capacityThreshold": null,
+  "draw": "Inconclusive until the runner proves a paint for the selected data.",
+  "setupCommandsExecuted": [
+    "node --version",
+    "pnpm --version",
+    "docker compose ps",
+    "docker compose exec -T postgres postgres --version",
+    "node apps/api/perf/market-data/fixture.mjs",
+    "pnpm exec prettier --write apps/api/perf/market-data",
+    "pnpm --filter @crypto-force/web build",
+    "pnpm --filter @crypto-force/api exec tsx perf/market-data/server.mjs",
+    "node apps/api/perf/market-data/run.mjs accounts",
+    "node apps/api/perf/market-data/run.mjs validate"
+  ],
+  "agentChoices": {
+    "ports": "Agent selected loopback ports 5195, 3025 and 3026 to isolate the benchmark from dev and E2E servers.",
+    "fixture": "Agent selected a fixed integer progression, seed 20261121, epoch 1735689600000 and 519 candles per key. These values are synthetic inputs, not production requirements.",
+    "resourceInterval": "Agent selected a 1000 ms resource interval and 20 ms event-loop histogram resolution for diagnostics. No acceptance threshold uses these values.",
+    "weight": "Synthetic version 1 uses weight 2 for each replay endpoint. This is not a claim about current Binance quota.",
+    "instrumentation": "A User Timing mark follows all three setData calls. Its detail records the applied series. Marks are cleared after observation. A mark does not prove a canvas paint. Observer serialization and reconciliation add overhead to this cohort."
+  },
+  "mode": "ui",
+  "assetCache": "cold",
+  "action": "open",
+  "repeat": 3,
+  "actions": 100,
+  "run": "rest-v2-ui-open-cold-3",
+  "origin": "http://127.0.0.1:5195",
+  "commit": "738e780571d1f73f7e674b2f89e715e9dc56d326",
+  "dirtyDiffHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "dirtyFiles": "?? docs/testing/evidence/market-data/rest-v2-api-default-1-1/\n?? docs/testing/evidence/market-data/rest-v2-api-default-1-2/\n?? docs/testing/evidence/market-data/rest-v2-api-default-1-3/\n?? docs/testing/evidence/market-data/rest-v2-api-default-10-1/\n?? docs/testing/evidence/market-data/rest-v2-api-default-10-2/\n?? docs/testing/evidence/market-data/rest-v2-api-default-10-3/\n?? docs/testing/evidence/market-data/rest-v2-api-default-50-1/\n?? docs/testing/evidence/market-data/rest-v2-api-default-50-2/\n?? docs/testing/evidence/market-data/rest-v2-api-default-50-3/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-1-1/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-1-2/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-1-3/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-10-1/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-10-2/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-10-3/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-50-1/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-50-2/\n?? docs/testing/evidence/market-data/rest-v2-api-diverse-50-3/\n?? docs/testing/evidence/market-data/rest-v2-micro-hit-1/\n?? docs/testing/evidence/market-data/rest-v2-micro-hit-2/\n?? docs/testing/evidence/market-data/rest-v2-micro-hit-3/\n?? docs/testing/evidence/market-data/rest-v2-micro-miss-1/\n?? docs/testing/evidence/market-data/rest-v2-micro-miss-2/\n?? docs/testing/evidence/market-data/rest-v2-micro-miss-3/\n?? docs/testing/evidence/market-data/rest-v2-micro-single-flight-1/\n?? docs/testing/evidence/market-data/rest-v2-micro-single-flight-2/\n?? docs/testing/evidence/market-data/rest-v2-micro-single-flight-3/\n?? docs/testing/evidence/market-data/rest-v2-ui-open-cold-1/\n?? docs/testing/evidence/market-data/rest-v2-ui-open-cold-2/",
+  "lockfileHash": "59c044ea8bbf2ff11311c9bcc130f162d37a9e3997b844dff8c46ba64353f11d",
+  "fixtureHash": "494311daa4d8fb4ff2d6a532b2ba50d9b5bba7ec77d5684d17ca066dc6a3bea2",
+  "node": "v22.23.5",
+  "k6": "k6.exe v2.4.0 (commit/dd9395906d, go1.26.11, windows/amd64)",
+  "pnpm": "9.15.9",
+  "environment": {
+    "os": "win32 10.0.26300",
+    "host": "DESKTOP-KE0DR9U",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-1355U",
+    "logicalCores": 12,
+    "ram": 16857645056,
+    "freeRam": 3726643200,
+    "topology": "Browser, k6, API, replay, and Docker Desktop PostgreSQL share this Windows host.",
+    "cpuGovernor": "Unknown",
+    "databaseDescription": "Dedicated _market_data_perf_test database. No production account data.",
+    "database": {
+      "databaseName": "crypto_force_market_data_perf_test",
+      "version": "PostgreSQL 17.10 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+      "bytes": "8533683",
+      "users": "50",
+      "sessions": "467",
+      "migrations": [
+        {
+          "id": 1,
+          "hash": "3d776aa7b3a892d2513e6ed5b7b2281ae5455dc47c01f562df656fd08cc695d0",
+          "created_at": "1794795063721"
+        }
+      ]
+    },
+    "containerLimits": {
+      "nanoCpus": 0,
+      "memoryBytes": 0,
+      "cpuQuota": 0,
+      "cpuPeriod": 0
+    },
+    "network": "Loopback HTTP, no TLS, no compression, no shaping. Replay delay is 50 ms and is not network RTT.",
+    "clock": "Node micro and browser UI durations use performance.now. UTC correlates events. Host synchronization is not independently verified."
+  },
+  "buildHash": "de74c5eb7bd463ec26e6a080bb27f2f64292e57650451176bdf82f24c921489f",
+  "startedUtc": "2026-11-21T10:30:20.190Z",
+  "endedUtc": "2026-11-21T10:44:01.212Z",
+  "compressed": {},
+  "clockErratum": {
+    "previous": "Client duration uses native monotonic timers. UTC correlates events on the same host. Host synchronization is not independently verified.",
+    "reason": "Source inspection: k6 v2.4.0 lib/netext/httpext/tracer.go uses time.Now().UnixNano for HTTP timing. Raw samples and percentile values are unchanged."
+  }
+}

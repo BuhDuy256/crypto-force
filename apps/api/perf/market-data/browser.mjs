@@ -3,6 +3,7 @@ import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { percentiles } from './aggregate.mjs';
+import { prepareCharts } from './prepare-charts.mjs';
 
 const require = createRequire(new URL('../../../web/package.json', import.meta.url));
 const { chromium } = require('@playwright/test');
@@ -35,6 +36,14 @@ export async function browserRun(directory, manifest, credentials) {
     ),
   );
   const samples = [];
+  let setupRateLimitEvents = 0;
+  const recordSetup = (action, event) => {
+    setupRateLimitEvents++;
+    appendFileSync(
+      resolve(directory, 'setup-errors.jsonl'),
+      `${JSON.stringify({ action, ...event })}\n`,
+    );
+  };
   let previousEnd = 0;
   try {
     for (let index = -5; index < manifest.actions; index++) {
@@ -52,7 +61,14 @@ export async function browserRun(directory, manifest, credentials) {
       await cdp.send('Network.enable');
       await cdp.send('Network.setCacheDisabled', { cacheDisabled: manifest.assetCache === 'cold' });
       await page.addInitScript(() => {
-        window.__marketPerf = { apply: [], bodies: [] };
+        window.__marketPerf = {
+          apply: [],
+          bodies: [],
+          starts: [],
+          failures: [],
+          authRateLimit: null,
+          sequence: 0,
+        };
         new PerformanceObserver((list) => {
           for (const entry of list.getEntries()) {
             if (entry.name === 'market-data:apply')
@@ -61,7 +77,33 @@ export async function browserRun(directory, manifest, credentials) {
         }).observe({ type: 'mark', buffered: true });
         const nativeFetch = window.fetch;
         window.fetch = async (...args) => {
-          const response = await nativeFetch(...args);
+          const url = new URL(
+            args[0] instanceof Request ? args[0].url : String(args[0]),
+            location.href,
+          );
+          const market = url.pathname.startsWith('/api/market-data/');
+          const id = ++window.__marketPerf.sequence;
+          const requestStart = performance.now();
+          if (market) window.__marketPerf.starts.push({ id, time: requestStart, url: url.href });
+          let response;
+          try {
+            response = await nativeFetch(...args);
+          } catch (error) {
+            if (market)
+              window.__marketPerf.failures.push({
+                id,
+                time: performance.now(),
+                kind: 'fetch-failed',
+              });
+            throw error;
+          }
+          if (response.status === 429 && url.pathname.startsWith('/api/auth/'))
+            window.__marketPerf.authRateLimit = {
+              time: performance.now(),
+              status: 429,
+              retryAfter: response.headers.get('x-retry-after'),
+              requestId: response.headers.get('x-perf-id'),
+            };
           const original = response.json.bind(response);
           response.json = async () => {
             const body = await original();
@@ -70,6 +112,9 @@ export async function browserRun(directory, manifest, credentials) {
                 time: performance.now(),
                 url: response.url,
                 status: response.status,
+                id,
+                requestId: response.headers.get('x-perf-id'),
+                dataTime: body.dataTime,
                 body,
               });
             return body;
@@ -80,13 +125,13 @@ export async function browserRun(directory, manifest, credentials) {
       if (manifest.assetCache === 'hot') {
         await page.goto('/');
         await page.goto('/realtime');
-        await page.waitForFunction(() => window.__marketPerf.apply.length === 4);
+        await prepareCharts(page, (event) => recordSetup(index, event));
       }
       let selection;
       let start;
       if (manifest.action !== 'open') {
         await page.goto('/realtime');
-        await page.waitForFunction(() => window.__marketPerf.apply.length === 4);
+        await prepareCharts(page, (event) => recordSetup(index, event));
         const step = (index + 5) % 6;
         if (manifest.action === 'timeframe' && step % 2 === 1) {
           await page.getByRole('combobox', { name: 'Timeframe for chart 1', exact: true }).click();
@@ -110,6 +155,9 @@ export async function browserRun(directory, manifest, credentials) {
         await page.evaluate(() => {
           window.__marketPerf.apply = [];
           window.__marketPerf.bodies = [];
+          window.__marketPerf.starts = [];
+          window.__marketPerf.failures = [];
+          window.__marketPerf.authRateLimit = null;
         });
         if (manifest.action === 'timeframe') {
           selection = { pair: 'BTCUSDT', timeframe: step % 2 === 0 ? '1m' : '5m' };
@@ -177,10 +225,13 @@ export async function browserRun(directory, manifest, credentials) {
       let error;
       try {
         await page.waitForFunction(
-          (count) => window.__marketPerf.apply.length === count,
+          (count) =>
+            window.__marketPerf.apply.length === count || window.__marketPerf.authRateLimit,
           manifest.action === 'timeframe' ? 1 : 4,
           { timeout: 15000 },
         );
+        if (await page.evaluate(() => Boolean(window.__marketPerf.authRateLimit)))
+          error = 'AUTH_RATE_LIMITED';
       } catch {
         error = 'apply-timeout';
       }
@@ -191,6 +242,7 @@ export async function browserRun(directory, manifest, credentials) {
           .filter((entry) => entry.name.includes('/api/market-data/'))
           .map((entry) => ({ url: entry.name, body: entry.responseEnd, duration: entry.duration })),
         end: performance.now(),
+        timeOrigin: performance.timeOrigin,
         worker: Boolean(navigator.serviceWorker.controller),
       }));
       let valid = !error && !data.worker;
@@ -244,7 +296,18 @@ export async function browserRun(directory, manifest, credentials) {
         start,
         end: data.end,
         apply: data.apply.map(({ time, pair, timeframe }) => ({ time, pair, timeframe })),
-        body: data.bodies.map(({ time, url, status }) => ({ time, url, status })),
+        body: data.bodies.map(({ time, url, status, id, requestId, dataTime }) => ({
+          time,
+          url,
+          status,
+          id,
+          requestId,
+          dataTime,
+        })),
+        requestStart: data.starts,
+        requestFailures: data.failures,
+        authRateLimit: data.authRateLimit,
+        timeOrigin: data.timeOrigin,
         httpBody: data.resources,
         firstApplyMs: Math.min(...data.apply.map((entry) => entry.time)) - start,
         allApplyMs: Math.max(...data.apply.map((entry) => entry.time)) - start,
@@ -259,6 +322,8 @@ export async function browserRun(directory, manifest, credentials) {
       if (!valid) appendFileSync(resolve(directory, 'errors.jsonl'), `${JSON.stringify(sample)}\n`);
       if (index === 0)
         await page.screenshot({ path: resolve(directory, 'chart.png'), fullPage: true });
+      if (!valid)
+        await page.screenshot({ path: resolve(directory, `error-${index}.png`), fullPage: true });
       previousEnd = performance.now();
       await context.close();
       console.log(JSON.stringify({ run: manifest.run, action: index, valid }));
@@ -270,6 +335,7 @@ export async function browserRun(directory, manifest, credentials) {
   const summary = {
     run: manifest.run,
     count: measured.length,
+    setupRateLimitEvents,
     errors: measured.filter((sample) => !sample.valid).length,
     firstApplyMs: percentiles(
       measured.filter((sample) => sample.valid).map((sample) => sample.firstApplyMs),

@@ -1,0 +1,6 @@
+{
+  "mode": "steady",
+  "cohort": "default",
+  "clients": 10,
+  "repeat": 3
+}

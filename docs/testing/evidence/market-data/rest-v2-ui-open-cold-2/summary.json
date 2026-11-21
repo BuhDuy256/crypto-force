@@ -1,0 +1,18 @@
+{
+  "run": "rest-v2-ui-open-cold-2",
+  "count": 100,
+  "errors": 1,
+  "firstApplyMs": {
+    "p50": 386.70000000298023,
+    "p95": 654,
+    "p99": 1381.2999999970198
+  },
+  "allApplyMs": {
+    "p50": 471.79999999701977,
+    "p95": 830.5,
+    "p99": 2167.2999999970198
+  },
+  "display": "Inconclusive. Apply does not prove canvas paint.",
+  "qa10": "Inconclusive",
+  "qa11": "Inconclusive"
+}

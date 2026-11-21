@@ -17,6 +17,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { gzipSync } from 'node:zlib';
 import { aggregate, percentiles } from './aggregate.mjs';
 import { browserRun } from './browser.mjs';
+import { primeCache } from './prime-cache.mjs';
 
 const directory = dirname(fileURLToPath(import.meta.url));
 const root = resolve(directory, '../../../..');
@@ -31,6 +32,7 @@ const hashFile = (file) => hash(readFileSync(file));
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
 const base = JSON.parse(readFileSync(resolve(directory, 'config.json'), 'utf8'));
 const command = process.argv[2];
+const cohortPrefix = 'rest-v3';
 const privateDirectory = resolve(root, 'node_modules/.cache/market-data-perf');
 mkdirSync(privateDirectory, { recursive: true });
 mkdirSync(evidence, { recursive: true });
@@ -100,7 +102,11 @@ async function manifest(run, workload) {
       network:
         'Loopback HTTP, no TLS, no compression, no shaping. Replay delay is 50 ms and is not network RTT.',
       clock:
-        'Client duration uses native monotonic timers. UTC correlates events on the same host. Host synchronization is not independently verified.',
+        workload.mode === 'steady'
+          ? 'Native k6 HTTP timing uses UnixNano wall-clock differences. Monotonic timing is not verified. These latency values are descriptive.'
+          : workload.mode === 'micro' || workload.mode === 'ui'
+            ? 'Client duration uses performance.now. UTC correlates events on the same host. Host synchronization is not independently verified.'
+            : 'Mode-specific clocks: native k6 HTTP timing uses a wall clock. Node micro and browser UI use performance.now. Host synchronization is not independently verified.',
     },
     buildHash: hash(
       filesUnder(build)
@@ -121,7 +127,7 @@ async function begin(run, workload) {
   writeFileSync(resolve(path, 'config.json'), JSON.stringify(workload, null, 2));
   writeFileSync(
     resolve(path, 'commands.txt'),
-    `${base.setupCommandsExecuted.join('\n')}\nnode apps/api/perf/market-data/run.mjs ${command}\n`,
+    `${base.setupCommandsExecuted.join('\n')}\nnode apps/api/perf/market-data/run.mjs ${process.argv.slice(2).join(' ')}\n`,
   );
   for (const name of [
     'samples.jsonl',
@@ -156,7 +162,7 @@ async function begin(run, workload) {
 function compress(path) {
   const hashes = {};
   for (const file of filesUnder(path)) {
-    if (statSync(file).size > 5 * 1024 * 1024 && !file.endsWith('.gz')) {
+    if (statSync(file).size > base.rawCompressionThresholdBytes && !file.endsWith('.gz')) {
       const rawHash = hashFile(file);
       writeFileSync(`${file}.gz`, gzipSync(readFileSync(file)));
       hashes[file.slice(path.length + 1)] = {
@@ -317,9 +323,21 @@ async function microRun(run, state, credentials) {
     if (state !== 'hit') await delay(6000);
     let prime;
     if (state === 'hit')
-      prime = await fetch(`${origin}/api/market-data/candles?pair=BTCUSDT&timeframe=5m`, {
-        headers: { Cookie: cookies[0], 'x-perf-id': `${run}-prime-${batch}` },
-      }).then((response) => response.json());
+      prime = await primeCache({
+        prime: () =>
+          fetch(`${origin}/api/market-data/candles?pair=BTCUSDT&timeframe=5m`, {
+            headers: { Cookie: cookies[0], 'x-perf-id': `${run}-prime-${batch}` },
+          }).then((response) => response.json()),
+        now: Date.now,
+        pause: delay,
+        ttlMs: 5000,
+        thinkMs: 6000,
+        record: (event) =>
+          appendFileSync(
+            resolve(path, 'preparations.jsonl'),
+            `${JSON.stringify({ batch, ...event })}\n`,
+          ),
+      });
     const before = await request('/state');
     if (state === 'single-flight') await request('/barrier', { waiters: 9 });
     const responses = await Promise.all(
@@ -426,7 +444,7 @@ async function microRun(run, state, credentials) {
   compress(path);
 }
 if (command === 'prepare') {
-  const data = await manifest('rest-v2', {
+  const data = await manifest(cohortPrefix, {
     api: { cohorts: ['default', 'diverse'], clients: [1, 10, 50], repeats: 3 },
     micro: { states: ['miss', 'hit', 'single-flight'], batches: 100, repeats: 3 },
     ui: {
@@ -453,24 +471,28 @@ if (command === 'prepare') {
   await accounts(50);
   console.log('The benchmark created 50 verified accounts.');
 } else if (command === 'api') {
+  if (!process.argv.includes('--allow-wall-clock'))
+    throw new Error(
+      'The native k6 HTTP timer uses a wall clock. Use --allow-wall-clock only for descriptive runs.',
+    );
   await functionalProbe();
   for (const cohort of ['default', 'diverse'])
     for (const clients of [1, 10, 50])
       for (let repeat = 1; repeat <= 3; repeat++)
-        await k6Run(`rest-v2-api-${cohort}-${clients}-${repeat}`, {
+        await k6Run(`${cohortPrefix}-api-${cohort}-${clients}-${repeat}`, {
           mode: 'steady',
           cohort,
           clients,
           repeat,
         });
-} else if (command === 'micro') {
+} else if (command === 'micro' || command === 'micro-hit') {
   await functionalProbe();
   const credentials = JSON.parse(
     readFileSync(resolve(privateDirectory, 'credentials.json'), 'utf8'),
   );
-  for (const state of ['miss', 'hit', 'single-flight'])
+  for (const state of command === 'micro-hit' ? ['hit'] : ['miss', 'hit', 'single-flight'])
     for (let repeat = 1; repeat <= 3; repeat++)
-      await microRun(`rest-v2-micro-${state}-${repeat}`, state, credentials);
+      await microRun(`${cohortPrefix}-micro-${state}-${repeat}`, state, credentials);
 } else if (command === 'ui') {
   await functionalProbe();
   const credentials = JSON.parse(
@@ -483,7 +505,9 @@ if (command === 'prepare') {
         repeat <= (assetCache === 'cold' && action !== 'pair' ? 3 : 1);
         repeat++
       ) {
-        const run = `rest-v2-ui-${action}-${assetCache}-${repeat}`;
+        if (process.argv.includes('--remaining-ui') && assetCache === 'cold' && action === 'open')
+          continue;
+        const run = `${cohortPrefix}-ui-${action}-${assetCache}-${repeat}`;
         const { path, data } = await begin(run, {
           mode: 'ui',
           assetCache,

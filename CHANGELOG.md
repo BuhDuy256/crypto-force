@@ -4,11 +4,11 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ## [Unreleased]
 
-- Test trước build REST Market Data đã green qua Bước 08 Task 5: shared contract, provider/service, Binance adapter, cache decorator, HTTP/session và flow UI qua API thật. Chưa đo baseline toàn flow.
+- Test trước build REST Market Data đã green qua Bước 08 Task 5: shared contract, provider/service, Binance adapter, cache decorator, HTTP/session và flow UI qua API thật. Task 6 đang thu baseline, chưa kết luận capacity.
 
 ### Changed
 
-- Bước 08 Task 6: thêm harness đo REST với HTTP replay qua Binance adapter, oracle OHLCV/MA riêng, k6, tổng hợp nearest-rank và User Timing tại mốc apply của chart. Chưa thu baseline. Mốc apply chưa chứng minh canvas đã vẽ.
+- Bước 08 Task 6: thêm harness đo REST với HTTP replay qua Binance adapter, oracle OHLCV/MA riêng, k6, tổng hợp nearest-rank và User Timing tại mốc apply của chart. Cohort v2 đã chạy 18 lượt API, chín lượt micro và ba lượt UI open-cold. API default/50 có timeout và response 503. Hai lượt UI có Auth 429. Cohort v3 bổ sung kiểm tuổi cache prime và phục hồi Auth trong bước chuẩn bị. Mốc apply chưa chứng minh canvas đã vẽ. Native HTTP timing của k6 dùng wall clock, chưa đáp ứng yêu cầu clock đơn điệu.
 
 - Công cụ đo REST: bỏ phụ thuộc thứ tự key khi đối chiếu JSON trong k6, giữ path gốc để ghi reconciliation qua router và bắt buộc probe k6 trước phát tải. Cohort v1 bị hủy vì lỗi harness. Smoke Binance một lượt đã đối chiếu khớp 518 nến đóng và summary, có header quota.
 

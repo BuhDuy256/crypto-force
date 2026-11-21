@@ -2,7 +2,29 @@
 
 Đọc file này để biết kết quả thực chạy và phần còn lại của Bước 08.
 
-## Task 6: Chuẩn bị baseline
+## Task 6: Baseline đang chạy
+
+### Kết quả cohort v2 và chuẩn bị cohort v3
+
+Cohort v2 dùng công cụ đo tại commit `738e780`. Đã chạy đủ 18 lượt API và chín lượt micro. Ba lượt UI open-cold đã kết thúc. Lượt timeframe-cold đầu tiên dừng sau ba thao tác warm-up, chưa có mẫu chính. Thư mục evidence giữ lượt này với nhãn không đủ điều kiện baseline.
+
+API default/50 có lỗi và độ biến thiên lớn. Hai lần lặp đầu có 2340/3805 và 106/5800 request steady thất bại. Lần thứ ba có 0/7040. Không gộp các lần lặp để che lỗi. Log reconciliation của lần đầu có response 503 và request không ghép được với mẫu client. Các số này chưa chứng minh response 200 có giá sai. CPU, RAM, event loop và pool dùng chung máy với generator. Chưa thể quy nguyên nhân cho riêng API hoặc generator.
+
+Micro hit lần một có một batch trả HTTP 200 nhưng snapshot khác prime. Batch đó phát sinh một upstream miss. Hai failure trong summary gồm một sample sai snapshot và một vi phạm trạng thái batch. Đây không phải hai lỗi transport. Hai lượt hit còn lại, ba lượt miss và ba lượt single-flight không ghi nhận failure.
+
+UI open-cold lần một lỗi sample 95, lần hai lỗi sample 91. Mỗi lỗi trùng một response Auth 429. Lần ba có 100/100 mẫu hợp lệ. Mảng body/apply rỗng trong hai mẫu lỗi không chứng minh browser chưa phát request. Công cụ v2 chưa ghi request start. Mốc apply không chứng minh draw, nên QA-10/QA-11 vẫn là `Inconclusive`.
+
+Source Better Auth `1.7.25` trong `dist/api/rate-limiter/index.mjs` cập nhật `lastRequest` sau request được phép. Cấu hình hiện tại dùng database. Giá trị mặc định là window 10 giây và max 100. Chuỗi thao tác liên tục có thể chạm giới hạn này. Harness không sửa cấu hình Auth production.
+
+Cohort v3 thay đổi bước chuẩn bị. Nếu Auth trả 429 trước thao tác được đo, runner chờ theo `X-Retry-After` rồi reload một lần. Runner phải thấy đủ bốn chart trước khi bắt đầu đo. Nếu 429 xảy ra trong thao tác được đo, mẫu vẫn lỗi và không retry. Runner ghi request start, server request ID, snapshot time và ảnh của mẫu lỗi.
+
+Micro hit v3 kiểm tuổi snapshot prime trước khi đo. Guard 1000 ms lấy từ think time 6000 ms trừ TTL 5000 ms. Khi tuổi prime đạt 4000 ms, runner chờ 6000 ms rồi prime lại. Runner ghi thao tác chuẩn bị riêng. TTL production và số mẫu chính không đổi. Ba lượt hit v3 sẽ được giữ riêng với các lượt v2.
+
+Bốn test helper đã pass. Bốn mutant làm assertion fail: dùng prime gần hết hạn, prime lại không cần thiết, bỏ chờ header Auth và bỏ chờ chart sẵn sàng. Sau khi khôi phục, cả bốn test pass. Preflight trên browser production với Auth thật cũng kiểm bước phục hồi sau 429. Preflight không cung cấp mẫu latency baseline.
+
+Source k6 `v2.4.0`, `lib/netext/httpext/tracer.go`, dùng `time.Now().UnixNano()` cho HTTP timing. Vì vậy các giá trị latency API v2 chỉ mang tính mô tả. Chúng chưa đáp ứng yêu cầu clock đơn điệu. Mô tả clock chung trong manifest v2 đã ghi quá mức bằng chứng. Raw và percentile vẫn được giữ nguyên. Quyết định xử lý protocol đang chờ product owner. Runner v3 chặn mode API mặc định để tránh tạo thêm lượt có cùng giới hạn mà không ghi rõ.
+
+### Chuẩn bị ban đầu
 
 Người dùng đã duyệt cài k6 ngoài repository, smoke Binance một lượt và commit evidence. File raw lớn hơn 5 MB được nén gzip và lưu SHA256 trong manifest. Không có ủy quyền load test Binance thật.
 
@@ -428,4 +450,4 @@ Không chạy `pnpm check`, toàn bộ test API hoặc baseline. Task 5 không s
 
 ## Phần còn lại
 
-Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất kiểm chứng, mutation, kiểm trên trình duyệt và review, và được lưu trong commit riêng. Task 6–10 chưa thực hiện. Ba quyết định vận hành của Task 6 đang chờ product owner duyệt. Không đánh dấu Bước 08 hoàn thành.
+Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất trong commit `b7be50f`. Task 6 đang chạy baseline theo kết quả đầu tài liệu. Người dùng đã duyệt ba quyết định vận hành. Quyết định xử lý clock native k6 còn chờ. Task 7–10 chưa thực hiện. Không đánh dấu Bước 08 hoàn thành.

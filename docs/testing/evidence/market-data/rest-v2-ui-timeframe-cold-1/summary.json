@@ -1,0 +1,9 @@
+{
+  "run": "rest-v2-ui-timeframe-cold-1",
+  "count": 0,
+  "warmupCount": 3,
+  "eligibleForBaseline": false,
+  "outcome": "Stopped before the main samples to correct setup readiness.",
+  "display": "Inconclusive",
+  "nextCohort": "rest-v3"
+}

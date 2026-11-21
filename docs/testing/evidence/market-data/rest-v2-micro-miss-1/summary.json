@@ -1,0 +1,21 @@
+{
+  "run": "rest-v2-micro-miss-1",
+  "state": "miss",
+  "batches": 100,
+  "failures": 0,
+  "invalid": 0,
+  "count": 100,
+  "latencyMs": {
+    "p50": 105.34840000001714,
+    "p95": 153.77909999992698,
+    "p99": 176.18499999999767
+  },
+  "errorCount": 0,
+  "errorLatencyMs": {
+    "p50": null,
+    "p95": null,
+    "p99": null
+  },
+  "capacity": "Inconclusive",
+  "timing": "Node fetch monotonic elapsed time. Barrier samples are separate from the 50 ms baseline."
+}

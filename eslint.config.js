@@ -156,7 +156,12 @@ export default tseslint.config(
     },
   },
   {
-    files: ['apps/api/perf/**/browser.mjs', 'apps/api/perf/**/preflight.mjs'],
+    files: [
+      'apps/api/perf/**/browser.mjs',
+      'apps/api/perf/**/preflight.mjs',
+      'apps/api/perf/**/prepare-charts.mjs',
+      'apps/api/perf/**/ready-preflight.mjs',
+    ],
     languageOptions: { globals: globals.browser },
   },
 

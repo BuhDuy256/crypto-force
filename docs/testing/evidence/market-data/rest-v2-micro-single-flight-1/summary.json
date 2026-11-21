@@ -1,0 +1,21 @@
+{
+  "run": "rest-v2-micro-single-flight-1",
+  "state": "single-flight",
+  "batches": 100,
+  "failures": 0,
+  "invalid": 0,
+  "count": 1000,
+  "latencyMs": {
+    "p50": 193.23560000024736,
+    "p95": 319.595900000073,
+    "p99": 391.21369999973103
+  },
+  "errorCount": 0,
+  "errorLatencyMs": {
+    "p50": null,
+    "p95": null,
+    "p99": null
+  },
+  "capacity": "Inconclusive",
+  "timing": "Node fetch monotonic elapsed time. Barrier samples are separate from the 50 ms baseline."
+}

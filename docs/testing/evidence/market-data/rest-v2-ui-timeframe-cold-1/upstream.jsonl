@@ -1,0 +1,17 @@
+{"id":8338,"key":"BTCUSDT:1m","start":10804960.8477,"end":10805010.6942,"utc":"2026-11-21T10:44:09.600Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8339,"key":"BTCUSDT:5m","start":10805411.0596,"end":10805460.7357,"utc":"2026-11-21T10:44:10.050Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8340,"key":"BTCUSDT:15m","start":10805416.6143,"end":10805470.0879,"utc":"2026-11-21T10:44:10.059Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8341,"key":"BTCUSDT:1h","start":10805422.8376,"end":10805478.0716,"utc":"2026-11-21T10:44:10.067Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8342,"key":"BTCUSDT:4h","start":10805422.9184,"end":10805479.1501,"utc":"2026-11-21T10:44:10.068Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8343,"key":"summary:BTCUSDT","start":10805441.3794,"end":10805497.3516,"utc":"2026-11-21T10:44:10.086Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8344,"key":"BTCUSDT:5m","start":10812243.4599,"end":10812295.3018,"utc":"2026-11-21T10:44:16.884Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8345,"key":"BTCUSDT:15m","start":10813381.9998,"end":10813433.8629,"utc":"2026-11-21T10:44:18.022Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8346,"key":"BTCUSDT:1h","start":10813401.9946,"end":10813462.0035,"utc":"2026-11-21T10:44:18.051Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8347,"key":"BTCUSDT:4h","start":10813403.6457,"end":10813470.4598,"utc":"2026-11-21T10:44:18.059Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8348,"key":"summary:BTCUSDT","start":10813404.7764,"end":10813474.0023,"utc":"2026-11-21T10:44:18.063Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8349,"key":"BTCUSDT:1m","start":10820377.8019,"end":10820441.1822,"utc":"2026-11-21T10:44:25.030Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8350,"key":"BTCUSDT:5m","start":10820868.9235,"end":10820920.1961,"utc":"2026-11-21T10:44:25.509Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8351,"key":"BTCUSDT:15m","start":10820877.8394,"end":10820930.7368,"utc":"2026-11-21T10:44:25.519Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8352,"key":"BTCUSDT:1h","start":10820881.3727,"end":10820944.2892,"utc":"2026-11-21T10:44:25.533Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8353,"key":"BTCUSDT:4h","start":10820888.4985,"end":10820946.2423,"utc":"2026-11-21T10:44:25.535Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
+{"id":8354,"key":"summary:BTCUSDT","start":10820888.7054,"end":10820947.9567,"utc":"2026-11-21T10:44:25.537Z","weight":2,"weightModel":"synthetic-v1","barrier":false}
