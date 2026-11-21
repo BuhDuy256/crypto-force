@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { percentiles } from './aggregate.mjs';
 import { burstKeys } from './schedule.mjs';
+import { equalValues } from './equal.mjs';
+import { requestDuration } from './timing.mjs';
 
 // Checks measurement arithmetic against literal values from the approved nearest-rank definition.
 assert.deepEqual(percentiles([]), { p50: null, p95: null, p99: null });
@@ -26,4 +28,11 @@ for (let offset = 0; offset < 18; offset++) {
 }
 assert.equal(Object.keys(histogram).length, 18);
 assert.deepEqual(Object.values(histogram), Array(18).fill(4));
-console.log('Nine measurement checks passed.');
+assert.equal(
+  equalValues({ a: 1, nested: [{ b: 2, a: 3 }] }, { nested: [{ a: 3, b: 2 }], a: 1 }),
+  true,
+);
+assert.equal(equalValues({ close: 4 }, { close: 5 }), false);
+assert.equal(equalValues([1, 2], [2, 1]), false);
+assert.equal(requestDuration({ blocked: 3, connecting: 2, tls_handshaking: 1, duration: 10 }), 13);
+console.log('Thirteen measurement checks passed.');

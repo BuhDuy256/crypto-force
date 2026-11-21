@@ -144,7 +144,7 @@ export default tseslint.config(
   },
 
   {
-    files: ['apps/api/perf/**/workload.js'],
+    files: ['apps/api/perf/**/workload*.js'],
     languageOptions: {
       globals: {
         __ENV: 'readonly',

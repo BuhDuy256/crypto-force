@@ -6,6 +6,19 @@ import { fileURLToPath } from 'node:url';
 // Each fault changes the measured component or its input, never the expected assertions.
 const directory = fileURLToPath(new URL('./', import.meta.url));
 const cases = [
+  [
+    'double-connection-time',
+    'timing.mjs',
+    () =>
+      'export function requestDuration(timings) { return timings.blocked + timings.connecting + timings.tls_handshaking + timings.duration; }',
+  ],
+  [
+    'object-key-order',
+    'equal.mjs',
+    () =>
+      'export function equalValues(actual, expected) { return JSON.stringify(actual) === JSON.stringify(expected); }',
+  ],
+  ['always-equal', 'equal.mjs', () => 'export function equalValues() { return true; }'],
   ['empty-percentile', 'aggregate.mjs', (text) => text.replace('] : null', '] : 0')],
   [
     'rank-rounding',

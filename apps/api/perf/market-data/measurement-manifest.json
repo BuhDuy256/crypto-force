@@ -61,12 +61,12 @@
   "firstMeasurement": "Not started",
   "accountCount": 50,
   "sessionCount": "Created by real Auth before each measured run",
-  "sourceDigest": "44b788e001d2a058e82df926afbfc159b330cae0c395fdea8b7b8bf317512041",
-  "run": "rest-v1",
+  "sourceDigest": "fa0dd59bc9d778cd254d5943e4c8c0b47b563abca6bf0ed0bb15ab7d65e9f6dd",
+  "run": "rest-v2",
   "origin": "http://127.0.0.1:5195",
-  "commit": "bb73aabd0ce8f1f6bdb62b24bb0273612a3ff934",
-  "dirtyDiffHash": "7f9c4ab58323f42f38b48fef182fd86312f823c74ead7d26249156a14a5e1267",
-  "dirtyFiles": "M CHANGELOG.md\n M apps/web/app/hooks/useCandlestickChart.ts\n M docs/build/01-prototype-to-implementation/market-data/work/step-08-rest-build/execution.md\n M docs/build/01-prototype-to-implementation/market-data/work/step-08-rest-build/plan.md\n M eslint.config.js\n?? apps/api/perf/",
+  "commit": "aa223128f7f9192ab8cd23209b927aa50e67bc11",
+  "dirtyDiffHash": "078e4e84145bbd5dd44d875660395f773b37361fcc9006601acf84d1a213ec9d",
+  "dirtyFiles": "M CHANGELOG.md\n M apps/api/perf/market-data/checks.mjs\n M apps/api/perf/market-data/measurement-manifest.json\n M apps/api/perf/market-data/mutations.mjs\n M apps/api/perf/market-data/run.mjs\n M apps/api/perf/market-data/server.mjs\n M apps/api/perf/market-data/workload.js\n M docs/build/01-prototype-to-implementation/market-data/work/step-08-rest-build/execution.md\n M docs/build/01-prototype-to-implementation/market-data/work/step-08-rest-build/plan.md\n M eslint.config.js\n?? apps/api/perf/market-data/equal.mjs\n?? apps/api/perf/market-data/timing.mjs\n?? apps/api/perf/market-data/workload-probe.js\n?? docs/testing/evidence/market-data/rest-v1-api-default-1-1/\n?? docs/testing/evidence/market-data/rest-v1-binance-smoke/",
   "lockfileHash": "59c044ea8bbf2ff11311c9bcc130f162d37a9e3997b844dff8c46ba64353f11d",
   "fixtureHash": "494311daa4d8fb4ff2d6a532b2ba50d9b5bba7ec77d5684d17ca066dc6a3bea2",
   "node": "v22.23.5",
@@ -78,7 +78,7 @@
     "cpu": "13th Gen Intel(R) Core(TM) i7-1355U",
     "logicalCores": 12,
     "ram": 16857645056,
-    "freeRam": 2976391168,
+    "freeRam": 3027464192,
     "topology": "Browser, k6, API, replay, and Docker Desktop PostgreSQL share this Windows host.",
     "cpuGovernor": "Unknown",
     "databaseDescription": "Dedicated _market_data_perf_test database. No production account data.",
@@ -87,7 +87,7 @@
       "version": "PostgreSQL 17.10 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
       "bytes": "8279731",
       "users": "50",
-      "sessions": "56",
+      "sessions": "60",
       "migrations": [
         {
           "id": 1,
@@ -106,5 +106,5 @@
     "clock": "Client duration uses native monotonic timers. UTC correlates events on the same host. Host synchronization is not independently verified."
   },
   "buildHash": "de74c5eb7bd463ec26e6a080bb27f2f64292e57650451176bdf82f24c921489f",
-  "startedUtc": "2026-11-21T07:36:34.551Z"
+  "startedUtc": "2026-11-21T07:52:04.603Z"
 }

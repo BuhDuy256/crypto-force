@@ -3,6 +3,8 @@ import { sleep } from 'k6';
 import { Trend, Rate } from 'k6/metrics';
 import exec from 'k6/execution';
 import { burstKeys } from './schedule.mjs';
+import { equalValues } from './equal.mjs';
+import { requestDuration } from './timing.mjs';
 
 // Run with run.mjs. The approved closed workload has 30 s warm-up and 180 s measurement.
 const credentials = JSON.parse(open(__ENV.CREDENTIALS));
@@ -70,11 +72,11 @@ export default function () {
       valid =
         response.status === 200 &&
         (request.timeframe
-          ? JSON.stringify(body.candles) === JSON.stringify(expected.candles) &&
+          ? equalValues(body.candles, expected.candles) &&
             body.warmupCount === 19 &&
             body.pair === pair &&
             body.timeframe === request.timeframe
-          : JSON.stringify(body) === JSON.stringify(expected.expected));
+          : equalValues(body, expected.expected));
     } catch {
       valid = false;
     }
@@ -89,13 +91,7 @@ export default function () {
       batchStartUtc: String(started),
     };
     // Full client HTTP elapsed time includes connection, blocking, TLS, and body reception.
-    latency.add(
-      response.timings.blocked +
-        response.timings.connecting +
-        response.timings.tls_handshaking +
-        response.timings.duration,
-      tags,
-    );
+    latency.add(requestDuration(response.timings), tags);
     errors.add(!valid, tags);
     if (!valid)
       console.error(

@@ -33,6 +33,20 @@ Reviewer độc lập phát hiện năm blocker trước đo. Phân bố khóa �
 
 Reviewer đã kiểm lại năm blocker và logic barrier. Không còn blocker trong phạm vi kiểm lại. Lượt đo chưa bắt đầu tại thời điểm commit công cụ đo.
 
+### Smoke thật và cohort v1 bị hủy
+
+Commit công cụ đo trước lượt đầu: `aa22312`. Smoke Binance chạy đúng một lượt sau commit. Hai thao tác lịch sử BTCUSDT/5m và summary đều hợp lệ, có header quota. Toàn bộ 518 nến đóng khớp payload cùng snapshot. Nến đang mở không được so với trạng thái nguồn ở thời điểm muộn hơn. Evidence: `docs/testing/evidence/market-data/rest-v1-binance-smoke/`. Không gọi lại Binance để đo tải.
+
+Cohort replay `rest-v1-api-default-1-1` bị hủy vì hai lỗi harness. `response.json()` của k6 không bảo đảm thứ tự key giống oracle. So bằng JSON string làm response hợp lệ bị báo sai. Middleware dùng `req.path` bên trong router đã bỏ prefix, nên không ghi reconciliation. Đây không phải bằng chứng sản phẩm trả dữ liệu sai.
+
+Đã giữ 90 raw samples, trong đó 65 samples có tag steady trước khi hủy. Thư mục evidence giữ nhãn không đủ điều kiện baseline. Không dùng percentile của lượt này để kết luận sản phẩm. Orchestrator bị dừng trước khi tạo lượt kế tiếp.
+
+Cohort tiếp theo là `rest-v2`. Comparator so cấu trúc và giá trị, bỏ qua thứ tự key của object nhưng giữ thứ tự array. Middleware giữ path gốc trước khi vào router. Runner bắt buộc chạy functional probe trong runtime k6 và kiểm reconciliation có request ID riêng trước các mode API, micro và UI.
+
+Đã chạy 12 assertion và 11 mutant của công cụ đo. Mỗi mutant fail tại assertion, khôi phục rồi pass. Hai mutant bổ sung tái hiện lỗi phụ thuộc thứ tự key và comparator luôn trả true. Probe k6 có hai check đạt: sign-in thật và toàn bộ nến khớp oracle. Server ghi reconciliation `valid: true` cho đúng request probe. Không giữ latency probe làm baseline.
+
+Review cohort v2 không tìm thêm blocker ở comparator, path gốc, probe bắt buộc hoặc nhãn evidence. Công thức latency được sửa trước đo: `blocked + duration`. Source k6 `v2.4.0`, `lib/netext/httpext/tracer.go:303–304`, tính blocked từ GetConn tới GotConn. Khoảng này đã gồm thiết lập kết nối. Assertion timing dùng input blocked 3, connecting 2, TLS 1, duration 10 và expected 13. Mutant cộng thêm connecting/TLS phải fail trước khi tiếp tục.
+
 ## Task 1: Shared contract và Web
 
 HEAD bắt đầu: `be781f3aa9b5e65ec4ad7cc314bad570175c8195`.

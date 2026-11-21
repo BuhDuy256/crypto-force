@@ -1,0 +1,10 @@
+{
+  "startedUtc": "2026-11-21T07:38:50.890Z",
+  "source": "Binance live",
+  "client": 1,
+  "requests": 2,
+  "repeats": 1,
+  "sourceDocumentation": "https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints",
+  "quotaMeaning": "The observed header covers the IP. Process call count is not IP weight.",
+  "thresholds": null
+}

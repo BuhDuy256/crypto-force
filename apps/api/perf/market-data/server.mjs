@@ -40,6 +40,7 @@ const fixture = JSON.parse(
 const context = new AsyncLocalStorage();
 let active;
 const cacheEvents = [];
+const reconciliations = [];
 const upstream = [];
 const mails = [];
 const unexpected = [];
@@ -190,6 +191,7 @@ const provider = createCachedMarketDataProvider({
 const app = express();
 app.disable('x-powered-by');
 app.use((req, res, next) => {
+  const requestPath = req.originalUrl.split('?')[0];
   const id =
     typeof req.headers['x-perf-id'] === 'string'
       ? req.headers['x-perf-id']
@@ -199,8 +201,8 @@ app.use((req, res, next) => {
     res.setHeader('x-perf-id', id);
     const json = res.json.bind(res);
     res.json = (body) => {
-      if (req.path.startsWith('/api/market-data/')) {
-        const isCandles = req.path.endsWith('/candles');
+      if (requestPath.startsWith('/api/market-data/')) {
+        const isCandles = requestPath.endsWith('/candles');
         const key = isCandles
           ? `${req.query.pair}:${req.query.timeframe}`
           : `summary:${req.query.pair}`;
@@ -215,7 +217,7 @@ app.use((req, res, next) => {
               body.pair === req.query.pair &&
               body.timeframe === req.query.timeframe &&
               Number.isSafeInteger(body.dataTime)));
-        record('reconciliation.jsonl', {
+        const reconciliation = {
           id,
           key,
           status: res.statusCode,
@@ -223,7 +225,9 @@ app.use((req, res, next) => {
           count: body?.candles?.length,
           dataTime: body?.dataTime,
           cacheState: store.cacheState,
-        });
+        };
+        reconciliations.push(reconciliation);
+        record('reconciliation.jsonl', reconciliation);
       }
       return json(body);
     };
@@ -251,11 +255,13 @@ control.post('/begin', (req, res) => {
     : undefined;
   upstream.length = 0;
   cacheEvents.length = 0;
+  reconciliations.length = 0;
   res.json({ pid: process.pid, database: databaseName });
 });
 control.get('/state', (_req, res) =>
   res.json({
     upstream,
+    reconciliations: reconciliations.slice(-100),
     cacheEvents,
     unexpected,
     pending: pending.length,

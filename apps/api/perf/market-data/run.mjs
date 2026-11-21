@@ -259,6 +259,28 @@ async function k6Run(run, workload) {
   compress(path);
   console.log(JSON.stringify({ run, exitCode, summary }));
 }
+async function functionalProbe() {
+  const id = `probe-${randomUUID()}`;
+  execFileSync(
+    k6,
+    [
+      'run',
+      '--quiet',
+      '--env',
+      `CREDENTIALS=${resolve(privateDirectory, 'credentials.json')}`,
+      '--env',
+      `ORACLE=${resolve(directory, 'fixtures/replay.json')}`,
+      '--env',
+      `PROBE_ID=${id}`,
+      resolve(directory, 'workload-probe.js'),
+    ],
+    { stdio: 'pipe' },
+  );
+  const state = await request('/state');
+  if (!state.reconciliations.some((entry) => entry.id === id && entry.valid))
+    throw new Error('The functional probe did not produce a valid reconciliation.');
+  console.log('The k6 functional probe and server reconciliation passed.');
+}
 async function microRun(run, state, credentials) {
   const { path } = await begin(run, {
     mode: 'micro',
@@ -404,7 +426,7 @@ async function microRun(run, state, credentials) {
   compress(path);
 }
 if (command === 'prepare') {
-  const data = await manifest('rest-v1', {
+  const data = await manifest('rest-v2', {
     api: { cohorts: ['default', 'diverse'], clients: [1, 10, 50], repeats: 3 },
     micro: { states: ['miss', 'hit', 'single-flight'], batches: 100, repeats: 3 },
     ui: {
@@ -431,23 +453,26 @@ if (command === 'prepare') {
   await accounts(50);
   console.log('The benchmark created 50 verified accounts.');
 } else if (command === 'api') {
+  await functionalProbe();
   for (const cohort of ['default', 'diverse'])
     for (const clients of [1, 10, 50])
       for (let repeat = 1; repeat <= 3; repeat++)
-        await k6Run(`rest-v1-api-${cohort}-${clients}-${repeat}`, {
+        await k6Run(`rest-v2-api-${cohort}-${clients}-${repeat}`, {
           mode: 'steady',
           cohort,
           clients,
           repeat,
         });
 } else if (command === 'micro') {
+  await functionalProbe();
   const credentials = JSON.parse(
     readFileSync(resolve(privateDirectory, 'credentials.json'), 'utf8'),
   );
   for (const state of ['miss', 'hit', 'single-flight'])
     for (let repeat = 1; repeat <= 3; repeat++)
-      await microRun(`rest-v1-micro-${state}-${repeat}`, state, credentials);
+      await microRun(`rest-v2-micro-${state}-${repeat}`, state, credentials);
 } else if (command === 'ui') {
+  await functionalProbe();
   const credentials = JSON.parse(
     readFileSync(resolve(privateDirectory, 'credentials.json'), 'utf8'),
   );
@@ -458,7 +483,7 @@ if (command === 'prepare') {
         repeat <= (assetCache === 'cold' && action !== 'pair' ? 3 : 1);
         repeat++
       ) {
-        const run = `rest-v1-ui-${action}-${assetCache}-${repeat}`;
+        const run = `rest-v2-ui-${action}-${assetCache}-${repeat}`;
         const { path, data } = await begin(run, {
           mode: 'ui',
           assetCache,
@@ -470,6 +495,8 @@ if (command === 'prepare') {
         await request('/end', {});
         compress(path);
       }
+} else if (command === 'probe') {
+  await functionalProbe();
 } else if (command === 'validate') {
   console.log(
     JSON.stringify({
