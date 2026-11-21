@@ -11,8 +11,8 @@ interface AppHeaderProps {
 }
 
 /**
- * App header of every workspace screen (workspace.md, App header). Search, Notifications, the
- * running-backtest chip and the Market data indicator arrive with the flows they lead to (roadmap.md).
+ * App header of every workspace screen (docs/design/prototype/docs/requirements/workspace.md, App header). Search, Notifications, the
+ * running-backtest chip and the Market data indicator arrive with the flows they lead to.
  */
 export function AppHeader({ user }: AppHeaderProps) {
   const signOut = useSignOut();

@@ -14,15 +14,15 @@ Included: `SKILL.md`.
 ### 1. Commits, CI and inline exceptions
 
 - Original: "Then fix the most frequent classes now, one commit each. Prove each new check fails on a real past mistake. Run the same command locally and in CI. Exceptions go on the offending line with a reason, an expiry date, and a human's approval."
-- Reason: the project commits only when the user asks (`CLAUDE.md` Safety Rules 02), runs every check through `pnpm check` both locally and in CI (`.github/workflows/ci.yml`), and forbids `eslint-disable` / `@ts-expect-error` to bypass rules (`CLAUDE.md` Testing & Quality 03).
-- Change: one reviewable change per class, no commit unless asked; checks run through `pnpm check`, locally and in CI; no inline exceptions, narrow the rule scope in `eslint.config.js` with the user's approval instead.
+- Reason: the project permits commits only when requested and prohibits inline exceptions. The user reserves the full repository check for explicit requests.
+- Change: use one reviewable change per class. Run relevant checks locally under `AGENTS.md` and keep applicable checks in CI. Run `pnpm check` only on explicit request. Keep exception rules in `eslint.config.js` with user approval.
 - Impact: exceptions are visible in one config file instead of scattered across source.
 
 ### 2. Rule table location
 
 - Original: "Last, keep a table in the agent instruction file that pairs each rule with what enforces it."
 - Reason: `CLAUDE.md` must not duplicate conventions already defined in the Development Guide (`CLAUDE.md` Coding Conventions 03), and Lesson Learned entries require user approval.
-- Change: rules and their enforcement live in `docs/development/coding-guidelines.md` (marked *(lint)*); unenforceable judgment calls outside code conventions become Lesson Learned entries.
+- Change: rules and their enforcement live in the convention files in `docs/conventions/` (marked *(lint)* or *(check-docs)*); process mistakes that the output file does not show become Lesson Learned entries.
 - Impact: none on the method.
 
 ### 3. Model invocation and single-correction path

@@ -8,7 +8,7 @@ interface SignInGateProps {
   signInHref: string;
 }
 
-/** Replaces a workspace screen when there is no session (workspace.md, Điều kiện đăng nhập). */
+/** Replaces a workspace screen when there is no session (docs/UCs/authentication.md, SS-03). */
 export function SignInGate({ screen, signInHref }: SignInGateProps) {
   return (
     <main

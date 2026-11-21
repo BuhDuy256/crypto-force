@@ -111,7 +111,7 @@ Mức ưu tiên: **High** là sai thì kết quả hệ thống mất giá trị
 
 ## Công cụ
 
-`Vitest` và `Playwright` là **Confirmed**; các công cụ còn lại là **Proposed**. Một loại test chỉ được thêm công cụ khi loại test đó được giữ lại trong strategy.
+`Vitest`, `Playwright` và `k6` cho load test REST là **Confirmed**; các công cụ còn lại là **Proposed**. `k6` cho WebSocket vẫn Proposed. Product owner duyệt `k6` cho REST ngày 2026-11-21. Một loại test chỉ được thêm công cụ khi loại test đó được giữ lại trong strategy.
 
 | Công cụ | Dùng cho loại test | Rủi ro |
 | --- | --- | --- |
@@ -128,12 +128,12 @@ Mức ưu tiên: **High** là sai thì kết quả hệ thống mất giá trị
 
 ## References
 
-1. <a id="ref-1"></a>[Project Brief](../requirements/project-brief.md)
+1. <a id="ref-1"></a>[Project Brief](../UCs/sources/project-brief.md)
 2. <a id="ref-2"></a>[Crypto Force: hành vi sản phẩm theo UI](../design/prototype/docs/requirements/README.md)
 3. <a id="ref-3"></a>[Backtest](../design/prototype/docs/requirements/backtest.md)
 4. <a id="ref-4"></a>[Strategy Engine và Strategy library](../design/prototype/docs/requirements/strategy-engine.md)
 5. <a id="ref-5"></a>[Realtime](../design/prototype/docs/requirements/realtime.md)
 6. <a id="ref-6"></a>[Discovery](../design/prototype/docs/requirements/discovery.md)
-7. <a id="ref-7"></a>[Authentication](../design/prototype/docs/requirements/authentication.md)
+7. <a id="ref-7"></a>[Authentication](../UCs/authentication.md)
 8. <a id="ref-8"></a>[Design](../design/README.md)
 9. <a id="ref-9"></a>[Project: Crypto Force](../../CLAUDE.md)

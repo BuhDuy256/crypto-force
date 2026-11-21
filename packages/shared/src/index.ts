@@ -17,3 +17,16 @@ export type {
   SignInInput,
   SignUpInput,
 } from './schemas/auth.schema';
+export {
+  marketPairSchema,
+  marketTimeframeSchema,
+  candleHistoryInputSchema,
+  candleHistorySchema,
+  marketSummarySchema,
+} from './schemas/market-data.schema';
+export type {
+  MarketPair,
+  MarketTimeframe,
+  CandleHistory,
+  MarketSummary,
+} from './schemas/market-data.schema';

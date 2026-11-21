@@ -873,7 +873,7 @@ Exploratory testing không có model ở file này; charter nằm ở [Test Case
 ## References
 
 1. <a id="ref-1"></a>[Test Approach](../../02-planning/output/03-test-approach.md) — commit `341584a`, 2026-11-17
-2. <a id="ref-2"></a>[Authentication](../../../../../design/prototype/docs/requirements/authentication.md) — commit `705a1ad`, 2026-11-17
+2. <a id="ref-2"></a>[Authentication](../../../../../UCs/authentication.md) — commit `705a1ad`, khi đó tại `docs/design/prototype/docs/requirements/authentication.md`, 2026-11-17
 3. <a id="ref-3"></a>[Security](../../../../../architecture/23-security.md) — commit `d6c0541`, 2026-11-17
 4. <a id="ref-4"></a>[Workspace](../../../../../design/prototype/docs/requirements/workspace.md) — commit `bd0ecff`, 2026-11-16
 5. <a id="ref-5"></a>[Crypto Force UI Prototype](../../../../../design/prototype/README.md) — commit `dbbaafe`, 2026-11-16

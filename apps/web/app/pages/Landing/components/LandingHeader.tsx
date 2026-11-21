@@ -6,7 +6,7 @@ import { Button } from '~/components/ui/button';
 import { useIsSignedIn } from '~/hooks/useAuth';
 import { sectionLinks, WORKSPACE_HOME } from '../sections';
 
-/** Signed-in visitors get Open workspace in place of Sign in and Create account (public-pages.md). */
+/** Signed-in visitors get Open workspace in place of Sign in and Create account (docs/design/prototype/docs/requirements/public-pages.md). */
 export function LandingHeader() {
   const signedIn = useIsSignedIn();
   const [menuOpen, setMenuOpen] = useState(false);

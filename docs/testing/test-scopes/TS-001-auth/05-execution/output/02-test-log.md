@@ -204,4 +204,4 @@ EV-003 có mật khẩu hiện rõ ở ô Password và email thật, nên không
 ## References
 
 1. <a id="ref-1"></a>[Test Cases](../../03-design/output/04-test-cases.md) — TC-103 `v2`, TC-195 đến TC-198 `v1`; expected result của mục 2
-2. <a id="ref-2"></a>[Authentication](../../../../../design/prototype/docs/requirements/authentication.md) — test basis ở commit `c23d848`
+2. <a id="ref-2"></a>[Authentication](../../../../../UCs/authentication.md) — test basis ở commit `c23d848`, khi đó tại `docs/design/prototype/docs/requirements/authentication.md`

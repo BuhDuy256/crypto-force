@@ -1,9 +1,9 @@
-// ESLint rules for test code (docs/development/coding-guidelines.md#testware). Each message tells
+// ESLint rules for test code (docs/conventions/testware.md). Each message tells
 // the agent how to fix the test, because an agent reads only the message and the file.
 import { dirname, relative, resolve } from 'node:path';
 import { requirementPrefixes, templatePrefixes } from './test-scope-ids.mjs';
 
-const testwareDoc = 'See docs/development/coding-guidelines.md#testware.';
+const testwareDoc = 'See docs/conventions/testware.md.';
 
 /**
  * IDs of the STLC documents (PROC-01, MD-05, DR-07, SEC-04, TS-001 ...). TC-xxx stays allowed, and
