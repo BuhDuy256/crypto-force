@@ -31,13 +31,13 @@ export const candleHistorySchema = candleHistoryInputSchema
   })
   .superRefine((history, context) => {
     for (const points of [history.candles]) {
-      if (
-        points.some(
-          (point, index) => index > 0 && point.openTime <= (points[index - 1]?.openTime ?? -1),
-        )
-      ) {
+      const invalidOrder = points.findIndex(
+        (point, index) => index > 0 && point.openTime <= (points[index - 1]?.openTime ?? -1),
+      );
+      if (invalidOrder >= 0) {
         context.addIssue({
           code: 'custom',
+          path: ['candles', invalidOrder, 'openTime'],
           message: 'The timestamps must be unique and increase in order.',
         });
       }
@@ -59,14 +59,17 @@ export const candleHistorySchema = candleHistoryInputSchema
         message: 'The snapshot has an invalid warmup count or candle count.',
       });
     }
-    if (
-      history.candles.some(
-        (candle, index) =>
-          candle.openTime % intervals[history.timeframe] !== 0 ||
-          (!candle.isClosed && index < history.candles.length - 1),
-      )
-    ) {
-      context.addIssue({ code: 'custom', message: 'The candle time or closed state is invalid.' });
+    const invalidCandle = history.candles.findIndex(
+      (candle, index) =>
+        candle.openTime % intervals[history.timeframe] !== 0 ||
+        (!candle.isClosed && index < history.candles.length - 1),
+    );
+    if (invalidCandle >= 0) {
+      context.addIssue({
+        code: 'custom',
+        path: ['candles', invalidCandle],
+        message: 'The candle time or closed state is invalid.',
+      });
     }
   });
 export const marketSummarySchema = z.object({

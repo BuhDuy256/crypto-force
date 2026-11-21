@@ -5,6 +5,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import testware from './scripts/eslint-plugin-testware.mjs';
+import appBoundaries from './scripts/eslint-plugin-app-boundaries.mjs';
 
 /** Cross-package imports must go through public exports (docs/conventions/project-structure.md). */
 const noDeepPackageImports = {
@@ -133,6 +134,21 @@ export default tseslint.config(
     languageOptions: { globals: globals.node },
   },
 
+  {
+    files: ['apps/*/src/**/*.{ts,tsx}', 'apps/web/app/**/*.{ts,tsx}'],
+    plugins: { 'app-boundaries': appBoundaries },
+    rules: {
+      'app-boundaries/no-test-imports': 'error',
+      'app-boundaries/provider-layers': 'error',
+    },
+  },
+  {
+    files: ['apps/api/src/**/*.ts'],
+    ignores: ['apps/api/src/configs/**'],
+    rules: {
+      'app-boundaries/no-process-env': 'error',
+    },
+  },
   // API layers (docs/conventions/project-structure.md#api-layer-based)
   {
     files: ['apps/api/src/api/routes/**/*.ts', 'apps/api/src/api/controllers/**/*.ts'],

@@ -148,17 +148,17 @@ Các quyết định sau do agent chốt theo ủy quyền của product owner. 
 
 #### Task 2: Lát 2, provider interface, service và Binance adapter
 
-- [ ] Tạo folder `providers/market-data/` cùng rule ESLint cho ranh giới import. Viết test cho rule: một import hợp lệ và các import phải bị từ chối [[6]](#ref-6). Cập nhật Project Structure.
-- [ ] Thêm hai rule ESLint theo mục Ranh giới sửa code và test: chỉ `apps/api/src/configs/` được đọc `process.env`; `apps/*/src` và `apps/web/app` không import từ `test/` hoặc `e2e/`. Viết test cho case hợp lệ và case bị từ chối. Sửa code hiện có vi phạm rule nếu có, không thêm ngoại lệ.
-- [ ] Tạo interface `MarketDataProvider` và kiểu domain. Chạy lại `service.test.ts` và `binance.test.ts`. Xác nhận test tới assertion và fail ở hành vi chưa build.
-- [ ] Build service: yêu cầu 519 nến, trả tối đa 500 nến, `warmupCount` theo lịch sử thực nhận, kiểm dữ liệu, phân loại lỗi và log có pair/timeframe/duration.
-- [ ] Build adapter: URL/query, chuẩn hóa kline và summary, base volume, timeout bằng `AbortSignal`, lỗi có kiểu, không retry.
-- [ ] Đối chiếu đủ 518 nến đóng với `closed-candles.json`. Không lấy output của implementation làm expected.
-- [ ] Chạy mutation: đổi close, dùng quote volume, lệch warm-up, fake không tôn trọng `AbortSignal`.
+- [x] Tạo folder `providers/market-data/` cùng rule ESLint cho ranh giới import. Viết test cho rule: một import hợp lệ và các import phải bị từ chối [[6]](#ref-6). Cập nhật Project Structure.
+- [x] Thêm hai rule ESLint theo mục Ranh giới sửa code và test: chỉ `apps/api/src/configs/` được đọc `process.env`; `apps/*/src` và `apps/web/app` không import từ `test/` hoặc `e2e/`. Viết test cho case hợp lệ và case bị từ chối. Sửa code hiện có vi phạm rule nếu có, không thêm ngoại lệ.
+- [x] Tạo interface `MarketDataProvider` và kiểu domain. Chạy lại `service.test.ts` và `binance.test.ts`. Xác nhận test tới assertion và fail ở hành vi chưa build.
+- [x] Build service: yêu cầu 519 nến, trả tối đa 500 nến, `warmupCount` theo lịch sử thực nhận, kiểm dữ liệu, phân loại lỗi và log có pair/timeframe/duration.
+- [x] Build adapter: URL/query, chuẩn hóa kline và summary, base volume, timeout bằng `AbortSignal`, lỗi có kiểu, không retry.
+- [x] Đối chiếu đủ 518 nến đóng với `closed-candles.json`. Không lấy output của implementation làm expected.
+- [x] Chạy mutation: đổi close, dùng quote volume, lệch warm-up, fake không tôn trọng `AbortSignal`.
 
 **Điều kiện đạt:** hai suite pass, cả lượt thường và lượt `--sequence.shuffle`. Ba rule ESLint mới có test cho cả case hợp lệ và case bị từ chối. Typecheck API chỉ còn red ở module của lát 3–4.
 
-- [ ] Chạy kiểm tra phù hợp và tạo commit cho Task 2.
+- [x] Chạy kiểm tra phù hợp và tạo commit cho Task 2.
 
 #### Task 3: Lát 3, cache decorator và lỗi upstream
 
