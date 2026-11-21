@@ -4,9 +4,11 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ## [Unreleased]
 
-- Test trước build REST Market Data: shared contract, provider/service và Binance adapter đã green qua Bước 08 Task 2. Cache decorator còn thiếu, HTTP/session và startup E2E còn chờ tích hợp. Chưa đo baseline toàn flow.
+- Test trước build REST Market Data: shared contract, provider/service, Binance adapter và cache decorator đã green qua Bước 08 Task 3. HTTP/session và startup E2E còn chờ tích hợp. Chưa đo baseline toàn flow.
 
 ### Changed
+
+- Bước 08 Task 3: thêm cache decorator theo pair/timeframe/limit và namespace summary. TTL tính từ lúc provider trả thành công, gộp request đang chờ, không cache lỗi và giữ snapshot khi hit. Cache còn hạn vẫn trả dữ liệu trong cooldown Binance. Thêm test vòng đời summary và log hit/miss/join.
 
 - Bước 08 Task 2: thêm interface provider, service kiểm snapshot và Binance adapter có timeout, mapping OHLCV/summary, phân loại lỗi và cooldown. Thêm ba rule ESLint kiểm ranh giới provider, nơi đọc biến môi trường API và production import testware.
 

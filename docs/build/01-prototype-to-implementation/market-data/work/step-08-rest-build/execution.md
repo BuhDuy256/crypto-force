@@ -107,6 +107,59 @@ Hai mutant output service và provider fake trong bảng đã bổ sung evidence
 
 Không chạy `pnpm check`, toàn bộ test API, E2E hoặc Binance thật. Task 2 không thay hành vi UI. Kiểm chứng và review độc lập của Task 2 đã hoàn tất. Các file Task 2 được lưu trong commit riêng theo kế hoạch.
 
+## Task 3: Cache decorator và lỗi upstream
+
+HEAD bắt đầu: `8a68581`. Node thực chạy là `22.23.5`. Các lệnh Node/pnpm và cập nhật graph cần quyền ngoài sandbox. Không gọi Binance thật.
+
+Decorator mới nằm tại `apps/api/src/providers/market-data/cached-market-data.provider.ts`. Cache tách namespace nến và summary. Khóa nến có pair/timeframe/limit. TTL nhận qua tham số, dùng mốc 5000 ms đã duyệt trong test và tính từ lúc provider resolve thành công. Snapshot trả lại giữ nguyên `dataTime`, `isClosed` và dữ liệu nến. Request cùng khóa dùng chung pending promise. Lỗi được trả cho mọi waiter và xóa khỏi cache để caller tiếp theo gọi lại provider.
+
+Cooldown 429/418 theo `Retry-After` đã có ở adapter trong Task 2. Task 3 giữ nguyên adapter và kiểm lại cooldown dùng chung giữa lịch sử và summary. Decorator kiểm cache trước khi gọi adapter, nên snapshot còn hạn vẫn trả trong cooldown. Log debug ghi key và trạng thái `miss`, `join`, `hit`.
+
+### Red, green và thay đổi testware
+
+- Lượt đầu hai suite không thu được test vì thiếu module decorator. Sau khi thêm decorator chỉ chuyển tiếp provider, cả 7 test chạy tới assertion: 5 fail, 2 pass.
+- Sau khi thêm cache, hai suite pass 7/7. Cùng service 30 và adapter 23, tổng là 60/60 test Market Data.
+- Thêm hai test: log debug theo key/trạng thái, và vòng đời summary với pair SOLUSDT cùng giá khác fixture trước. Summary kiểm waiter, TTL tính từ resolve, lỗi refresh khi hết hạn và caller tiếp theo thành công. Hai suite nay có 9 test, tăng từ 7. Tổng bốn suite là 62 = cache 8 + contract 1 + adapter 23 + service 30. Không cộng test Auth hoặc HTTP vào tổng.
+- Test mới là thay đổi được phép theo kế hoạch. Nguồn expected là mô hình cache/cooldown và bảng log decorator trong `docs/testing/test-scopes/TS-002-market-data/rest-verification.md`. Giá summary là input tổng hợp, expected giữ nguyên input.
+- T2: assertion nhận hai promise của test snapshot cũ chuyển sang callback nhận kết quả để tuân thủ `testware/no-implementation-oracle`. Expected, input và call count giữ nguyên. Assertion retry dùng `.resolves` để mutant giữ rejection fail tại assertion. Đây là tăng độ chặt, không nới expected.
+- Comment đầu hai suite thay trạng thái mutation dự kiến và thiếu module bằng fault check hiện tại. Không thêm `as` trong production, export helper cho test hoặc sửa config test/lint.
+
+### Mutation
+
+Mỗi lượt dưới chạy cache, contract và adapter: 32 test. Sau từng mutant, khôi phục code và xác nhận 32/32 pass.
+
+| Mutation | Assertion fail |
+| --- | --- |
+| Bỏ pair khỏi key | 3: log key, tách khóa và contract cooldown |
+| Bỏ timeframe khỏi key | 2: log key và tách khóa |
+| Bỏ limit khỏi key | 2: log key và tách khóa |
+| Đổi biên TTL từ `<` thành `<=` | 2: summary hết hạn và nến tại đúng TTL |
+| Làm mới `dataTime` khi cache hit | 2: snapshot nến và snapshot summary |
+| Bỏ single-flight | 3: waiter nến, waiter summary và waiter lỗi |
+| Giữ rejected promise | 2: retry nến và retry summary phải resolve |
+| Bỏ kiểm cooldown trong adapter | 3: 429, 418 và số HTTP call trong contract |
+| Đổi log debug thành trace | 1: mức log của miss/join/hit |
+
+Mutant single-flight còn gây unhandled rejection sau assertion call count fail. Lượt khôi phục không có lỗi đó. Lần thử giữ rejection đầu tiên fail do lỗi thoát ngoài assertion, nên không tính làm evidence. Sau khi dùng `.resolves`, cả hai test fail tại assertion rồi pass sau khôi phục. Hai lỗi script tạm cũng không tính làm evidence: PowerShell coi stderr là lỗi kết thúc và target newline không khớp. Mọi file production đã khôi phục sau các lần thử này.
+
+### Kiểm chứng cuối Task 3
+
+| Lệnh hoặc phạm vi | Kết quả |
+| --- | --- |
+| `pnpm --filter @crypto-force/api test test/market-data/cached-provider.test.ts test/market-data/provider-contract.test.ts test/market-data/binance.test.ts test/market-data/service.test.ts` | 62/62 pass |
+| `pnpm --filter @crypto-force/api exec vitest run` với cùng bốn file và `--sequence.shuffle` | 62/62 pass, seed `1795227681654` |
+| `pnpm --filter @crypto-force/api typecheck` | Đạt, không còn lỗi import decorator |
+| ESLint decorator và hai suite đã sửa | Đạt |
+| `pnpm check:exports` | Đạt |
+| `graphify update .` | Đạt sau khi chạy ngoài sandbox, AST cục bộ. Không chạy label |
+| `pnpm check:docs` | Đạt |
+| Prettier các file Task 3 | Code đạt. Markdown bị `.prettierignore` bỏ qua |
+| `git diff --check` | Đạt |
+
+Lệnh shuffle đầu dùng `pnpm test` bị pnpm từ chối option trước khi chạy test. Lượt chạy qua `exec vitest run` trong bảng mới là evidence shuffle. Không chạy `pnpm check`, toàn bộ test API, E2E hoặc đo baseline. Task 3 không thay UI hoặc HTTP/session. Các phần này thuộc Task 4 trở đi.
+
+Reviewer độc lập đã đọc diff, source và conventions theo skill `review-change`. Không có finding trong các mục checklist. Reviewer dùng evidence test và mutation của tác giả, không chạy lại test. Task 3 kết thúc bằng commit riêng theo kế hoạch.
+
 ## Phần còn lại
 
-Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất kiểm chứng và review. Task 3–10 chưa thực hiện. Ba quyết định vận hành của Task 6 đang chờ product owner duyệt. Không đánh dấu Bước 08 hoàn thành.
+Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất kiểm chứng và review. Task 4–10 chưa thực hiện. Ba quyết định vận hành của Task 6 đang chờ product owner duyệt. Không đánh dấu Bước 08 hoàn thành.

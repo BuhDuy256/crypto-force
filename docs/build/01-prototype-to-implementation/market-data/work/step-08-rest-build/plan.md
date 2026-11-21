@@ -162,14 +162,14 @@ Các quyết định sau do agent chốt theo ủy quyền của product owner. 
 
 #### Task 3: Lát 3, cache decorator và lỗi upstream
 
-- [ ] Chạy lại `cached-provider.test.ts` và `provider-contract.test.ts`. Xác nhận test tới assertion.
-- [ ] Build decorator: khóa gồm pair/timeframe/limit và namespace summary, TTL 5 giây theo mốc đã duyệt, single-flight, không cache lỗi, giữ snapshot [[3, Mô hình cache và cooldown]](#ref-3).
-- [ ] Build cooldown 429/418 theo `Retry-After` trong adapter, dùng chung cho mọi endpoint Binance của instance. Cache còn hạn vẫn trả trong cooldown.
-- [ ] Chạy mutation: bỏ một thành phần khóa, đổi dấu biên TTL, làm mới `dataTime` khi hit, bỏ single-flight, giữ rejection, bỏ cooldown.
+- [x] Chạy lại `cached-provider.test.ts` và `provider-contract.test.ts`. Xác nhận test tới assertion.
+- [x] Build decorator: khóa gồm pair/timeframe/limit và namespace summary, TTL 5 giây theo mốc đã duyệt, single-flight, không cache lỗi, giữ snapshot [[3, Mô hình cache và cooldown]](#ref-3).
+- [x] Build cooldown 429/418 theo `Retry-After` trong adapter, dùng chung cho mọi endpoint Binance của instance. Cache còn hạn vẫn trả trong cooldown.
+- [x] Chạy mutation: bỏ một thành phần khóa, đổi dấu biên TTL, làm mới `dataTime` khi hit, bỏ single-flight, giữ rejection, bỏ cooldown.
 
 **Điều kiện đạt:** hai suite pass, cả lượt thường và lượt `--sequence.shuffle`. Mỗi mutation trong danh sách làm assertion liên quan fail.
 
-- [ ] Chạy kiểm tra phù hợp và tạo commit cho Task 3.
+- [x] Chạy kiểm tra phù hợp và tạo commit cho Task 3.
 
 #### Task 4: Lát 4, HTTP và session
 
