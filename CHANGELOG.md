@@ -8,6 +8,8 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Changed
 
+- Runner baseline polling bổ sung `window.json` để tái tính cửa sổ steady từ raw logs. Giữ lượt v1 bị dừng và lý do Inconclusive; chuyển các lượt chính thức sang cohort v2. Không đổi workload hoặc ngưỡng.
+
 - Bước 08 Task 10: thêm runner baseline REST polling với Web production build, HTTP replay qua Binance adapter, nguồn lệch pha, workload 1/10/50 client và cohort thành công/lỗi. Runner tách bytes tải đầu theo client/request, giữ raw ledger, đối chiếu response đầy đủ và ghi rõ apply chưa chứng minh paint. Test runner bắt lỗi phân loại bytes, thiếu trường summary và reset timeline. Baseline chính thức chỉ chạy sau commit runner.
 
 - Bước 08 Task 9: thêm protocol kiểm chứng REST polling, ma trận requirement, mô hình trạng thái/lỗi, nguồn tham chiếu freshness và cách đo bytes/weight. Thêm test trước build qua hook public, cache provider và E2E với API thật, replay nến theo clock điều khiển. Test red có chủ đích được giữ cho Task 10; chưa triển khai polling hoặc đo baseline. Commit testware và protocol: `5d49818`.

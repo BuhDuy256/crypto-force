@@ -74,7 +74,7 @@ try {
         ),
       );
   for (const cohort of selected) {
-    const prefix = process.argv.includes('--smoke') ? 'polling-preflight-v4' : 'polling-v1';
+    const prefix = process.argv.includes('--smoke') ? 'polling-preflight-v4' : 'polling-v2';
     const run = `${prefix}-${cohort.failure ? 'error' : 'success'}-${cohort.clients}-r${cohort.repeat}`;
     const directory = resolve(root, 'docs/testing/evidence/market-data', run);
     if (existsSync(resolve(directory, 'summary.json'))) continue;
@@ -196,6 +196,21 @@ try {
       const sourceStart = source.now;
       const duration = cohort.repeat === 0 ? 15000 : config.durationMs;
       const deadline = start + duration;
+      writeFileSync(
+        resolve(directory, 'window.json'),
+        JSON.stringify(
+          {
+            runnerStart: start,
+            runnerEnd: deadline,
+            runnerTimeOrigin: performance.timeOrigin,
+            sourceStart,
+            sourceEnd: sourceStart + duration,
+            source,
+          },
+          null,
+          2,
+        ),
+      );
       while (performance.now() < deadline) {
         await delay(Math.min(10000, deadline - performance.now()));
         console.log(

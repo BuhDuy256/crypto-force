@@ -142,9 +142,11 @@ Cấu hình đóng băng trong `apps/api/perf/market-data/polling-config.json`: 
 
 Mỗi lần lặp dùng cache rỗng ở đầu cohort. Các client tạo sau có thể nhận cache hit trong giai đoạn chuẩn bị. Measurement steady chỉ bắt đầu sau khi mọi client tải xong và qua warm-up. Cache không bị xóa ở ranh giới warm-up/steady. Cohort lỗi đổi nguồn sang 503 khi bắt đầu steady; dữ liệu đã nhận còn được giữ trên chart. Ledger nguồn và response reconciliation gồm cả request thành công và lỗi.
 
-Manifest lưu commit, diff hash, lockfile hash, Web build hash, source hash, cấu hình máy, database và phiên bản browser. Source timeline, mẫu apply, bytes CDP, clock exchanges, lỗi và mẫu thiếu được giữ riêng. Clock exchange có biên round-trip trước/sau lượt đo. Runner chưa có bằng chứng paint, nên freshness và tỷ lệ thời gian dữ liệu cũ là `Inconclusive`. `applyReceivedDelay` chỉ là số mô tả tới lúc runner nhận apply, không thay cho thời gian canvas vẽ.
+Manifest lưu commit, diff hash, lockfile hash, Web build hash, source hash, cấu hình máy, database và phiên bản browser. `window.json` lưu chính xác mốc đầu/cuối steady theo clock runner và nguồn. Source timeline, mẫu apply, bytes CDP, clock exchanges, lỗi và mẫu thiếu được giữ riêng. Clock exchange có biên round-trip trước/sau lượt đo. Runner chưa có bằng chứng paint, nên freshness và tỷ lệ thời gian dữ liệu cũ là `Inconclusive`. `applyReceivedDelay` chỉ là số mô tả tới lúc runner nhận apply, không thay cho thời gian canvas vẽ.
 
 Các lượt `polling-v1-success-1-r0` và `polling-preflight-v2-success-1-r0` là preflight. Lượt đầu có một response reconciliation sai do reset version của nguồn. Lượt thứ hai có 60 response hợp lệ và 12 apply hợp lệ. Cả hai không thuộc baseline chính thức. Review sau preflight phát hiện cách phân loại bytes tải đầu và oracle summary chưa đủ. Hai lỗi được sửa tại module sở hữu và có test bắt mutant. Preflight v3 và v4 kiểm bản sửa trước khi đo chính thức. Lượt v4 có đủ pair/timeframe/openTime/OHLCV cho từng event nguồn, 60 response hợp lệ, 12 apply hợp lệ và không có browser error.
+
+Lượt `polling-v1-success-1-r1` đã bị dừng sau khi bắt đầu steady vì runner chưa lưu ranh giới cửa sổ đo. Raw logs và `termination.json` được giữ. Lượt này Inconclusive và không thuộc baseline. Cohort `polling-v2` bổ sung `window.json` trước khi chạy lại; không đổi workload hoặc ngưỡng.
 
 Lệnh dựng và chạy:
 

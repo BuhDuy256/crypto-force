@@ -700,7 +700,7 @@ Review độc lập ban đầu có hai finding runner: bytes tải đầu lẫn 
 
 Bốn lượt preflight được giữ riêng. Lượt đầu có một reconciliation sai do reset timeline. Ba lượt tiếp theo đều có 60 response hợp lệ, 12 apply hợp lệ và không có browser error. Lượt cuối giữ đủ pair/timeframe/openTime/OHLCV cho 8 event nguồn. Preflight không thuộc baseline chính thức. Runner chưa có evidence paint; độ mới và tỷ lệ thời gian dữ liệu cũ vẫn Inconclusive.
 
-Review follow-up và review delta timeline không còn finding substantive. Baseline chính thức đang chờ chạy sau commit bản triển khai và runner. Bước 08 chưa hoàn thành.
+Review follow-up và review delta timeline không còn finding substantive. Bản triển khai và runner đã commit tại `77036dc`. Lượt chính thức đầu tiên `polling-v1-success-1-r1` bị dừng vì chưa lưu chính xác ranh giới steady. Raw evidence và lý do dừng được giữ; lượt này Inconclusive và bị loại khỏi baseline. Runner bổ sung `window.json`; cohort v2 sẽ chạy sau commit sửa metadata. Bước 08 chưa hoàn thành.
 
 ## Phần còn lại
 
