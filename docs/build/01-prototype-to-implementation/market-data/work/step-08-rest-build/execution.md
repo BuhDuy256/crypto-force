@@ -584,9 +584,9 @@ Gap quan trọng nhất là SC 2.2.2, mức A: chart và sidebar tự cập nh�
 - `useCandlestickChart.ts` tại `9729616` gọi `fitContent()`, xóa crosshair và bỏ nến đang chọn mỗi khi dữ liệu đổi. Polling phải sửa chỗ này để đạt MK-68 đến MK-71.
 - Tìm `compression`, `zlib`, `gzip` trong `apps/api/src` không có kết quả, nên API không nén response trong source; chưa kiểm proxy. Mảng `candles` của smoke Binance có 519 nến, 63.992 byte JSON; ước tính lưu lượng trong ADR-007 dựa vào số này.
 
-### Quyết định chờ product owner
+### Quyết định do agent đề xuất
 
-Mọi giá trị do agent đề xuất có trạng thái Proposed hoặc Inferred và nằm trong bảng [Quyết định chờ product owner](../../../../../testing/test-scopes/TS-002-market-data/rest-polling-requirement-gap-analysis.md#quyết-định-chờ-product-owner). Task 9 chỉ bắt đầu sau khi product owner duyệt bảng này.
+Mọi giá trị do agent đề xuất nằm trong bảng [Quyết định do agent đề xuất](../../../../../testing/test-scopes/TS-002-market-data/rest-polling-requirement-gap-analysis.md#quyết-định-do-agent-đề-xuất). Product owner duyệt toàn bộ bảng ngày 2026-11-22, không đổi giá trị nào. Rule MK-63 đến MK-85, QA-12 và QA-13 chuyển sang Confirmed. ADR-007 và ADR-008 chuyển sang Accepted, ADR-006 chuyển sang `Superseded by ADR-008`. OQ-085 chuyển sang Resolved.
 
 ### Review và kiểm chứng
 
@@ -608,4 +608,4 @@ Không chạy test, vì Task 8 không sửa code hoặc testware. Không chạy 
 
 ## Phần còn lại
 
-Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất trong commit `b7be50f`. Trạng thái và quyết định của Task 6 nằm tại [Kết quả baseline REST](#task-6-kết-quả-baseline-rest). Task 7 chốt tài liệu REST tải lịch sử. Commit của Task 7 là mốc so sánh REST tải lịch sử. Task 8 chốt requirements và thiết kế polling ở trạng thái chờ product owner duyệt. Task 9–10 chưa thực hiện. Không đánh dấu Bước 08 hoàn thành.
+Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất trong commit `b7be50f`. Trạng thái và quyết định của Task 6 nằm tại [Kết quả baseline REST](#task-6-kết-quả-baseline-rest). Task 7 chốt tài liệu REST tải lịch sử. Commit của Task 7 là mốc so sánh REST tải lịch sử. Task 8 chốt requirements và thiết kế polling; product owner duyệt ngày 2026-11-22. Task 9–10 chưa thực hiện. Không đánh dấu Bước 08 hoàn thành.

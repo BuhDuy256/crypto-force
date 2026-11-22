@@ -2,7 +2,7 @@
 
 Đọc file này để biết cách hệ thống lấy và cập nhật historical, realtime market data, hỗ trợ nhiều timeframe và xử lý khi mất kết nối.
 
-> **Trạng thái:** vòng REST tải lịch sử đã triển khai theo thiết kế trong file này. Web gọi API thật; API gọi Binance qua cache decorator và Binance adapter tạo tại `apps/api/src/index.ts` [[1]](#ref-1). Kết quả kiểm chứng nằm trong [Kiểm chứng REST tải lịch sử](../testing/test-scopes/TS-002-market-data/rest-verification.md#kết-quả-thực-chạy). Thiết kế cập nhật định kỳ nằm trong [Cập nhật định kỳ](#cập-nhật-định-kỳ), chưa triển khai; hai quyết định của vòng này (ADR-007, ADR-008) đang ở trạng thái Proposed. WebSocket được thiết kế ở vòng sau.
+> **Trạng thái:** vòng REST tải lịch sử đã triển khai theo thiết kế trong file này. Web gọi API thật; API gọi Binance qua cache decorator và Binance adapter tạo tại `apps/api/src/index.ts` [[1]](#ref-1). Kết quả kiểm chứng nằm trong [Kiểm chứng REST tải lịch sử](../testing/test-scopes/TS-002-market-data/rest-verification.md#kết-quả-thực-chạy). Thiết kế cập nhật định kỳ nằm trong [Cập nhật định kỳ](#cập-nhật-định-kỳ), đã duyệt ngày 2026-11-22 (ADR-007, ADR-008), chưa triển khai. WebSocket được thiết kế ở vòng sau.
 
 ## Drivers
 
@@ -30,7 +30,7 @@
 | Làm mới giữ vùng xem, focus, thông tin nến và giới hạn 500 nến (MK-67 đến MK-71) | Chart áp dữ liệu mới vào cùng instance, chỉ đặt lại vùng xem khi đổi lựa chọn |
 | Làm mới lỗi giữ dữ liệu cũ, không nhận dữ liệu cũ hơn, chart lỗi không tự tải lại (MK-13, MK-79 đến MK-82) | Query giữ dữ liệu khi lỗi; Web so `dataTime`; chu kỳ tắt cho query chưa có dữ liệu |
 | Độ mới dữ liệu khi làm mới (QA-12) | Chu kỳ bằng TTL cache ([Cập nhật định kỳ](#cập-nhật-định-kỳ)) |
-| Request tới Binance không tăng theo số client khi làm mới, kể cả khi Binance lỗi (QA-13) | Cache theo khóa; mức trần trong [Giới hạn request của Binance](#giới-hạn-request-của-binance); giữ lỗi nguồn trong TTL (ADR-008, Proposed) |
+| Request tới Binance không tăng theo số client khi làm mới, kể cả khi Binance lỗi (QA-13) | Cache theo khóa; mức trần trong [Giới hạn request của Binance](#giới-hạn-request-của-binance); giữ lỗi nguồn trong TTL (ADR-008) |
 | Hiển thị, accessibility và màn hình hẹp (MK-02, MK-10, MK-11, MK-15, MK-26, MK-38, MK-41 đến MK-43, MK-46 đến MK-50, MK-58 đến MK-62) | Thuộc Web; không cần cơ chế backend ngoài nến và thời điểm dữ liệu |
 
 ## Thành phần và ranh giới
@@ -149,7 +149,7 @@ Vòng REST không lưu dữ liệu Market Data vào PostgreSQL ([Data Model](21-
 Quy tắc:
 
 - **Gộp request trùng (single-flight).** Khi khóa chưa có giá trị còn hạn, request đầu tiên gọi provider. Các request cùng khóa đến trong lúc đó chờ chung kết quả này.
-- **Không cache lỗi.** Lỗi của provider trả cho mọi request đang chờ, rồi bị bỏ. Request sau gọi lại provider, nên thử lại của chart (MK-12) có hiệu lực ngay.
+- **Giữ lỗi nguồn trong TTL.** Lỗi nguồn không khả dụng và lỗi dữ liệu nguồn sai được trả cho mọi request đang chờ, rồi được giữ theo khóa trong cùng TTL, tính từ lúc provider bên trong reject. Request cùng khóa trong TTL nhận lại lỗi đó mà không gọi provider, kể cả thử lại của chart (MK-12). Lỗi không lường trước không được giữ (ADR-008). Code tại commit `9729616` chưa giữ lỗi; bước build polling triển khai quy tắc này.
 - **Mốc và biên TTL.** TTL bắt đầu khi provider bên trong resolve thành công, theo clock của API. Mốc này không phải lúc request vào và không phải `dataTime`. Giá trị còn hạn khi thời gian đã qua nhỏ hơn TTL, hết hạn khi thời gian đã qua lớn hơn hoặc bằng TTL. Upstream trả chậm không làm giảm thời gian tái sử dụng. Product owner duyệt ngày 2026-11-21.
 - **Không làm mới chủ động.** Giá trị hết hạn bị thay ở request tiếp theo. Vòng REST không tự cập nhật chart (MK-27), nên không cần làm mới nền.
 - **`dataTime` và `isClosed` đi cùng giá trị cache.** `dataTime` vẫn là thời điểm API nhận response của provider, không phải thời điểm request, nên chart hiển thị đúng tuổi của dữ liệu (MK-27). Nến đóng trong lúc giá trị còn hạn vẫn có `isClosed: false`, khớp với `dataTime`.
@@ -165,7 +165,7 @@ Binance giới hạn request weight theo IP, không theo API key. Giới hạn h
 | Weight của `klines` | 2, với mọi `limit` tới 1000. Số nến yêu cầu là 500 cộng nến khởi động, dưới 1000 |
 | Weight của `ticker/24hr` cho một symbol | 2 |
 
-Một lần mở Realtime gửi 4 request nến (MK-31) và 1 request summary, tức 10 weight khi cache trống. Không có cache, khoảng 600 lần mở Realtime mỗi phút sẽ chạm giới hạn. Có cache, mỗi khóa gọi Binance tối đa 12 lần mỗi phút. Với 3 pair (MK-32) và 6 timeframe (MK-30) có 18 khóa nến và 3 khóa summary. Khi provider trả thành công, mức trần là 21 × 12 × 2 = 504 weight mỗi phút, khoảng 8% giới hạn, không phụ thuộc số người dùng. Lỗi không được cache, nên khi Binance lỗi (5xx, timeout, 403), mỗi lần thử lại của người dùng tạo một lời gọi mới; single-flight chỉ gộp các lời gọi đồng thời cùng khóa.
+Một lần mở Realtime gửi 4 request nến (MK-31) và 1 request summary, tức 10 weight khi cache trống. Không có cache, khoảng 600 lần mở Realtime mỗi phút sẽ chạm giới hạn. Có cache, mỗi khóa gọi Binance tối đa 12 lần mỗi phút. Với 3 pair (MK-32) và 6 timeframe (MK-30) có 18 khóa nến và 3 khóa summary. Khi provider trả thành công, mức trần là 21 × 12 × 2 = 504 weight mỗi phút, khoảng 8% giới hạn, không phụ thuộc số người dùng. Lỗi nguồn được giữ trong cùng TTL, nên khi Binance lỗi (5xx, timeout, 403), mỗi khóa cũng gọi Binance tối đa 12 lần mỗi phút và mức trần không đổi (ADR-008).
 
 Adapter Binance xử lý tín hiệu giới hạn, vì đó là hành vi riêng của Binance:
 
@@ -252,7 +252,7 @@ Web chỉ đặt thời hạn chờ cho request nến, vì thời hạn chờ (M
 
 ## Cập nhật định kỳ
 
-Vòng cập nhật định kỳ không đổi API, contract hay luồng của provider (ADR-007, Proposed). Chu kỳ bằng TTL không làm tăng mức trần weight ([Cache và giới hạn request](#cache-và-giới-hạn-request)).
+Vòng cập nhật định kỳ không đổi API, contract hay luồng của provider (ADR-007). Chu kỳ bằng TTL không làm tăng mức trần weight ([Cache và giới hạn request](#cache-và-giới-hạn-request)).
 
 ```mermaid
 sequenceDiagram
@@ -294,7 +294,7 @@ Source tại commit `9729616` khác thiết kế trên ở hai điểm mà bư�
 
 ### API và Binance
 
-API không đổi ở vòng này, trừ quy tắc lỗi của cache khi ADR-008 được chấp nhận. Mỗi client có 4 chart và 1 sidebar (MK-31), nên mỗi client gửi 5 request mỗi chu kỳ. Mỗi request đọc phiên từ PostgreSQL như vòng tải lịch sử. Mức trần weight của Binance vẫn là mức trong [Giới hạn request của Binance](#giới-hạn-request-của-binance), không phụ thuộc số client (QA-13).
+API chỉ đổi quy tắc lỗi của cache (ADR-008). Mỗi client có 4 chart và 1 sidebar (MK-31), nên mỗi client gửi 5 request mỗi chu kỳ. Mỗi request đọc phiên từ PostgreSQL như vòng tải lịch sử. Mức trần weight của Binance vẫn là mức trong [Giới hạn request của Binance](#giới-hạn-request-của-binance), không phụ thuộc số client (QA-13).
 
 Độ mới tệ nhất của dữ liệu trên chart gồm thời gian giữ trong cache, một chu kỳ, thời gian response và thời gian vẽ (QA-12).
 
@@ -326,17 +326,17 @@ Cách đọc: thời gian provider gần bằng tổng thời gian thì nguyên 
 | Quyền truy cập | Endpoint Market Data yêu cầu phiên [[4]](#ref-4) |
 | Số chữ số thập phân của pair | Hằng số trong metadata pair của `packages/shared` [[6, ADR-005]](#ref-6) |
 | Số nến | Server quyết định; client không gửi số nến [[4]](#ref-4) |
-| Lưu trữ và cache | Không lưu Market Data vào PostgreSQL; cache 5 giây trong process API qua decorator của provider [[6, ADR-006]](#ref-6) |
+| Lưu trữ và cache | Không lưu Market Data vào PostgreSQL; cache 5 giây trong process API qua decorator của provider [[6, ADR-008]](#ref-6) |
 | Giới hạn Binance | Adapter dừng gọi Binance theo `Retry-After` khi nhận 429 hoặc 418; API không tự thử lại |
-| Cập nhật định kỳ | Web làm mới mỗi query theo chu kỳ bằng TTL cache, tải lại toàn bộ cửa sổ [[6, ADR-007]](#ref-6), Proposed |
-| Lỗi trong cache khi làm mới | Giữ lỗi nguồn theo khóa trong TTL [[6, ADR-008]](#ref-6), Proposed. Khi chưa chấp nhận, quy tắc không cache lỗi của ADR-006 vẫn áp dụng |
+| Cập nhật định kỳ | Web làm mới mỗi query theo chu kỳ bằng TTL cache, tải lại toàn bộ cửa sổ [[6, ADR-007]](#ref-6) |
+| Lỗi trong cache | Giữ lỗi nguồn theo khóa trong TTL [[6, ADR-008]](#ref-6) |
 
 ## Rủi ro và giới hạn
 
 - Cache nằm trong process. Mỗi instance API có cache riêng và tự gọi Binance, nên mức trần weight nhân theo số instance trên cùng IP. Xét lại khi chạy hơn một instance API.
 - Mức trần 504 weight mỗi phút chỉ đúng khi tập pair và timeframe giữ nguyên. Thêm pair hoặc timeframe phải tính lại.
 - TTL 5 giây mới có số đo hit/miss trên replay local, chưa có số đo độ tươi của dữ liệu. Xem lại khi đo polling (QA-12).
-- Khi chưa có ADR-008, lỗi Binance không được cache. Mỗi lần làm mới của mỗi client khi Binance lỗi tạo một lời gọi mới, nên số lời gọi tăng theo số client tới khi Binance trả 429.
+- Sau khi Binance phục hồi, chart có thể còn báo lỗi thêm tối đa một TTL cộng một chu kỳ làm mới (ADR-008).
 - Polling tải lại toàn bộ cửa sổ nến. Source của API không có middleware nén response (tìm `compression`, `zlib`, `gzip` trong `apps/api/src`); chưa kiểm proxy trước API. Lưu lượng mỗi client ước tính trong ADR-007, chưa đo.
 - Thời gian mở Realtime (QA-10) và đổi timeframe (QA-11) đã đo trên Windows local với replay 50 ms, nhưng kết quả là `Inconclusive`: mốc cuối là lúc chart áp dụng dữ liệu, chưa chứng minh canvas đã vẽ [[11]](#ref-11).
 - Baseline local ở mức tải cao nhất có request lỗi do hết thời gian chờ phía máy phát tải. Máy phát tải, API, replay và PostgreSQL chạy cùng máy, nên chưa xác định nguyên nhân thuộc API hay máy đo. Chưa có ngưỡng latency, lỗi hoặc capacity REST được duyệt [[11]](#ref-11).

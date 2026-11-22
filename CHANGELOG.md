@@ -8,7 +8,7 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Changed
 
-- Bước 08 Task 8: requirements và thiết kế REST polling. Use case Theo dõi cập nhật định kỳ có rule MK-63 đến MK-85, gồm chu kỳ 5 giây, tạm dừng theo WCAG 2.2 SC 2.2.2, tab ẩn, làm mới lỗi giữ dữ liệu và giữ vùng xem. Thêm QA-12 (độ mới) và QA-13 (request tới Binance), ADR-007 (polling tải lại toàn bộ cửa sổ) và ADR-008 (giữ lỗi nguồn trong TTL), OQ-086. Các giá trị và hai ADR là Proposed, chờ product owner duyệt trước khi viết test.
+- Bước 08 Task 8: requirements và thiết kế REST polling. Use case Theo dõi cập nhật định kỳ có rule MK-63 đến MK-85, gồm chu kỳ 5 giây, tạm dừng theo WCAG 2.2 SC 2.2.2, tab ẩn, làm mới lỗi giữ dữ liệu và giữ vùng xem. Thêm QA-12 (độ mới) và QA-13 (request tới Binance), ADR-007 (polling tải lại toàn bộ cửa sổ) và ADR-008 (giữ lỗi nguồn trong TTL), OQ-086. Product owner duyệt các giá trị và hai ADR ngày 2026-11-22; ADR-006 chuyển sang Superseded by ADR-008, OQ-085 Resolved.
 
 - Bước 08 Task 7: chốt tài liệu REST tải lịch sử. Kiểm chứng REST có mục kết quả theo từng requirement, gồm suite và commit của lượt chạy, mutation, kiểm trên trình duyệt, baseline, smoke Binance và phần chưa kiểm. Kiến trúc ghi Market Data REST đã triển khai, timeout API 5000 ms, chính sách path trong log HTTP và rủi ro từ baseline. Các rule thiếu evidence (MK-30, MK-32, MK-37, MK-41, MK-43, MK-45, MK-46, MK-62, QA-09) ghi phần Inconclusive. Thời gian mở Realtime và đổi timeframe (QA-10, QA-11) và capacity vẫn Inconclusive.
 

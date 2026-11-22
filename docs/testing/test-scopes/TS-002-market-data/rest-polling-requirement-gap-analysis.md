@@ -34,8 +34,8 @@ Mọi nguồn trong repo được đọc tại commit `9729616` ngày 2026-11-22
 | --- | --- | --- |
 | Có làm mới định kỳ không | Brief chỉ mô tả cập nhật qua WebSocket và yêu cầu frontend không liên tục gọi `GET /price`; định hướng CV đặt polling làm baseline trước WebSocket | Polling là increment riêng, là baseline để so sánh, không thay mục tiêu WebSocket của brief. Chu kỳ 5 giây cho chart và sidebar (MK-63, MK-64) |
 | Độ trễ mục tiêu | QA-05 yêu cầu dưới 1 giây, không nói về transport | QA-05 áp dụng cho vòng cập nhật trực tiếp. Vòng polling có scenario riêng QA-12. Ghi chú này nằm trong cột Nguồn của QA-12 |
-| Số nến khi có nến mới | OQ-085 còn Open; MK-33 giới hạn 500 nến cho lần tải đầu | Giữ 500 nến gần nhất sau mỗi lần làm mới (MK-67), Proposed. OQ-085 giữ Open tới khi product owner duyệt rule này và vòng WebSocket chốt hành vi riêng |
-| Điều khiển Live updates | Prototype có switch Live updates và dòng "Paused at {giờ}"; brief không nói | Bắt buộc theo WCAG 2.2 SC 2.2.2 ở bảng baseline. Tạm dừng và tiếp tục (MK-73), dòng đã tạm dừng (MK-74, Inferred từ prototype), làm mới khi tiếp tục (MK-75) |
+| Số nến khi có nến mới | OQ-085 còn Open; MK-33 giới hạn 500 nến cho lần tải đầu | Giữ 500 nến gần nhất sau mỗi lần làm mới (MK-67). OQ-085 chuyển Resolved sau khi product owner duyệt |
+| Điều khiển Live updates | Prototype có switch Live updates và dòng "Paused at {giờ}"; brief không nói | Bắt buộc theo WCAG 2.2 SC 2.2.2 ở bảng baseline. Tạm dừng và tiếp tục (MK-73), dòng đã tạm dừng (MK-74, lấy từ prototype), làm mới khi tiếp tục (MK-75) |
 | Mất kết nối trong prototype | Prototype có banner mất kết nối, "Reconnect now" và trạng thái Reconnecting | Thuộc vòng WebSocket. Ở vòng polling, mất mạng là lần làm mới lỗi (MK-80), xem gap MK-91 |
 | Hành vi đã có của vòng tải lịch sử | MK-12, MK-14, MK-17, MK-34, MK-37, MK-38, MK-40, MK-42, MK-48 không nói rõ khi chart tự làm mới | Áp dụng lại bằng luồng ngoại lệ MK-80 đến MK-85 và rule MK-68 đến MK-72, MK-78 |
 
@@ -57,18 +57,18 @@ Danh sách gap và quyết định nằm trong Gap analysis của use case [[2, 
 | Nến đóng bị thiếu hoặc trùng sau khoảng trống (R10), dữ liệu sai từ nguồn (E7) | Đã có OHLCV khớp nguồn và thời gian mở đúng (MK-51, MK-52), nến sai (MK-45); mỗi lần làm mới lấy lại 500 nến (MK-67) |
 | Yêu cầu chất lượng về độ mới và tải lên nguồn | QA-12, QA-13 |
 | Chu kỳ riêng cho timeframe lớn (R2) | Open, [OQ-086](../../../open-questions.md#oq-086) |
-| Nhãn "Data delayed" sau 3 lỗi liên tiếp, backoff 5 tới 60 giây, làm mờ giá khi dữ liệu cũ hơn 60 giây (E2, R5–R7) | Accepted (MK-90): thông báo lỗi và thời điểm dữ liệu đã cho biết dữ liệu cũ. Tải lên Binance khi lỗi do API giới hạn (ADR-008, Proposed) [[11]](#ref-11) |
+| Nhãn "Data delayed" sau 3 lỗi liên tiếp, backoff 5 tới 60 giây, làm mờ giá khi dữ liệu cũ hơn 60 giây (E2, R5–R7) | Accepted (MK-90): thông báo lỗi và thời điểm dữ liệu đã cho biết dữ liệu cũ. Tải lên Binance khi lỗi do API giới hạn (ADR-008) [[11]](#ref-11) |
 | Trạng thái Offline và resync sau khi máy ngủ (E3, E4, A5) | Accepted (MK-91): mỗi lần làm mới lấy lại 500 nến, nên không có nến đóng bị thiếu |
 | Nút "Go to latest" khi người dùng đã kéo khỏi nến cuối (A3) | Không thêm. Người dùng kéo về nến cuối bằng thao tác kéo đã có (MK-42). Nến mới vẫn được thêm vào chart (MK-67) |
 | Giữ lựa chọn sau khi đăng nhập lại (E5, R14) | Khác quyết định đã chốt: reload và đăng nhập lại trả về lựa chọn mặc định (MK-37) |
-| Làm mới chỉ lấy 1–2 nến cuối để giảm lưu lượng | Quyết định thiết kế, không phải hành vi người dùng thấy. Ghi trong ADR-007 (Proposed) với rủi ro lưu lượng [[11]](#ref-11) |
+| Làm mới chỉ lấy 1–2 nến cuối để giảm lưu lượng | Quyết định thiết kế, không phải hành vi người dùng thấy. Ghi trong ADR-007 với rủi ro lưu lượng [[11]](#ref-11) |
 | Theo dõi sức khỏe của người vận hành (UC-2: cảnh báo tỷ lệ lỗi, weight) | Ngoài phạm vi vòng polling. Log của API đã có weight và nhóm lỗi; cảnh báo chưa có trong project |
 | Thời gian "last updated" chính xác tới 1 giây (R15) | Đã có thời điểm dữ liệu của chart (MK-27, MK-66); không thêm sai số riêng |
 | Tương phản 3:1 cho chỉ báo trạng thái (SC 1.4.11) | Ngoài các SC đã chọn cho Market Data ở vòng REST; giữ phạm vi đối chiếu WCAG như vòng REST |
 
-## Quyết định chờ product owner
+## Quyết định do agent đề xuất
 
-Các giá trị và quyết định dưới đây do agent đề xuất, có trạng thái Proposed hoặc Inferred. Product owner duyệt từng mục trước khi viết test và build polling. Giá trị gốc nằm trong rule, scenario hoặc ADR được nêu ở cột Mục; khi một giá trị đổi lúc duyệt, sửa nơi gốc rồi sửa bảng này.
+Các giá trị và quyết định dưới đây do agent đề xuất. Product owner duyệt toàn bộ ngày 2026-11-22, không đổi giá trị nào. Giá trị gốc nằm trong rule, scenario hoặc ADR được nêu ở cột Mục; khi một giá trị đổi, sửa nơi gốc rồi sửa bảng này.
 
 | Mục | Đề xuất | Nguồn và lý do | Thay đổi so với nguồn hiện có |
 | --- | --- | --- | --- |
@@ -84,7 +84,7 @@ Các giá trị và quyết định dưới đây do agent đề xuất, có tr�
 
 ## Kết luận
 
-Requirements của vòng cập nhật định kỳ đủ để thiết kế test chức năng khi product owner duyệt các mục ở bảng trên. Tới lúc đó, trạng thái Closed và Accepted của gap MK-86 đến MK-91 dựa trên rule còn Proposed. Mọi gap có quyết định, trừ MK-92 (chu kỳ theo timeframe), là gap Open không chặn vòng này: MK-63 dùng một chu kỳ cho mọi timeframe. Test hiệu năng của QA-12 cần nguồn tham chiếu có timestamp để đo source-to-chart delay [[6]](#ref-6). Tỷ lệ thời gian dữ liệu cũ và bytes/client/phút chỉ là phép đo mô tả, chưa có ngưỡng; định nghĩa của chúng thuộc `rest-polling-verification.md`.
+Requirements của vòng cập nhật định kỳ đủ để thiết kế test chức năng: product owner đã duyệt các mục ở bảng trên ngày 2026-11-22. Mọi gap có quyết định, trừ MK-92 (chu kỳ theo timeframe), là gap Open không chặn vòng này: MK-63 dùng một chu kỳ cho mọi timeframe. Test hiệu năng của QA-12 cần nguồn tham chiếu có timestamp để đo source-to-chart delay [[6]](#ref-6). Tỷ lệ thời gian dữ liệu cũ và bytes/client/phút chỉ là phép đo mô tả, chưa có ngưỡng; định nghĩa của chúng thuộc `rest-polling-verification.md`.
 
 ## References
 

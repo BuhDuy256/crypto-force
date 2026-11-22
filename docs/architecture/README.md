@@ -22,7 +22,7 @@ Hành vi quan sát được và số đo nằm trong [Use Cases](../UCs/README.m
 | [23-security.md](23-security.md) | Tài sản và trust boundary nào được bảo vệ, cơ chế đặt ở đâu và còn gap gì? |
 | [30-decisions.md](30-decisions.md) | Vì sao chọn mỗi phương án kiến trúc, trade-off và điều kiện xét lại là gì? |
 
-Các file `00`, `20`–`23` là góc nhìn toàn hệ thống; nội dung hiện trạng được giới hạn bởi code đã có, không đổi phạm vi theo increment. Các file `11`–`16` hiện mới định nghĩa phạm vi module, chưa có thiết kế chi tiết. `10-market-data.md` có thiết kế vòng REST tải lịch sử, đã triển khai, và thiết kế vòng cập nhật định kỳ, chưa triển khai, với hai ADR ở trạng thái Proposed; WebSocket chưa thiết kế. Bức tranh triển khai hiện tại nằm trong [thành phần hệ thống](00-system.md#thành-phần).
+Các file `00`, `20`–`23` là góc nhìn toàn hệ thống; nội dung hiện trạng được giới hạn bởi code đã có, không đổi phạm vi theo increment. Các file `11`–`16` hiện mới định nghĩa phạm vi module, chưa có thiết kế chi tiết. `10-market-data.md` có thiết kế vòng REST tải lịch sử, đã triển khai, và thiết kế vòng cập nhật định kỳ, đã duyệt, chưa triển khai; WebSocket chưa thiết kế. Bức tranh triển khai hiện tại nằm trong [thành phần hệ thống](00-system.md#thành-phần).
 
 ## Driver và file đáp ứng
 

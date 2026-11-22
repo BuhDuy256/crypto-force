@@ -65,8 +65,7 @@
 | <a id="oq-033"></a>OQ-033 | Overlay cố định theo signal source, hay người dùng tự chọn? | Chart chỉ có MA(20) | — | Low | [[5]](#ref-5) |
 | <a id="oq-034"></a>OQ-034 | Cờ onboarding tính theo tài khoản hay theo thiết bị? Có Hide riêng từng bước không? | Done dựa trên cờ lưu trong trình duyệt | — | Low | [[5]](#ref-5) |
 | <a id="oq-035"></a>OQ-035 | Có báo mất kết nối khi người dùng đã tạm dừng Live không? | Chưa thể hiện | — | Low | [[5]](#ref-5) |
-| <a id="oq-085"></a>OQ-085 | Khi cập nhật trực tiếp thêm nến mới, chart giữ cố định 500 nến gần nhất hay số nến tăng dần? | Vòng tải lịch sử không thêm nến sau khi tải xong. Mỗi chart tối đa 500 nến. Vòng cập nhật định kỳ đề xuất giữ 500 nến gần nhất sau mỗi lần làm mới, trạng thái Proposed [[16, Theo dõi cập nhật định kỳ]](#ref-16) | Requirements WebSocket; duyệt rule giữ 500 nến của vòng cập nhật định kỳ | Low | [[16]](#ref-16) |
-| <a id="oq-086"></a>OQ-086 | Chart theo timeframe lớn (1h, 4h, 1d) có cần chu kỳ làm mới dài hơn 5 giây không? | Vòng cập nhật định kỳ dùng một chu kỳ 5 giây cho mọi chart, trạng thái Proposed. Chu kỳ dài hơn giảm request từ browser và lưu lượng, nhưng nến đang mở của các timeframe này vẫn đổi giá theo từng giao dịch [[16, Theo dõi cập nhật định kỳ]](#ref-16) | — | Low | [[16]](#ref-16) |
+| <a id="oq-086"></a>OQ-086 | Chart theo timeframe lớn (1h, 4h, 1d) có cần chu kỳ làm mới dài hơn 5 giây không? | Vòng cập nhật định kỳ dùng một chu kỳ 5 giây cho mọi chart (MK-63), product owner duyệt ngày 2026-11-22. Chu kỳ dài hơn giảm request từ browser và lưu lượng, nhưng nến đang mở của các timeframe này vẫn đổi giá theo từng giao dịch [[16, Theo dõi cập nhật định kỳ]](#ref-16) | — | Low | [[16]](#ref-16) |
 
 ## News & Sentiment
 
@@ -123,6 +122,7 @@
 | ID | Câu hỏi | Trạng thái | Kết quả | Ghi tại |
 | --- | --- | --- | --- | --- |
 | <a id="oq-032"></a>OQ-032 | "Load 1,000 past candles" áp dụng cho một chart hay tất cả, và có giới hạn không? | Dropped | Product owner bỏ thao tác tải thêm lịch sử khỏi Realtime | [[16, Xem lịch sử thị trường]](#ref-16) |
+| <a id="oq-085"></a>OQ-085 | Khi cập nhật trực tiếp thêm nến mới, chart giữ cố định 500 nến gần nhất hay số nến tăng dần? | Resolved | Giữ 500 nến gần nhất sau mỗi lần làm mới; nến cũ nhất rời chart khi có nến mới. Product owner duyệt ngày 2026-11-22. Vòng WebSocket xét lại nếu cách cập nhật khác | [[16, Theo dõi cập nhật định kỳ]](#ref-16) |
 | <a id="oq-082"></a>OQ-082 | Khi chưa đủ nến cho MA(20), hiển thị thế nào? Nến đang mở có được tính vào mẫu không? | Resolved | Không vẽ điểm MA thiếu mẫu, hiển thị chưa đủ dữ liệu. MA phủ mọi nến đang hiển thị khi lịch sử đủ. Nến đang mở được tính, điểm MA của nó có nhãn giá trị tạm | [[16, Xem lịch sử thị trường]](#ref-16) |
 | <a id="oq-083"></a>OQ-083 | MA và volume của sidebar theo chart nào? Volume là nến cuối hay cả vùng, dùng đơn vị base hay quote? | Resolved | Sidebar không hiển thị MA và volume. Mỗi chart hiển thị MA và volume của chính nó. Volume theo base asset | [[16, Xem lịch sử thị trường]](#ref-16) |
 | <a id="oq-084"></a>OQ-084 | Lịch sử có bao gồm nến đang mở không? Người dùng phân biệt nến đang mở với nến đã đóng thế nào? | Resolved | Lịch sử gồm nến đang mở, có nhãn chữ “đang mở”. Màn hình hiển thị thời điểm dữ liệu | [[16, Xem lịch sử thị trường]](#ref-16) |

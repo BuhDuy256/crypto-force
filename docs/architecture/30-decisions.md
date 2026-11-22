@@ -181,7 +181,7 @@ Khi giá có nhiều chữ số hơn số chữ số của pair, Web làm tròn 
 
 ## ADR-006: Cache Market Data trong process API, không lưu vào PostgreSQL
 
-**Status:** Accepted (2026-11-20)
+**Status:** Superseded by ADR-008
 
 ### Bối cảnh
 
@@ -208,7 +208,7 @@ Chọn cache trong process API với TTL 5 giây, gộp request trùng và khôn
 
 ## ADR-007: Web làm mới định kỳ bằng cách tải lại toàn bộ cửa sổ nến qua endpoint lịch sử
 
-**Status:** Proposed
+**Status:** Accepted (2026-11-22)
 
 ### Bối cảnh
 
@@ -245,7 +245,7 @@ Response lịch sử nến của smoke Binance có 519 nến, khoảng 64 KB JSO
 
 ## ADR-008: Cache Market Data trong process API, giữ cả lỗi nguồn trong thời gian sống của cache
 
-**Status:** Proposed
+**Status:** Accepted (2026-11-22)
 
 ### Bối cảnh
 
@@ -273,7 +273,7 @@ Sau khi Binance phục hồi, chart có thể còn báo lỗi thêm tối đa m�
 
 ### Hệ quả
 
-- Khi ADR-008 được chấp nhận, ADR-006 chuyển sang `Superseded by ADR-008` và mục cache trong thiết kế Market Data đổi theo.
+- ADR-006 có Status `Superseded by ADR-008`. Mục cache trong thiết kế Market Data mô tả quy tắc giữ lỗi.
 - Mức trần weight của Binance khi lỗi bằng mức trần khi thành công [[10, Giới hạn request của Binance]](#ref-10).
 - Xét lại cùng các điều kiện của ADR-006, hoặc khi thời gian báo lỗi thêm sau phục hồi làm người dùng khó chịu.
 
