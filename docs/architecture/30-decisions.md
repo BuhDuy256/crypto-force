@@ -206,6 +206,77 @@ Chọn cache trong process API với TTL 5 giây, gộp request trùng và khôn
 - Dữ liệu có thể cũ tới 5 giây; `dataTime` cho biết thời điểm thật của dữ liệu (MK-27).
 - Xét lại khi chạy hơn một instance API, khi backtest cần dữ liệu thị trường dài hạn, hoặc khi vòng WebSocket đổi cách lấy nến đang mở.
 
+## ADR-007: Web làm mới định kỳ bằng cách tải lại toàn bộ cửa sổ nến qua endpoint lịch sử
+
+**Status:** Proposed
+
+### Bối cảnh
+
+Vòng cập nhật định kỳ cho chart và sidebar tự làm mới theo chu kỳ (MK-63, MK-64), giữ tối đa 500 nến gần nhất (MK-67) và không thay dữ liệu bằng dữ liệu cũ hơn (MK-79) [[8, Theo dõi cập nhật định kỳ]](#ref-8). Vòng này là baseline để so sánh độ mới dữ liệu, request upstream và lưu lượng với WebSocket. Baseline không được dựng yếu chỉ để tạo mức cải thiện [[14]](#ref-14). Endpoint lịch sử nến, cache 5 giây trong API và mức trần request Binance theo số khóa đã có từ vòng tải lịch sử (ADR-006) [[10, Cache và giới hạn request]](#ref-10).
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Web gọi lại endpoint lịch sử theo chu kỳ, nhận lại toàn bộ cửa sổ nến | Không đổi contract và API. Mỗi lần làm mới đã đủ 500 nến và nến khởi động MA, nên không có bước nối nến hay bù khoảng trống. MA tính lại cùng cách với lần tải đầu (ADR-004) | Mỗi lần làm mới nhận lại cả cửa sổ, nên lưu lượng mỗi client lớn |
+| Web gọi endpoint mới chỉ trả các nến từ nến đang mở trở đi, rồi nối vào dữ liệu đang có | Lưu lượng nhỏ | Thêm endpoint và contract. Web phải nối nến, bỏ nến cũ nhất và tính lại MA. Sau khi tab ẩn lâu hoặc mất mạng, Web phải tự phát hiện khoảng trống và tải lại cả cửa sổ |
+| Chu kỳ riêng theo timeframe | Ít request cho timeframe lớn | Nến đang mở của timeframe lớn vẫn đổi giá theo từng giao dịch; thêm giá trị cần chốt (OQ-086) |
+| Server đẩy dữ liệu (SSE hoặc WebSocket) | Độ mới tốt hơn | Thuộc vòng WebSocket; không còn là baseline polling |
+
+### Quyết định
+
+- Mỗi chart và sidebar là một query riêng của TanStack Query, như vòng tải lịch sử. Khi cập nhật đang bật, query đặt `refetchInterval` bằng chu kỳ làm mới (MK-63, MK-64) và không làm mới khi tab ẩn (MK-76).
+- Lần làm mới gọi cùng endpoint lịch sử nến và summary, không đổi contract [[15, Endpoint Market Data]](#ref-15).
+- Chu kỳ là một hằng số cho mọi timeframe, đặt bằng TTL cache của API.
+
+### Lý do
+
+Toàn bộ cửa sổ có sẵn trong cache của API, nên chu kỳ bằng TTL không làm tăng request tới Binance (ADR-006). Tải lại cả cửa sổ loại bỏ lỗi nối nến, giữ đúng các rule nến đã kiểm ở vòng tải lịch sử (MK-51, MK-52) và không cần cơ chế bù khoảng trống riêng cho polling.
+
+### Rủi ro chấp nhận
+
+Response lịch sử nến của smoke Binance có 519 nến, khoảng 64 KB JSON chưa nén [[16]](#ref-16). Source của API không có middleware nén response. `Inferred`: 4 chart làm mới mỗi 5 giây nhận khoảng 3 MB mỗi client mỗi phút. Số đo thật thuộc tài liệu kiểm chứng polling.
+
+### Hệ quả
+
+- Request từ browser tới API tăng theo số client: mỗi client có 4 chart và 1 sidebar, mỗi query làm mới một lần mỗi chu kỳ.
+- So sánh lưu lượng giữa polling và WebSocket phải ghi rằng polling tải lại toàn bộ cửa sổ. Khi dòng CV về lưu lượng dùng so sánh này, cần kèm điều kiện đó, hoặc thêm phương án chỉ tải nến mới và đo lại.
+- Xét lại khi lưu lượng đo được là bottleneck, hoặc khi OQ-086 chốt chu kỳ khác nhau theo timeframe.
+
+## ADR-008: Cache Market Data trong process API, giữ cả lỗi nguồn trong thời gian sống của cache
+
+**Status:** Proposed
+
+### Bối cảnh
+
+ADR-006 chọn cache trong process API với TTL 5 giây và không cache lỗi. Lý do không cache lỗi là thao tác thử lại của chart (MK-12) gọi lại nguồn ngay. Ở vòng tải lịch sử, lỗi chỉ dẫn tới lời gọi mới khi người dùng bấm thử lại. Ở vòng cập nhật định kỳ, mỗi client tự làm mới sau mỗi chu kỳ (MK-63, MK-64) [[8, Theo dõi cập nhật định kỳ]](#ref-8). Khi Binance lỗi, single-flight chỉ gộp các lời gọi đồng thời, nên số lời gọi tới Binance tăng theo số client. `Inferred`: với 50 client, mỗi client 5 query làm mới mỗi 5 giây, API có thể gọi Binance khoảng 3000 lần mỗi phút, tức 6000 weight, bằng giới hạn theo IP [[13]](#ref-13). Cooldown 429/418 của adapter chỉ chặn sau khi đã chạm giới hạn. QA-13 yêu cầu mức trần weight không đổi cả khi Binance lỗi [[11, Scalability và Performance]](#ref-11).
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Giữ ADR-006, chỉ dựa vào cooldown 429/418 | Không đổi code cache; thử lại của người dùng gọi nguồn ngay | Số lời gọi tăng theo số client tới khi Binance trả 429; không đạt QA-13 khi Binance lỗi |
+| Decorator giữ lỗi nguồn theo khóa trong cùng TTL với kết quả thành công | Mức trần weight giống khi thành công, không phụ thuộc số client. Logic nằm ở một chỗ, không phụ thuộc cách client làm mới | Thử lại của người dùng trong TTL nhận lại cùng lỗi, tối đa 5 giây |
+| Web giãn chu kỳ sau mỗi lần làm mới lỗi (backoff) | API không đổi | Chu kỳ người dùng thấy thay đổi khi lỗi; tải lên Binance vẫn phụ thuộc hành vi của từng client |
+
+### Quyết định
+
+Giữ mọi phần của ADR-006, trừ quy tắc không cache lỗi. Decorator giữ kết quả lỗi nguồn không khả dụng và lỗi dữ liệu nguồn sai theo khóa, trong cùng TTL, tính từ lúc provider bên trong reject. Lỗi không lường trước không được giữ. Request cùng khóa trong TTL nhận lại lỗi đó mà không gọi provider.
+
+### Lý do
+
+Phương án này giữ mức trần weight ở một nơi mà mọi client đi qua, nên tải lên Binance không phụ thuộc số client hay cách client làm mới. Chu kỳ làm mới người dùng thấy không đổi khi lỗi.
+
+### Rủi ro chấp nhận
+
+Sau khi Binance phục hồi, chart có thể còn báo lỗi thêm tối đa một TTL cộng một chu kỳ làm mới.
+
+### Hệ quả
+
+- Khi ADR-008 được chấp nhận, ADR-006 chuyển sang `Superseded by ADR-008` và mục cache trong thiết kế Market Data đổi theo.
+- Mức trần weight của Binance khi lỗi bằng mức trần khi thành công [[10, Giới hạn request của Binance]](#ref-10).
+- Xét lại cùng các điều kiện của ADR-006, hoặc khi thời gian báo lỗi thêm sau phục hồi làm người dùng khó chịu.
+
 ## References
 
 1. <a id="ref-1"></a>[Authentication](../UCs/authentication.md)
@@ -221,3 +292,6 @@ Chọn cache trong process API với TTL 5 giây, gộp request trùng và khôn
 11. <a id="ref-11"></a>[Quality Attributes](../UCs/quality-attributes.md)
 12. <a id="ref-12"></a>Binance Spot API, General endpoints, Exchange information, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-endpoints>
 13. <a id="ref-13"></a>Binance Spot API, General API Information (Limits) và response của `GET /api/v3/exchangeInfo?symbol=BTCUSDT`, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/limits>
+14. <a id="ref-14"></a>[Market Data sẽ thêm dòng nào vào CV?](../build/01-prototype-to-implementation/market-data/cv-goal.md)
+15. <a id="ref-15"></a>[API Contracts](22-api-endpoints.md)
+16. <a id="ref-16"></a>Evidence smoke Binance: [`reconciliation.json`](../testing/evidence/market-data/rest-v1-binance-smoke/reconciliation.json), mảng `candles` có 519 phần tử, 63.992 byte khi serialize JSON

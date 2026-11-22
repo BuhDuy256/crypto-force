@@ -554,6 +554,58 @@ Reviewer độc lập theo skill `review-change` báo 2 finding high, 6 medium v
 
 Lượt E2E đầu bị lỗi trước khi chạy test: webServer hết 60 giây và shell trong sandbox không tìm thấy `playwright`. Lượt chạy ngoài sandbox trong bảng mới là evidence. Không chạy `pnpm check`.
 
+## Task 8: Requirements và thiết kế polling
+
+HEAD bắt đầu: `9729616`. Task 8 chỉ sửa tài liệu, không sửa code hoặc testware.
+
+### Phân tích và baseline
+
+Phân tích nằm trong [REST Polling Requirement Gap Analysis](../../../../../testing/test-scopes/TS-002-market-data/rest-polling-requirement-gap-analysis.md). Hai baseline độc lập:
+
+- Bộ use case do subagent viết, chỉ nhận mục tiêu làm mới định kỳ và actor, không đọc file của repo.
+- WCAG 2.2 SC 2.2.2 và Understanding SC 2.2.2, đọc ngày 2026-11-22 qua công cụ đọc trang. Nội dung SC 4.1.3 chỉ có bản tóm tắt; mức AA khớp với đối chiếu nguyên văn của Bước 07.
+
+Gap quan trọng nhất là SC 2.2.2, mức A: chart và sidebar tự cập nhật phải có cách tạm dừng. Prototype đã có switch Live updates nhưng requirements chưa có.
+
+### Thay đổi tài liệu
+
+| Tài liệu | Thay đổi |
+| --- | --- |
+| `docs/UCs/market-data.md` | Use case Theo dõi cập nhật định kỳ: rule MK-63 đến MK-79, luồng ngoại lệ MK-80 đến MK-85, gap MK-86 đến MK-92. MK-53 chuyển Closed |
+| `docs/UCs/quality-attributes.md` | QA-12 độ mới dữ liệu, QA-13 request tới Binance theo số client |
+| `docs/open-questions.md` | OQ-085 ghi đề xuất giữ 500 nến; thêm OQ-086 chu kỳ theo timeframe |
+| `docs/architecture/30-decisions.md` | ADR-007 polling tải lại toàn bộ cửa sổ; ADR-008 giữ lỗi nguồn trong TTL. Cả hai Proposed; ADR-006 giữ Accepted tới khi ADR-008 được duyệt |
+| `docs/architecture/10-market-data.md`, `README.md` | Drivers, section Cập nhật định kỳ, observability, quyết định, rủi ro và ma trận driver |
+| `docs/testing/test-scopes/TS-002-market-data/README.md` | Trạng thái increment REST polling |
+
+### Kiểm tra source cho thiết kế
+
+- `@tanstack/query-core@5.107.1`: chu kỳ dùng `setInterval`, bỏ lần gọi khi `document.visibilityState` là `hidden`, và dùng lại fetch đang chạy. Thiết kế dựa vào ba hành vi này cho MK-65, MK-76.
+- `useCandlestickChart.ts` tại `9729616` gọi `fitContent()`, xóa crosshair và bỏ nến đang chọn mỗi khi dữ liệu đổi. Polling phải sửa chỗ này để đạt MK-68 đến MK-71.
+- Tìm `compression`, `zlib`, `gzip` trong `apps/api/src` không có kết quả, nên API không nén response trong source; chưa kiểm proxy. Mảng `candles` của smoke Binance có 519 nến, 63.992 byte JSON; ước tính lưu lượng trong ADR-007 dựa vào số này.
+
+### Quyết định chờ product owner
+
+Mọi giá trị do agent đề xuất có trạng thái Proposed hoặc Inferred và nằm trong bảng [Quyết định chờ product owner](../../../../../testing/test-scopes/TS-002-market-data/rest-polling-requirement-gap-analysis.md#quyết-định-chờ-product-owner). Task 9 chỉ bắt đầu sau khi product owner duyệt bảng này.
+
+### Review và kiểm chứng
+
+Reviewer độc lập theo skill `review-change` báo 0 finding high, 5 medium và 7 low. Đã sửa tất cả:
+
+- Medium: MK-79 nói cả sidebar nhưng summary không có `dataTime`. Đã giới hạn MK-79 cho chart và ghi lý do trong thiết kế.
+- Medium: `refetchOnWindowFocus: true` làm query chưa có dữ liệu tự tải lại khi tab hiện lại, trái MK-82. Đã kiểm source: `shouldFetchOn` gọi `isStale`, và `isStaleByTime` trả `true` khi chưa có `data`. Thiết kế đổi sang hàm chỉ trả `true` khi query có dữ liệu.
+- Medium: checkbox review và commit của Task 8 được đánh trước khi làm. Review đã chạy xong; commit tạo ngay sau khi sửa findings, trong cùng thay đổi này.
+- Medium: gap đóng bằng rule còn Proposed. Use case và gap analysis ghi rõ quyết định của gap có hiệu lực khi product owner duyệt.
+- Medium: use case và QA-13 kể cơ chế của API và lặp phép tính 504 weight. Đã đổi sang hành vi quan sát được và trỏ tới ADR-006.
+- Low: lý do của 1 giây ở MK-75, nguồn của bản WCAG đã đọc, tên tài liệu kiểm chứng polling, bảng duyệt là bản sao của giá trị gốc, phạm vi kiểm nén response, các mục baseline chưa có kết quả, đoạn văn lặp diagram.
+
+| Lệnh | Kết quả |
+| --- | --- |
+| `pnpm exec prettier --write` cho các file đã sửa | Đạt |
+| `pnpm check:docs`, `git diff --check` | Đạt |
+
+Không chạy test, vì Task 8 không sửa code hoặc testware. Không chạy `pnpm check`.
+
 ## Phần còn lại
 
-Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất trong commit `b7be50f`. Trạng thái và quyết định của Task 6 nằm tại [Kết quả baseline REST](#task-6-kết-quả-baseline-rest). Task 7 chốt tài liệu REST tải lịch sử. Commit của Task 7 là mốc so sánh REST tải lịch sử. Task 8–10 chưa thực hiện. Không đánh dấu Bước 08 hoàn thành.
+Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất trong commit `b7be50f`. Trạng thái và quyết định của Task 6 nằm tại [Kết quả baseline REST](#task-6-kết-quả-baseline-rest). Task 7 chốt tài liệu REST tải lịch sử. Commit của Task 7 là mốc so sánh REST tải lịch sử. Task 8 chốt requirements và thiết kế polling ở trạng thái chờ product owner duyệt. Task 9–10 chưa thực hiện. Không đánh dấu Bước 08 hoàn thành.

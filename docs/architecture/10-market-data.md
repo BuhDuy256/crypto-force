@@ -2,7 +2,7 @@
 
 Đọc file này để biết cách hệ thống lấy và cập nhật historical, realtime market data, hỗ trợ nhiều timeframe và xử lý khi mất kết nối.
 
-> **Trạng thái:** vòng REST tải lịch sử đã triển khai theo thiết kế trong file này. Web gọi API thật; API gọi Binance qua cache decorator và Binance adapter tạo tại `apps/api/src/index.ts` [[1]](#ref-1). Kết quả kiểm chứng nằm trong [Kiểm chứng REST tải lịch sử](../testing/test-scopes/TS-002-market-data/rest-verification.md#kết-quả-thực-chạy). Cập nhật định kỳ và WebSocket được thiết kế ở vòng sau, file này giữ chỗ cho các phần đó.
+> **Trạng thái:** vòng REST tải lịch sử đã triển khai theo thiết kế trong file này. Web gọi API thật; API gọi Binance qua cache decorator và Binance adapter tạo tại `apps/api/src/index.ts` [[1]](#ref-1). Kết quả kiểm chứng nằm trong [Kiểm chứng REST tải lịch sử](../testing/test-scopes/TS-002-market-data/rest-verification.md#kết-quả-thực-chạy). Thiết kế cập nhật định kỳ nằm trong [Cập nhật định kỳ](#cập-nhật-định-kỳ), chưa triển khai; hai quyết định của vòng này (ADR-007, ADR-008) đang ở trạng thái Proposed. WebSocket được thiết kế ở vòng sau.
 
 ## Drivers
 
@@ -25,6 +25,12 @@
 | Chỉ hiển thị dữ liệu của lựa chọn hiện tại (MK-14, MK-17) | Web gắn dữ liệu với khóa pair và timeframe của request; response của khóa cũ không hiển thị cho khóa mới |
 | Chỉ chọn pair và timeframe được hỗ trợ (MK-30, MK-32) | API validate pair và timeframe bằng schema strict dùng chung trước khi gọi provider |
 | Phiên hết hạn khi xem Realtime (MK-40) | Endpoint Market Data yêu cầu phiên và trả 401 khi phiên không hợp lệ; Web chuyển sang màn chặn workspace (ADR-001). Contract trong API Contracts [[4]](#ref-4) |
+| Chart và sidebar tự làm mới theo chu kỳ, không chồng yêu cầu, ngừng khi tab ẩn (MK-63 đến MK-65, MK-76, MK-77) | Query của Web làm mới theo chu kỳ ([Cập nhật định kỳ](#cập-nhật-định-kỳ), ADR-007) |
+| Tạm dừng và tiếp tục cập nhật, mặc định bật (MK-73 đến MK-75, MK-78, MK-85) | Cờ cập nhật trong trạng thái của Realtime điều khiển chu kỳ của mọi query |
+| Làm mới giữ vùng xem, focus, thông tin nến và giới hạn 500 nến (MK-67 đến MK-71) | Chart áp dữ liệu mới vào cùng instance, chỉ đặt lại vùng xem khi đổi lựa chọn |
+| Làm mới lỗi giữ dữ liệu cũ, không nhận dữ liệu cũ hơn, chart lỗi không tự tải lại (MK-13, MK-79 đến MK-82) | Query giữ dữ liệu khi lỗi; Web so `dataTime`; chu kỳ tắt cho query chưa có dữ liệu |
+| Độ mới dữ liệu khi làm mới (QA-12) | Chu kỳ bằng TTL cache ([Cập nhật định kỳ](#cập-nhật-định-kỳ)) |
+| Request tới Binance không tăng theo số client khi làm mới, kể cả khi Binance lỗi (QA-13) | Cache theo khóa; mức trần trong [Giới hạn request của Binance](#giới-hạn-request-của-binance); giữ lỗi nguồn trong TTL (ADR-008, Proposed) |
 | Hiển thị, accessibility và màn hình hẹp (MK-02, MK-10, MK-11, MK-15, MK-26, MK-38, MK-41 đến MK-43, MK-46 đến MK-50, MK-58 đến MK-62) | Thuộc Web; không cần cơ chế backend ngoài nến và thời điểm dữ liệu |
 
 ## Thành phần và ranh giới
@@ -244,6 +250,54 @@ Timeout gọi provider của API phải ngắn hơn thời hạn chờ của cha
 
 Web chỉ đặt thời hạn chờ cho request nến, vì thời hạn chờ (MK-34) chỉ nói về chart. Request summary dựa vào timeout của API để kết thúc. Quyết định này do agent chốt theo ủy quyền của product owner.
 
+## Cập nhật định kỳ
+
+Vòng cập nhật định kỳ không đổi API, contract hay luồng của provider (ADR-007, Proposed). Chu kỳ bằng TTL không làm tăng mức trần weight ([Cache và giới hạn request](#cache-và-giới-hạn-request)).
+
+```mermaid
+sequenceDiagram
+    participant W as Web query của một chart
+    participant A as API Market Data
+    participant K as Cache decorator
+    participant X as Binance
+    loop Mỗi chu kỳ khi cập nhật bật và tab hiện (MK-63, MK-76)
+        W->>A: Lấy nến theo pair, timeframe
+        A->>K: Lấy nến
+        alt Khóa còn hạn trong cache
+            K-->>A: Kết quả đã giữ, cùng dataTime
+        else Khóa hết hạn
+            K->>X: Qua adapter Binance
+            X-->>K: Nến mới
+            K-->>A: Kết quả mới, dataTime mới
+        end
+        A-->>W: Toàn bộ cửa sổ nến
+        W->>W: Bỏ response có dataTime cũ hơn (MK-79), tính MA, áp vào chart giữ vùng xem (MK-68)
+    end
+```
+
+### Web
+
+| Hành vi | Cơ chế | Driver |
+| --- | --- | --- |
+| Chu kỳ | Khi cập nhật bật, query nến và query summary đặt `refetchInterval` bằng một hằng số của Web, bằng TTL cache của API. Khi tạm dừng, `refetchInterval` là `false` | MK-63, MK-64, MK-73 |
+| Không chồng yêu cầu | TanStack Query `5.107.1` đặt chu kỳ bằng `setInterval`. Khi query còn đang fetch, lần gọi theo chu kỳ dùng lại promise đang chạy, không gửi request mới [[12]](#ref-12) | MK-65 |
+| Tab ẩn và hiện lại | Trong cùng version, lần gọi theo chu kỳ bị bỏ qua khi `document.visibilityState` là `hidden`; focus manager nghe `visibilitychange` [[12]](#ref-12). Khi cập nhật bật, query đặt `staleTime: 0` và `refetchOnWindowFocus` là hàm trả `true` chỉ khi query đã có dữ liệu, nên tab hiện lại thì query làm mới. Query chưa có dữ liệu luôn bị coi là stale, nên giá trị `true` cố định sẽ tự tải lại chart lỗi khi tab hiện lại [[12]](#ref-12). Khi tạm dừng, query giữ `staleTime: Infinity` như vòng tải lịch sử | MK-76, MK-77, MK-82 |
+| Tạm dừng và tiếp tục | `useRealtimeWorkspace` giữ cờ cập nhật, mặc định bật và không lưu qua reload. Khi tiếp tục, Web invalidate các query Market Data đang dùng để chúng làm mới ngay | MK-73, MK-75, MK-78 |
+| Lỗi khi đã có dữ liệu | Query giữ `data` khi lần làm mới lỗi. Chart và sidebar hiển thị thông báo lỗi làm mới cạnh dữ liệu cũ; lần thành công sau xóa lỗi. Lỗi quá thời hạn chờ dùng cùng deadline của request nến | MK-13, MK-80, MK-81 |
+| Chart chưa có dữ liệu | `refetchInterval` và `refetchOnWindowFocus` trả `false` khi query chưa có dữ liệu, nên chart lỗi chỉ tải lại bằng thao tác thử lại | MK-82, MK-12 |
+| Dữ liệu cũ hơn | Trước khi thay dữ liệu của chart, Web so `dataTime` của response với dữ liệu đang giữ của cùng khóa. Response cũ hơn bị bỏ. Summary không có thời điểm dữ liệu, nên MK-79 chỉ áp dụng cho chart | MK-79 |
+| Áp dữ liệu vào chart | Chart dùng lại instance khi lần làm mới cùng pair và timeframe. Chỉ đặt lại vùng xem khi đổi lựa chọn. Thông tin nến đang chỉ được tìm lại theo `openTime` sau khi áp dữ liệu, và bị bỏ khi nến đó rời cửa sổ | MK-67 đến MK-71 |
+| Thông báo trạng thái | Lần làm mới thành công không đổi nội dung của vùng `role="status"`. Chỉ lỗi làm mới và việc hết lỗi đổi nội dung | MK-72, MK-48 |
+| Phiên hết hạn | 401 của lần làm mới đi qua cùng `useSessionGate`; màn chặn thay Realtime, nên query không còn được dùng và ngừng làm mới | MK-84, MK-40 |
+
+Source tại commit `9729616` khác thiết kế trên ở hai điểm mà bước build polling phải sửa. Thứ nhất, query dùng cố định `staleTime: Infinity` và `refetchInterval: false`. Thứ hai, `useCandlestickChart` gọi `fitContent()`, xóa crosshair và bỏ nến đang chọn mỗi khi dữ liệu đổi [[13]](#ref-13). Hành vi của Lightweight Charts khi `setData` lúc vùng xem chứa nến cuối (MK-69) chưa được kiểm trên trình duyệt.
+
+### API và Binance
+
+API không đổi ở vòng này, trừ quy tắc lỗi của cache khi ADR-008 được chấp nhận. Mỗi client có 4 chart và 1 sidebar (MK-31), nên mỗi client gửi 5 request mỗi chu kỳ. Mỗi request đọc phiên từ PostgreSQL như vòng tải lịch sử. Mức trần weight của Binance vẫn là mức trong [Giới hạn request của Binance](#giới-hạn-request-của-binance), không phụ thuộc số client (QA-13).
+
+Độ mới tệ nhất của dữ liệu trên chart gồm thời gian giữ trong cache, một chu kỳ, thời gian response và thời gian vẽ (QA-12).
+
 ## Observability
 
 Mục tiêu là phân biệt ba nguyên nhân khi chart chậm hoặc lỗi: upstream, xử lý backend và phía client.
@@ -257,6 +311,7 @@ Mục tiêu là phân biệt ba nguyên nhân khi chart chậm hoặc lỗi: ups
 | Cache | Log của decorator, mức debug | Khóa, cache hit hoặc miss, request có chờ chung lời gọi provider hay không |
 | Giới hạn Binance | Log của adapter; mức warn khi nhận 429 hoặc 418 | Weight đã dùng, `Retry-After` |
 | Thời gian phía client | Test hiệu năng của Web | Từ thao tác tới lúc chart có nến (QA-10, QA-11) |
+| Độ mới phía client | Test hiệu năng của Web, với nguồn tham chiếu có timestamp | Từ lúc nguồn tham chiếu có dữ liệu mới tới lúc chart vẽ dữ liệu đó sau lần làm mới (QA-12) |
 
 Cách đọc: thời gian provider gần bằng tổng thời gian thì nguyên nhân ở upstream. Tổng thời gian service lớn hơn nhiều thời gian provider thì nguyên nhân ở backend. Thời gian client lớn hơn nhiều thời gian response thì nguyên nhân ở client hoặc mạng. Vòng REST chưa thêm hệ thống metric riêng. Vòng WebSocket mở rộng bảng này cho kết nối và độ trễ event (QA-05, QA-06).
 
@@ -273,12 +328,16 @@ Cách đọc: thời gian provider gần bằng tổng thời gian thì nguyên 
 | Số nến | Server quyết định; client không gửi số nến [[4]](#ref-4) |
 | Lưu trữ và cache | Không lưu Market Data vào PostgreSQL; cache 5 giây trong process API qua decorator của provider [[6, ADR-006]](#ref-6) |
 | Giới hạn Binance | Adapter dừng gọi Binance theo `Retry-After` khi nhận 429 hoặc 418; API không tự thử lại |
+| Cập nhật định kỳ | Web làm mới mỗi query theo chu kỳ bằng TTL cache, tải lại toàn bộ cửa sổ [[6, ADR-007]](#ref-6), Proposed |
+| Lỗi trong cache khi làm mới | Giữ lỗi nguồn theo khóa trong TTL [[6, ADR-008]](#ref-6), Proposed. Khi chưa chấp nhận, quy tắc không cache lỗi của ADR-006 vẫn áp dụng |
 
 ## Rủi ro và giới hạn
 
 - Cache nằm trong process. Mỗi instance API có cache riêng và tự gọi Binance, nên mức trần weight nhân theo số instance trên cùng IP. Xét lại khi chạy hơn một instance API.
 - Mức trần 504 weight mỗi phút chỉ đúng khi tập pair và timeframe giữ nguyên. Thêm pair hoặc timeframe phải tính lại.
-- TTL 5 giây mới có số đo hit/miss trên replay local, chưa có số đo độ tươi của dữ liệu. Xem lại khi đo polling.
+- TTL 5 giây mới có số đo hit/miss trên replay local, chưa có số đo độ tươi của dữ liệu. Xem lại khi đo polling (QA-12).
+- Khi chưa có ADR-008, lỗi Binance không được cache. Mỗi lần làm mới của mỗi client khi Binance lỗi tạo một lời gọi mới, nên số lời gọi tăng theo số client tới khi Binance trả 429.
+- Polling tải lại toàn bộ cửa sổ nến. Source của API không có middleware nén response (tìm `compression`, `zlib`, `gzip` trong `apps/api/src`); chưa kiểm proxy trước API. Lưu lượng mỗi client ước tính trong ADR-007, chưa đo.
 - Thời gian mở Realtime (QA-10) và đổi timeframe (QA-11) đã đo trên Windows local với replay 50 ms, nhưng kết quả là `Inconclusive`: mốc cuối là lúc chart áp dụng dữ liệu, chưa chứng minh canvas đã vẽ [[11]](#ref-11).
 - Baseline local ở mức tải cao nhất có request lỗi do hết thời gian chờ phía máy phát tải. Máy phát tải, API, replay và PostgreSQL chạy cùng máy, nên chưa xác định nguyên nhân thuộc API hay máy đo. Chưa có ngưỡng latency, lỗi hoặc capacity REST được duyệt [[11]](#ref-11).
 - Better Auth bật rate limit lưu trong database [[8]](#ref-8). Ngoài rule riêng cho Sign in, các path Auth dùng mặc định của `better-auth@1.7.25`: cửa sổ 10 giây, tối đa 100 request, đọc từ source thư viện [[1]](#ref-1). Trong baseline UI, chuỗi thao tác mở Realtime liên tục nhận Auth 429 ở bước kiểm phiên [[11]](#ref-11). `Inferred`: một người dùng thao tác bình thường khó chạm giới hạn này; xét lại khi nhiều người dùng đi ra từ cùng IP.
@@ -286,7 +345,7 @@ Cách đọc: thời gian provider gần bằng tổng thời gian thì nguyên 
 - Summary không có thời điểm dữ liệu, vì MK-27 chỉ áp dụng cho chart và MK-60 không yêu cầu thời điểm trên sidebar. Thêm trường này không phá contract hiện có.
 - Mỗi request Market Data gọi `getSession` và đọc phiên từ PostgreSQL, vì cấu hình Better Auth không bật cookie cache [[8]](#ref-8). Xem lại khi đo QA-10.
 - `isClosed` và `dataTime` dựa vào đồng hồ của API. Đồng hồ lệch với Binance có thể đánh dấu sai nến cuối gần thời điểm đóng.
-- Thiết kế chưa mô tả cập nhật định kỳ, WebSocket và phục hồi kết nối.
+- Thiết kế chưa mô tả WebSocket và phục hồi kết nối.
 
 ## References
 
@@ -301,3 +360,5 @@ Cách đọc: thời gian provider gần bằng tổng thời gian thì nguyên 
 9. <a id="ref-9"></a>Binance Spot API, General API Information (Limits) và response của `GET /api/v3/exchangeInfo?symbol=BTCUSDT`, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/limits>
 10. <a id="ref-10"></a>Evidence smoke Binance: [`upstream.json`](../testing/evidence/market-data/rest-v1-binance-smoke/upstream.json)
 11. <a id="ref-11"></a>[Kiểm chứng REST tải lịch sử](../testing/test-scopes/TS-002-market-data/rest-verification.md)
+12. <a id="ref-12"></a>`@tanstack/query-core@5.107.1`, `build/modern/queryObserver.js` (`#updateRefetchInterval`, `shouldFetchOn`), `build/modern/query.js` (`fetch`, `isStaleByTime`), `build/modern/focusManager.js`, đọc ngày 2026-11-22
+13. <a id="ref-13"></a>`apps/web/app/hooks/useMarketData.ts`, `apps/web/app/hooks/useCandlestickChart.ts` tại commit `9729616`

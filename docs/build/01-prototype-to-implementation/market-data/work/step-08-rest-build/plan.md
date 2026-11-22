@@ -230,24 +230,36 @@ Kết quả: [execution.md](execution.md#task-7-chốt-tài-liệu-rest-tải-l�
 
 ### Phần B: REST polling
 
-Phần B chỉ chi tiết tới mức Task. Agent chi tiết hóa các Task này trong file này sau khi Task 7 hoàn tất, và trình lại product owner trước khi build.
+Task 8 chốt requirements và thiết kế polling. Task 9 và Task 10 được chi tiết hóa từ kết quả Task 8. Chỉ bắt đầu Task 9 sau khi product owner duyệt các mục trong [Quyết định chờ product owner](../../../../../testing/test-scopes/TS-002-market-data/rest-polling-requirement-gap-analysis.md#quyết-định-chờ-product-owner).
 
 #### Task 8: Requirements và thiết kế polling
 
-- [ ] Ghi phân tích vào `rest-polling-requirement-gap-analysis.md` theo cấu trúc của phân tích REST [[8]](#ref-8): trạng thái requirements trước phân tích, nguồn, gap và kết quả. Đối chiếu một baseline độc lập trước khi kết luận đủ (LL-003).
-- [ ] Mở rộng UCs với hành vi polling, gồm làm mới lỗi giữ dữ liệu cũ (MK-13) [[4]](#ref-4). Cập nhật quality attributes cho freshness. Ghi quyết định còn mở vào `docs/open-questions.md`.
-- [ ] Thiết kế cơ chế polling trong kiến trúc: chu kỳ, quan hệ với cache 5 giây, giới hạn request Binance. Chu kỳ do agent đề xuất phải có nguồn và lý do.
-- [ ] Tạo commit cho Task 8.
+- [x] Ghi phân tích vào `rest-polling-requirement-gap-analysis.md` theo cấu trúc của phân tích REST [[8]](#ref-8): trạng thái requirements trước phân tích, nguồn, gap và kết quả. Đối chiếu một baseline độc lập trước khi kết luận đủ (LL-003).
+- [x] Mở rộng UCs với hành vi polling, gồm làm mới lỗi giữ dữ liệu cũ (MK-13) [[4]](#ref-4). Cập nhật quality attributes cho freshness. Ghi quyết định còn mở vào `docs/open-questions.md`.
+- [x] Thiết kế cơ chế polling trong kiến trúc: chu kỳ, quan hệ với cache 5 giây, giới hạn request Binance. Chu kỳ do agent đề xuất phải có nguồn và lý do.
+- [x] Chạy Prettier, `pnpm check:docs` và `review-change` cho tài liệu đã sửa.
+
+Kết quả: [execution.md](execution.md#task-8-requirements-và-thiết-kế-polling). Rule mới MK-63 đến MK-85, gap MK-86 đến MK-92, QA-12, QA-13, ADR-007 và ADR-008 có trạng thái Proposed hoặc Inferred, chờ product owner duyệt.
+
+- [x] Tạo commit cho Task 8.
 
 #### Task 9: Kiểm chứng polling và test trước build
 
-- [ ] Tạo tài liệu kiểm chứng polling trong TS-002. Giữ định nghĩa chỉ số chung với REST tải lịch sử. Thêm các phép đo đã hoãn: freshness, tỷ lệ thời gian dữ liệu cũ, bytes/client/phút.
-- [ ] Viết test polling trước build và ghi trạng thái red.
-- [ ] Tạo commit cho Task 9.
+Chỉ bắt đầu sau khi product owner duyệt các giá trị Proposed của Task 8. Giá trị bị đổi khi duyệt được sửa trong UCs trước khi viết test.
+
+- [ ] Tạo `rest-polling-verification.md` trong TS-002. Giữ định nghĩa chỉ số chung với REST tải lịch sử. Thêm các phép đo đã hoãn: freshness, tỷ lệ thời gian dữ liệu cũ, bytes/client/phút. Ma trận requirement → test cho MK-63 đến MK-85, QA-12, QA-13.
+- [ ] Chọn technique cho từng nhóm: state transition cho bật/tạm dừng/tab ẩn/lỗi/có dữ liệu (MK-73 đến MK-77, MK-80 đến MK-85); decision table cho lỗi có hoặc chưa có dữ liệu (MK-80 đến MK-82); boundary cho chu kỳ và TTL (MK-63, ADR-008).
+- [ ] Thiết kế nguồn tham chiếu có timestamp cho QA-12: replay đổi nến đang mở theo lịch đã biết, Web ghi mốc vẽ của lần làm mới. Định nghĩa tỷ lệ thời gian dữ liệu cũ với ngưỡng bằng số đo của QA-12, và bytes/client/phút đo tại browser.
+- [ ] Viết test trước build: Vitest cho query options và so `dataTime` (MK-79) qua public hook; Playwright E2E qua API thật với replay có nến đổi theo thời gian, dùng clock của Playwright thay chờ thời gian thật; API test cho ADR-008 nếu được duyệt.
+- [ ] Chạy test mới, xác nhận fail tại assertion, ghi trạng thái red. Chạy lại suite REST để chứng minh test cũ không đổi.
+- [ ] Chạy kiểm tra phù hợp, `review-change` cho testware và tài liệu, rồi tạo commit cho Task 9.
 
 #### Task 10: Build polling, đo và chốt tài liệu
 
-- [ ] Build polling theo từng lát. Chạy mutation sau khi green.
+- [ ] Lát 1, Web query: chu kỳ, tạm dừng/tiếp tục, tab ẩn, lỗi giữ dữ liệu, chart chưa có dữ liệu không tự tải lại, bỏ dữ liệu cũ hơn (MK-63 đến MK-66, MK-72 đến MK-85).
+- [ ] Lát 2, chart: bỏ `fitContent()` và xóa crosshair khi làm mới cùng lựa chọn; giữ vùng xem, focus và thông tin nến (MK-67 đến MK-71). Kiểm hành vi `setData` của Lightweight Charts trên trình duyệt.
+- [ ] Lát 3, API: giữ lỗi nguồn trong TTL nếu ADR-008 được duyệt. Đổi Status ADR-006 thành `Superseded by ADR-008`.
+- [ ] Chạy mutation sau khi mỗi lát green: chu kỳ khác TTL, làm mới khi tab ẩn, không làm mới khi tiếp tục, xóa dữ liệu khi lỗi, nhận dữ liệu cũ hơn, `fitContent()` mỗi lần làm mới, không giữ lỗi trong cache.
 - [ ] Đo baseline polling với cùng workload, môi trường và công cụ của Task 6. Ghi kết quả vào tài liệu kiểm chứng polling.
 - [ ] Đối chiếu UCs, kiến trúc, tài liệu testing. Chạy `review-change`.
 - [ ] Cập nhật tracker với bằng chứng và đánh dấu Bước 08 hoàn thành.

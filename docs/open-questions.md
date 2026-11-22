@@ -65,7 +65,8 @@
 | <a id="oq-033"></a>OQ-033 | Overlay cố định theo signal source, hay người dùng tự chọn? | Chart chỉ có MA(20) | — | Low | [[5]](#ref-5) |
 | <a id="oq-034"></a>OQ-034 | Cờ onboarding tính theo tài khoản hay theo thiết bị? Có Hide riêng từng bước không? | Done dựa trên cờ lưu trong trình duyệt | — | Low | [[5]](#ref-5) |
 | <a id="oq-035"></a>OQ-035 | Có báo mất kết nối khi người dùng đã tạm dừng Live không? | Chưa thể hiện | — | Low | [[5]](#ref-5) |
-| <a id="oq-085"></a>OQ-085 | Khi cập nhật trực tiếp thêm nến mới, chart giữ cố định 500 nến gần nhất hay số nến tăng dần? | Vòng tải lịch sử không thêm nến sau khi tải xong. Mỗi chart tối đa 500 nến [[16, Xem lịch sử thị trường]](#ref-16) | Requirements polling và WebSocket | Low | [[16]](#ref-16) |
+| <a id="oq-085"></a>OQ-085 | Khi cập nhật trực tiếp thêm nến mới, chart giữ cố định 500 nến gần nhất hay số nến tăng dần? | Vòng tải lịch sử không thêm nến sau khi tải xong. Mỗi chart tối đa 500 nến. Vòng cập nhật định kỳ đề xuất giữ 500 nến gần nhất sau mỗi lần làm mới, trạng thái Proposed [[16, Theo dõi cập nhật định kỳ]](#ref-16) | Requirements WebSocket; duyệt rule giữ 500 nến của vòng cập nhật định kỳ | Low | [[16]](#ref-16) |
+| <a id="oq-086"></a>OQ-086 | Chart theo timeframe lớn (1h, 4h, 1d) có cần chu kỳ làm mới dài hơn 5 giây không? | Vòng cập nhật định kỳ dùng một chu kỳ 5 giây cho mọi chart, trạng thái Proposed. Chu kỳ dài hơn giảm request từ browser và lưu lượng, nhưng nến đang mở của các timeframe này vẫn đổi giá theo từng giao dịch [[16, Theo dõi cập nhật định kỳ]](#ref-16) | — | Low | [[16]](#ref-16) |
 
 ## News & Sentiment
 
