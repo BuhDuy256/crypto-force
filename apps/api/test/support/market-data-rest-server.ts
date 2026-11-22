@@ -66,6 +66,12 @@ const auth = createAuth({
 const ledger: string[] = [];
 const unexpected: string[] = [];
 let scenario = 'full';
+// The polling clock is independent from Auth and Node timers.
+let pollingTime = 1800000000000;
+let pollingFailure = false;
+let pollingHold = false;
+const pollingRequests: string[] = [];
+
 let held = deferred<Response>();
 let webHeld = deferred<undefined>();
 let webHeldCount = 0;
@@ -81,6 +87,9 @@ const fakeFetch: typeof globalThis.fetch = (input) => {
     return Promise.reject(new Error('The REST upstream fake blocked an unknown endpoint.'));
   }
   ledger.push(url.toString());
+  if (scenario === 'polling' && pollingFailure)
+    return Promise.resolve(new Response('Replay source failure.', { status: 503 }));
+
   if (scenario === 'unavailable')
     return Promise.resolve(new Response('Private source sentinel.', { status: 503 }));
   const pair = url.searchParams.get('symbol');
@@ -103,7 +112,12 @@ const fakeFetch: typeof globalThis.fetch = (input) => {
     return Promise.resolve(
       Response.json({
         symbol: pair,
-        lastPrice: pair === 'ETHUSDT' ? '218.5' : '618.125',
+        lastPrice:
+          scenario === 'polling'
+            ? String(618 + Math.floor((pollingTime - 1800000000000) / 5000) * 10)
+            : pair === 'ETHUSDT'
+              ? '218.5'
+              : '618.125',
         priceChangePercent: pair === 'ETHUSDT' ? '0' : '-1.25',
       }),
     );
@@ -131,6 +145,20 @@ const fakeFetch: typeof globalThis.fetch = (input) => {
                 : 519,
             step,
           );
+  if (scenario === 'polling') {
+    const shift = Math.floor(pollingTime / step) * step - (1735689600000 + 518 * step);
+    for (const row of body) {
+      row[0] = Number(row[0]) + shift;
+      row[6] = Number(row[6]) + shift;
+    }
+    const last = body.at(-1);
+    if (last) {
+      const close =
+        618 + Math.floor((pollingTime - 1800000000000) / 5000) * 10 + (interval === '1d' ? 100 : 0);
+      last[2] = String(close + 1);
+      last[4] = String(close);
+    }
+  }
   if (url.searchParams.get('symbol') === 'ETHUSDT') {
     for (const row of body) {
       for (const index of [1, 2, 3, 4]) row[index] = String(Number(row[index]) + 100);
@@ -168,11 +196,11 @@ function provider() {
   return createCachedMarketDataProvider({
     provider: createBinanceMarketDataProvider({
       fetch: fakeFetch,
-      now: () => receivedAt,
+      now: () => (scenario === 'polling' ? pollingTime : receivedAt),
       timeoutMs: 5000,
       logger,
     }),
-    now: () => 0,
+    now: () => (scenario === 'polling' ? pollingTime : 0),
     ttlMs: 5000,
     logger,
   });
@@ -187,6 +215,16 @@ const app = express();
 // Same response headers as createApp, which also disables x-powered-by.
 app.disable('x-powered-by');
 app.use((req, _res, next) => {
+  if (scenario === 'polling' && req.path.startsWith('/api/market-data/')) {
+    pollingRequests.push(req.originalUrl);
+    if (pollingHold && req.path.endsWith('/candles') && req.query.timeframe === '5m') {
+      void webHeld.promise.then(() => {
+        next();
+      });
+      return;
+    }
+  }
+
   if (
     scenario === 'web-hold' &&
     req.path === '/api/market-data/candles' &&
@@ -206,6 +244,10 @@ const control = express();
 // Control endpoints are confined to this test entrypoint and loopback listener.
 control.post('/__rest/reset/:scenario', (req, res) => {
   scenario = req.params.scenario;
+  pollingTime = 1800000000000;
+  pollingFailure = false;
+  pollingHold = false;
+  pollingRequests.length = 0;
   held.resolve(Response.json(klines(519, 300000)));
   held = deferred<Response>();
   webHeld.resolve(undefined);
@@ -216,13 +258,21 @@ control.post('/__rest/reset/:scenario', (req, res) => {
   current = provider();
   res.json({ scenario });
 });
+control.use(express.json());
+control.post('/__rest/polling', (req, res) => {
+  const input = req.body as { elapsed?: number; failure?: boolean; hold?: boolean };
+  if (input.elapsed !== undefined) pollingTime = 1800000000000 + input.elapsed;
+  if (input.failure !== undefined) pollingFailure = input.failure;
+  if (input.hold !== undefined) pollingHold = input.hold;
+  res.json({ pollingTime, pollingFailure, pollingHold });
+});
 control.post('/__rest/release', (_req, res) => {
   held.resolve(Response.json(klines(519, 300000)));
   webHeld.resolve(undefined);
   res.json({ released: true });
 });
 control.get('/__rest/ledger', (_req, res) => {
-  res.json({ ledger, unexpected, webHeld: webHeldCount });
+  res.json({ ledger, unexpected, webHeld: webHeldCount, pollingRequests, pollingTime });
 });
 control.get('/__rest/mail', (_req, res) => {
   res.json(sent);

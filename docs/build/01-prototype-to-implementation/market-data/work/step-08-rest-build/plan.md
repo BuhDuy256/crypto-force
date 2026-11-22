@@ -247,11 +247,11 @@ Kết quả: [execution.md](execution.md#task-8-requirements-và-thiết-kế-po
 
 Product owner duyệt các giá trị của Task 8 ngày 2026-11-22, không đổi giá trị nào.
 
-- [ ] Tạo `rest-polling-verification.md` trong TS-002. Giữ định nghĩa chỉ số chung với REST tải lịch sử. Thêm các phép đo đã hoãn: freshness, tỷ lệ thời gian dữ liệu cũ, bytes/client/phút. Ma trận requirement → test cho MK-63 đến MK-85, QA-12, QA-13.
-- [ ] Chọn technique cho từng nhóm: state transition cho bật/tạm dừng/tab ẩn/lỗi/có dữ liệu (MK-73 đến MK-77, MK-80 đến MK-85); decision table cho lỗi có hoặc chưa có dữ liệu (MK-80 đến MK-82); boundary cho chu kỳ và TTL (MK-63, ADR-008).
-- [ ] Thiết kế nguồn tham chiếu có timestamp cho QA-12: replay đổi nến đang mở theo lịch đã biết, Web ghi mốc vẽ của lần làm mới. Định nghĩa tỷ lệ thời gian dữ liệu cũ với ngưỡng bằng số đo của QA-12, và bytes/client/phút đo tại browser.
-- [ ] Viết test trước build: Vitest cho query options và so `dataTime` (MK-79) qua public hook; Playwright E2E qua API thật với replay có nến đổi theo thời gian, dùng clock của Playwright thay chờ thời gian thật; API test cho ADR-008.
-- [ ] Chạy test mới, xác nhận fail tại assertion, ghi trạng thái red. Chạy lại suite REST để chứng minh test cũ không đổi.
+- [x] Tạo `rest-polling-verification.md` trong TS-002. Giữ định nghĩa chỉ số chung với REST tải lịch sử. Thêm các phép đo đã hoãn: freshness, tỷ lệ thời gian dữ liệu cũ, bytes/client/phút. Ma trận requirement → test cho MK-63 đến MK-85, QA-12, QA-13.
+- [x] Chọn technique cho từng nhóm: state transition cho bật/tạm dừng/tab ẩn/lỗi/có dữ liệu (MK-73 đến MK-77, MK-80 đến MK-85); decision table cho lỗi có hoặc chưa có dữ liệu (MK-80 đến MK-82); boundary cho chu kỳ và TTL (MK-63, ADR-008).
+- [x] Thiết kế nguồn tham chiếu có timestamp cho QA-12: replay đổi nến đang mở theo lịch đã biết, Web ghi mốc vẽ của lần làm mới. Định nghĩa tỷ lệ thời gian dữ liệu cũ với ngưỡng bằng số đo của QA-12, và bytes/client/phút đo tại browser.
+- [x] Viết test trước build: Vitest cho query options và so `dataTime` (MK-79) qua public hook; Playwright E2E qua API thật với replay có nến đổi theo thời gian, dùng clock của Playwright thay chờ thời gian thật; API test cho ADR-008.
+- [x] Chạy test mới, xác nhận fail tại assertion, ghi trạng thái red. Chạy lại suite REST để chứng minh test cũ không đổi.
 - [ ] Chạy kiểm tra phù hợp, `review-change` cho testware và tài liệu, rồi tạo commit cho Task 9.
 
 #### Task 10: Build polling, đo và chốt tài liệu

@@ -606,6 +606,59 @@ Reviewer độc lập theo skill `review-change` báo 0 finding high, 5 medium v
 
 Không chạy test, vì Task 8 không sửa code hoặc testware. Không chạy `pnpm check`.
 
+## Task 9: Kiểm chứng polling và test trước build
+
+Đầu vào là requirements đã duyệt tại commit `2134f0a`. Task này chỉ thêm testware và tài liệu; không triển khai polling trong production.
+
+### Thiết kế và testware
+
+- [Kiểm chứng REST polling](../../../../../testing/test-scopes/TS-002-market-data/rest-polling-verification.md) có ma trận cập nhật định kỳ (MK-63 đến MK-85), độ mới (QA-12), tải lên nguồn (QA-13), state transition, decision table và BVA. Protocol freshness phân biệt nguồn có dữ liệu, apply và canvas paint. Tỷ lệ thời gian dữ liệu cũ dùng ngưỡng 11000 ms từ độ mới (QA-12); bytes đo tại browser. Chưa đo baseline.
+- Hook public được kiểm bằng React, router bộ nhớ, QueryClient thật và `happy-dom@21.0.4` (version trong lockfile). Chỉ thay fetch boundary. BVA 4999/5000/5001 ms tính từ request đầu; response có timestamp cũ hơn, bằng hoặc mới hơn dùng input literal.
+- API test qua public provider kiểm giữ lỗi nguồn invalid/unavailable, thời điểm bắt đầu TTL từ reject, single-flight, biên expiry và không giữ lỗi ngoài dự kiến.
+- E2E đi qua API, Auth và DB thật. Replay đổi nến đang mở và summary theo clock điều khiển; cache dùng cùng clock. Hold trước API tách timeout Web khỏi timer thật của Node. Không intercept response Market Data tại browser.
+- Testware có sẵn không đổi expected/assertion. File `apps/api/test/support/market-data-rest-server.ts` có thay đổi T3: thêm scenario, control clock và ledger riêng cho polling, giữ nguyên các scenario REST. Test mới là bổ sung được phép. Dependency `happy-dom` chỉ dùng cho test Web; lockfile ghi thêm peer environment của Vitest, không đổi version dependency production.
+
+### Chẩn đoán harness
+
+Lượt E2E đầu không dùng làm evidence red: callback chờ `textContent()` khi phần tử chưa có trong DOM, trong lúc clock page đang dừng. Driver đổi sang kiểm `count()` trước khi đọc text và tiếp tục chạy clock theo điều kiện. Sau sửa, case initial-error → Retry chạy được, còn case refresh fail ở expected close 628.00 trong khi vẫn là 618.00.
+
+Ledger đếm request tới API, gồm cả request có thể bị React development khởi động lại. Test in-flight dùng số request tăng so với baseline đã tải xong, không dùng tổng cố định là 2. Điều này tránh một request tải đầu bị nhầm thành request polling. Không nới expected của sản phẩm.
+
+### Kết quả và evidence
+
+Test red có chủ đích được giữ cho Task 10. Evidence rút từ trace của lượt E2E cuối nằm trong [red-summary.json](../../../../../testing/evidence/market-data/rest-polling-task-09/red-summary.json); không lưu cookie hoặc toàn bộ trace vào Git.
+
+| Lệnh hoặc phạm vi | Kết quả |
+| --- | --- |
+| `pnpm --filter @crypto-force/api exec vitest run test/market-data/polling-cache.test.ts` | 6 test: 3 red, 3 green. Hai lỗi nguồn và summary trước expiry fail tại assertion vì promise resolve thay vì reject |
+| `pnpm --filter @crypto-force/web exec vitest run app/hooks/useMarketData.polling.test.ts` | 8 test: 4 red, 4 green. Red: chu kỳ 5000/5001 ms, nhận timestamp cũ và không tự phục hồi sau lỗi |
+| `pnpm --filter @crypto-force/web exec playwright test --config playwright.market-data-polling.config.ts --workers=1` | 11 test: 9 red, 2 green. Hai green là replay qua API và initial-error → Retry. Chín red đều tới assertion, không phải import/startup hoặc timeout của toàn test |
+| API regression: `binance`, `cached-provider`, `http`, `provider-contract`, `service` | 90/90 green, không gồm file polling mới |
+| Shared regression: `market-data.schema`, `market-summary-input.schema` | 8/8 green |
+| Web regression: `vitest run --exclude app/hooks/useMarketData.polling.test.ts` | 10/10 green |
+| E2E regression: `playwright.market-data-rest.config.ts --workers=1` | 24/24 green |
+| Web và API typecheck, ESLint các file TypeScript đã sửa | Đạt |
+| `pnpm check:docs`, `git diff --check` | Đạt |
+
+Tổng test mới: 6 + 8 + 11 = 25, gồm 16 red và 9 green. Tổng regression đã chạy: 90 + 8 + 10 + 24 = 132 green. Không cộng lượt mutant hoặc lượt chạy lại vào các tổng này. Đây không phải toàn bộ test của repository. Không chạy `pnpm check`.
+
+Các assertion E2E red kiểm giá không đổi, chưa có điều khiển Live updates, chưa có lỗi làm mới, chưa chuyển màn chặn đăng nhập hoặc chưa có request polling tăng thêm. Do test dừng ở assertion đầu tiên, chúng chưa chứng minh giữ focus, giữ vùng xem, pause trong lúc đang chờ hoặc handling deadline sau khi polling bắt đầu. Các quality attribute chưa được đo; canvas paint và tab thật chưa được kiểm.
+
+### Độ nhạy và khôi phục
+
+Chỉ chạy mutant trên những test gốc green. Các test còn red chờ Task 10 triển khai rồi mới chạy mutation tương ứng.
+
+| Fault/mutant tạm | Test bị bắt | Khôi phục |
+| --- | --- | --- |
+| Cache giữ mọi rejection mãi, kể cả lỗi ngoài dự kiến | 3 test đang green: summary tại 5000/5001 ms và lỗi ngoài dự kiến đều fail tại assertion | Cả 3 green lại |
+| Chu kỳ hook 4000 ms | Case trước biên 4999 ms fail vì đã có 2 request thay vì 1 | Case green lại |
+| API Web trả snapshot không đổi timestamp/close | 3 case đang green: mới hơn, bằng timestamp và nhận kết quả slow refresh đều fail tại assertion | Cả 3 green lại |
+| Replay giữ close 618 thay vì đổi theo clock | Hai E2E đang green đều fail vì expected 628 nhưng nhận 618 | Lượt đầy đủ sau khôi phục: đúng hai E2E đó green |
+
+Không giữ mutant trong diff production. Phép làm hỏng visibility/hold và các mutation polling sau green thuộc Task 10; chưa ghi là đã kiểm. Hook slow đã bắt được lỗi mất kết quả trả về, nhưng chưa chứng minh độ nhạy riêng của nhánh không chồng polling.
+
+Review độc lập báo một finding medium: test đổi timeframe chưa chờ request cũ kết thúc và chưa phân biệt dữ liệu hai timeframe. Đã sửa ở tầng test theo skill correct: observer nghe requestfinished/requestfailed; replay 1d có close cộng 100; test kiểm close 728 của 1d sau khi request cũ kết thúc/hủy, thay vì chỉ kiểm nhãn. Type/lint không thể tự xác định oracle nghiệp vụ này, nên sửa test và boundary driver; không thêm Lesson Learned. Chạy lại ba E2E bị ảnh hưởng: replay và initial-error green; timeframe race red tại assertion chưa có request polling. Các assertion sau đó vẫn chờ Task 10. Evidence follow-up nằm trong red-summary.json. Reviewer kiểm lại staged diff, xác nhận finding medium đã xử lý và không có finding substantive mới. Đây là source review của testware; hành vi race sau khi polling hoạt động vẫn chưa kiểm chứng. Task 10 tiếp tục từ trạng thái red này.
+
 ## Phần còn lại
 
-Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất trong commit `b7be50f`. Trạng thái và quyết định của Task 6 nằm tại [Kết quả baseline REST](#task-6-kết-quả-baseline-rest). Task 7 chốt tài liệu REST tải lịch sử. Commit của Task 7 là mốc so sánh REST tải lịch sử. Task 8 chốt requirements và thiết kế polling; product owner duyệt ngày 2026-11-22. Task 9–10 chưa thực hiện. Không đánh dấu Bước 08 hoàn thành.
+Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất trong commit `b7be50f`. Trạng thái và quyết định của Task 6 nằm tại [Kết quả baseline REST](#task-6-kết-quả-baseline-rest). Task 7 chốt tài liệu REST tải lịch sử. Commit của Task 7 là mốc so sánh REST tải lịch sử. Task 8 chốt requirements và thiết kế polling; product owner duyệt ngày 2026-11-22. Task 9 đang bổ sung test trước build; Task 10 chưa thực hiện. Không đánh dấu Bước 08 hoàn thành.

@@ -8,6 +8,8 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Changed
 
+- Bước 08 Task 9: thêm protocol kiểm chứng REST polling, ma trận requirement, mô hình trạng thái/lỗi, nguồn tham chiếu freshness và cách đo bytes/weight. Thêm test trước build qua hook public, cache provider và E2E với API thật, replay nến theo clock điều khiển. Test red có chủ đích được giữ cho Task 10; chưa triển khai polling hoặc đo baseline.
+
 - Bước 08 Task 8: requirements và thiết kế REST polling. Use case Theo dõi cập nhật định kỳ có rule MK-63 đến MK-85, gồm chu kỳ 5 giây, tạm dừng theo WCAG 2.2 SC 2.2.2, tab ẩn, làm mới lỗi giữ dữ liệu và giữ vùng xem. Thêm QA-12 (độ mới) và QA-13 (request tới Binance), ADR-007 (polling tải lại toàn bộ cửa sổ) và ADR-008 (giữ lỗi nguồn trong TTL), OQ-086. Product owner duyệt các giá trị và hai ADR ngày 2026-11-22; ADR-006 chuyển sang Superseded by ADR-008, OQ-085 Resolved.
 
 - Bước 08 Task 7: chốt tài liệu REST tải lịch sử. Kiểm chứng REST có mục kết quả theo từng requirement, gồm suite và commit của lượt chạy, mutation, kiểm trên trình duyệt, baseline, smoke Binance và phần chưa kiểm. Kiến trúc ghi Market Data REST đã triển khai, timeout API 5000 ms, chính sách path trong log HTTP và rủi ro từ baseline. Các rule thiếu evidence (MK-30, MK-32, MK-37, MK-41, MK-43, MK-45, MK-46, MK-62, QA-09) ghi phần Inconclusive. Thời gian mở Realtime và đổi timeframe (QA-10, QA-11) và capacity vẫn Inconclusive.
@@ -61,6 +63,7 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 - Thêm skills Better Auth (hướng dẫn chung, bảo mật, tạo auth, email/password, organization, 2FA) và skill review UI; bỏ skill `diagnosing-bugs`.
 
 ### Changed
+
 
 - Bước 08 Task 1: chuyển contract REST Market Data sang snapshot có `isClosed`, `warmupCount`, `dataTime` và timeframe `1d`. Web tính MA(20), ẩn nến warm-up và hiển thị giá đủ hai chữ số. Shared Market Data 116 test, Web logic 10 test, UI mock 9 test và MSW 1 test đạt. Các lát provider/service/API chưa build.
 
