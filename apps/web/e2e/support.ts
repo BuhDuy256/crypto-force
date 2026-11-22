@@ -11,7 +11,7 @@ export function markEmailVerified(email: string) {
 }
 
 /**
- * Sign-in is limited per IP (23-security.md); these tests send no x-forwarded-for, so the server
+ * Sign-in is limited per IP (docs/UCs/authentication.md); these tests send no x-forwarded-for, so the server
  * counts them as 127.0.0.1. Only that bucket is cleared: the auth specs run in parallel, each with
  * its own IP, and need their counters.
  */

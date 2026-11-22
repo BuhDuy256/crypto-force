@@ -17,7 +17,7 @@ interface AccountMenuProps {
   onSignOut: () => void;
 }
 
-/** Account menu of the App header (workspace.md, App header). */
+/** Account menu of the App header (docs/design/prototype/docs/requirements/workspace.md, App header). */
 export function AccountMenu({ name, email, onSignOut }: AccountMenuProps) {
   const [open, setOpen] = useState(false);
 

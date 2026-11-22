@@ -28,7 +28,7 @@ Một phase có trạng thái Đạt khi mọi tiêu chí đạt trong các file
 
 ## References
 
-1. <a id="ref-1"></a>[Authentication](../../../design/prototype/docs/requirements/authentication.md) — commit `c23d848`, 2026-11-17
+1. <a id="ref-1"></a>[Authentication](../../../UCs/authentication.md) — commit `c23d848`, khi đó tại `docs/design/prototype/docs/requirements/authentication.md`, 2026-11-17
 2. <a id="ref-2"></a>[Security](../../../architecture/23-security.md) — commit `c23d848`, 2026-11-17
 3. <a id="ref-3"></a>[Workspace](../../../design/prototype/docs/requirements/workspace.md) — commit `bd0ecff`, 2026-11-16
 4. <a id="ref-4"></a>[Crypto Force UI Prototype](../../../design/prototype/README.md) — commit `dbbaafe`, 2026-11-16

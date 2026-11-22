@@ -1,4 +1,4 @@
-import { ScreenPlaceholder } from '~/layouts/workspace/ScreenPlaceholder';
+import { RealtimePage } from '~/pages/Realtime/RealtimePage';
 import type { Route } from './+types/realtime';
 
 export function meta(): Route.MetaDescriptors {
@@ -6,5 +6,5 @@ export function meta(): Route.MetaDescriptors {
 }
 
 export default function RealtimeRoute() {
-  return <ScreenPlaceholder title="Realtime" />;
+  return <RealtimePage />;
 }

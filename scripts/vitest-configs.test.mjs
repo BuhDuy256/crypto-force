@@ -1,5 +1,5 @@
 // Each workspace package that runs Vitest must set expect.requireAssertions, so that a test with
-// no assertion fails (docs/development/coding-guidelines.md#testware). Vitest does not read a root
+// no assertion fails (docs/conventions/testware.md). Vitest does not read a root
 // setting for each package, so a new package needs its own config. Run with `pnpm check:rules`.
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';

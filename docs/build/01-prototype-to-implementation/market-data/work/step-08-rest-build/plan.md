@@ -1,0 +1,278 @@
+# Kế hoạch build và kiểm chứng flow REST xuyên suốt
+
+Đọc file này để biết đầu ra, thứ tự công việc và điều kiện hoàn thành Bước 08 của Market Data.
+
+Các bước dùng checkbox để theo dõi tiến độ.
+
+**Mục tiêu:** build flow REST tải lịch sử theo thứ tự contract dùng chung → provider adapter → service → API → frontend, kiểm chứng từng phần bằng test đã viết ở Bước 07, rồi đo baseline. Sau đó build REST polling thành một bước chạy được riêng [[1, Bước 8]](#ref-1).
+
+**Kiến trúc:** Web → API → Market Data Service → Cache decorator → Binance adapter, theo thiết kế đã chốt [[6]](#ref-6) [[7]](#ref-7). Provider được tạo tại composition root `apps/api/src/index.ts`. Service không biết Binance. Web chỉ gọi API cùng origin.
+
+**Công cụ:** Vitest, Playwright, ESLint theo Test Strategy [[10]](#ref-10). Công cụ phát tải là `k6`, product owner duyệt ngày 2026-11-21 [[3, Môi trường, evidence và cách chạy lại]](#ref-3).
+
+**Đầu vào từ Bước 07:** sáu interface đã duyệt, thứ tự năm lát red → green, fixture tham chiếu, gate mutation và protocol baseline nằm trong bàn giao [[2, Task 5: Bàn giao Bước 08]](#ref-2) và tài liệu kiểm chứng [[3]](#ref-3). Kế hoạch này không lặp lại nội dung đó. Mỗi Task trỏ tới phần tương ứng.
+
+## Ràng buộc
+
+- Code và test tuân theo mục Ranh giới sửa code và test bên dưới [[9]](#ref-9).
+- Không thêm `skip`, `only`, `todo`, `eslint-disable`, `@ts-expect-error` hoặc assertion luôn đúng. Không export helper chỉ cho test. Không mock module của app.
+- Mỗi lát bắt đầu bằng chạy lại test red. Test bị chặn bởi import hoặc startup phải tới assertion trước khi viết production. Sau đó triển khai tối thiểu để green, review/refactor và chạy lại test [[2, Interface và thứ tự triển khai]](#ref-2).
+- Mutation chỉ chạy sau khi test gốc green. Mỗi mutation phải làm assertion liên quan fail. Khôi phục code và xác nhận green sau mỗi mutation. Lỗi import hoặc syntax không chứng minh độ nhạy [[3, Mutation và phép kiểm fake dự kiến]](#ref-3).
+- Mỗi commit giữ typecheck của mọi workspace bị ảnh hưởng ở trạng thái đạt, trừ test red có chủ đích của lát sau. Ghi rõ test red còn lại trong commit message.
+- Không chạy `pnpm check`. Chọn kiểm tra theo mục Kiểm chứng theo thay đổi của `AGENTS.md`.
+- E2E chạy từng spec file với `--workers=1`. Không chạy song song nhiều suite.
+- Shell cần `C:/dev_env/nvm/v22.23.5` trong PATH, theo kết quả kiểm tra của Bước 07 [[2, Lệnh và kết quả]](#ref-2). Kiểm tra lại version thực tế trước Task 1.
+- Trước khi đọc source, chạy `graphify query`. Trước khi sửa symbol dùng chung, chạy `graphify affected`. Sau khi sửa code, chạy `graphify update .`.
+- Không đổi abstract plan. Khi hành vi thực tế khác UCs hoặc thiết kế, ghi phân tích trong execution, chốt lại tài liệu sản phẩm, rồi mới làm tiếp.
+- Mỗi giá trị cụ thể do agent đề xuất phải ghi nguồn, lý do và tác động so với nguồn hiện có (LL-004). Kết quả đo chỉ ghi Passed khi evidence chứng minh từng điều kiện (LL-007).
+
+## Ranh giới sửa code và test
+
+Bước 08 viết code production khi test đã có sẵn từ Bước 07. Rủi ro chính là code chỉ đúng với test, hoặc test bị sửa để hết lỗi. Mục này nêu các anti-pattern cần chặn và loại thay đổi test được phép. Product owner duyệt ngày 2026-11-21.
+
+### Anti-pattern trong code production
+
+| Anti-pattern                                                      | Ví dụ trong Bước 08                                                                   | Cách chặn                                                                                                                                                      |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hard-code theo fixture (special casing) [[13]](#ref-13)           | `if (pair === 'BTCUSDT' && limit === 519)`, hoặc trả nến lấy từ `closed-candles.json` | Review diff tìm literal của fixture trong `src/`. Thêm case cùng partition với dữ liệu khác fixture                                                            |
+| Nhánh riêng cho môi trường test                                   | Đọc `NODE_ENV`, header test, hoặc nhận ra fake fetch                                  | Rule ESLint mới: chỉ `configs/` của API được đọc `process.env`                                                                                                 |
+| Đọc đáp án có sẵn [[14]](#ref-14)                                 | Code production import fixture hoặc file trong `test/support/`                        | Rule ESLint mới: `apps/*/src` và `apps/web/app` không import từ `test/` hoặc `e2e/`                                                                            |
+| Ghi thêm trạng thái để cùng input ra kết quả khác [[13]](#ref-13) | Đếm số lần gọi: lần đầu lỗi, lần sau thành công, để pass test retry                   | Không có biến mutable ở module scope trong `src/`. Trạng thái nằm trong instance, ví dụ cache decorator. Chạy suite API thêm một lượt với `--sequence.shuffle` |
+| Chỉ đúng với case có trong test                                   | Map timeframe chỉ có bốn giá trị E2E dùng                                             | Đối chiếu với contract, không đối chiếu với test. Mutation theo partition                                                                                      |
+| Nuốt lỗi để test không crash                                      | `catch` mọi lỗi và trả mảng rỗng, làm lỗi thành empty                                 | Test mỗi nhóm lỗi kiểm status, code và body chính xác. Rule `testware/exact-status-oracle` đã có                                                               |
+| Nới tham số production cho test nhanh                             | Giảm TTL, timeout hoặc limit trong code production                                    | Giá trị lấy từ thiết kế. Test đổi tham số qua dependency được truyền vào                                                                                       |
+| Thêm API chỉ để test                                              | Getter đọc cache, export hàm chuẩn hóa                                                | `check:exports` và review interface đã duyệt                                                                                                                   |
+| Đổi contract cho khớp test                                        | Đổi status code hoặc schema theo test                                                 | Tài liệu là nguồn. Lệch giữa test và tài liệu xử lý theo loại thay đổi test bên dưới                                                                           |
+| Đi vòng kiến trúc [[14]](#ref-14)                                 | Service gọi `fetch` trực tiếp, Web gọi Binance                                        | Rule layer hiện có và rule `providers/` ở Task 2                                                                                                               |
+| Lách typecheck                                                    | `as unknown as X` để hết lỗi khi contract đổi                                         | `typescript-eslint` strict chặn `any` và `!`, không chặn `as`. Ghi lý do của mỗi `as` mới trong `src/` vào commit message                                      |
+
+### Anti-pattern khi sửa test
+
+| Anti-pattern                                     | Ví dụ                                                                                                                 | Cách chặn                                                                                                        |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Lấy output thực tế làm expected                  | Copy giá trị implementation trả vào `toEqual`                                                                         | Rule `testware/no-implementation-oracle` đã có. Expected mới ghi nguồn                                           |
+| Nới assertion                                    | `toEqual` → `toMatchObject` hoặc `toBeDefined`, bỏ kiểm số lần gọi, thêm tolerance không có nguồn                     | Chạy lại mutation liên quan sau khi sửa. Mutation phải vẫn bị bắt                                                |
+| Nới phép so sánh [[13]](#ref-13) [[14]](#ref-14) | `expect.addEqualityTesters`, custom matcher, object có `toJSON` hoặc `valueOf` làm so khớp sai                        | Mọi thay đổi setup file, matcher hoặc equality tester tính là sửa test                                           |
+| Bỏ test                                          | `skip`, `only`, `todo`, xóa test, bớt case trong bảng                                                                 | Ghi số test trước và sau vào execution. Task 1 kiểm Vitest và Playwright có chặn `only` hay không                |
+| Sửa fake để né lỗi                               | Fake luôn thành công, fake bỏ qua `AbortSignal`                                                                       | Kiểm độ nhạy fake theo gate của Bước 07 [[2, Gate kiểm độ nhạy]](#ref-2)                                         |
+| Tăng timeout để hết flaky                        | Tăng thời gian chờ thay vì sửa race                                                                                   | Rule `testware/no-real-time-wait` đã có. Tìm nguyên nhân race                                                    |
+| Thay flow thật bằng mock                         | Mock module app, chặn response Market Data ở browser                                                                  | Rule `testware/no-app-module-mocks` đã có. E2E REST không dùng MSW                                               |
+| Nới cấu hình test hoặc lint                      | Thu hẹp `include` hoặc `testMatch`, tăng timeout toàn cục, tắt `requireAssertions`, sửa `eslint.config.js` để hết lỗi | Diff trên file config test hoặc lint tính là sửa test. `scripts/vitest-configs.test.mjs` giữ `requireAssertions` |
+| Test chỉ pass trên máy này hoặc phụ thuộc thứ tự | Dựa vào PATH Node, dữ liệu sót trong DB `_test`, thứ tự suite                                                         | Lượt `--sequence.shuffle`. Ghi điều kiện môi trường trong execution                                              |
+| Sửa bộ đo hoặc bộ chấm [[14]](#ref-14)           | Đặt mốc draw trước khi canvas vẽ xong, sửa script p95, bỏ delay replay, sửa script `k6` sau khi thấy kết quả          | Commit script đo, manifest và ngưỡng trước lượt đo. Sửa sau khi thấy kết quả là cohort mới, ghi lý do            |
+
+### Loại thay đổi test được phép
+
+Luôn được phép: thêm test mới, hoặc làm assertion chặt hơn khi có nguồn. Sửa hoặc nới test chỉ được phép khi thay đổi thuộc một loại dưới đây.
+
+| Loại                          | Điều kiện                                                          | Bằng chứng trong execution                                                |
+| ----------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| T1: test sai so với nguồn     | Expected lệch UCs, thiết kế hoặc ADR đã chốt                       | Trích rule nguồn. Expected mới lấy từ nguồn, không lấy từ output          |
+| T2: test khóa chi tiết nội bộ | Test kiểm thứ không thuộc interface đã duyệt, ví dụ nguyên câu log | Kiểm qua public interface. Mutation liên quan vẫn bị bắt                  |
+| T3: lỗi harness hoặc driver   | Race, cleanup, port, import lặp                                    | Diff không đổi expected và assertion về hành vi                           |
+| T4: requirement cần thay đổi  | Hành vi thực tế cần khác tài liệu                                  | Dừng và báo product owner. Chốt UCs hoặc thiết kế trước, rồi mới sửa test |
+
+Không được phép sửa test chỉ vì implementation trả kết quả khác. Khi một test fail, đọc failure và trả lời "code sai hay test sai" bằng tài liệu nguồn. Code sai thì sửa code. Test sai thì ghi loại và nguồn, rồi mới sửa test. Không xác định được loại thì xử lý như T4.
+
+Test mâu thuẫn với tài liệu là trường hợp agent dễ gian lận nhất. Trong ImpossibleBench, cho agent dừng để gọi người giảm tỷ lệ gian lận của GPT-5 từ 54% xuống 9% [[13, 5.3]](#ref-13). T4 là điểm dừng đó. Test chỉ đọc không chặn được special casing hoặc nới phép so sánh [[13, 5.2]](#ref-13), nên vẫn cần mutation và review diff production.
+
+### Testware coi là chỉ đọc
+
+Testware Market Data tại commit `32fffa5` coi là chỉ đọc mặc định:
+
+- `apps/api/test/market-data/`, `apps/api/test/support/market-data-rest-server.ts`
+- `apps/web/e2e/market-data/`, `apps/web/playwright.market-data*.config.ts`
+- `packages/shared/src/schemas/market-data*.test.ts`, `packages/shared/src/schemas/market-summary-input.schema.test.ts`
+- Config test và lint: `**/vitest.config.*`, `eslint.config.js`, `scripts/eslint-plugin-testware.mjs`
+
+Mỗi file có diff so với `32fffa5` phải có loại T1–T4 và nguồn trong execution. Rule ESLint mới của Task 2 là thay đổi được phép của `eslint.config.js`, phải có test cho case hợp lệ và case bị từ chối.
+
+## Commit khi hoàn tất Task
+
+Product owner duyệt ngày 2026-11-21: mỗi Task kết thúc bằng ít nhất một commit. Yêu cầu này cho phép agent tạo commit khi thực hiện từng Task. Agent chỉ push khi product owner yêu cầu.
+
+1. Hoàn thành đầu ra và điều kiện đạt của Task.
+2. Chạy kiểm tra phù hợp với các file đã thay đổi. Xử lý lỗi ngoài dự kiến và findings thuộc phạm vi Task trước khi commit.
+3. Kiểm diff theo mục Ranh giới sửa code và test. Chạy `git diff --stat 32fffa5 --` với các đường dẫn testware chỉ đọc.
+4. Cập nhật checkbox trong file này và kết quả Task trong `execution.md`.
+5. Dùng skill `commit`. Chỉ stage thay đổi thuộc Task. Không bỏ qua Git hooks. Khi hook chặn, sửa theo message của hook.
+6. Commit message có: test chuyển từ red sang green, testware đã sửa kèm loại T1–T4, mỗi `as` mới trong `src/` kèm lý do, và test còn red có chủ đích của lát sau.
+7. Ghi mã commit khi báo kết quả Task. Chỉ chuyển sang Task tiếp theo sau khi commit thành công.
+
+## File và trách nhiệm
+
+Đường dẫn tính từ gốc repo. File mới là đầu ra dự kiến, chưa phải file đã tạo.
+
+| File hoặc thư mục                                                                   | Thay đổi và trách nhiệm                                                                                                                                                    |
+| ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/shared/src/schemas/market-data.schema.ts`, `packages/shared/src/index.ts` | Contract lịch sử, query strict, summary query và public exports                                                                                                            |
+| `apps/web/app/api/`, `hooks/`, `utils/`, `pages/Realtime/`, `apps/web/mocks/`       | Đọc contract mới, tính MA ở Web, timeout 10 giây, xử lý 401 và mã lỗi. Mock dùng contract mới                                                                              |
+| `apps/api/src/providers/market-data/`                                               | Interface provider, Binance adapter, cache decorator. Layer mới                                                                                                            |
+| `apps/api/src/services/market-data.service.ts`                                      | Cửa sổ 519/500 nến, kiểm dữ liệu, phân loại lỗi, log                                                                                                                       |
+| `apps/api/src/api/{routes,controllers,middlewares}/`, `app.ts`, `index.ts`          | Route, controller, middleware kiểm phiên, mapping lỗi và composition root                                                                                                  |
+| `eslint.config.js` và test của rule                                                 | Ranh giới import của `providers/`, thêm cùng lúc với folder [[6]](#ref-6) [[11]](#ref-11). Hai rule chặn đọc `process.env` ngoài `configs/` và chặn `src/` import testware |
+| `docs/conventions/project-structure.md`                                             | Thêm `providers/` vào cây thư mục và quy tắc layer                                                                                                                         |
+| `apps/api/perf/market-data/`, `apps/web/playwright.market-data-perf.config.ts`      | Script `k6`, script tổng hợp nearest-rank và runner đo browser. Agent đề xuất vị trí, xem mục Quyết định                                                                   |
+| `docs/testing/evidence/market-data/<run-id>/`                                       | Manifest, raw samples và kết quả đối chiếu của từng lượt đo [[3, Môi trường, evidence và cách chạy lại]](#ref-3)                                                           |
+| `docs/testing/test-scopes/TS-002-market-data/`                                      | Kết quả thực chạy trong `rest-verification.md`. Tạo `rest-polling-requirement-gap-analysis.md` và tài liệu kiểm chứng polling. Cập nhật README scope                       |
+| `docs/UCs/`, `docs/architecture/`                                                   | Chốt lại hành vi và thiết kế nếu thực tế khác tài liệu. Thêm hành vi và cơ chế polling                                                                                     |
+| `work/step-08-rest-build/execution.md`                                              | Lệnh, kết quả red/green, mutation, quyết định và việc chuyển tiếp                                                                                                          |
+
+## Quyết định cần duyệt và quyết định của agent
+
+Các quyết định dưới đây thay đổi cách vận hành hoặc gọi dịch vụ ngoài. Product owner duyệt quyết định commit theo Task ngày 2026-11-21. Ba quyết định còn lại cần duyệt trước Task 6.
+
+| Quyết định              | Đề xuất                                                                                                                                                    | Lý do                                                                                                                      | Task     |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Commit theo Task        | Đã duyệt ngày 2026-11-21: mỗi Task ít nhất một commit, push khi product owner yêu cầu                                                                      | Giữ diff riêng cho từng lát theo abstract plan [[1, Bước 8]](#ref-1)                                                       | Mọi Task |
+| Cài `k6`                | Cài bản ổn định mới nhất trên máy đo, ghi version vào manifest                                                                                             | `k6` không phải package của pnpm, cần cài ngoài repo [[3, Môi trường, evidence và cách chạy lại]](#ref-3)                  | 6        |
+| Smoke Binance thật      | Một lượt: lịch sử BTCUSDT/5m và một summary, không lặp tự động                                                                                             | Protocol giữ đề xuất này. Đây là lần đầu gọi Binance thật từ code [[3, Môi trường, evidence và cách chạy lại]](#ref-3)     | 6        |
+| Lưu evidence trong repo | Commit manifest, summary, reconciliation và samples đã chuẩn hóa. Không commit file raw lớn hơn 5 MB. Nén gzip file raw lớn hơn và ghi hash trong manifest | Output JSON của `k6` ở 50 client trong 180 giây có thể lớn. Agent đề xuất ngưỡng 5 MB để giữ repo nhỏ mà vẫn chạy lại được | 6        |
+
+Các quyết định sau do agent chốt theo ủy quyền của product owner. Product owner có thể bác bỏ khi review.
+
+- **Chuyển Web sang contract mới ngay ở lát 1.** Bàn giao Bước 07 đặt việc chuyển Web ở lát 5. Đổi shape lịch sử ở lát 1 làm typecheck Web fail cho tới lát 5. Agent chuyển các nơi đọc `ma20` và mock fixture ngay ở lát 1, chỉ đủ để giữ Web đúng với contract. Lát 5 vẫn làm phần còn lại: timeout, 401, mã lỗi và E2E xuyên API.
+- **Test nháp `market-data.schema.test.ts`.** Test này kiểm `ma20` của contract nháp. Theo ADR-004, Web tính MA và response API không có `ma20` [[6]](#ref-6) [[12, ADR-004]](#ref-12). Agent chuyển các case giá sai và thời gian trùng/sai thứ tự sang contract mới nếu `market-data-rest.schema.test.ts` chưa có case tương đương. Agent bỏ case `ma20` và ghi lý do trong execution.
+- **Rule ESLint chống code chỉ cho test.** Chặn đọc `process.env` ngoài `apps/api/src/configs/` và chặn code ứng dụng import `test/` hoặc `e2e/`. Lý do: chặn hai anti-pattern ở mức cấu trúc thay vì dựa vào review. Hiện chưa có rule cho chiều import này.
+- **Lượt `--sequence.shuffle` cho suite API.** Lý do: phát hiện code giữ trạng thái giữa các lần gọi và test phụ thuộc thứ tự chạy. Chỉ chạy thêm một lượt mỗi lát, không thay lượt thường.
+- **Mutation theo từng lát.** Bàn giao liệt kê mutation chung cho Bước 08. Agent chạy mutation của mỗi lát trong Task của lát đó, để sửa test cùng commit với code.
+- **Vị trí script đo.** Script `k6` và script tổng hợp đặt trong `apps/api/perf/market-data/`, ngoài `src/` và `test/`, để Vitest và build không thu chúng. Runner browser dùng config Playwright riêng trong `apps/web`. Lý do: protocol yêu cầu script chạy lại được và không import code workspace vào runtime của `k6`.
+
+## Công việc
+
+### Phần A: REST tải lịch sử
+
+#### Task 1: Lát 1, shared contract và chuyển Web
+
+- [ ] Xác nhận Node, pnpm và Docker Compose bằng lệnh thực tế. Ghi commit HEAD bắt đầu Bước 08.
+- [ ] Kiểm Vitest và Playwright có chặn `only` hay không bằng config và source. Ghi số test của từng suite Market Data làm mốc so sánh.
+- [ ] Chạy lại ba test shared. Đối chiếu số pass/fail với kết quả Task 4 của Bước 07 [[2, Các lát red cho Bước 08]](#ref-2). Ghi chênh lệch nếu có.
+- [ ] Chạy `graphify affected` cho `candleHistorySchema`, `candleHistoryInputSchema` và `marketSummarySchema`.
+- [ ] Sửa schema theo contract nến [[6]](#ref-6): thêm `1d`, query strict, `isClosed`, `warmupCount`, `dataTime`, bỏ `ma20`. Thêm `marketSummaryInputSchema` vào public exports.
+- [ ] Chuyển các nơi Web đọc `ma20` sang MA tính ở Web từ nến có thật. Không vẽ warm-up. Cập nhật mock fixture theo contract mới.
+- [ ] Xử lý test nháp theo mục Quyết định. Chạy test Web logic và hai spec mock (`realtime.spec.ts`, `msw-smoke.spec.ts`) từng file một.
+- [ ] Chạy mutation của shared contract: bỏ strict, bỏ một invariant của snapshot. Test tương ứng phải fail.
+
+**Điều kiện đạt:** 116 test shared tới assertion. Test REST contract và summary query pass. `pnpm check:exports`, typecheck shared/Web/API (API còn red do thiếu module của lát 2–4, ghi rõ), ESLint file đã sửa đạt.
+
+- [ ] Chạy kiểm tra phù hợp và tạo commit cho Task 1.
+
+#### Task 2: Lát 2, provider interface, service và Binance adapter
+
+- [ ] Tạo folder `providers/market-data/` cùng rule ESLint cho ranh giới import. Viết test cho rule: một import hợp lệ và các import phải bị từ chối [[6]](#ref-6). Cập nhật Project Structure.
+- [ ] Thêm hai rule ESLint theo mục Ranh giới sửa code và test: chỉ `apps/api/src/configs/` được đọc `process.env`; `apps/*/src` và `apps/web/app` không import từ `test/` hoặc `e2e/`. Viết test cho case hợp lệ và case bị từ chối. Sửa code hiện có vi phạm rule nếu có, không thêm ngoại lệ.
+- [ ] Tạo interface `MarketDataProvider` và kiểu domain. Chạy lại `service.test.ts` và `binance.test.ts`. Xác nhận test tới assertion và fail ở hành vi chưa build.
+- [ ] Build service: yêu cầu 519 nến, trả tối đa 500 nến, `warmupCount` theo lịch sử thực nhận, kiểm dữ liệu, phân loại lỗi và log có pair/timeframe/duration.
+- [ ] Build adapter: URL/query, chuẩn hóa kline và summary, base volume, timeout bằng `AbortSignal`, lỗi có kiểu, không retry.
+- [ ] Đối chiếu đủ 518 nến đóng với `closed-candles.json`. Không lấy output của implementation làm expected.
+- [ ] Chạy mutation: đổi close, dùng quote volume, lệch warm-up, fake không tôn trọng `AbortSignal`.
+
+**Điều kiện đạt:** hai suite pass, cả lượt thường và lượt `--sequence.shuffle`. Ba rule ESLint mới có test cho cả case hợp lệ và case bị từ chối. Typecheck API chỉ còn red ở module của lát 3–4.
+
+- [ ] Chạy kiểm tra phù hợp và tạo commit cho Task 2.
+
+#### Task 3: Lát 3, cache decorator và lỗi upstream
+
+- [ ] Chạy lại `cached-provider.test.ts` và `provider-contract.test.ts`. Xác nhận test tới assertion.
+- [ ] Build decorator: khóa gồm pair/timeframe/limit và namespace summary, TTL 5 giây theo mốc đã duyệt, single-flight, không cache lỗi, giữ snapshot [[3, Mô hình cache và cooldown]](#ref-3).
+- [ ] Build cooldown 429/418 theo `Retry-After` trong adapter, dùng chung cho mọi endpoint Binance của instance. Cache còn hạn vẫn trả trong cooldown.
+- [ ] Chạy mutation: bỏ một thành phần khóa, đổi dấu biên TTL, làm mới `dataTime` khi hit, bỏ single-flight, giữ rejection, bỏ cooldown.
+
+**Điều kiện đạt:** hai suite pass, cả lượt thường và lượt `--sequence.shuffle`. Mỗi mutation trong danh sách làm assertion liên quan fail.
+
+- [ ] Chạy kiểm tra phù hợp và tạo commit cho Task 3.
+
+#### Task 4: Lát 4, HTTP và session
+
+- [ ] Chạy lại `http.test.ts`. Ghi số test fail vì 404 trước khi build.
+- [ ] Mở rộng `createApp` để nhận `marketDataProvider`. Dựng service, controller, route và middleware kiểm phiên qua Better Auth `getSession`. Tạo adapter và bọc cache tại `src/index.ts`.
+- [ ] Mapping lỗi: 400 `INVALID_QUERY`, 401 `UNAUTHENTICATED`, 502 `MARKET_DATA_INVALID`, 503 `MARKET_DATA_UNAVAILABLE`, 500 `INTERNAL_ERROR`, `Cache-Control: no-store` [[7]](#ref-7).
+- [ ] Bổ sung assertion log còn thiếu ở Bước 07: method/path/status/duration và không lộ cookie, token hoặc secret [[3, Log và dependency boundaries]](#ref-3).
+- [ ] Chạy mutation: bỏ kiểm phiên, bỏ strict query, cho lỗi upstream lộ chi tiết.
+
+**Điều kiện đạt:** `http.test.ts` và toàn bộ `test/market-data` pass, cả lượt thường và lượt `--sequence.shuffle`. Test Auth của API không regression. Typecheck API đạt.
+
+- [ ] Chạy kiểm tra phù hợp và tạo commit cho Task 4.
+
+#### Task 5: Lát 5, flow UI qua API thật
+
+- [ ] Chạy lại `rest-history.spec.ts` với config REST. Xác nhận API startup thành công và test tới assertion UI.
+- [ ] Web xử lý timeout chart 10 giây, 401 chặn workspace và mã lỗi theo contract. Giữ cách gọi HTTP cùng origin.
+- [ ] Bổ sung test cho response cũ tới sau khi release và timeout transport Web. Bước 07 chỉ kiểm lúc request cũ còn bị giữ [[2, Fixture, evidence và gate còn lại]](#ref-2).
+- [ ] Chạy mutation của E2E driver: giữ dữ liệu pair cũ, tính MA sai, cho lỗi một chart lan sang chart khác.
+- [ ] Kiểm trên trình duyệt bằng skill `playwright-cli`: canvas, vùng warm-up, crosshair, gap, zoom/kéo, nến tăng/giảm ngoài màu, focus nhìn thấy, 320 px. Lưu ảnh làm evidence.
+- [ ] Kiểm accessibility bằng Playwright theo [giới hạn kiểm accessibility](accessibility-verification-limits.md): status có trong DOM trước khi đổi trạng thái, `aria-live="polite"`, so role/name với cây accessibility của Chromium cho MK-47/MK-48, mỗi lần chuyển trạng thái chỉ đổi status của chart liên quan. Không dùng screen reader, theo quyết định của product owner ngày 2026-11-21.
+- [ ] Cập nhật câu yêu cầu kiểm screen reader trong `rest-verification.md` theo quyết định trên.
+
+**Điều kiện đạt:** 10 test E2E REST và test mới pass. Spec mock không regression. Phần kiểm thủ công có kết quả riêng cho từng requirement.
+
+- [ ] Chạy kiểm tra phù hợp, `review-change` cho Phần A code, và tạo commit cho Task 5.
+
+#### Task 6: Baseline REST tải lịch sử
+
+Chỉ bắt đầu sau khi Task 5 green và bốn quyết định ở mục Quyết định đã được duyệt.
+
+- [ ] Cài `k6`. Viết script theo bảng workload `k6` và script tổng hợp p50/p95/p99 nearest-rank từ raw samples [[3, Workload baseline đã duyệt]](#ref-3).
+- [ ] Thêm instrumentation browser cho mốc body/apply/draw. Chứng minh mốc draw gắn với lượt vẽ dữ liệu đúng lựa chọn. Nếu không chứng minh được, ghi thời gian hiển thị Inconclusive.
+- [ ] Commit script đo, instrumentation, manifest và ngưỡng trước lượt đo đầu tiên. Sửa script sau khi thấy kết quả thì tính là cohort mới và ghi lý do.
+- [ ] Chạy lượt API: cache rỗng, cache hit, single-flight có barrier, steady state 1/10/50 client cho hai cohort, ba lần lặp.
+- [ ] Chạy lượt UI với Web production build: lượt chính 100 thao tác × 3 lần lặp cho mở Realtime và đổi timeframe. Lượt phụ cho đổi pair và cache nóng.
+- [ ] Đối chiếu mọi response thành công với manifest replay. Lượt có dữ liệu sai không đủ điều kiện kết luận.
+- [ ] Chạy smoke Binance thật một lượt. Lưu header quota và kết quả đối chiếu nến đóng.
+- [ ] Ghi QA-10/QA-11 theo điều kiện kết luận đã duyệt [[3, Ngưỡng và quyền kết luận]](#ref-3). Khi Failed, báo product owner, không đổi ngưỡng.
+
+**Điều kiện đạt:** mỗi lượt có thư mục evidence đủ file theo protocol. Kết quả ghi nhãn môi trường. Không ghi capacity đạt vì chưa có ngưỡng latency HTTP, lỗi hoặc capacity được duyệt.
+
+- [ ] Chạy kiểm tra phù hợp và tạo commit cho Task 6.
+
+#### Task 7: Chốt tài liệu REST tải lịch sử
+
+- [ ] Đối chiếu hành vi thực tế với UCs [[4]](#ref-4), quality attributes [[5]](#ref-5) và thiết kế [[6]](#ref-6) [[7]](#ref-7). Chốt lại tài liệu sản phẩm cho mọi khác biệt.
+- [ ] Ghi kết quả thực chạy, điều kiện đo và đường dẫn evidence vào `rest-verification.md`. Cập nhật README scope. Sửa câu cũ mà kết quả mới làm sai (LL-007).
+- [ ] Chạy Prettier, `pnpm check:docs` và `review-change` cho tài liệu đã sửa.
+
+**Điều kiện đạt:** flow REST tải lịch sử có evidence cho từng requirement trong phạm vi, hoặc ghi rõ phần Inconclusive và lý do.
+
+- [ ] Tạo commit cho Task 7. Commit này đánh dấu mốc so sánh REST tải lịch sử.
+
+### Phần B: REST polling
+
+Phần B chỉ chi tiết tới mức Task. Agent chi tiết hóa các Task này trong file này sau khi Task 7 hoàn tất, và trình lại product owner trước khi build.
+
+#### Task 8: Requirements và thiết kế polling
+
+- [ ] Ghi phân tích vào `rest-polling-requirement-gap-analysis.md` theo cấu trúc của phân tích REST [[8]](#ref-8): trạng thái requirements trước phân tích, nguồn, gap và kết quả. Đối chiếu một baseline độc lập trước khi kết luận đủ (LL-003).
+- [ ] Mở rộng UCs với hành vi polling, gồm làm mới lỗi giữ dữ liệu cũ (MK-13) [[4]](#ref-4). Cập nhật quality attributes cho freshness. Ghi quyết định còn mở vào `docs/open-questions.md`.
+- [ ] Thiết kế cơ chế polling trong kiến trúc: chu kỳ, quan hệ với cache 5 giây, giới hạn request Binance. Chu kỳ do agent đề xuất phải có nguồn và lý do.
+- [ ] Tạo commit cho Task 8.
+
+#### Task 9: Kiểm chứng polling và test trước build
+
+- [ ] Tạo tài liệu kiểm chứng polling trong TS-002. Giữ định nghĩa chỉ số chung với REST tải lịch sử. Thêm các phép đo đã hoãn: freshness, tỷ lệ thời gian dữ liệu cũ, bytes/client/phút.
+- [ ] Viết test polling trước build và ghi trạng thái red.
+- [ ] Tạo commit cho Task 9.
+
+#### Task 10: Build polling, đo và chốt tài liệu
+
+- [ ] Build polling theo từng lát. Chạy mutation sau khi green.
+- [ ] Đo baseline polling với cùng workload, môi trường và công cụ của Task 6. Ghi kết quả vào tài liệu kiểm chứng polling.
+- [ ] Đối chiếu UCs, kiến trúc, tài liệu testing. Chạy `review-change`.
+- [ ] Cập nhật tracker với bằng chứng và đánh dấu Bước 08 hoàn thành.
+- [ ] Tạo commit cho Task 10. Commit này đánh dấu mốc so sánh REST polling.
+
+## References
+
+1. <a id="ref-1"></a>[Kế hoạch triển khai Market Data ở mức tổng quan](../../abstract-implementation-plan.md)
+2. <a id="ref-2"></a>[Kết quả kiểm chứng REST và baseline](../step-07-rest-verification/execution.md)
+3. <a id="ref-3"></a>[Kiểm chứng REST tải lịch sử](../../../../../testing/test-scopes/TS-002-market-data/rest-verification.md)
+4. <a id="ref-4"></a>[Market Data](../../../../../UCs/market-data.md)
+5. <a id="ref-5"></a>[Quality Attributes](../../../../../UCs/quality-attributes.md)
+6. <a id="ref-6"></a>[Market Data & Realtime Updates](../../../../../architecture/10-market-data.md)
+7. <a id="ref-7"></a>[API & Realtime Communication Contracts](../../../../../architecture/22-api-endpoints.md)
+8. <a id="ref-8"></a>[REST Requirement Gap Analysis](../../../../../testing/test-scopes/TS-002-market-data/rest-requirement-gap-analysis.md)
+9. <a id="ref-9"></a>[Testware](../../../../../conventions/testware.md)
+10. <a id="ref-10"></a>[Test Strategy](../../../../../testing/test-strategy.md)
+11. <a id="ref-11"></a>[Project Structure](../../../../../conventions/project-structure.md)
+12. <a id="ref-12"></a>[Architecture Decisions](../../../../../architecture/30-decisions.md)
+13. <a id="ref-13"></a>[ImpossibleBench: Measuring LLMs' Propensity of Exploiting Test Cases](https://arxiv.org/html/2510.20270v1), truy cập ngày 2026-11-21
+14. <a id="ref-14"></a>[METR: Recent Frontier Models Are Reward Hacking](https://metr.org/blog/2025-06-05-recent-reward-hacking), truy cập ngày 2026-11-21

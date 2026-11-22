@@ -15,7 +15,6 @@ Nội dung không có nhãn mô tả đúng những gì UI thể hiện.
 | File | Nội dung |
 | --- | --- |
 | [public-pages.md](public-pages.md) | Landing, các điểm vào ứng dụng, trang 404 |
-| [authentication.md](authentication.md) | Sign in, Create account, Verify email, Reset password, chuyển tiếp sau đăng nhập |
 | [workspace.md](workspace.md) | App header, điều kiện đăng nhập, Search, Notifications, chuyển ngữ cảnh giữa các màn hình, quy tắc dùng chung |
 | [realtime.md](realtime.md) | Chart, timeframe, signal source, cập nhật live, trạng thái kết nối, onboarding |
 | [strategy-engine.md](strategy-engine.md) | Tạo, sửa và lưu strategy và composite; Strategy library; bản nháp |
@@ -23,5 +22,7 @@ Nội dung không có nhãn mô tả đúng những gì UI thể hiện.
 | [backtest.md](backtest.md) | Cấu hình và chạy backtest, Runs, chi tiết run, kết quả và trades |
 | [news.md](news.md) | Crawl, feed, chi tiết bài, sentiment, nguồn tin, đưa sentiment vào strategy |
 | [settings.md](settings.md) | Profile, bảo mật, tài khoản liên kết, thông báo, dữ liệu, xóa tài khoản |
+
+Hành vi của Auth (Sign in, Create account, Verify email, Reset password, phiên và Sign out) nằm trong use case [Authentication](../../../../UCs/authentication.md).
 
 Thứ tự đọc gợi ý cho người mới: `workspace.md` → `strategy-engine.md` → `backtest.md` → `discovery.md`, sau đó tới các file còn lại khi cần.

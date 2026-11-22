@@ -1,4 +1,4 @@
-// The 3,000 most common passwords (docs/architecture/23-security.md, Password): the first 3,000
+// The 3,000 most common passwords (docs/UCs/authentication.md, CA-14): the first 3,000
 // lines of Passwords/Common-Credentials/10-million-password-list-top-10000.txt in SecLists
 // (https://github.com/danielmiessler/SecLists), commit 5e1dc9cc79aac54b373349e2a97bbb22f1b63bb3.
 // That commit is the last one with this file; later commits removed it as a duplicate.

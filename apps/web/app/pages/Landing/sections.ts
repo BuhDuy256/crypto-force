@@ -5,7 +5,7 @@ export const sectionLinks = [
   { href: '#faq', label: 'FAQ' },
 ] as const;
 
-/** Where Open workspace leads (public-pages.md, Các điểm vào khác). */
+/** Where Open workspace leads (docs/design/prototype/docs/requirements/public-pages.md, Các điểm vào khác). */
 export const WORKSPACE_HOME = '/realtime';
 
 export const sectionHeading =

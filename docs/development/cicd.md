@@ -9,7 +9,7 @@ Workflow [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) chạy tr�
 | Bước | Lệnh | Kiểm tra |
 | --- | --- | --- |
 | Cài dependencies | `pnpm install --frozen-lockfile` | `pnpm-lock.yaml` khớp với các `package.json` |
-| Check | `pnpm check` | Typecheck, lint (gồm dependency boundaries và layer rules), format |
+| Check | `pnpm check` | Typecheck, lint (gồm dependency boundaries và layer rules), test của các check, export chỉ test dùng, convention của tài liệu (`check:docs`), format |
 | Build | `pnpm build` | Mọi app build được |
 
 Phiên bản Node.js lấy từ `.nvmrc`, phiên bản pnpm lấy từ trường `packageManager` trong `package.json`, nên CI và môi trường local dùng cùng phiên bản.

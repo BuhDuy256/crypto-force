@@ -8,7 +8,7 @@
 
 ### Bối cảnh
 
-Mọi màn hình workspace chỉ mở được khi có phiên. Khi không có phiên, màn hình hiện lời mời đăng nhập ngay tại URL đó, và đăng nhập xong thì quay lại đúng màn hình [[1, Điều kiện đăng nhập]](#ref-1). Lớp chặn này chỉ phục vụ hiển thị; API vẫn tự kiểm phiên ở từng request [[2]](#ref-2).
+Mọi màn hình workspace chỉ mở được khi có phiên. Khi không có phiên, màn hình hiện lời mời đăng nhập ngay tại URL đó, và đăng nhập xong thì quay lại đúng màn hình [[1, Phiên và Sign out]](#ref-1). Lớp chặn này chỉ phục vụ hiển thị; API vẫn tự kiểm phiên ở từng request [[2]](#ref-2).
 
 Web chạy ở chế độ SPA, nên phiên được kiểm ở trình duyệt bằng `GET /api/auth/get-session`. Loader của từng màn hình không được chạy khi chưa có phiên, vì nó sẽ gọi API và nhận lỗi 401 hàng loạt.
 
@@ -76,12 +76,148 @@ Crypto Force chỉ mô phỏng: không giữ tiền, không kết nối sàn và
 - Kiểm password đã bị lộ gọi API bên ngoài khi Create account và Reset password.
 - Phải nâng lên L2 đầy đủ nếu sau này lưu API key của sàn hoặc đặt lệnh thật.
 
+## ADR-003: Đặt adapter dữ liệu thị trường trong layer `providers/` của API
+
+**Status:** Accepted (2026-11-20)
+
+### Bối cảnh
+
+Backend chỉ được gọi Binance qua `MarketDataProvider`; frontend không gọi Binance [[9, Shared và Engine]](#ref-9). Thêm provider thứ hai không được làm thay đổi frontend (QA-09) [[11, Modifiability]](#ref-11). `apps/api` đã có layer Route, Controller, Service, Repository, Mapper nhưng chưa có nơi cho đầu ra tới API bên ngoài. Worker chưa cần dữ liệu thị trường.
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Folder `providers/` trong `apps/api`, interface đặt cùng adapter | Một chỗ để đọc interface và adapter; ranh giới import viết được bằng ESLint như các layer khác | Worker không dùng lại được; rule ESLint phải chặn Service import file adapter theo tên file, vì interface và adapter cùng folder |
+| Interface do `services/` sở hữu, adapter ở `providers/` | Đúng nguyên tắc dependency inversion | Thêm một bước nhảy khi đọc code, khi chỉ có một service và một provider |
+| Interface và adapter trong một package mới | API và Worker dùng chung | Tạo package khi chưa có bên dùng thứ hai, trái quy tắc không tạo abstraction trước nhu cầu [[9, Dependency rules]](#ref-9) |
+
+### Quyết định
+
+- Tạo `apps/api/src/providers/market-data/` gồm interface `MarketDataProvider`, kiểu domain và adapter Binance.
+- Adapter chuẩn hóa dữ liệu provider sang kiểu domain. Kiểu dữ liệu của Binance không ra khỏi adapter.
+- Service chỉ import file interface, không import file adapter. Route và Controller không import `providers/`. `providers/` không import Express, `api/`, `services/`, `repositories/`, `database/`. Rule ESLint được thêm cùng lúc với folder.
+- `index.ts` tạo adapter từ cấu hình và truyền qua `AppDependencies`, `ApiRouterDependencies` tới service. Integration test truyền provider giả lập theo cùng đường.
+
+### Lý do
+
+Folder `providers/` có interface cùng adapter tách Binance khỏi service bằng ít thành phần nhất. Composition root hiện có đã truyền dependency qua tham số, nên không cần thư viện DI. Provider giả lập kiểm được ranh giới mà không cần provider thật thứ hai.
+
+### Hệ quả
+
+- Đổi provider chỉ thay adapter và lựa chọn trong composition root [[10, Provider và cách thay thế]](#ref-10).
+- Thêm một rule `no-restricted-imports` cho `providers/` trong `eslint.config.js`.
+- Xét lại khi Worker cần dữ liệu thị trường, chẳng hạn cho backtest: chuyển interface và kiểu domain sang package có public API.
+
+## ADR-004: Web tính MA của chart từ nến API trả về
+
+**Status:** Accepted (2026-11-20)
+
+### Bối cảnh
+
+Mỗi chart hiển thị MA theo giá đóng cửa (MK-01). MA phủ mọi nến đang hiển thị khi lịch sử đủ (MK-24), tính cả nến đang mở với nhãn giá trị tạm (MK-28) và chỉ dùng nến có thật (MK-36) [[8, Xem lịch sử thị trường]](#ref-8). Chart chỉ hiển thị một số nến giới hạn (MK-33), nên mẫu MA của các nến đầu cần nến trước cửa sổ hiển thị. Chỉ báo dùng cho strategy thuộc `packages/engine`; engine chưa có MA.
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Web tính MA; API trả thêm nến khởi động MA | Contract chỉ có nến; đổi tham số MA không đổi API; tooltip MA cùng nguồn với nến | Web tải thêm một ít nến; MA của chart và của strategy có thể là hai bản cài đặt |
+| API tính MA và trả kèm nến | Một bản cài đặt có thể dùng `packages/engine` | Contract lớn hơn; mỗi tham số MA mới đổi API; vòng WebSocket phải gửi lại MA khi nến đang mở thay đổi |
+
+### Quyết định
+
+- API trả số nến hiển thị (MK-33) cộng số nến cần cho mẫu MA đầu tiên (MK-24). Contract đánh dấu được nến nào thuộc cửa sổ hiển thị.
+- Web tính MA bằng hàm thuần, không I/O, từ toàn bộ nến nhận được; chart chỉ vẽ nến trong cửa sổ hiển thị.
+
+### Lý do
+
+MA trên Realtime chỉ phục vụ hiển thị và tính từ chính các nến Web đã có. Khi WebSocket cập nhật nến đang mở, Web tính lại MA tại chỗ mà không cần server gửi thêm dữ liệu.
+
+### Rủi ro chấp nhận
+
+MA trên chart và MA trong strategy có thể lệch nhau nếu hai bản cài đặt khác nhau.
+
+### Hệ quả
+
+- Contract nến có nến khởi động MA và cách phân biệt nến hiển thị.
+- Xét lại khi `packages/engine` có chỉ báo MA cho strategy: Web dùng lại hàm của engine nếu dependency rules cho phép, để chart và strategy dùng cùng một cách tính.
+
+## ADR-005: Số chữ số thập phân của pair là hằng số trong `packages/shared`
+
+**Status:** Accepted (2026-11-20)
+
+### Bối cảnh
+
+Giá hiển thị theo số chữ số thập phân của pair, giá khác 0 không hiển thị thành 0 (MK-44) [[8, Xem lịch sử thị trường]](#ref-8). Danh sách pair là enum nhỏ trong `packages/shared`. Binance công bố bước giá (tick size) trong filter `PRICE_FILTER` của mỗi symbol trong `exchangeInfo`; theo tài liệu, mọi filter của symbol là optional [[12]](#ref-12).
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Hằng số theo pair trong `packages/shared`, cùng danh sách pair | Không thêm request; Web dùng ngay khi render; test đơn giản | Phải cập nhật tay khi Binance đổi tick size hoặc khi thêm pair |
+| Endpoint metadata đọc `exchangeInfo` qua provider | Luôn khớp sàn | Thêm endpoint, request và trạng thái lỗi; chart phải chờ metadata trước khi format giá |
+| Suy từ chuỗi giá của provider | Không cần metadata | Chuỗi của Binance có số 0 thừa; giá trị không cho biết bước giá |
+
+### Quyết định
+
+Chọn hằng số theo pair. Giá trị lấy từ tick size trong `exchangeInfo` của Binance lúc build và ghi nguồn cạnh hằng số [[10, Quyết định]](#ref-10).
+
+Giá trị tra ngày 2026-11-21 từ `GET /api/v3/exchangeInfo`, filter `PRICE_FILTER` [[12]](#ref-12). Product owner duyệt ngày 2026-11-21.
+
+| Pair | `tickSize` | Số chữ số thập phân |
+| --- | --- | --- |
+| BTCUSDT | 0.01 | 2 |
+| ETHUSDT | 0.01 | 2 |
+| SOLUSDT | 0.01 | 2 |
+
+Khi giá có nhiều chữ số hơn số chữ số của pair, Web làm tròn half-up lúc hiển thị: chữ số bỏ đi từ 5 trở lên thì làm tròn lên. Giá luôn hiển thị đủ số chữ số của pair, kể cả số 0 ở cuối. Quy tắc áp dụng cho mọi giá hiển thị: giá cuối, open/high/low/close và MA. Volume không phải giá, không theo quy tắc này. Ví dụ `100.125` hiển thị `100.13`, `153.6` hiển thị `153.60`, `68608` hiển thị `68,608.00`. Chỉ làm tròn khi hiển thị; giá trị domain không đổi. Product owner duyệt ngày 2026-11-21.
+
+### Hệ quả
+
+- Khi symbol không có `PRICE_FILTER`, người build chọn giá trị theo giá thực tế của pair và ghi lý do cạnh hằng số.
+- Binance có thể đổi tick size của symbol. Hằng số không tự cập nhật. Giá trị chỉ đúng tại ngày tra; khi Binance đổi, cập nhật hằng số và ngày tra.
+- Thêm pair phải thêm số chữ số thập phân cùng lúc; schema dùng chung bắt buộc mỗi pair có giá trị.
+- Xét lại khi danh sách pair do người dùng chọn tự do, hoặc khi thêm provider có bước giá khác Binance.
+
+## ADR-006: Cache Market Data trong process API, không lưu vào PostgreSQL
+
+**Status:** Accepted (2026-11-20)
+
+### Bối cảnh
+
+Mỗi chart hiển thị tối đa 500 nến gần nhất (MK-33). Vòng REST không tự cập nhật chart (MK-27) [[8, Xem lịch sử thị trường]](#ref-8). Binance giới hạn request weight theo IP và khóa IP khi client tiếp tục gửi request sau 429 [[13]](#ref-13). Không có cache, số request tới Binance tăng theo số lần mở Realtime. API chạy một instance trên VPS. Project chỉ thêm Redis khi đo được bottleneck.
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Cache trong process API, TTL ngắn, decorator quanh provider | Không thêm hạ tầng; mức trần request tới Binance cố định theo số khóa; Service và adapter không đổi | Mất khi khởi động lại; mỗi instance có cache riêng |
+| Lưu nến vào PostgreSQL, đồng bộ từ Binance | Giữ được lịch sử dài cho backtest; ít phụ thuộc Binance khi đọc | Cần job đồng bộ, lấp khoảng trống và đối soát với nguồn (MK-35, MK-51); nến đang mở vẫn phải lấy từ Binance |
+| Redis dùng chung | Cache chung cho nhiều instance | Thêm dịch vụ khi chưa có số đo cần nó |
+| Không cache | Đơn giản nhất | Số request tới Binance tăng theo số người dùng; dễ chạm giới hạn IP |
+
+### Quyết định
+
+Chọn cache trong process API với TTL 5 giây, gộp request trùng và không cache lỗi. Decorator cài `MarketDataProvider` và được bọc ở composition root [[10, Cache và giới hạn request]](#ref-10). Không lưu Market Data vào PostgreSQL ở vòng REST.
+
+### Hệ quả
+
+- Khi provider trả thành công, Binance nhận tối đa 504 weight mỗi phút từ một instance [[10, Cache và giới hạn request]](#ref-10). Lỗi không được cache, nên khi Binance lỗi, số lời gọi tăng theo số lần thử lại.
+- Dữ liệu có thể cũ tới 5 giây; `dataTime` cho biết thời điểm thật của dữ liệu (MK-27).
+- Xét lại khi chạy hơn một instance API, khi backtest cần dữ liệu thị trường dài hạn, hoặc khi vòng WebSocket đổi cách lấy nến đang mở.
+
 ## References
 
-1. <a id="ref-1"></a>[Workspace](../design/prototype/docs/requirements/workspace.md)
+1. <a id="ref-1"></a>[Authentication](../UCs/authentication.md)
 2. <a id="ref-2"></a>[Security](23-security.md)
-3. <a id="ref-3"></a>[Project Brief](../requirements/project-brief.md)
+3. <a id="ref-3"></a>[Project Brief](../UCs/sources/project-brief.md)
 4. <a id="ref-4"></a>OWASP ASVS 5.0, V6 Authentication. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x15-V6-Authentication.md>
 5. <a id="ref-5"></a>OWASP ASVS 5.0, V7 Session Management. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x16-V7-Session-Management.md>
 6. <a id="ref-6"></a>OWASP ASVS 5.0, V3 Web Frontend Security. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x12-V3-Web-Frontend-Security.md>
 7. <a id="ref-7"></a>OpenID Connect Core 1.0 incorporating errata set 2. <https://openid.net/specs/openid-connect-core-1_0.html>
+8. <a id="ref-8"></a>[Market Data](../UCs/market-data.md)
+9. <a id="ref-9"></a>[Project Structure](../conventions/project-structure.md)
+10. <a id="ref-10"></a>[Market Data & Realtime Updates](10-market-data.md)
+11. <a id="ref-11"></a>[Quality Attributes](../UCs/quality-attributes.md)
+12. <a id="ref-12"></a>Binance Spot API, General endpoints, Exchange information, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-endpoints>
+13. <a id="ref-13"></a>Binance Spot API, General API Information (Limits) và response của `GET /api/v3/exchangeInfo?symbol=BTCUSDT`, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/limits>

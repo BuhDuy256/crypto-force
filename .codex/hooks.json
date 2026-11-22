@@ -10,6 +10,19 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/lint-codex-edits.mjs\"",
+            "commandWindows": "$repoRoot = git rev-parse --show-toplevel; \u0026 \u0027C:/dev_env/nodejs/node.exe\u0027 (Join-Path $repoRoot \u0027scripts/lint-codex-edits.mjs\u0027); exit $LASTEXITCODE",
+            "timeout": 60
+          }
+        ]
+      }
     ]
   }
 }

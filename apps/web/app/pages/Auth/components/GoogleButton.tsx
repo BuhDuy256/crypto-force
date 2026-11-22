@@ -46,7 +46,7 @@ export function GoogleButton({
   email = '',
 }: GoogleButtonProps) {
   // The Google email belongs to an email/password account that is not linked (for example, an
-  // unverified one): tell the user to use that account (authentication.md, Sign in with Google).
+  // unverified one): tell the user to use that account (docs/UCs/authentication.md, GO-03).
   const emailTaken = returnedWithError && returnedErrorCode === 'account_not_linked';
   const google = useGoogleSignIn();
   // A successful call navigates away, so `isSuccess` also means "waiting for Google".

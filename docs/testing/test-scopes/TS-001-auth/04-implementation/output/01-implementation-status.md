@@ -298,5 +298,5 @@ Dry run chạy trên `b4ca981`. Các test case dưới đây fail vì hành vi c
 ## References
 
 1. <a id="ref-1"></a>[Test Cases](../../03-design/output/04-test-cases.md) — commit `497541d`, 2026-11-17
-2. <a id="ref-2"></a>[Authentication](../../../../../design/prototype/docs/requirements/authentication.md) — commit `c23d848`, 2026-11-17
+2. <a id="ref-2"></a>[Authentication](../../../../../UCs/authentication.md) — commit `c23d848`, khi đó tại `docs/design/prototype/docs/requirements/authentication.md`, 2026-11-17
 3. <a id="ref-3"></a>[Security](../../../../../architecture/23-security.md) — commit `c23d848`, 2026-11-17

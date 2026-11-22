@@ -1,4 +1,4 @@
-/** Where users land after signing in when no action is pending (authentication.md). */
+/** Where users land after signing in when no action is pending (docs/UCs/authentication.md, RD-01). */
 const DEFAULT_DESTINATION = '/realtime';
 
 const AUTH_PATHS = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password'];

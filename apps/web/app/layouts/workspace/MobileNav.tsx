@@ -24,7 +24,7 @@ interface MobileNavProps {
 const drawerLink =
   'flex min-h-12 items-center rounded-lg px-3 text-base text-foreground no-underline hover:bg-accent';
 
-/** Drawer that holds the tabs and account actions below the `lg` breakpoint (workspace.md, App header). */
+/** Drawer that holds the tabs and account actions below the `lg` breakpoint (docs/design/prototype/docs/requirements/workspace.md, App header). */
 export function MobileNav({ name, email, signingOut, onSignOut }: MobileNavProps) {
   const [open, setOpen] = useState(false);
   const close = () => {

@@ -252,6 +252,7 @@ Mục của MD-14 dẫn tới coverage item của model khác được phủ b�
 | TC-244; v1 | S: quét axe, trạng thái mặc định | Trung bình | MD-17-CI-20 đến MD-17-CI-25 | Môi trường S với `@axe-core/playwright` | Quét Sign in, Create account, Check your email, Forgot password, Choose a new password, màn link hết hạn | 0 vi phạm `serious` hoặc `critical` trên mỗi màn | [[8]](#ref-8); RF-05 | DR-01, DR-08, ER-02, ER-07, ER-08 |
 | TC-245; v1 | S: quét axe, trạng thái lỗi | Trung bình | MD-17-CI-26 đến MD-17-CI-29 | Như TC-244 | Bấm submit với các trường trống ở Sign in, Create account, Forgot password, Choose a new password; quét | 0 vi phạm `serious` hoặc `critical` trên mỗi màn | [[8]](#ref-8) | DR-01, DR-08, ER-02, ER-07, ER-08 |
 | TC-246; v1 | S: bàn phím trên tab Sign in và Create account | Trung bình | MD-17-CI-30 đến MD-17-CI-33 | Focus ở tab Sign in | Bấm mũi tên phải; mũi tên trái; End; Home | Mũi tên phải: focus và chọn tab Create account. Mũi tên trái: tab Sign in. End: tab Create account. Home: tab Sign in | [[2, Create account và Verify email]](#ref-2) | ER-02, ER-07 |
+| TC-247; v1 | CI: Continue with Google luôn yêu cầu màn chọn tài khoản | Cao | MD-13-CI-26, MD-13-CI-27 | Môi trường CI với OAuth provider giả | Bắt đầu Continue with Google; đọc URL nhà cung cấp trong response | URL nhà cung cấp có origin `https://accounts.google.com` và tham số `prompt` với giá trị `select_account`; test CI không kiểm giao diện Google | [[2, Continue with Google]](#ref-2) | ER-02 |
 
 ### 2.10. Threat model (MD-16)
 
@@ -312,7 +313,7 @@ Mỗi threat có control được phủ bởi test case của coverage item ở 
 ## References
 
 1. <a id="ref-1"></a>[Test Models](03-test-models.md) — 2026-11-17
-2. <a id="ref-2"></a>[Authentication](../../../../../design/prototype/docs/requirements/authentication.md) — commit `705a1ad`, 2026-11-17
+2. <a id="ref-2"></a>[Authentication](../../../../../UCs/authentication.md) — commit `705a1ad`, khi đó tại `docs/design/prototype/docs/requirements/authentication.md`, 2026-11-17
 3. <a id="ref-3"></a>[Security](../../../../../architecture/23-security.md) — commit `d6c0541`, 2026-11-17
 4. <a id="ref-4"></a>[Workspace](../../../../../design/prototype/docs/requirements/workspace.md) — commit `bd0ecff`, 2026-11-16
 5. <a id="ref-5"></a>[Crypto Force UI Prototype](../../../../../design/prototype/README.md) — commit `dbbaafe`, 2026-11-16
