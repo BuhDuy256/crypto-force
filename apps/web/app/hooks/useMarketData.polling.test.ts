@@ -3,7 +3,7 @@
 // Only fetch is replaced. Fake timers control polling and deadlines. No DB is used.
 // Run: pnpm --filter @crypto-force/web exec vitest run app/hooks/useMarketData.polling.test.ts.
 // Expected: docs/testing/test-scopes/TS-002-market-data/rest-polling-verification.md.
-// Current defects: no periodic request and acceptance of an older dataTime.
+// Fault checks: a 6000 ms interval and acceptance of an older dataTime fail the related assertions.
 import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router';

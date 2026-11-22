@@ -32,10 +32,13 @@ export function useCandlestickChart(history: CandleHistory) {
     ma20: ISeriesApi<'Line'>;
   } | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
+  const selectedTime = useRef<number | null>(null);
+  const selection = useRef<string | null>(null);
   const series = useRef<ReturnType<typeof toChartSeries>>({ candles: [], volume: [], ma20: [] });
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+    selection.current = null;
     const style = getComputedStyle(container);
     const chart = createChart(container, {
       height: 280,
@@ -80,7 +83,8 @@ export function useCandlestickChart(history: CandleHistory) {
       lineWidth: 2,
     });
     chart.subscribeCrosshairMove((param) => {
-      setSelected(typeof param.time === 'number' ? param.time * 1000 : null);
+      selectedTime.current = typeof param.time === 'number' ? param.time * 1000 : null;
+      setSelected(selectedTime.current);
     });
     instance.current = { chart, candles, volume, ma20 };
     const observer = new ResizeObserver(() => {
@@ -95,6 +99,16 @@ export function useCandlestickChart(history: CandleHistory) {
   }, []);
   useEffect(() => {
     if (!instance.current) return;
+    const key = `${history.pair}:${history.timeframe}`;
+    const sameSelection = selection.current === key;
+    const timeScale = instance.current.chart.timeScale();
+    const range = timeScale.getVisibleRange();
+    const logicalRange = timeScale.getVisibleLogicalRange();
+    const previousPoints = series.current.candles;
+    const lastTime = previousPoints.at(-1)?.time;
+    const followsLast =
+      range && typeof range.to === 'number' && lastTime !== undefined && range.to >= lastTime;
+    const selectedBefore = selectedTime.current;
     const digits = marketPairPriceDecimals[history.pair];
     const priceFormat = { type: 'price', precision: digits, minMove: 10 ** -digits } as const;
     series.current = toChartSeries(history);
@@ -107,9 +121,46 @@ export function useCandlestickChart(history: CandleHistory) {
       detail: { pair: history.pair, timeframe: history.timeframe, ...series.current },
     });
     performance.clearMarks('market-data:apply');
-    instance.current.chart.timeScale().fitContent();
-    instance.current.chart.clearCrosshairPosition();
-    setSelected(null);
+    if (!sameSelection) {
+      timeScale.fitContent();
+      instance.current.chart.clearCrosshairPosition();
+      selectedTime.current = null;
+      setSelected(null);
+    } else {
+      if (followsLast && logicalRange) {
+        const shift = series.current.candles.length - previousPoints.length;
+        timeScale.setVisibleLogicalRange({
+          from: logicalRange.from + shift,
+          to: logicalRange.to + shift,
+        });
+      } else if (logicalRange && lastTime !== undefined) {
+        const anchor = series.current.candles.findIndex((point) => point.time === lastTime);
+        if (anchor >= 0) {
+          const shift = anchor - (previousPoints.length - 1);
+          timeScale.setVisibleLogicalRange({
+            from: logicalRange.from + shift,
+            to: logicalRange.to + shift,
+          });
+        } else if (range) {
+          timeScale.setVisibleRange(range);
+        }
+      }
+      const point = series.current.candles.find((item) => item.time * 1000 === selectedBefore);
+      if (point) {
+        instance.current.chart.setCrosshairPosition(
+          point.close,
+          point.time,
+          instance.current.candles,
+        );
+        selectedTime.current = selectedBefore;
+        setSelected(selectedBefore);
+      } else {
+        instance.current.chart.clearCrosshairPosition();
+        selectedTime.current = null;
+        setSelected(null);
+      }
+    }
+    selection.current = key;
   }, [history]);
 
   /**
@@ -150,7 +201,8 @@ export function useCandlestickChart(history: CandleHistory) {
       timeScale.setVisibleLogicalRange({ from: range.from + shift, to: range.to + shift });
     }
     current.chart.setCrosshairPosition(point.close, point.time, current.candles);
-    setSelected(point.time * 1000);
+    selectedTime.current = point.time * 1000;
+    setSelected(selectedTime.current);
   }
 
   return { containerRef, selected, onKeyDown };

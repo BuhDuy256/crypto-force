@@ -2,9 +2,16 @@
 // Only upstream HTTP is replaced. The control clock sets replay data and cache age.
 // Run with playwright.market-data-polling.config.ts, one worker, no other REST suite.
 // Expected: docs/testing/test-scopes/TS-002-market-data/rest-polling-verification.md.
-// Current missing polling makes refresh assertions fail. Driver faults are recorded in that document.
+// Faults: hidden polling, missing resume refresh, hidden error data and repeated fitContent fail assertions.
 import { randomInt, randomUUID } from 'node:crypto';
-import { expect, test, type APIRequestContext, type Page, type Request } from '@playwright/test';
+import {
+  expect,
+  test,
+  type APIRequestContext,
+  type Locator,
+  type Page,
+  type Request,
+} from '@playwright/test';
 
 const control = 'http://127.0.0.1:3016';
 const password = 'Correct-Horse-91';
@@ -52,24 +59,53 @@ async function setSource(request: APIRequestContext, elapsed: number, extra = {}
     (await request.post(`${control}/__rest/polling`, { data: { elapsed, ...extra } })).status(),
   ).toBe(200);
 }
-async function open(page: Page) {
+async function open(page: Page, beforeNavigate?: () => Promise<unknown>) {
   await page.clock.install({ time: new Date(1800000000000) });
   await page.clock.pauseAt(new Date(1800000001000));
+  await beforeNavigate?.();
   await page.goto('/realtime');
   await expect
     .poll(async () => {
       await page.clock.runFor(1);
-      const values = page.getByLabel('Chart 1 values', { exact: true });
-      return (await values.count()) ? values.textContent() : null;
+      return Promise.all([
+        ...[1, 2, 3, 4].map((chart) =>
+          page.getByLabel(`Chart ${chart} values`, { exact: true }).allTextContents(),
+        ),
+        page.getByLabel('Last price', { exact: true }).allTextContents(),
+      ]);
     })
-    .toContain('618.00');
-  await expect(page.getByLabel('Last price', { exact: true })).toContainText('618.00');
-  for (const chart of [2, 3, 4])
-    await expect(page.getByLabel(`Chart ${chart} values`, { exact: true })).toContainText('618.00');
+    .toEqual(Array.from({ length: 5 }, () => [expect.stringContaining('618.00')]));
+}
+function observeRequestStarts(page: Page) {
+  const times: number[] = [];
+  page.on('console', (message) => {
+    if (message.text().startsWith('polling-request:')) times.push(Number(message.text().slice(16)));
+  });
+  return {
+    times,
+    install: () =>
+      page.addInitScript(() => {
+        const nativeFetch = globalThis.fetch;
+        globalThis.fetch = (...args) => {
+          const url = args[0] instanceof Request ? args[0].url : String(args[0]);
+          if (url.includes('/api/market-data/'))
+            console.debug(`polling-request:${String(Date.now())}`);
+          return nativeFetch(...args);
+        };
+      }),
+  };
 }
 async function cycle(page: Page, request: APIRequestContext, elapsed = 5000, extra = {}) {
   await setSource(request, elapsed, extra);
   await page.clock.runFor(5000);
+}
+async function expectClockText(page: Page, locator: Locator, value: string) {
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(1);
+      return locator.allTextContents();
+    })
+    .toEqual([expect.stringContaining(value)]);
 }
 async function expectClose(page: Page, value: string) {
   await expect
@@ -129,8 +165,12 @@ test('refreshes all visible charts and summary after five seconds', async ({ pag
   await cycle(page, request);
   await expectClose(page, '628.00');
   for (const chart of [1, 2, 3, 4])
-    await expect(page.getByLabel(`Chart ${chart} values`, { exact: true })).toContainText('628.00');
-  await expect(page.getByLabel('Last price', { exact: true })).toContainText('628.00');
+    await expectClockText(
+      page,
+      page.getByLabel(`Chart ${chart} values`, { exact: true }),
+      '628.00',
+    );
+  await expectClockText(page, page.getByLabel('Last price', { exact: true }), '628.00');
   await expect(
     page.getByRole('region', { name: 'Chart 1', exact: true }).getByText(/^Data time/),
   ).not.toHaveText(times ?? '');
@@ -138,7 +178,8 @@ test('refreshes all visible charts and summary after five seconds', async ({ pag
 });
 
 test('pauses every query and refreshes immediately on resume', async ({ page, request }) => {
-  await open(page);
+  const starts = observeRequestStarts(page);
+  await open(page, starts.install);
   const toggle = page.getByRole('switch', { name: /Live updates/i });
   await expect(toggle).toBeChecked();
   await toggle.click();
@@ -146,10 +187,16 @@ test('pauses every query and refreshes immediately on resume', async ({ page, re
   const before = (await state(request)).pollingRequests.length;
   await cycle(page, request);
   expect((await state(request)).pollingRequests).toHaveLength(before);
+  const offset = starts.times.length;
+  const resumedAt = await page.evaluate(() => Date.now());
   await toggle.click();
   await page.clock.runFor(999);
   await expectClose(page, '628.00');
   expect((await state(request)).pollingRequests).toHaveLength(before + 5);
+  expect(starts.times.slice(offset)).toHaveLength(5);
+  expect(starts.times.slice(offset).every((at) => at >= resumedAt && at - resumedAt < 1000)).toBe(
+    true,
+  );
 });
 
 test('retains data and data time on an error, then removes the error after recovery', async ({
@@ -175,9 +222,12 @@ test('retains data and data time on an error, then removes the error after recov
   await cycle(page, request, 10000, { failure: false });
   await expectClose(page, '638.00');
   await expect(chart.getByRole('status')).toHaveText('');
-  await expect(page.getByRole('region', { name: 'Market summary' }).getByRole('status')).toHaveText(
-    '',
-  );
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(1);
+      return page.getByRole('region', { name: 'Market summary' }).getByRole('status').textContent();
+    })
+    .toBe('');
 });
 
 test('keeps initial chart errors stable until a manual retry', async ({ page, request }) => {
@@ -210,6 +260,20 @@ test('keeps keyboard focus, selected candle and silent success status during ref
   request,
 }) => {
   await open(page);
+  const statusChanges: string[] = [];
+  page.on('console', (message) => {
+    if (message.text().startsWith('polling-status:')) statusChanges.push(message.text());
+  });
+  await page.evaluate(() => {
+    const observer = new MutationObserver((entries) => {
+      console.debug(
+        'polling-status:' + JSON.stringify(entries.map((entry) => entry.target.textContent)),
+      );
+    });
+    document.querySelectorAll('[role="status"]').forEach((status) => {
+      observer.observe(status, { childList: true, characterData: true, subtree: true });
+    });
+  });
   const chart = page.getByRole('region', { name: 'Chart 1', exact: true });
   const canvas = chart.getByRole('group', { name: /candlesticks/ });
   await canvas.focus();
@@ -220,6 +284,7 @@ test('keeps keyboard focus, selected candle and silent success status during ref
   await expect(canvas).toBeFocused();
   await expect(chart.getByLabel('Selected candle', { exact: true })).toContainText('628.00');
   await expect(chart.getByRole('status')).toHaveText('');
+  expect(statusChanges).toEqual([]);
 });
 
 test('stops refreshes after a session expires', async ({ page, request, playwright }) => {
@@ -256,7 +321,7 @@ async function visibility(page: Page, hidden: boolean) {
       value: value ? 'hidden' : 'visible',
     });
     Object.defineProperty(document, 'hidden', { configurable: true, value });
-    document.dispatchEvent(new Event('visibilitychange'));
+    document.dispatchEvent(new Event('visibilitychange', { bubbles: true }));
   }, hidden);
 }
 
@@ -264,15 +329,22 @@ test('sends no requests while hidden and refreshes on visibility return', async 
   page,
   request,
 }) => {
-  await open(page);
+  const starts = observeRequestStarts(page);
+  await open(page, starts.install);
   const before = (await state(request)).pollingRequests.length;
   await visibility(page, true);
   await cycle(page, request);
   expect((await state(request)).pollingRequests).toHaveLength(before);
+  const offset = starts.times.length;
+  const visibleAt = await page.evaluate(() => Date.now());
   await visibility(page, false);
   await page.clock.runFor(999);
   await expectClose(page, '628.00');
   expect((await state(request)).pollingRequests).toHaveLength(before + 5);
+  expect(starts.times.slice(offset)).toHaveLength(5);
+  expect(starts.times.slice(offset).every((at) => at >= visibleAt && at - visibleAt < 1000)).toBe(
+    true,
+  );
 });
 
 test('accepts an in-flight result after pause without starting another refresh', async ({
@@ -380,4 +452,160 @@ test('does not overlap a held refresh and keeps old data at the chart deadline',
     .toBe('Cannot load candle history.');
   await expectClose(page, '618.00');
   expect((await request.post(`${control}/__rest/release`)).status()).toBe(200);
+});
+
+test('reloads with live updates enabled after a keyboard pause', async ({ page, request }) => {
+  await open(page);
+  const toggle = page.getByRole('switch', { name: 'Live updates' });
+  await toggle.focus();
+  const pausedAt = await page.evaluate(() => Date.now());
+  await toggle.press('Space');
+  await expect(toggle).not.toBeChecked();
+  const paused = await page.getByText(/^Paused at/).textContent();
+  expect(paused).toContain(
+    new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hourCycle: 'h23',
+      timeZoneName: 'short',
+      timeZone: await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZone),
+    }).format(pausedAt),
+  );
+  await page.reload();
+  await expect(toggle).toBeChecked();
+  await cycle(page, request);
+  await expectClose(page, '628.00');
+});
+
+test('keeps the new pair after an old polling response settles', async ({ page, request }) => {
+  await open(page);
+  const expectOldSettled = observeOldRefresh(page);
+  const initial = (await state(request)).pollingRequests.filter((url) =>
+    url.includes('pair=BTCUSDT&timeframe=5m'),
+  ).length;
+  await cycle(page, request, 5000, { hold: true });
+  await expect
+    .poll(
+      async () =>
+        (await state(request)).pollingRequests.filter((url) =>
+          url.includes('pair=BTCUSDT&timeframe=5m'),
+        ).length,
+    )
+    .toBe(initial + 1);
+  await page.getByRole('combobox', { name: 'Pair', exact: true }).click();
+  await page.getByRole('option', { name: 'ETHUSDT', exact: true }).click();
+  expect((await request.post(`${control}/__rest/release`)).status()).toBe(200);
+  await expectOldSettled();
+  await expectClose(page, '728.00');
+  await expect(
+    page
+      .getByRole('region', { name: 'Chart 1', exact: true })
+      .getByRole('group', { name: /ETHUSDT 5m candlesticks/ }),
+  ).toBeVisible();
+  await cycle(page, request, 10000);
+  await expectClose(page, '738.00');
+});
+
+test('keeps a zoomed historical time axis across a candle rollover', async ({
+  page,
+  request,
+}, info) => {
+  const applies: { timeframe: string; candles: { time: number }[] }[] = [];
+  page.on('console', (message) => {
+    if (message.text().startsWith('polling-apply:'))
+      applies.push(
+        JSON.parse(message.text().slice('polling-apply:'.length)) as (typeof applies)[number],
+      );
+  });
+  await open(page, () =>
+    page.addInitScript(() => {
+      const mark = performance.mark.bind(performance);
+      performance.mark = (name, options) => {
+        if (name === 'market-data:apply')
+          console.debug('polling-apply:' + JSON.stringify(options?.detail));
+        return mark(name, options);
+      };
+    }),
+  );
+  const canvas = page
+    .getByRole('region', { name: 'Chart 1', exact: true })
+    .getByRole('group', { name: /candlesticks/ });
+  await canvas.focus();
+  await canvas.press('+');
+  await canvas.press('+');
+  await page.mouse.move(0, 0);
+  await page.clock.runFor(100);
+  const bounds = await canvas.boundingBox();
+  if (!bounds) throw new Error('The chart bounds are missing.');
+  const clip = {
+    x: bounds.x,
+    y: bounds.y + bounds.height - 26,
+    width: bounds.width - 70,
+    height: 26,
+  };
+  const before = await page.screenshot({
+    clip,
+    path: info.outputPath('historical-axis-before.png'),
+  });
+  const first = applies.find((entry) => entry.timeframe === '5m');
+  expect(first?.candles).toHaveLength(500);
+  await cycle(page, request, 300000);
+  await expectClose(page, '1,218.00');
+  await page.clock.runFor(100);
+  const after = await page.screenshot({ clip, path: info.outputPath('historical-axis-after.png') });
+  expect(after.equals(before)).toBe(true);
+  const last = applies.filter((entry) => entry.timeframe === '5m').at(-1);
+  expect(last?.candles).toHaveLength(500);
+  expect(last?.candles[0]?.time).toBe((first?.candles[0]?.time ?? 0) + 300);
+  expect(last?.candles.at(-1)?.time).toBe((first?.candles.at(-1)?.time ?? 0) + 300);
+  await canvas.press('End');
+  await expect(
+    page
+      .getByRole('region', { name: 'Chart 1', exact: true })
+      .getByLabel('Selected candle', { exact: true }),
+  ).toContainText('1,218.00');
+  await canvas.screenshot({ path: info.outputPath('rollover-canvas.png') });
+});
+
+test('keeps the new rollover candle in view while following the tail', async ({
+  page,
+  request,
+}, info) => {
+  await open(page);
+  const canvas = page
+    .getByRole('region', { name: 'Chart 1', exact: true })
+    .getByRole('group', { name: /candlesticks/ });
+  await page.clock.runFor(100);
+  await canvas.focus();
+  await canvas.press('+');
+  await page.clock.runFor(20);
+  await canvas.press('+');
+  await page.clock.runFor(20);
+  await canvas.press('End');
+  await page.clock.runFor(100);
+  await cycle(page, request, 300000);
+  await expectClose(page, '1,218.00');
+  const bounds = await canvas.boundingBox();
+  if (!bounds) throw new Error('The chart bounds are missing.');
+  const clip = {
+    x: bounds.x,
+    y: bounds.y + bounds.height - 26,
+    width: bounds.width - 70,
+    height: 26,
+  };
+  async function clearPointer() {
+    await canvas.hover({ position: { x: 10, y: 10 } });
+    await page.mouse.move(0, 0);
+    await page.clock.runFor(100);
+  }
+  await clearPointer();
+  const before = await page.screenshot({ clip, path: info.outputPath('tail-before-end.png') });
+  await canvas.press('End');
+  await clearPointer();
+  const after = await page.screenshot({ clip, path: info.outputPath('tail-after-end.png') });
+  expect(after.equals(before)).toBe(true);
 });

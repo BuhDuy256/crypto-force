@@ -8,17 +8,25 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group';
+import { Button } from '~/components/ui/button';
+import { formatDateTime } from '~/utils/market-chart';
 
 export function RealtimeToolbar({
   pair,
   onPairChange,
   chartCount,
   onChartCountChange,
+  live,
+  pausedAt,
+  onToggleLive,
 }: {
   pair: MarketPair;
   onPairChange: (pair: MarketPair) => void;
   chartCount: 1 | 2 | 4;
   onChartCountChange: (count: 1 | 2 | 4) => void;
+  live: boolean;
+  pausedAt: number | null;
+  onToggleLive: () => void;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
@@ -27,6 +35,14 @@ export function RealtimeToolbar({
         <p className="text-sm text-muted-foreground">Candlesticks, volume and MA(20)</p>
       </div>
       <div className="flex flex-wrap items-center gap-4">
+        <Button role="switch" aria-checked={live} onClick={onToggleLive} variant="outline">
+          Live updates
+        </Button>
+        {pausedAt !== null ? (
+          <span className="text-sm text-muted-foreground">
+            Paused at {formatDateTime(pausedAt)}
+          </span>
+        ) : null}
         <div className="flex items-center gap-2">
           <span id="pair-label" className="text-sm">
             Pair

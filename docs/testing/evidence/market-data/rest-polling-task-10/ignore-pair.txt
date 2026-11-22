@@ -1,0 +1,59 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 e2e\market-data\rest-polling.spec.ts:436:1 › keeps the new pair after an old polling response settles (15.4s)
+
+
+  1) e2e\market-data\rest-polling.spec.ts:436:1 › keeps the new pair after an old polling response settles 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "728.00"
+    Received string:    "Open candle · Close 628.00 · Volume 528 · MA(20) 609.00 (provisional)"
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+       96 |       return (await values.count()) ? values.textContent() : null;
+       97 |     })
+    >  98 |     .toContain(value);
+          |      ^
+       99 | }
+      100 |
+      101 | // The replay must first work without polling. These checks keep a driver defect out of red evidence.
+        at expectClose (C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\market-data\rest-polling.spec.ts:98:6)
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\market-data\rest-polling.spec.ts:455:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\market-data-polling\rest-polling-keeps-the-new-23b66-ld-polling-response-settles\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\market-data-polling\rest-polling-keeps-the-new-23b66-ld-polling-response-settles\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\market-data-polling\rest-polling-keeps-the-new-23b66-ld-polling-response-settles\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\market-data-polling\rest-polling-keeps-the-new-23b66-ld-polling-response-settles\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\market-data\rest-polling.spec.ts:436:1 › keeps the new pair after an old polling response settles 
+undefined
+C:\Users\Duy\Desktop\crypto-force\apps\web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "playwright" not found
+[WebServer] (node:8340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `pnpm --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15480) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `pnpm --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13524) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:27672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+(node:48860) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

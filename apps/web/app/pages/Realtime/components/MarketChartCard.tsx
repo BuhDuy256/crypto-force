@@ -21,13 +21,15 @@ export function MarketChartCard({
   pair,
   timeframe,
   onTimeframeChange,
+  live,
 }: {
   chartId: number;
   pair: MarketPair;
   timeframe: MarketTimeframe;
   onTimeframeChange: (id: number, timeframe: MarketTimeframe) => void;
+  live: boolean;
 }) {
-  const query = useCandleHistory(pair, timeframe);
+  const query = useCandleHistory(pair, timeframe, live);
   const valuesId = useId();
   const history = query.data;
   const last = history?.candles.at(-1);

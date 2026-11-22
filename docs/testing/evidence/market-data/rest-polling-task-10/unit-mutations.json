@@ -1,0 +1,20 @@
+[
+  {
+    "mutant": "interval-6000",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "command": "pnpm --filter @crypto-force/web exec vitest run app/hooks/useMarketData.polling.test.ts"
+  },
+  {
+    "mutant": "accept-older",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "command": "pnpm --filter @crypto-force/web exec vitest run app/hooks/useMarketData.polling.test.ts"
+  },
+  {
+    "mutant": "discard-source-errors",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "command": "pnpm --filter @crypto-force/api exec vitest run test/market-data/polling-cache.test.ts"
+  }
+]

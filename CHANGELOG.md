@@ -8,6 +8,8 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Changed
 
+- Bước 08 Task 10: thêm runner baseline REST polling với Web production build, HTTP replay qua Binance adapter, nguồn lệch pha, workload 1/10/50 client và cohort thành công/lỗi. Runner tách bytes tải đầu theo client/request, giữ raw ledger, đối chiếu response đầy đủ và ghi rõ apply chưa chứng minh paint. Test runner bắt lỗi phân loại bytes, thiếu trường summary và reset timeline. Baseline chính thức chỉ chạy sau commit runner.
+
 - Bước 08 Task 9: thêm protocol kiểm chứng REST polling, ma trận requirement, mô hình trạng thái/lỗi, nguồn tham chiếu freshness và cách đo bytes/weight. Thêm test trước build qua hook public, cache provider và E2E với API thật, replay nến theo clock điều khiển. Test red có chủ đích được giữ cho Task 10; chưa triển khai polling hoặc đo baseline. Commit testware và protocol: `5d49818`.
 
 - Bước 08 Task 8: requirements và thiết kế REST polling. Use case Theo dõi cập nhật định kỳ có rule MK-63 đến MK-85, gồm chu kỳ 5 giây, tạm dừng theo WCAG 2.2 SC 2.2.2, tab ẩn, làm mới lỗi giữ dữ liệu và giữ vùng xem. Thêm QA-12 (độ mới) và QA-13 (request tới Binance), ADR-007 (polling tải lại toàn bộ cửa sổ) và ADR-008 (giữ lỗi nguồn trong TTL), OQ-086. Product owner duyệt các giá trị và hai ADR ngày 2026-11-22; ADR-006 chuyển sang Superseded by ADR-008, OQ-085 Resolved.

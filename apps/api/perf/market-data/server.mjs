@@ -16,6 +16,7 @@ import { createDatabase } from '../../src/database/client.ts';
 import { createAuthEmails } from '../../src/services/auth-email.service.ts';
 import { createBinanceMarketDataProvider } from '../../src/providers/market-data/binance.provider.ts';
 import { createCachedMarketDataProvider } from '../../src/providers/market-data/cached-market-data.provider.ts';
+import { pollingReplay } from './polling-replay.mjs';
 
 // This process owns a dedicated database. Only loopback HTTP and replay HTTP are allowed.
 const root = fileURLToPath(new URL('../../../../', import.meta.url));
@@ -132,12 +133,13 @@ const auth = createAuth({
     origin,
   ),
 });
+const polling = process.argv.includes('--polling') ? pollingReplay(fixture) : null;
 const replay = express();
 replay.get(['/api/v3/klines', '/api/v3/ticker/24hr'], async (req, res) => {
   const start = performance.now();
   const pair = req.query.symbol;
   const key = req.path.endsWith('/klines') ? `${pair}:${req.query.interval}` : `summary:${pair}`;
-  const entry = fixture.keys[key];
+  const entry = polling ? polling.read(key) : fixture.keys[key];
   if (!entry || (req.path.endsWith('/klines') && req.query.limit !== '519'))
     return res.status(400).json({ error: 'Invalid replay key.' });
   if (barrier && `candles:${pair}:${req.query.interval}:519` === barrier.key) {
@@ -151,10 +153,13 @@ replay.get(['/api/v3/klines', '/api/v3/ticker/24hr'], async (req, res) => {
     utc: new Date().toISOString(),
     weight: req.path.endsWith('/klines') ? 2 : 2,
     weightModel: 'synthetic-v1',
+    status: polling?.failure ? 503 : 200,
+    version: entry?.version,
     barrier: Boolean(barrier),
   };
   upstream.push(value);
   record('upstream.jsonl', value);
+  if (polling?.failure) return res.status(503).json({ error: 'Replay source failure.' });
   res.json(
     fault === 'ohlcv' && Array.isArray(entry.raw)
       ? entry.raw.map((row, index) =>
@@ -167,27 +172,34 @@ replay.get(['/api/v3/klines', '/api/v3/ticker/24hr'], async (req, res) => {
 });
 const replayServer = replay.listen(3026, '127.0.0.1');
 await once(replayServer, 'listening');
-const provider = createCachedMarketDataProvider({
-  provider: createBinanceMarketDataProvider({
-    fetch: (input, init) => {
-      const url = new URL(String(input));
-      if (
-        url.origin !== 'https://api.binance.com' ||
-        !['/api/v3/klines', '/api/v3/ticker/24hr'].includes(url.pathname)
-      )
-        throw new Error('The replay adapter received an unknown endpoint.');
-      url.protocol = 'http:';
-      url.host = '127.0.0.1:3026';
-      return nativeFetch(url, init);
-    },
+function createProvider() {
+  return createCachedMarketDataProvider({
+    provider: createBinanceMarketDataProvider({
+      fetch: (input, init) => {
+        const url = new URL(String(input));
+        if (
+          url.origin !== 'https://api.binance.com' ||
+          !['/api/v3/klines', '/api/v3/ticker/24hr'].includes(url.pathname)
+        )
+          throw new Error('The replay adapter received an unknown endpoint.');
+        url.protocol = 'http:';
+        url.host = '127.0.0.1:3026';
+        return nativeFetch(url, init);
+      },
+      now: Date.now,
+      timeoutMs: 5000,
+      logger,
+    }),
     now: Date.now,
-    timeoutMs: 5000,
+    ttlMs: 5000,
     logger,
-  }),
-  now: Date.now,
-  ttlMs: 5000,
-  logger,
-});
+  });
+}
+let currentProvider = createProvider();
+const provider = {
+  getCandles: (request) => currentProvider.getCandles(request),
+  getSummary: (pair) => currentProvider.getSummary(pair),
+};
 const app = express();
 app.disable('x-powered-by');
 app.use((req, res, next) => {
@@ -209,14 +221,15 @@ app.use((req, res, next) => {
         const oracle = fixture.keys[key];
         const actual = isCandles ? body?.candles : body;
         const expected = isCandles ? oracle?.candles : oracle?.expected;
-        const valid =
-          res.statusCode === 200 &&
-          JSON.stringify(actual) === JSON.stringify(expected) &&
-          (!isCandles ||
-            (body.warmupCount === 19 &&
-              body.pair === req.query.pair &&
-              body.timeframe === req.query.timeframe &&
-              Number.isSafeInteger(body.dataTime)));
+        const valid = polling
+          ? polling.validate(key, body, res.statusCode)
+          : res.statusCode === 200 &&
+            JSON.stringify(actual) === JSON.stringify(expected) &&
+            (!isCandles ||
+              (body.warmupCount === 19 &&
+                body.pair === req.query.pair &&
+                body.timeframe === req.query.timeframe &&
+                Number.isSafeInteger(body.dataTime)));
         const reconciliation = {
           id,
           key,
@@ -278,6 +291,13 @@ control.post('/release', (_req, res) => {
   pending.splice(0).forEach((release) => release());
   res.json({ released: true });
 });
+control.post('/polling', (req, res) => {
+  if (!polling) return res.sendStatus(409);
+  polling.begin(req.body.failure === true, req.body.resetCache === true);
+  if (req.body.resetCache === true) currentProvider = createProvider();
+  res.json(polling.state());
+});
+control.get('/polling', (_req, res) => res.json(polling?.state() ?? null));
 control.get('/mail', (_req, res) => res.json(mails.at(-1) ?? ''));
 control.post('/fault', (req, res) => {
   if (active || ![null, 'ohlcv'].includes(req.body.fault)) return res.sendStatus(409);

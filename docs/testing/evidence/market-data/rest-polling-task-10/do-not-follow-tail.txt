@@ -1,0 +1,54 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 e2e\market-data\rest-polling.spec.ts:537:1 › keeps the new rollover candle in view while following the tail (6.7s)
+
+
+  1) e2e\market-data\rest-polling.spec.ts:537:1 › keeps the new rollover candle in view while following the tail 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      571 |   await clearPointer();
+      572 |   const after = await page.screenshot({ clip, path: info.outputPath('tail-after-end.png') });
+    > 573 |   expect(after.equals(before)).toBe(true);
+          |                                ^
+      574 | });
+      575 |
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\market-data\rest-polling.spec.ts:573:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\market-data-polling\rest-polling-keeps-the-new-10c99-ew-while-following-the-tail\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\market-data-polling\rest-polling-keeps-the-new-10c99-ew-while-following-the-tail\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\market-data-polling\rest-polling-keeps-the-new-10c99-ew-while-following-the-tail\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\market-data-polling\rest-polling-keeps-the-new-10c99-ew-while-following-the-tail\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\market-data\rest-polling.spec.ts:537:1 › keeps the new rollover candle in view while following the tail 
+undefined
+C:\Users\Duy\Desktop\crypto-force\apps\web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "playwright" not found
+[WebServer] (node:47052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `pnpm --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:28308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:46468) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `pnpm --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:16972) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1144) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+(node:40608) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

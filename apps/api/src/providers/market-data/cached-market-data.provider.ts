@@ -1,7 +1,10 @@
 import type { Logger } from 'pino';
-import type { MarketDataProvider } from './market-data-provider';
+import { MarketDataProviderError, type MarketDataProvider } from './market-data-provider';
 
-type CacheEntry<T> = { pending: Promise<T> } | { value: T; expiresAt: number };
+type CacheEntry<T> =
+  | { pending: Promise<T> }
+  | { value: T; expiresAt: number }
+  | { error: MarketDataProviderError; expiresAt: number };
 
 export function createCachedMarketDataProvider({
   provider,
@@ -31,6 +34,7 @@ export function createCachedMarketDataProvider({
     }
     if (entry && now() < entry.expiresAt) {
       logger.debug({ key, cacheState: 'hit' }, 'The request used cached market data.');
+      if ('error' in entry) throw entry.error;
       return entry.value;
     }
     entries.delete(key);
@@ -41,7 +45,11 @@ export function createCachedMarketDataProvider({
         return value;
       },
       (error: unknown) => {
-        entries.delete(key);
+        if (error instanceof MarketDataProviderError) {
+          entries.set(key, { error, expiresAt: now() + ttlMs });
+        } else {
+          entries.delete(key);
+        }
         throw error;
       },
     );

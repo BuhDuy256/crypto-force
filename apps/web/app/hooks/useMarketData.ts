@@ -1,15 +1,14 @@
 import { useEffect } from 'react';
 import { useRevalidator } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
-import type { MarketPair, MarketTimeframe } from '@crypto-force/shared';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import type { CandleHistory, MarketPair, MarketTimeframe } from '@crypto-force/shared';
 import { getCandleHistory, getMarketSummary, MarketDataRequestError } from '~/api/market-data';
 
-const manualRefresh = {
-  staleTime: Infinity,
+const pollingIntervalMs = 5000;
+const requestOptions = {
   retry: false,
-  refetchOnWindowFocus: false,
+  refetchOnMount: false,
   refetchOnReconnect: false,
-  refetchInterval: false,
 } as const;
 
 /**
@@ -26,19 +25,33 @@ function useSessionGate(error: Error | null) {
   }, [unauthenticated, revalidate]);
 }
 
-export function useCandleHistory(pair: MarketPair, timeframe: MarketTimeframe) {
-  const query = useQuery({
-    ...manualRefresh,
-    queryKey: ['market-data', 'candles', pair, timeframe],
-    queryFn: ({ signal }) => getCandleHistory({ pair, timeframe }, signal),
+export function useCandleHistory(pair: MarketPair, timeframe: MarketTimeframe, live = true) {
+  const client = useQueryClient();
+  const queryKey = ['market-data', 'candles', pair, timeframe];
+  const query = useQuery<CandleHistory>({
+    ...requestOptions,
+    staleTime: live ? pollingIntervalMs : Infinity,
+    refetchInterval: (current) =>
+      live && current.state.data !== undefined ? pollingIntervalMs : false,
+    refetchOnWindowFocus: (current) =>
+      live && current.state.data !== undefined ? 'always' : false,
+    queryKey,
+    queryFn: async ({ signal }) => {
+      const incoming = await getCandleHistory({ pair, timeframe }, signal);
+      const current = client.getQueryData<CandleHistory>(queryKey);
+      return current && incoming.dataTime < current.dataTime ? current : incoming;
+    },
   });
   useSessionGate(query.error);
   return query;
 }
 
-export function useMarketSummary(pair: MarketPair) {
+export function useMarketSummary(pair: MarketPair, live = true) {
   const query = useQuery({
-    ...manualRefresh,
+    ...requestOptions,
+    staleTime: live ? pollingIntervalMs : Infinity,
+    refetchInterval: live ? pollingIntervalMs : false,
+    refetchOnWindowFocus: live ? 'always' : false,
     queryKey: ['market-data', 'summary', pair],
     queryFn: ({ signal }) => getMarketSummary(pair, signal),
   });

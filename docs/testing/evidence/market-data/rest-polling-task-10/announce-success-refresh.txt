@@ -1,0 +1,67 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 e2e\market-data\rest-polling.spec.ts:232:1 › keeps keyboard focus, selected candle and silent success status during refresh (9.0s)
+
+
+  1) e2e\market-data\rest-polling.spec.ts:232:1 › keeps keyboard focus, selected candle and silent success status during refresh 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "polling-status:[\"Loading candles…\"]",
+    +   "polling-status:[\"Loading candles…\"]",
+    +   "polling-status:[\"Loading candles…\"]",
+    +   "polling-status:[\"Loading candles…\"]",
+    +   "polling-status:[\"\"]",
+    +   "polling-status:[\"\"]",
+    +   "polling-status:[\"\"]",
+    +   "polling-status:[\"\"]",
+    + ]
+
+      255 |   await expect(chart.getByLabel('Selected candle', { exact: true })).toContainText('628.00');
+      256 |   await expect(chart.getByRole('status')).toHaveText('');
+    > 257 |   expect(statusChanges).toEqual([]);
+          |                         ^
+      258 | });
+      259 |
+      260 | test('stops refreshes after a session expires', async ({ page, request, playwright }) => {
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\market-data\rest-polling.spec.ts:257:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\market-data-polling\rest-polling-keeps-keyboar-8db47-ccess-status-during-refresh\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\market-data-polling\rest-polling-keeps-keyboar-8db47-ccess-status-during-refresh\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\market-data-polling\rest-polling-keeps-keyboar-8db47-ccess-status-during-refresh\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\market-data-polling\rest-polling-keeps-keyboar-8db47-ccess-status-during-refresh\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\market-data\rest-polling.spec.ts:232:1 › keeps keyboard focus, selected candle and silent success status during refresh 
+undefined
+C:\Users\Duy\Desktop\crypto-force\apps\web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "playwright" not found
+[WebServer] (node:30728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `pnpm --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:31380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:48992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `pnpm --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:52404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+(node:55076) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

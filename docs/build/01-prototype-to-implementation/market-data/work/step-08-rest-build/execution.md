@@ -659,6 +659,49 @@ Không giữ mutant trong diff production. Phép làm hỏng visibility/hold và
 
 Review độc lập báo một finding medium: test đổi timeframe chưa chờ request cũ kết thúc và chưa phân biệt dữ liệu hai timeframe. Đã sửa ở tầng test theo skill correct: observer nghe requestfinished/requestfailed; replay 1d có close cộng 100; test kiểm close 728 của 1d sau khi request cũ kết thúc/hủy, thay vì chỉ kiểm nhãn. Type/lint không thể tự xác định oracle nghiệp vụ này, nên sửa test và boundary driver; không thêm Lesson Learned. Chạy lại ba E2E bị ảnh hưởng: replay và initial-error green; timeframe race red tại assertion chưa có request polling. Các assertion sau đó vẫn chờ Task 10. Evidence follow-up nằm trong red-summary.json. Reviewer kiểm lại staged diff, xác nhận finding medium đã xử lý và không có finding substantive mới. Đây là source review của testware; hành vi race sau khi polling hoạt động vẫn chưa kiểm chứng. Task 10 tiếp tục từ trạng thái red này.
 
+## Task 10: Build polling, đo và chốt tài liệu
+
+### Triển khai và kiểm chức năng
+
+Web query làm mới theo chu kỳ, dừng khi paused hoặc tab ẩn. Resume invalidate các query đang dùng, không tự thử lại chart lỗi chưa có dữ liệu. Focus refresh dùng `always` có điều kiện dữ liệu; freshness bằng chu kỳ tránh request thừa khi hai chart cùng lựa chọn. Response nến cũ hơn bị bỏ trước khi thay cache. API giữ lỗi nguồn có kiểu trong TTL, tính từ lúc reject; lỗi ngoài dự kiến không được giữ.
+
+Chart giữ instance, focus, crosshair và nến đang chọn khi cùng lựa chọn được làm mới. Historical viewport bù logical range theo nến tham chiếu. Tail viewport giữ nến rollover mới trong vùng xem. Tạo lại instance trong Strict Mode đặt lại lựa chọn nội bộ. Data time và Paused at hiển thị giây để phân biệt những lần cập nhật trong cùng phút.
+
+| Kiểm tra | Kết quả đã xác nhận |
+| --- | --- |
+| Web Vitest | 18/18 pass; hook polling 8/8 được chạy lại sau điều chỉnh freshness |
+| API Market Data | 96/96 pass, gồm 90 test cũ và 6 test cache polling; lượt shuffle cũng 96/96 |
+| E2E polling | 15/15 pass; gồm 11 test Task 9 và 4 test bổ sung |
+| E2E REST history | 24/24 pass. Một expected thời gian được đổi từ phút sang giây theo định dạng hiển thị mới |
+| E2E mock UI | 9/9 pass ở lượt cuối. Lượt đầu bắt request trùng khi hai chart cùng query; đã sửa freshness và chạy lại toàn spec |
+| E2E MSW | 1/1 pass |
+| Runner Node | 3/3 pass; không cần DB |
+| Web/API typecheck, Web production build | Đạt trong phạm vi Task 10 |
+| ESLint file đã sửa, Prettier file đã sửa, check:docs | Đạt sau khi sửa lỗi instrumentation test |
+
+Không cộng các lượt mutation hoặc lượt chạy lại vào số test. Không chạy `pnpm check`. Phạm vi Web/API trên không phải toàn bộ test của repository.
+
+### Mutation, driver và browser
+
+Evidence nằm trong [rest-polling-task-10](../../../../../testing/evidence/market-data/rest-polling-task-10/functional-results.json). Có 17 mutation/fault đã làm assertion fail: 3 unit, 6 E2E ban đầu, 5 E2E bổ sung và 3 runner. Mỗi source được khôi phục sau lượt mutation.
+
+- Unit: chu kỳ 6000 ms, nhận snapshot cũ hơn, xóa lỗi nguồn ngay.
+- E2E ban đầu: polling khi hidden, bỏ refresh lúc resume, ẩn dữ liệu khi lỗi, fitContent mỗi refresh, mặc định paused, bỏ thao tác đổi pair.
+- E2E bổ sung: không theo nến cuối, thông báo khi refresh thành công, visibility driver không đổi trạng thái, hold trả ngay, nguồn luôn thành công.
+- Runner: thiếu kiểm change24hPercent, gộp polling vào bytes tải đầu, reset timeline khi đổi trạng thái lỗi.
+
+Ảnh trục thời gian trước/sau rollover và sau End được giữ trong cùng thư mục evidence. Kiểm `playwright-cli` trên production build ghi nhận hover giữ nguyên giá trị nến qua refresh, status rỗng, pause/resume bằng Space giữ focus. [Ảnh hover](../../../../../testing/evidence/market-data/rest-polling-task-10/hover.png) giữ attribution TradingView. Kiểm tab dùng visibility boundary được phát event nổi lên window; chưa kết luận cho chuyển tab của trình duyệt có giao diện. Không dùng screen reader.
+
+Lượt test viewport theo tail đầu tiên fail vì End chạy trước frame của lệnh zoom khi clock dừng. Sau khi chạy frame giữa các thao tác, test pass. Mutant không theo tail làm chính phép kiểm này fail. Lượt kiểm historical viewport đã bắt lỗi khôi phục timestamp làm lệch vị trí lẻ; production chuyển sang bù logical range.
+
+### Review và baseline
+
+Review độc lập ban đầu có hai finding runner: bytes tải đầu lẫn polling lúc khởi tạo nhiều client, và oracle summary thiếu change24hPercent. Hai lỗi được chặn tại module sở hữu bằng test có mutant fail. Review cũng chỉ ra thiếu evidence cho nến rollover tự nằm trong viewport; test tail bổ sung đã pass và bắt mutant.
+
+Bốn lượt preflight được giữ riêng. Lượt đầu có một reconciliation sai do reset timeline. Ba lượt tiếp theo đều có 60 response hợp lệ, 12 apply hợp lệ và không có browser error. Lượt cuối giữ đủ pair/timeframe/openTime/OHLCV cho 8 event nguồn. Preflight không thuộc baseline chính thức. Runner chưa có evidence paint; độ mới và tỷ lệ thời gian dữ liệu cũ vẫn Inconclusive.
+
+Review follow-up và review delta timeline không còn finding substantive. Baseline chính thức đang chờ chạy sau commit bản triển khai và runner. Bước 08 chưa hoàn thành.
+
 ## Phần còn lại
 
-Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất trong commit `b7be50f`. Trạng thái và quyết định của Task 6 nằm tại [Kết quả baseline REST](#task-6-kết-quả-baseline-rest). Task 7 chốt tài liệu REST tải lịch sử. Commit của Task 7 là mốc so sánh REST tải lịch sử. Task 8 chốt requirements và thiết kế polling; product owner duyệt ngày 2026-11-22. Task 9 hoàn thành trong commit `5d49818`: 25 test mới gồm 16 red có chủ đích và 9 green; 132 test regression đã chạy đều green. Task 10 chưa thực hiện. Không đánh dấu Bước 08 hoàn thành.
+Task 1 đã hoàn tất trong commit `396ed0f`. Review của Task 1 không thấy lỗi production. Finding evidence fixture đã xử lý bằng mutant chia MA cho 19 thay 20, rồi khôi phục và chạy Web 10/10. Task 2 đã hoàn tất trong commit `8a68581`. Task 3 đã hoàn tất trong commit `e6e0f97`. Task 4 đã hoàn tất trong commit `31b3175`. Task 5 đã hoàn tất trong commit `b7be50f`. Trạng thái và quyết định của Task 6 nằm tại [Kết quả baseline REST](#task-6-kết-quả-baseline-rest). Task 7 chốt tài liệu REST tải lịch sử. Commit của Task 7 là mốc so sánh REST tải lịch sử. Task 8 chốt requirements và thiết kế polling; product owner duyệt ngày 2026-11-22. Task 9 hoàn thành trong commit `5d49818`: 25 test mới gồm 16 red có chủ đích và 9 green; 132 test regression đã chạy đều green. Task 10 đã triển khai và kiểm chức năng polling; baseline chính thức và review cuối đang chờ hoàn tất. Không đánh dấu Bước 08 hoàn thành.

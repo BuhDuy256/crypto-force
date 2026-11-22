@@ -2,7 +2,7 @@
 
 Đọc file này để biết cách hệ thống lấy và cập nhật historical, realtime market data, hỗ trợ nhiều timeframe và xử lý khi mất kết nối.
 
-> **Trạng thái:** vòng REST tải lịch sử đã triển khai theo thiết kế trong file này. Web gọi API thật; API gọi Binance qua cache decorator và Binance adapter tạo tại `apps/api/src/index.ts` [[1]](#ref-1). Kết quả kiểm chứng nằm trong [Kiểm chứng REST tải lịch sử](../testing/test-scopes/TS-002-market-data/rest-verification.md#kết-quả-thực-chạy). Thiết kế cập nhật định kỳ nằm trong [Cập nhật định kỳ](#cập-nhật-định-kỳ), đã duyệt ngày 2026-11-22 (ADR-007, ADR-008), chưa triển khai. WebSocket được thiết kế ở vòng sau.
+> **Trạng thái:** vòng REST tải lịch sử đã triển khai theo thiết kế trong file này. Web gọi API thật; API gọi Binance qua cache decorator và Binance adapter tạo tại `apps/api/src/index.ts` [[1]](#ref-1). Kết quả kiểm chứng nằm trong [Kiểm chứng REST tải lịch sử](../testing/test-scopes/TS-002-market-data/rest-verification.md#kết-quả-thực-chạy). Cập nhật định kỳ đã triển khai theo [Cập nhật định kỳ](#cập-nhật-định-kỳ) (ADR-007, ADR-008). Kết quả và giới hạn nằm trong [Kiểm chứng REST polling](../testing/test-scopes/TS-002-market-data/rest-polling-verification.md). WebSocket được thiết kế ở vòng sau.
 
 ## Drivers
 
@@ -149,9 +149,9 @@ Vòng REST không lưu dữ liệu Market Data vào PostgreSQL ([Data Model](21-
 Quy tắc:
 
 - **Gộp request trùng (single-flight).** Khi khóa chưa có giá trị còn hạn, request đầu tiên gọi provider. Các request cùng khóa đến trong lúc đó chờ chung kết quả này.
-- **Giữ lỗi nguồn trong TTL.** Lỗi nguồn không khả dụng và lỗi dữ liệu nguồn sai được trả cho mọi request đang chờ, rồi được giữ theo khóa trong cùng TTL, tính từ lúc provider bên trong reject. Request cùng khóa trong TTL nhận lại lỗi đó mà không gọi provider, kể cả thử lại của chart (MK-12). Lỗi không lường trước không được giữ (ADR-008). Code tại commit `9729616` chưa giữ lỗi; bước build polling triển khai quy tắc này.
+- **Giữ lỗi nguồn trong TTL.** Lỗi nguồn không khả dụng và lỗi dữ liệu nguồn sai được trả cho mọi request đang chờ, rồi được giữ theo khóa trong cùng TTL, tính từ lúc provider bên trong reject. Request cùng khóa trong TTL nhận lại lỗi đó mà không gọi provider, kể cả thử lại của chart (MK-12). Lỗi không lường trước không được giữ (ADR-008).
 - **Mốc và biên TTL.** TTL bắt đầu khi provider bên trong resolve thành công, theo clock của API. Mốc này không phải lúc request vào và không phải `dataTime`. Giá trị còn hạn khi thời gian đã qua nhỏ hơn TTL, hết hạn khi thời gian đã qua lớn hơn hoặc bằng TTL. Upstream trả chậm không làm giảm thời gian tái sử dụng. Product owner duyệt ngày 2026-11-21.
-- **Không làm mới chủ động.** Giá trị hết hạn bị thay ở request tiếp theo. Vòng REST không tự cập nhật chart (MK-27), nên không cần làm mới nền.
+- **Không làm mới chủ động.** Giá trị hết hạn bị thay ở request tiếp theo. API cache chỉ tải dữ liệu khi nhận request. Web sở hữu chu kỳ làm mới chart.
 - **`dataTime` và `isClosed` đi cùng giá trị cache.** `dataTime` vẫn là thời điểm API nhận response của provider, không phải thời điểm request, nên chart hiển thị đúng tuổi của dữ liệu (MK-27). Nến đóng trong lúc giá trị còn hạn vẫn có `isClosed: false`, khớp với `dataTime`.
 - **Không cache HTTP.** Response giữ `Cache-Control: no-store`. Cache phía Web do TanStack Query quản lý theo khóa của từng chart (MK-14, MK-17) [[4]](#ref-4).
 
@@ -281,7 +281,7 @@ sequenceDiagram
 | --- | --- | --- |
 | Chu kỳ | Khi cập nhật bật, query nến và query summary đặt `refetchInterval` bằng một hằng số của Web, bằng TTL cache của API. Khi tạm dừng, `refetchInterval` là `false` | MK-63, MK-64, MK-73 |
 | Không chồng yêu cầu | TanStack Query `5.107.1` đặt chu kỳ bằng `setInterval`. Khi query còn đang fetch, lần gọi theo chu kỳ dùng lại promise đang chạy, không gửi request mới [[12]](#ref-12) | MK-65 |
-| Tab ẩn và hiện lại | Trong cùng version, lần gọi theo chu kỳ bị bỏ qua khi `document.visibilityState` là `hidden`; focus manager nghe `visibilitychange` [[12]](#ref-12). Khi cập nhật bật, query đặt `staleTime: 0` và `refetchOnWindowFocus` là hàm trả `true` chỉ khi query đã có dữ liệu, nên tab hiện lại thì query làm mới. Query chưa có dữ liệu luôn bị coi là stale, nên giá trị `true` cố định sẽ tự tải lại chart lỗi khi tab hiện lại [[12]](#ref-12). Khi tạm dừng, query giữ `staleTime: Infinity` như vòng tải lịch sử | MK-76, MK-77, MK-82 |
+| Tab ẩn và hiện lại | Trong cùng version, lần gọi theo chu kỳ bị bỏ qua khi `document.visibilityState` là `hidden`; focus manager nghe `visibilitychange` [[12]](#ref-12). Khi cập nhật bật, query đặt `staleTime` bằng chu kỳ và `refetchOnWindowFocus` là hàm trả `always` chỉ khi query đã có dữ liệu, nên tab hiện lại thì query làm mới. Query chưa có dữ liệu luôn bị coi là stale, nên giá trị `always` cố định sẽ tự tải lại chart lỗi khi tab hiện lại [[12]](#ref-12). Khi tạm dừng, query giữ `staleTime: Infinity` như vòng tải lịch sử | MK-76, MK-77, MK-82 |
 | Tạm dừng và tiếp tục | `useRealtimeWorkspace` giữ cờ cập nhật, mặc định bật và không lưu qua reload. Khi tiếp tục, Web invalidate các query Market Data đang dùng để chúng làm mới ngay | MK-73, MK-75, MK-78 |
 | Lỗi khi đã có dữ liệu | Query giữ `data` khi lần làm mới lỗi. Chart và sidebar hiển thị thông báo lỗi làm mới cạnh dữ liệu cũ; lần thành công sau xóa lỗi. Lỗi quá thời hạn chờ dùng cùng deadline của request nến | MK-13, MK-80, MK-81 |
 | Chart chưa có dữ liệu | `refetchInterval` và `refetchOnWindowFocus` trả `false` khi query chưa có dữ liệu, nên chart lỗi chỉ tải lại bằng thao tác thử lại | MK-82, MK-12 |
@@ -290,7 +290,9 @@ sequenceDiagram
 | Thông báo trạng thái | Lần làm mới thành công không đổi nội dung của vùng `role="status"`. Chỉ lỗi làm mới và việc hết lỗi đổi nội dung | MK-72, MK-48 |
 | Phiên hết hạn | 401 của lần làm mới đi qua cùng `useSessionGate`; màn chặn thay Realtime, nên query không còn được dùng và ngừng làm mới | MK-84, MK-40 |
 
-Source tại commit `9729616` khác thiết kế trên ở hai điểm mà bước build polling phải sửa. Thứ nhất, query dùng cố định `staleTime: Infinity` và `refetchInterval: false`. Thứ hai, `useCandlestickChart` gọi `fitContent()`, xóa crosshair và bỏ nến đang chọn mỗi khi dữ liệu đổi [[13]](#ref-13). Hành vi của Lightweight Charts khi `setData` lúc vùng xem chứa nến cuối (MK-69) chưa được kiểm trên trình duyệt.
+Query dùng freshness bằng chu kỳ và `refetchOnMount: false` để chart mới cùng lựa chọn tái sử dụng dữ liệu đã có. Khi tab hiện lại, chế độ `always` làm mới cả dữ liệu còn fresh. Query nến chưa có dữ liệu vẫn không tự thử lại. Nhánh thay query key vẫn có thể làm mới khi dữ liệu đã stale.
+
+`useCandlestickChart` chỉ gọi `fitContent()` khi đổi lựa chọn hoặc tạo instance mới. Khi cửa sổ nến dịch, chart bù logical range theo nến tham chiếu còn trong cửa sổ. Nếu vùng xem chứa nến cuối, chart giữ khoảng logical tới nến cuối mới. Kiểm chứng rollover và giới hạn canvas nằm trong [Kiểm chứng REST polling](../testing/test-scopes/TS-002-market-data/rest-polling-verification.md) [[13]](#ref-13).
 
 ### API và Binance
 
@@ -361,4 +363,4 @@ Cách đọc: thời gian provider gần bằng tổng thời gian thì nguyên 
 10. <a id="ref-10"></a>Evidence smoke Binance: [`upstream.json`](../testing/evidence/market-data/rest-v1-binance-smoke/upstream.json)
 11. <a id="ref-11"></a>[Kiểm chứng REST tải lịch sử](../testing/test-scopes/TS-002-market-data/rest-verification.md)
 12. <a id="ref-12"></a>`@tanstack/query-core@5.107.1`, `build/modern/queryObserver.js` (`#updateRefetchInterval`, `shouldFetchOn`), `build/modern/query.js` (`fetch`, `isStaleByTime`), `build/modern/focusManager.js`, đọc ngày 2026-11-22
-13. <a id="ref-13"></a>`apps/web/app/hooks/useMarketData.ts`, `apps/web/app/hooks/useCandlestickChart.ts` tại commit `9729616`
+13. <a id="ref-13"></a>`apps/web/app/hooks/useMarketData.ts`, `apps/web/app/hooks/useCandlestickChart.ts`; kết quả Task 10 trong [Kiểm chứng REST polling](../testing/test-scopes/TS-002-market-data/rest-polling-verification.md)

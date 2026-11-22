@@ -358,21 +358,21 @@ test.describe('in the Asia/Bangkok time zone', () => {
     await expect(chart.getByLabel('Chart 1 values', { exact: true })).toHaveText(
       'Open candle · Close 618.00 · Volume 528 · MA(20) 608.50 (provisional)',
     );
-    await expect(chart.getByText('Data time Jan 3, 2025, 02:14 GMT+7 · 5m')).toBeVisible();
+    await expect(chart.getByText('Data time Jan 3, 2025, 02:14:59 GMT+7 · 5m')).toBeVisible();
     const canvas = chart.getByRole('group', { name: 'BTCUSDT 5m candlesticks, volume and MA(20)' });
     await canvas.focus();
     await page.keyboard.press('End');
     await expect(chart.getByLabel('Selected candle', { exact: true })).toHaveText(
-      'Jan 3, 2025, 02:10 GMT+7 (open candle) · O 618.00 · H 619.00 · L 617.00 · C 618.00 · V 528 · MA(20) 608.50 (provisional)',
+      'Jan 3, 2025, 02:10:00 GMT+7 (open candle) · O 618.00 · H 619.00 · L 617.00 · C 618.00 · V 528 · MA(20) 608.50 (provisional)',
     );
     // The first selectable candle is index 19: the 19 warm-up candles are not drawn.
     await page.keyboard.press('Home');
     await expect(chart.getByLabel('Selected candle', { exact: true })).toHaveText(
-      'Jan 1, 2025, 08:35 GMT+7 · O 119.00 · H 120.00 · L 118.00 · C 119.00 · V 29 · MA(20) 109.50',
+      'Jan 1, 2025, 08:35:00 GMT+7 · O 119.00 · H 120.00 · L 118.00 · C 119.00 · V 29 · MA(20) 109.50',
     );
     await page.keyboard.press('ArrowRight');
     await expect(chart.getByLabel('Selected candle', { exact: true })).toContainText(
-      '08:40 GMT+7 · O 120.00',
+      '08:40:00 GMT+7 · O 120.00',
     );
     await expect(canvas).toBeFocused();
   });

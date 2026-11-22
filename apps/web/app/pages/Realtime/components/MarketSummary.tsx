@@ -9,8 +9,8 @@ import { formatPrice } from '~/utils/market-chart';
  * Pair information and its data status only. MA and volume depend on the chart timeframe, so they
  * stay on each chart (docs/UCs/market-data.md, MK-29, MK-60).
  */
-export function MarketSummary({ pair }: { pair: MarketPair }) {
-  const summary = useMarketSummary(pair);
+export function MarketSummary({ pair, live }: { pair: MarketPair; live: boolean }) {
+  const summary = useMarketSummary(pair, live);
   const loading = summary.isFetching && !summary.data;
   const status = loading
     ? 'Loading market summary…'

@@ -16,6 +16,9 @@ export function RealtimePage() {
         onPairChange={workspace.setPair}
         chartCount={workspace.chartCount}
         onChartCountChange={workspace.setChartCount}
+        live={workspace.live}
+        pausedAt={workspace.pausedAt}
+        onToggleLive={workspace.toggleLive}
       />
       {/* Chart times use the device time zone; the page names it (docs/UCs/market-data.md, MK-43). */}
       <p className="text-xs text-muted-foreground">
@@ -30,10 +33,11 @@ export function RealtimePage() {
               pair={workspace.pair}
               timeframe={slot.timeframe}
               onTimeframeChange={workspace.setTimeframe}
+              live={workspace.live}
             />
           ))}
         </div>
-        <MarketSummary pair={workspace.pair} />
+        <MarketSummary pair={workspace.pair} live={workspace.live} />
       </div>
     </section>
   );

@@ -1,7 +1,7 @@
 // Checks error retention through the public provider boundary with an injected clock.
 // Run: pnpm --filter @crypto-force/api exec vitest run test/market-data/polling-cache.test.ts.
 // Global setup requires the dedicated _test DB. Expected: ADR-008 in docs/architecture/30-decisions.md.
-// The current product deletes typed errors immediately. Retention assertions fail on that defect.
+// Fault check: deleting typed errors immediately makes the retention assertions fail.
 import { expect, it, vi } from 'vitest';
 import { createCachedMarketDataProvider } from '../../src/providers/market-data/cached-market-data.provider';
 import { MarketDataProviderError } from '../../src/providers/market-data/market-data-provider';

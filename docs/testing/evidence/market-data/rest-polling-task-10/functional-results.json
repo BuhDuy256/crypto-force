@@ -1,0 +1,39 @@
+{
+  "pollingE2E": {
+    "passed": 15,
+    "total": 15
+  },
+  "webVitest": {
+    "passed": 18,
+    "total": 18
+  },
+  "apiMarketData": {
+    "passed": 96,
+    "total": 96,
+    "shuffled": true
+  },
+  "runner": {
+    "passed": 3,
+    "total": 3
+  },
+  "mutants": {
+    "unit": 3,
+    "e2e": 6,
+    "followup": 5,
+    "runner": 3
+  },
+  "scope": "Task 10. Regression and official baseline are recorded separately.",
+  "restHistoryE2E": {
+    "passed": 24,
+    "total": 24
+  },
+  "mockUiE2E": {
+    "passed": 9,
+    "total": 9
+  },
+  "mswE2E": {
+    "passed": 1,
+    "total": 1
+  },
+  "independentReview": "No remaining substantive finding after follow-up and timeline delta review."
+}

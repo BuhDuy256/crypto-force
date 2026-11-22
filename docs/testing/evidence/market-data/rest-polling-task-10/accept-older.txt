@@ -1,0 +1,36 @@
+
+ RUN  v5.1.0 C:/Users/Duy/Desktop/crypto-force/apps/web
+
+ ❯ app/hooks/useMarketData.polling.test.ts (8 tests | 1 failed) 145ms
+   × keeps the newer candle snapshot after an older response 16ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  08:41:53
+   Duration  2.25s (environment 54%, import 31%, tests 7%, transform 6%)
+
+undefined
+C:\Users\Duy\Desktop\crypto-force\apps\web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "vitest" not found
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  app/hooks/useMarketData.polling.test.ts > keeps the newer candle snapshot after an older response
+AssertionError: expected 1799999999999 to be 1800000000000 // Object.is equality
+
+- Expected
++ Received
+
+- 1800000000000
++ 1799999999999
+
+ ❯ app/hooks/useMarketData.polling.test.ts:118:34
+    116|   });
+    117|   await flush();
+    118|   expect(history.data?.dataTime).toBe(1800000000000);
+       |                                  ^
+    119|   expect(history.data?.candles[0]?.close).toBe(100);
+    120| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

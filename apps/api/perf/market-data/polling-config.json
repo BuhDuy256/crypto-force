@@ -1,0 +1,19 @@
+{
+  "protocol": "docs/testing/test-scopes/TS-002-market-data/rest-polling-verification.md",
+  "clients": [1, 10, 50],
+  "failures": [false, true],
+  "repeats": [1, 2, 3],
+  "warmupMs": 30000,
+  "durationMs": 180000,
+  "tailMs": 15000,
+  "intervalMs": 5000,
+  "ttlMs": 5000,
+  "replayLatencyMs": 50,
+  "phaseMs": 1379,
+  "sourcePeriodMs": 7000,
+  "freshnessStrictlyBelowMs": 11000,
+  "maximumWeightPerMinute": 504,
+  "agentChoices": "Phase and source period prevent polling alignment. The tail retains late samples. These values do not change product thresholds.",
+  "paint": "Inconclusive. The runner measures apply and browser bytes. It does not prove a paint.",
+  "topology": "Chromium clients, API, replay, and Docker PostgreSQL share one Windows host. Production Web build, real Auth and session reads."
+}
