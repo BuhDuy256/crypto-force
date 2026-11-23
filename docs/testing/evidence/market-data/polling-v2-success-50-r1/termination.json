@@ -1,0 +1,5 @@
+{
+  "status": "Inconclusive",
+  "reason": "The 50-client Chromium setup timed out before warm-up (locator.waitFor Timeout 30000ms exceeded for 'Chart 4 values'). Opening 50 real Chromium contexts sequentially on one Windows host took 192.9s while earlier tabs were already polling every 5s, saturating the single host (in resources.jsonl across 161 samples: PostgreSQL pool peak waiting=143, last sample connections=10 and waiting=103; Node eventLoopP95Ms peak=1325.4ms, last sample 590.9ms; HTTP nearest-rank p50=5182ms, p95=10120ms exceeding the 10s chart timeout, max=16047ms). Raw logs remain available. Product owner approved on 2026-11-23 retaining the 12 completed 1/10-client runs and recording 50-client polling as Inconclusive.",
+  "excludedFromBaseline": true
+}

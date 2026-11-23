@@ -262,10 +262,10 @@ Kết quả: [execution.md](execution.md#task-9-kiểm-chứng-polling-và-test-
 - [x] Lát 2, chart: bỏ `fitContent()` và xóa crosshair khi làm mới cùng lựa chọn; giữ vùng xem, focus và thông tin nến (MK-67 đến MK-71). Kiểm hành vi `setData` của Lightweight Charts trên trình duyệt.
 - [x] Lát 3, API: giữ lỗi nguồn trong TTL theo ADR-008.
 - [x] Chạy mutation sau khi mỗi lát green: chu kỳ khác TTL, làm mới khi tab ẩn, không làm mới khi tiếp tục, xóa dữ liệu khi lỗi, nhận dữ liệu cũ hơn, `fitContent()` mỗi lần làm mới, không giữ lỗi trong cache.
-- [ ] Đo baseline polling với cùng workload, môi trường và công cụ của Task 6. Ghi kết quả vào tài liệu kiểm chứng polling.
-- [ ] Đối chiếu UCs, kiến trúc, tài liệu testing. Chạy `review-change`.
-- [ ] Cập nhật tracker với bằng chứng và đánh dấu Bước 08 hoàn thành.
-- [ ] Tạo commit cho Task 10. Commit này đánh dấu mốc so sánh REST polling.
+- [x] Đo baseline polling với cùng workload, môi trường và công cụ của Task 6. Ghi kết quả vào tài liệu kiểm chứng polling.
+- [x] Đối chiếu UCs, kiến trúc, tài liệu testing. Chạy `review-change`.
+- [x] Cập nhật tracker với bằng chứng và đánh dấu Bước 08 hoàn thành.
+- [x] Tạo commit cho Task 10. Commit này đánh dấu mốc so sánh REST polling.
 
 ## References
 

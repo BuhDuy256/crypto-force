@@ -8,6 +8,8 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Changed
 
+- Hoàn tất Bước 08 Task 10 (REST polling): lưu 12 lượt baseline `polling-v2` ở mức 1 và 10 client (nguồn bình thường và nguồn lỗi 503, 3 lần lặp/cohort; mọi lượt đều 120 weight/60 giây ≤ 504, 0 response/apply sai, 0 browser error) cùng evidence lỗi của lượt `polling-v2-success-50-r1` (timeout khởi tạo 50 Chromium client trên cùng host Windows). Theo quyết định của product owner ngày 2026-11-23, ghi QA-13 đạt cho 1/10 client và Inconclusive ở mức 50 client (tổng thể QA-13, QA-12 và tỷ lệ dữ liệu cũ Inconclusive). Cập nhật tài liệu kiểm chứng polling, kiến trúc, execution, plan và đánh dấu Bước 08 hoàn thành trên tracker.
+
 - Runner baseline polling bổ sung `window.json` để tái tính cửa sổ steady từ raw logs. Giữ lượt v1 bị dừng và lý do Inconclusive; chuyển các lượt chính thức sang cohort v2. Không đổi workload hoặc ngưỡng.
 
 - Bước 08 Task 10: thêm runner baseline REST polling với Web production build, HTTP replay qua Binance adapter, nguồn lệch pha, workload 1/10/50 client và cohort thành công/lỗi. Runner tách bytes tải đầu theo client/request, giữ raw ledger, đối chiếu response đầy đủ và ghi rõ apply chưa chứng minh paint. Test runner bắt lỗi phân loại bytes, thiếu trường summary và reset timeline. Baseline chính thức chỉ chạy sau commit runner.

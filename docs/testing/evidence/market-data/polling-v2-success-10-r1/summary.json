@@ -1,0 +1,32 @@
+{
+  "run": "polling-v2-success-10-r1",
+  "clients": 10,
+  "failure": false,
+  "durationMs": 180000,
+  "applyEvents": 1405,
+  "invalidApplies": 0,
+  "responseReconciliations": 2280,
+  "invalidResponses": 0,
+  "reconciliationCoverage": "Every response in reconciliation.jsonl.",
+  "browserErrors": 0,
+  "upstreamRequests": 175,
+  "maxSliding60sWeight": 120,
+  "qa13": "Passed",
+  "initialLoadEncodedBytes": 2262440,
+  "encodedBytes": 79412111,
+  "bytesPerClientMinute": 2647070.3666666667,
+  "applyReceivedDelay": {
+    "p50": 3798.281500000041,
+    "p95": 6605.803899999941,
+    "p99": 7429.992700000061
+  },
+  "missingApplies": 0,
+  "qa12": "Inconclusive",
+  "freshnessP95Ms": null,
+  "staleTimeRatio": null,
+  "paint": "The apply mark does not prove a canvas paint. Screenshots are retained for visual inspection.",
+  "protocol": "CDP Network.loadingFinished.encodedDataLength includes the encoded response transfer. Loopback HTTP/1.1, no compression.",
+  "clock": "Clock exchanges retain round-trip bounds. Transport delay and clock uncertainty prevent a freshness conclusion.",
+  "sourceEvents": 104,
+  "unexpectedOutbound": []
+}

@@ -337,15 +337,15 @@ Cách đọc: thời gian provider gần bằng tổng thời gian thì nguyên 
 
 - Cache nằm trong process. Mỗi instance API có cache riêng và tự gọi Binance, nên mức trần weight nhân theo số instance trên cùng IP. Xét lại khi chạy hơn một instance API.
 - Mức trần 504 weight mỗi phút chỉ đúng khi tập pair và timeframe giữ nguyên. Thêm pair hoặc timeframe phải tính lại.
-- TTL 5 giây mới có số đo hit/miss trên replay local, chưa có số đo độ tươi của dữ liệu. Xem lại khi đo polling (QA-12).
+- TTL 5 giây đã có số đo hit/miss và baseline polling trên replay local. Độ mới (QA-12) và tỷ lệ thời gian dữ liệu cũ vẫn `Inconclusive` vì runner chỉ đo tới mốc apply, chưa chứng minh canvas paint [[13]](#ref-13).
 - Sau khi Binance phục hồi, chart có thể còn báo lỗi thêm tối đa một TTL cộng một chu kỳ làm mới (ADR-008).
-- Polling tải lại toàn bộ cửa sổ nến. Source của API không có middleware nén response (tìm `compression`, `zlib`, `gzip` trong `apps/api/src`); chưa kiểm proxy trước API. Lưu lượng mỗi client ước tính trong ADR-007, chưa đo.
+- Polling tải lại toàn bộ cửa sổ nến. Source của API không có middleware nén response (tìm `compression`, `zlib`, `gzip` trong `apps/api/src`); chưa kiểm proxy trước API. Lưu lượng thực đo trên loopback HTTP/1.1 không nén nằm trong tài liệu kiểm chứng polling [[13]](#ref-13).
 - Thời gian mở Realtime (QA-10) và đổi timeframe (QA-11) đã đo trên Windows local với replay 50 ms, nhưng kết quả là `Inconclusive`: mốc cuối là lúc chart áp dụng dữ liệu, chưa chứng minh canvas đã vẽ [[11]](#ref-11).
 - Baseline local ở mức tải cao nhất có request lỗi do hết thời gian chờ phía máy phát tải. Máy phát tải, API, replay và PostgreSQL chạy cùng máy, nên chưa xác định nguyên nhân thuộc API hay máy đo. Chưa có ngưỡng latency, lỗi hoặc capacity REST được duyệt [[11]](#ref-11).
 - Better Auth bật rate limit lưu trong database [[8]](#ref-8). Ngoài rule riêng cho Sign in, các path Auth dùng mặc định của `better-auth@1.7.25`: cửa sổ 10 giây, tối đa 100 request, đọc từ source thư viện [[1]](#ref-1). Trong baseline UI, chuỗi thao tác mở Realtime liên tục nhận Auth 429 ở bước kiểm phiên [[11]](#ref-11). `Inferred`: một người dùng thao tác bình thường khó chạm giới hạn này; xét lại khi nhiều người dùng đi ra từ cùng IP.
 - Interface `MarketDataProvider` nằm trong `apps/api`. Worker không dùng được interface này khi backtest cần dữ liệu thị trường (ADR-003).
 - Summary không có thời điểm dữ liệu, vì MK-27 chỉ áp dụng cho chart và MK-60 không yêu cầu thời điểm trên sidebar. Thêm trường này không phá contract hiện có.
-- Mỗi request Market Data gọi `getSession` và đọc phiên từ PostgreSQL, vì cấu hình Better Auth không bật cookie cache [[8]](#ref-8). Xem lại khi đo QA-10.
+- Mỗi request Market Data gọi `getSession` và đọc phiên từ PostgreSQL, vì cấu hình Better Auth không bật cookie cache [[8]](#ref-8). Trong baseline polling 50 Chromium client chạy cùng máy local, connection pool PostgreSQL bị bão hòa cùng độ trễ event loop trước khi vào warm-up, khiến mức 50 client và tổng thể QA-13 là `Inconclusive` [[13]](#ref-13).
 - `isClosed` và `dataTime` dựa vào đồng hồ của API. Đồng hồ lệch với Binance có thể đánh dấu sai nến cuối gần thời điểm đóng.
 - Thiết kế chưa mô tả WebSocket và phục hồi kết nối.
 
