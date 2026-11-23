@@ -115,7 +115,7 @@ const auth = createAuth({
   onSessionRevoked(sessionId: string) {
     revokeRef.current?.(sessionId);
   },
-} as Parameters<typeof createAuth>[0] & { onSessionRevoked?: (sessionId: string) => void });
+});
 
 const fakeFetch: typeof globalThis.fetch = (input) => {
   const url = new URL(input instanceof Request ? input.url : String(input));

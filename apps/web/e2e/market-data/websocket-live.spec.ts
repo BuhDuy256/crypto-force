@@ -60,6 +60,16 @@ async function readLedger(request: APIRequestContext) {
   };
 }
 
+async function selectTimeframe(page: Page, chart: number, value: string) {
+  await page.getByRole('combobox', { name: `Timeframe for chart ${String(chart)}` }).click();
+  await page.getByRole('option', { name: value, exact: true }).click();
+}
+
+async function selectPair(page: Page, value: string) {
+  await page.getByRole('combobox', { name: 'Pair' }).click();
+  await page.getByRole('option', { name: value, exact: true }).click();
+}
+
 async function openRealtimeLive(page: Page) {
   await page.goto('/realtime');
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('618.00');
@@ -110,7 +120,7 @@ test('switches one chart timeframe without interrupting other charts and discard
 }) => {
   await openRealtimeLive(page);
 
-  await page.getByLabel('Chart 1 timeframe', { exact: true }).selectOption('1m');
+  await selectTimeframe(page, 1, '1m');
   await emitUpstream(request, {
     stream: 'btcusdt@kline_15m',
     data: {
@@ -131,7 +141,7 @@ test('switches one chart timeframe without interrupting other charts and discard
   });
   await expect(page.getByLabel('Chart 2 values', { exact: true })).toContainText('629.50');
 
-  await page.getByLabel('Trading pair', { exact: true }).selectOption('ETHUSDT');
+  await selectPair(page, 'ETHUSDT');
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('718.00');
 
   // Emit a stale BTCUSDT tick followed by a valid ETHUSDT tick to prove ordered delivery and rejection.
@@ -190,7 +200,7 @@ test('closes WebSocket on pause without disconnect alerts, uses REST only while 
 
   // Switching timeframe while paused calls REST for 1m and opens 0 WebSocket connections.
   const restBeforeSwitch = (await readLedger(request)).apiRestRequests.length;
-  await page.getByLabel('Chart 1 timeframe', { exact: true }).selectOption('1m');
+  await selectTimeframe(page, 1, '1m');
   await expect
     .poll(async () => {
       const ledger = await readLedger(request);
@@ -286,7 +296,7 @@ test('keeps two tabs independent, warns on the 5th tab without disconnecting tab
   // Tab 2 switching pair must not change Tab 1.
   const secondTab = tabs[1];
   if (!secondTab) throw new Error('Expected a second Realtime tab.');
-  await secondTab.getByLabel('Trading pair', { exact: true }).selectOption('ETHUSDT');
+  await selectPair(secondTab, 'ETHUSDT');
   await expect(secondTab.getByLabel('Chart 1 values', { exact: true })).toContainText('718.00');
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('618.00');
 
@@ -300,7 +310,10 @@ test('keeps two tabs independent, warns on the 5th tab without disconnecting tab
   await fifth.close();
 
   // Signing out closes all remaining tabs within 5s and shows sign-in gate.
-  const signOut = await page.request.post('/api/auth/sign-out', { data: {} });
+  const signOut = await page.request.post('/api/auth/sign-out', {
+    headers: { origin: 'http://localhost:5186' },
+    data: {},
+  });
   expect(signOut.status()).toBe(200);
   for (const tab of tabs) {
     await expect(tab.getByRole('heading', { name: /Sign in/i })).toBeVisible({ timeout: 5000 });

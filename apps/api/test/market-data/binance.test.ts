@@ -19,6 +19,7 @@ it('maps a different symbol summary without rounding and uses the summary endpoi
     pair: 'SOLUSDT',
     lastPrice: 218.375,
     change24hPercent: -2.75,
+    dataTime: 1735689660000,
   });
   const input = fetch.mock.calls[0]?.[0];
   if (!input) throw new Error('The provider did not call the HTTP fake.');
@@ -170,6 +171,7 @@ it.each([429, 418])(
       pair: 'ETHUSDT',
       lastPrice: 218.5,
       change24hPercent: 0,
+      dataTime: 3000,
     });
     expect(fetch).toHaveBeenCalledTimes(2);
   },

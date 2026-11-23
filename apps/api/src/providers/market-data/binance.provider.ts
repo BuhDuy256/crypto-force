@@ -121,7 +121,7 @@ export function createBinanceMarketDataProvider({
       };
     },
     async getSummary(pair) {
-      const { payload } = await request('/api/v3/ticker/24hr', { symbol: pair });
+      const { payload, dataTime } = await request('/api/v3/ticker/24hr', { symbol: pair });
       const parsed = summarySchema.safeParse(payload);
       if (!parsed.success || parsed.data.symbol !== pair)
         throw new MarketDataProviderError('invalid');
@@ -129,6 +129,7 @@ export function createBinanceMarketDataProvider({
         pair,
         lastPrice: parsed.data.lastPrice,
         change24hPercent: parsed.data.priceChangePercent,
+        dataTime,
       };
     },
   };

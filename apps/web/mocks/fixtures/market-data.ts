@@ -42,5 +42,6 @@ export function summaryFixture(pair: MarketPair) {
     pair,
     lastPrice: prices[pair] * 1.024,
     change24hPercent: pair === 'ETHUSDT' ? -1.25 : 2.4,
+    dataTime: 1_799_971_200_000,
   });
 }

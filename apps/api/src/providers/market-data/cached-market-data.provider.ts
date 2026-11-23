@@ -1,5 +1,10 @@
+import type { MarketPair, MarketTimeframe } from '@crypto-force/shared';
 import type { Logger } from 'pino';
 import { MarketDataProviderError, type MarketDataProvider } from './market-data-provider';
+
+export interface CachedMarketDataProvider extends MarketDataProvider {
+  invalidateCandles(pair: MarketPair, timeframe: MarketTimeframe): void;
+}
 
 type CacheEntry<T> =
   | { pending: Promise<T> }
@@ -16,7 +21,7 @@ export function createCachedMarketDataProvider({
   now: () => number;
   ttlMs: number;
   logger: Logger;
-}): MarketDataProvider {
+}): CachedMarketDataProvider {
   const candles = new Map<
     string,
     CacheEntry<Awaited<ReturnType<MarketDataProvider['getCandles']>>>
@@ -64,6 +69,20 @@ export function createCachedMarketDataProvider({
     },
     getSummary(pair) {
       return read(summaries, `summary:${pair}`, () => provider.getSummary(pair));
+    },
+    invalidateCandles(pair, timeframe) {
+      const prefix = `candles:${pair}:${timeframe}:`;
+      let removed = 0;
+      for (const key of candles.keys()) {
+        if (key.startsWith(prefix)) {
+          candles.delete(key);
+          removed += 1;
+        }
+      }
+      logger.debug(
+        { pair, timeframe, removed, cacheState: 'invalidate' },
+        'The cached candles were invalidated after a closed candle.',
+      );
     },
   };
 }

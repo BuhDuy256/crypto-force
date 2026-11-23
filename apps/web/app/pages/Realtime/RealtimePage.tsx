@@ -18,7 +18,12 @@ export function RealtimePage() {
         onChartCountChange={workspace.setChartCount}
         live={workspace.live}
         pausedAt={workspace.pausedAt}
+        connectionState={workspace.connectionState}
+        disconnectedAt={workspace.disconnectedAt}
+        isConnectingManual={workspace.isConnectingManual}
         onToggleLive={workspace.toggleLive}
+        onReconnect={workspace.reconnectNow}
+        onResync={workspace.resyncNow}
       />
       {/* Chart times use the device time zone; the page names it (docs/UCs/market-data.md, MK-43). */}
       <p className="text-xs text-muted-foreground">

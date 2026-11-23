@@ -70,14 +70,24 @@ it('logs miss, join and hit for the requested candle key', async () => {
 });
 
 it('shares summary waiters, expires at TTL and retries after an expired refresh fails', async () => {
-  const pending = deferred<{ pair: MarketPair; lastPrice: number; change24hPercent: number }>();
+  const pending = deferred<{
+    pair: MarketPair;
+    lastPrice: number;
+    change24hPercent: number;
+    dataTime: number;
+  }>();
   const provider = {
     getCandles: vi.fn(),
     getSummary: vi
       .fn()
       .mockReturnValueOnce(pending.promise)
       .mockRejectedValueOnce(new Error('Source failed.'))
-      .mockResolvedValue({ pair: 'SOLUSDT', lastPrice: 150.25, change24hPercent: -2 }),
+      .mockResolvedValue({
+        pair: 'SOLUSDT',
+        lastPrice: 150.25,
+        change24hPercent: -2,
+        dataTime: 7000,
+      }),
   };
   let now = 0;
   const cache = createCachedMarketDataProvider({
@@ -90,18 +100,29 @@ it('shares summary waiters, expires at TTL and retries after an expired refresh 
   const second = cache.getSummary('SOLUSDT');
   expect(provider.getSummary).toHaveBeenCalledTimes(1);
   now = 2000;
-  pending.resolve({ pair: 'SOLUSDT', lastPrice: 149.75, change24hPercent: -1 });
+  pending.resolve({ pair: 'SOLUSDT', lastPrice: 149.75, change24hPercent: -1, dataTime: 2000 });
   await first.then((value) => {
-    expect(value).toEqual({ pair: 'SOLUSDT', lastPrice: 149.75, change24hPercent: -1 });
+    expect(value).toEqual({
+      pair: 'SOLUSDT',
+      lastPrice: 149.75,
+      change24hPercent: -1,
+      dataTime: 2000,
+    });
   });
   await second.then((value) => {
-    expect(value).toEqual({ pair: 'SOLUSDT', lastPrice: 149.75, change24hPercent: -1 });
+    expect(value).toEqual({
+      pair: 'SOLUSDT',
+      lastPrice: 149.75,
+      change24hPercent: -1,
+      dataTime: 2000,
+    });
   });
   now = 6999;
   await expect(cache.getSummary('SOLUSDT')).resolves.toEqual({
     pair: 'SOLUSDT',
     lastPrice: 149.75,
     change24hPercent: -1,
+    dataTime: 2000,
   });
   expect(provider.getSummary).toHaveBeenCalledTimes(1);
   now = 7000;
@@ -110,6 +131,7 @@ it('shares summary waiters, expires at TTL and retries after an expired refresh 
     pair: 'SOLUSDT',
     lastPrice: 150.25,
     change24hPercent: -2,
+    dataTime: 7000,
   });
   expect(provider.getSummary).toHaveBeenCalledTimes(3);
 });

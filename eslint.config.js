@@ -182,7 +182,11 @@ export default tseslint.config(
   },
   // API layers (docs/conventions/project-structure.md#api-layer-based)
   {
-    files: ['apps/api/src/api/routes/**/*.ts', 'apps/api/src/api/controllers/**/*.ts'],
+    files: [
+      'apps/api/src/api/routes/**/*.ts',
+      'apps/api/src/api/controllers/**/*.ts',
+      'apps/api/src/api/ws/**/*.ts',
+    ],
     rules: { 'no-restricted-imports': restrictImports({ patterns: [noDatabaseAccess] }) },
   },
   {

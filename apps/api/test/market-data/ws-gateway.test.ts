@@ -136,7 +136,7 @@ async function createWsStack(
     onSessionRevoked(sessionId: string) {
       revokeRef.current?.(sessionId);
     },
-  } as Parameters<typeof createAuth>[0] & { onSessionRevoked?: (sessionId: string) => void });
+  });
 
   const app = createApp({
     logger: capture.logger,
@@ -421,10 +421,13 @@ describe('WebSocket Gateway handshake security and limits', () => {
       expect(healthy.messages).toContainEqual(expect.objectContaining({ type: 'subscribed' }));
     });
 
-    // Pause reads on the slow client TCP socket so server-side bufferedAmount grows past 64 KB.
-    const rawSocket = (slow.ws as unknown as { _socket?: { pause: () => void } })._socket;
+    // Pause reads on the slow client TCP socket so server-side bufferedAmount grows past 64 KB
+    // even after filling the OS loopback kernel TCP buffer, then resume to receive close frame 4008.
+    const rawSocket = (
+      slow.ws as unknown as { _socket?: { pause: () => void; resume: () => void } }
+    )._socket;
     rawSocket?.pause();
-    for (let index = 0; index < 800; index += 1) {
+    for (let index = 0; index < 3000; index += 1) {
       stack.fakeStream.emitCandle({
         pair: 'BTCUSDT',
         timeframe: '5m',
@@ -439,7 +442,23 @@ describe('WebSocket Gateway handshake security and limits', () => {
         },
         dataTime: 1735689600500 + index,
       });
+      if (
+        stack.capture.records.some(
+          (record) =>
+            typeof record === 'object' &&
+            record !== null &&
+            'closeCode' in record &&
+            record.closeCode === 4008,
+        )
+      )
+        break;
+      if (index % 50 === 49) {
+        await new Promise<void>((resolve) => {
+          setImmediate(resolve);
+        });
+      }
     }
+    rawSocket?.resume();
 
     const slowClose = await slow.closed;
     expect(slowClose.code).toBe(4008);

@@ -1,14 +1,20 @@
 import { useEffect } from 'react';
 import { useRevalidator } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type { CandleHistory, MarketPair, MarketTimeframe } from '@crypto-force/shared';
+import type {
+  CandleHistory,
+  MarketPair,
+  MarketSummary,
+  MarketTimeframe,
+} from '@crypto-force/shared';
 import { getCandleHistory, getMarketSummary, MarketDataRequestError } from '~/api/market-data';
 
-const pollingIntervalMs = 5000;
 const requestOptions = {
   retry: false,
   refetchOnMount: false,
   refetchOnReconnect: false,
+  refetchInterval: false,
+  refetchOnWindowFocus: false,
 } as const;
 
 /**
@@ -25,16 +31,12 @@ function useSessionGate(error: Error | null) {
   }, [unauthenticated, revalidate]);
 }
 
-export function useCandleHistory(pair: MarketPair, timeframe: MarketTimeframe, live = true) {
+export function useCandleHistory(pair: MarketPair, timeframe: MarketTimeframe, _live = true) {
   const client = useQueryClient();
   const queryKey = ['market-data', 'candles', pair, timeframe];
   const query = useQuery<CandleHistory>({
     ...requestOptions,
-    staleTime: live ? pollingIntervalMs : Infinity,
-    refetchInterval: (current) =>
-      live && current.state.data !== undefined ? pollingIntervalMs : false,
-    refetchOnWindowFocus: (current) =>
-      live && current.state.data !== undefined ? 'always' : false,
+    staleTime: Infinity,
     queryKey,
     queryFn: async ({ signal }) => {
       const incoming = await getCandleHistory({ pair, timeframe }, signal);
@@ -46,14 +48,18 @@ export function useCandleHistory(pair: MarketPair, timeframe: MarketTimeframe, l
   return query;
 }
 
-export function useMarketSummary(pair: MarketPair, live = true) {
-  const query = useQuery({
+export function useMarketSummary(pair: MarketPair, _live = true) {
+  const client = useQueryClient();
+  const queryKey = ['market-data', 'summary', pair];
+  const query = useQuery<MarketSummary>({
     ...requestOptions,
-    staleTime: live ? pollingIntervalMs : Infinity,
-    refetchInterval: live ? pollingIntervalMs : false,
-    refetchOnWindowFocus: live ? 'always' : false,
-    queryKey: ['market-data', 'summary', pair],
-    queryFn: ({ signal }) => getMarketSummary(pair, signal),
+    staleTime: Infinity,
+    queryKey,
+    queryFn: async ({ signal }) => {
+      const incoming = await getMarketSummary(pair, signal);
+      const current = client.getQueryData<MarketSummary>(queryKey);
+      return current && incoming.dataTime < current.dataTime ? current : incoming;
+    },
   });
   useSessionGate(query.error);
   return query;

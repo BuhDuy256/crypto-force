@@ -61,9 +61,12 @@ it('preserves different provider values and records the request context once', a
         ],
         dataTime: 1735689600123,
       }),
-      getSummary: vi
-        .fn()
-        .mockResolvedValue({ pair: 'ETHUSDT', lastPrice: 218.375, change24hPercent: -2.75 }),
+      getSummary: vi.fn().mockResolvedValue({
+        pair: 'ETHUSDT',
+        lastPrice: 218.375,
+        change24hPercent: -2.75,
+        dataTime: 1735689600123,
+      }),
     },
     logger,
   });
@@ -98,6 +101,7 @@ it('preserves different provider values and records the request context once', a
     pair: 'ETHUSDT',
     lastPrice: 218.375,
     change24hPercent: -2.75,
+    dataTime: 1735689600123,
   });
 });
 

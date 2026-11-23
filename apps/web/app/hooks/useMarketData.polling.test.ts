@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
-// Checks the public hooks with React, a real QueryClient and a memory router.
-// Only fetch is replaced. Fake timers control polling and deadlines. No DB is used.
+// Checks the public Market Data hooks with React, a real QueryClient and a memory router.
+// Only fetch is replaced. Fake timers control deadlines. No DB is used.
 // Run: pnpm --filter @crypto-force/web exec vitest run app/hooks/useMarketData.polling.test.ts.
-// Expected: docs/testing/test-scopes/TS-002-market-data/rest-polling-verification.md.
-// Fault checks: a 6000 ms interval and acceptance of an older dataTime fail the related assertions.
+// Expected: docs/testing/test-scopes/TS-002-market-data/websocket-verification.md (ADR-009 replaces
+// 5s HTTP polling with WebSocket while preserving monotonic dataTime guards on candles and summary).
 import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { createMemoryRouter, RouterProvider } from 'react-router';
@@ -39,6 +39,15 @@ function snapshot(dataTime: number, close = 100) {
   };
 }
 
+function summaryPayload(dataTime: number, lastPrice = 100) {
+  return {
+    pair: 'BTCUSDT',
+    lastPrice,
+    change24hPercent: -1,
+    dataTime,
+  };
+}
+
 async function flush() {
   await act(async () => {
     await vi.advanceTimersByTimeAsync(1);
@@ -55,7 +64,7 @@ beforeEach(async () => {
     Promise.resolve(
       Response.json(
         (input instanceof Request ? input.url : String(input)).includes('/summary')
-          ? { pair: 'BTCUSDT', lastPrice: 100, change24hPercent: -1 }
+          ? summaryPayload(1800000000000)
           : snapshot(1800000000000),
       ),
     ),
@@ -94,18 +103,18 @@ afterEach(() => {
 });
 
 it.each([4999, 5000, 5001])(
-  'starts chart and summary refresh at elapsed %i ms',
+  'does not issue periodic HTTP polling requests at elapsed %i ms after initial load',
   async (elapsed) => {
     expect(history.data?.candles[0]?.close).toBe(100);
     expect(summary.data?.lastPrice).toBe(100);
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(elapsed - (Date.now() - 1800000000000));
+      await vi.advanceTimersByTimeAsync(elapsed);
     });
     const calls = fetchBoundary.mock.calls.map(([input]) =>
       input instanceof Request ? input.url : String(input),
     );
-    expect(calls.filter((url) => url.includes('/candles'))).toHaveLength(elapsed === 4999 ? 1 : 2);
-    expect(calls.filter((url) => url.includes('/summary'))).toHaveLength(elapsed === 4999 ? 1 : 2);
+    expect(calls.filter((url) => url.includes('/candles'))).toHaveLength(1);
+    expect(calls.filter((url) => url.includes('/summary'))).toHaveLength(1);
   },
 );
 
@@ -119,6 +128,16 @@ it('keeps the newer candle snapshot after an older response', async () => {
   expect(history.data?.candles[0]?.close).toBe(100);
 });
 
+it('keeps the newer market summary after an older response', async () => {
+  fetchBoundary.mockResolvedValueOnce(Response.json(summaryPayload(1799999999999, 95)));
+  await act(async () => {
+    await summary.refetch();
+  });
+  await flush();
+  expect(summary.data?.dataTime).toBe(1800000000000);
+  expect(summary.data?.lastPrice).toBe(100);
+});
+
 it('accepts a newer snapshot and its candle value', async () => {
   fetchBoundary.mockResolvedValueOnce(Response.json(snapshot(1800000000001, 101)));
   await act(async () => {
@@ -129,7 +148,7 @@ it('accepts a newer snapshot and its candle value', async () => {
   expect(history.data?.candles[0]?.close).toBe(101);
 });
 
-it('keeps data and retries on the next cycle after a refresh error', async () => {
+it('keeps data on a backfill error and recovers on subsequent refetch', async () => {
   fetchBoundary.mockResolvedValueOnce(
     Response.json({ error: { code: 'MARKET_DATA_UNAVAILABLE' } }, { status: 503 }),
   );
@@ -140,7 +159,7 @@ it('keeps data and retries on the next cycle after a refresh error', async () =>
   expect(history.isError).toBe(true);
   expect(history.data?.dataTime).toBe(1800000000000);
   await act(async () => {
-    await vi.advanceTimersByTimeAsync(5000);
+    await history.refetch();
   });
   await flush();
   expect(history.isError).toBe(false);
@@ -155,10 +174,8 @@ it('does not overlap a slow chart refresh', async () => {
     release = resolve;
   });
   fetchBoundary.mockReturnValueOnce(pending);
-  const refresh = history.refetch();
-  await act(async () => {
-    await vi.advanceTimersByTimeAsync(9999);
-  });
+  const refresh1 = history.refetch({ cancelRefetch: false });
+  const refresh2 = history.refetch({ cancelRefetch: false });
   expect(
     fetchBoundary.mock.calls.filter(([input]) =>
       (input instanceof Request ? input.url : String(input)).includes('/candles'),
@@ -166,7 +183,7 @@ it('does not overlap a slow chart refresh', async () => {
   ).toHaveLength(2);
   await act(async () => {
     release(Response.json(snapshot(1800000000001, 101)));
-    await refresh;
+    await Promise.all([refresh1, refresh2]);
   });
   await flush();
   expect(history.data?.candles[0]?.close).toBe(101);

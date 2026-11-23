@@ -48,9 +48,12 @@ it.each([4999, 5000, 5001])('reads a summary error at elapsed %i ms', async (ela
     getCandles: vi.fn(),
     getSummary: vi.fn(),
   };
-  provider.getSummary
-    .mockRejectedValueOnce(error)
-    .mockResolvedValue({ pair: 'BTCUSDT', lastPrice: 123, change24hPercent: -1 });
+  provider.getSummary.mockRejectedValueOnce(error).mockResolvedValue({
+    pair: 'BTCUSDT',
+    lastPrice: 123,
+    change24hPercent: -1,
+    dataTime: 6000,
+  });
   let now = 1000;
   const cache = createCachedMarketDataProvider({
     provider,
@@ -68,6 +71,7 @@ it.each([4999, 5000, 5001])('reads a summary error at elapsed %i ms', async (ela
       pair: 'BTCUSDT',
       lastPrice: 123,
       change24hPercent: -1,
+      dataTime: 6000,
     });
     expect(provider.getSummary).toHaveBeenCalledTimes(2);
   }

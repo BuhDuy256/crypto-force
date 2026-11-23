@@ -45,13 +45,14 @@ interface AuthDependencies {
   db: Database;
   emails: AuthEmails;
   logger: Logger;
+  onSessionRevoked?: (sessionId: string) => void;
 }
 
 export function isGoogleEnabled(env: AuthEnv) {
   return Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
 }
 
-export function createAuth({ env, db, emails, logger }: AuthDependencies) {
+export function createAuth({ env, db, emails, logger, onSessionRevoked }: AuthDependencies) {
   // Emails are sent without awaiting so response time does not reveal whether an account exists.
   const sendInBackground = (send: Promise<void>, subject: string) => {
     send.catch((error: unknown) => {
@@ -132,6 +133,12 @@ export function createAuth({ env, db, emails, logger }: AuthDependencies) {
               .update(sessionTable)
               .set({ expiresAt: end })
               .where(eq(sessionTable.id, updated.id));
+          },
+        },
+        delete: {
+          after: (deleted) => {
+            onSessionRevoked?.(deleted.id);
+            return Promise.resolve();
           },
         },
       },

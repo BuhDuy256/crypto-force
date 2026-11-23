@@ -89,6 +89,7 @@ test.beforeEach(async ({ page }) => {
         pair,
         lastPrice: pair === 'BTCUSDT' ? 123 : pair === 'ETHUSDT' ? 234 : 345,
         change24hPercent: pair === 'ETHUSDT' ? -1.25 : 2.4,
+        dataTime: 1_799_971_200_000,
       },
     });
   });
@@ -323,7 +324,9 @@ test('handles missing MA samples and a summary error without reloading charts', 
   await expect(page.locator('.tv-lightweight-charts')).toHaveCount(4);
   requests.length = 0;
   await page.route('**/api/market-data/summary?*', (route) =>
-    route.fulfill({ json: { pair: 'BTCUSDT', lastPrice: 123, change24hPercent: 2.4 } }),
+    route.fulfill({
+      json: { pair: 'BTCUSDT', lastPrice: 123, change24hPercent: 2.4, dataTime: 1_799_971_200_000 },
+    }),
   );
   await page.getByRole('button', { name: 'Retry summary', exact: true }).click();
   await expect(page.getByLabel('Last price', { exact: true })).toHaveText('123.00 USDT');

@@ -116,6 +116,7 @@ it.each([200, 400, 401, 502, 503, 500])(
         pair: 'BTCUSDT',
         lastPrice: 271.25,
         change24hPercent: -2,
+        dataTime: 1735689659999,
       });
     const response = await fetchLoopback(
       `${origin}/api/market-data/summary?pair=BTCUSDT${status === 400 ? '&secret=Private-query-sentinel' : ''}`,
@@ -287,11 +288,21 @@ it('rejects an expired session without invoking the provider', async () => {
 });
 
 it('returns the selected pair summary without fetching candles', async () => {
-  provider.getSummary.mockResolvedValue({ pair: 'ETHUSDT', lastPrice: 218.5, change24hPercent: 0 });
+  provider.getSummary.mockResolvedValue({
+    pair: 'ETHUSDT',
+    lastPrice: 218.5,
+    change24hPercent: 0,
+    dataTime: 1735689659999,
+  });
   const response = await get('summary?pair=ETHUSDT');
   expect(response.status).toBe(200);
   expect(response.headers.get('cache-control')).toContain('no-store');
-  expect(await response.json()).toEqual({ pair: 'ETHUSDT', lastPrice: 218.5, change24hPercent: 0 });
+  expect(await response.json()).toEqual({
+    pair: 'ETHUSDT',
+    lastPrice: 218.5,
+    change24hPercent: 0,
+    dataTime: 1735689659999,
+  });
   expect(provider.getSummary).toHaveBeenCalledExactlyOnceWith('ETHUSDT');
   expect(provider.getCandles).not.toHaveBeenCalled();
 });

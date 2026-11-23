@@ -31,6 +31,9 @@ export const apiEnvSchema = backendEnvSchema
     EMAIL_FROM: optionalString,
     GOOGLE_CLIENT_ID: optionalString,
     GOOGLE_CLIENT_SECRET: optionalString,
+    DATABASE_POOL_MAX: z.coerce.number().int().min(1).default(20),
+    WS_MAX_CONNECTIONS_PER_USER: z.coerce.number().int().min(1).default(4),
+    BINANCE_WS_URL: z.url({ protocol: /^wss?$/ }).default('wss://stream.binance.com:9443/stream'),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === 'production' && (!env.RESEND_API_KEY || !env.EMAIL_FROM)) {
