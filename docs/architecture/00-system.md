@@ -8,7 +8,7 @@
 | --- | --- |
 | Truy cập workspace gắn với tài khoản và phiên (SS-03, SS-04, SS-07) | Web kiểm phiên trước khi tải workspace; API sở hữu dữ liệu xác thực [[1]](#ref-1) |
 | Phân tích thị trường, xây dựng và đánh giá strategy | Ranh giới Web/API, Worker và engine thuần tính toán; phần triển khai của từng container nêu bên dưới [[2]](#ref-2) |
-| Cập nhật thị trường trực tiếp không tăng tải kết nối nguồn theo số client (QA-05, QA-06, QA-15) | API giữ kết nối trực tiếp tới Binance qua `MarketDataStreamProvider` và fan-out tới trình duyệt qua WebSocket cùng origin *(thiết kế đã duyệt ngày 2026-11-23, chưa triển khai)* [[10]](#ref-10) |
+| Cập nhật thị trường trực tiếp không tăng tải kết nối nguồn theo số client (QA-05, QA-06, QA-15) | API giữ kết nối trực tiếp tới Binance qua `MarketDataStreamProvider` và fan-out tới trình duyệt qua WebSocket cùng origin (ADR-009 đến ADR-011) [[10]](#ref-10) |
 | Tách tính toán nền khỏi request phục vụ UI | Worker process riêng và queue PostgreSQL; chưa có pipeline nghiệp vụ được đăng ký [[2]](#ref-2) |
 
 ## Thành phần
@@ -30,25 +30,25 @@ flowchart LR
 ```mermaid
 flowchart LR
     B[Trình duyệt: Web React Router] -- HTTP cùng origin /api --> A[API Express và WS]
-    B -. WebSocket cùng origin /api .-> A
+    B -- WebSocket cùng origin /api --> A
     A --> D[(PostgreSQL)]
     A --> G[Google OAuth]
     A --> R[Mailer: Resend hoặc console]
     A --> P[Pwned Passwords API]
     W[Worker: pg-boss] --> D
     A -- Market Data qua MarketDataProvider --> BI[Binance REST]
-    A -. Stream qua MarketDataStreamProvider .-> BIW[Binance WebSocket]
+    A -- Stream qua MarketDataStreamProvider --> BIW[Binance WebSocket]
 ```
 
 Các kết nối nét liền trong sơ đồ là cơ chế đã có trong source; kết nối nét đứt là tích hợp theo thiết kế đã duyệt (chưa triển khai trong source). Việc một integration có code không khẳng định dịch vụ đó đã được cấu hình trên môi trường deploy.
 
 | Container/package | Trách nhiệm | Phần đã triển khai |
 | --- | --- | --- |
-| Web | Render UI, điều hướng, giữ server state và duy trì kết nối WebSocket phía client *(thiết kế)* | Landing, Auth, màn 404, workspace layout/header, lớp chặn phiên và Realtime tải lịch sử kèm cập nhật định kỳ qua REST; WebSocket chưa triển khai; các tab nghiệp vụ khác là placeholder |
-| API | HTTP/WebSocket boundary, orchestration, truy cập dữ liệu và gọi provider dữ liệu thị trường | Better Auth, health, cấu hình Auth công khai, security headers, logging, error handling và Market Data REST qua Binance adapter có cache [[10]](#ref-10); WebSocket Gateway và Stream Hub đã duyệt thiết kế, chưa triển khai |
+| Web | Render UI, điều hướng, giữ server state và duy trì kết nối WebSocket phía client | Landing, Auth, màn 404, workspace layout/header, lớp chặn phiên và Realtime tải lịch sử qua REST kèm cập nhật trực tiếp qua WebSocket (đệm sự kiện, hợp nhất và REST backfill); các tab nghiệp vụ khác là placeholder |
+| API | HTTP/WebSocket boundary, orchestration, truy cập dữ liệu và gọi provider dữ liệu thị trường | Better Auth, health, cấu hình Auth công khai, security headers, logging, error handling, Market Data REST qua Binance adapter có cache và Market Data WebSocket qua `MarketDataWsGateway`, `MarketDataStreamHub`, `WsSessionService` và `BinanceStreamProvider` [[10]](#ref-10) |
 | PostgreSQL | Persistence của ứng dụng và queue | Schema ứng dụng gồm dữ liệu tài khoản/phiên và rate limit; pg-boss quản lý schema queue riêng |
 | Worker | Thực thi job nền ngoài vòng đời HTTP request | Khởi động/dừng pg-boss; chưa đăng ký job handler |
-| `packages/shared` | Contracts và validation dùng chung | Schema Auth, environment, Market Data REST và metadata pair [[3]](#ref-3); schema khung WebSocket mới ở mức thiết kế |
+| `packages/shared` | Contracts và validation dùng chung | Schema Auth, environment, Market Data REST, metadata pair và schema khung thông điệp WebSocket [[3]](#ref-3) |
 | `packages/engine` | Tính toán domain tất định, không I/O | Entry point chưa export module tính toán |
 
 Nguồn hiện trạng: bootstrap API/Worker, route config và entry point engine [[3]](#ref-3). Worker không nằm trên đường xử lý request Auth hoặc Market Data hiện tại.

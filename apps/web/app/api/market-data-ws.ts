@@ -4,7 +4,7 @@ import {
   type WsServerMessage,
 } from '@crypto-force/shared';
 
-export function getMarketDataWsUrl(
+function getMarketDataWsUrl(
   locationObj: Pick<Location, 'protocol' | 'host'> = window.location,
 ): string {
   const protocol = locationObj.protocol === 'https:' ? 'wss:' : 'ws:';

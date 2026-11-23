@@ -149,7 +149,10 @@ test('missing purpose line fails in structured folders', () => {
   );
   assert.ok(has(messages('docs/knowledge/x.md', '# X\n\nKiến thức.\n'), /purpose line/));
   assert.ok(
-    !has(messages('docs/knowledge/x.md', '# X\n\nĐọc file này để biết kiến thức.\n'), /purpose line/),
+    !has(
+      messages('docs/knowledge/x.md', '# X\n\nĐọc file này để biết kiến thức.\n'),
+      /purpose line/,
+    ),
   );
 });
 

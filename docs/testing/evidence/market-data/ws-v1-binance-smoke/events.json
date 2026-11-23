@@ -1,0 +1,508 @@
+{
+  "candleSampleCount": 43,
+  "summarySampleCount": 90,
+  "closedCandles": [
+    {
+      "receivedUtc": "2026-11-23T13:38:00.052Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441020000,
+          "open": 61247.88,
+          "high": 61255.78,
+          "low": 61229.67,
+          "close": 61246.81,
+          "volume": 6.28281,
+          "isClosed": true
+        },
+        "dataTime": 1795441080052,
+        "sourceTime": 1795441080026
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:39:00.038Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441080000,
+          "open": 61246.8,
+          "high": 61347.84,
+          "low": 61225.9,
+          "close": 61347.84,
+          "volume": 11.63947,
+          "isClosed": true
+        },
+        "dataTime": 1795441140038,
+        "sourceTime": 1795441140019
+      }
+    }
+  ],
+  "firstTenCandles": [
+    {
+      "receivedUtc": "2026-11-23T13:37:58.048Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441020000,
+          "open": 61247.88,
+          "high": 61255.78,
+          "low": 61229.67,
+          "close": 61246.81,
+          "volume": 6.15885,
+          "isClosed": false
+        },
+        "dataTime": 1795441078046,
+        "sourceTime": 1795441078016
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:38:00.052Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441020000,
+          "open": 61247.88,
+          "high": 61255.78,
+          "low": 61229.67,
+          "close": 61246.81,
+          "volume": 6.28281,
+          "isClosed": true
+        },
+        "dataTime": 1795441080052,
+        "sourceTime": 1795441080026
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:38:02.049Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441080000,
+          "open": 61246.8,
+          "high": 61246.8,
+          "low": 61243.86,
+          "close": 61243.86,
+          "volume": 0.34303,
+          "isClosed": false
+        },
+        "dataTime": 1795441082049,
+        "sourceTime": 1795441082049
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:38:04.038Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441080000,
+          "open": 61246.8,
+          "high": 61255.77,
+          "low": 61243.86,
+          "close": 61255.76,
+          "volume": 0.83195,
+          "isClosed": false
+        },
+        "dataTime": 1795441084038,
+        "sourceTime": 1795441084038
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:38:06.019Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441080000,
+          "open": 61246.8,
+          "high": 61255.77,
+          "low": 61243.86,
+          "close": 61255.75,
+          "volume": 0.83206,
+          "isClosed": false
+        },
+        "dataTime": 1795441086019,
+        "sourceTime": 1795441086019
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:38:08.029Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441080000,
+          "open": 61246.8,
+          "high": 61255.77,
+          "low": 61243.86,
+          "close": 61255.76,
+          "volume": 0.84801,
+          "isClosed": false
+        },
+        "dataTime": 1795441088029,
+        "sourceTime": 1795441088022
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:38:10.047Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441080000,
+          "open": 61246.8,
+          "high": 61255.77,
+          "low": 61243.86,
+          "close": 61255.76,
+          "volume": 0.85938,
+          "isClosed": false
+        },
+        "dataTime": 1795441090047,
+        "sourceTime": 1795441090026
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:38:14.041Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441080000,
+          "open": 61246.8,
+          "high": 61255.77,
+          "low": 61243.86,
+          "close": 61250.12,
+          "volume": 1.05615,
+          "isClosed": false
+        },
+        "dataTime": 1795441094041,
+        "sourceTime": 1795441094039
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:38:16.019Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441080000,
+          "open": 61246.8,
+          "high": 61255.77,
+          "low": 61243.86,
+          "close": 61251.38,
+          "volume": 1.07217,
+          "isClosed": false
+        },
+        "dataTime": 1795441096018,
+        "sourceTime": 1795441096014
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:38:18.025Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441080000,
+          "open": 61246.8,
+          "high": 61255.77,
+          "low": 61243.86,
+          "close": 61251.39,
+          "volume": 1.16694,
+          "isClosed": false
+        },
+        "dataTime": 1795441098025,
+        "sourceTime": 1795441098023
+      }
+    }
+  ],
+  "lastTenCandles": [
+    {
+      "receivedUtc": "2026-11-23T13:39:08.032Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441140000,
+          "open": 61347.84,
+          "high": 61364.14,
+          "low": 61331.32,
+          "close": 61331.32,
+          "volume": 4.87391,
+          "isClosed": false
+        },
+        "dataTime": 1795441148032,
+        "sourceTime": 1795441148018
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:39:10.044Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441140000,
+          "open": 61347.84,
+          "high": 61364.14,
+          "low": 61331.32,
+          "close": 61331.33,
+          "volume": 4.9007,
+          "isClosed": false
+        },
+        "dataTime": 1795441150044,
+        "sourceTime": 1795441150014
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:39:12.047Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441140000,
+          "open": 61347.84,
+          "high": 61364.14,
+          "low": 61322.72,
+          "close": 61322.72,
+          "volume": 5.04805,
+          "isClosed": false
+        },
+        "dataTime": 1795441152047,
+        "sourceTime": 1795441152021
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:39:14.043Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441140000,
+          "open": 61347.84,
+          "high": 61364.14,
+          "low": 61318.63,
+          "close": 61318.64,
+          "volume": 5.1076,
+          "isClosed": false
+        },
+        "dataTime": 1795441154043,
+        "sourceTime": 1795441154040
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:39:16.024Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441140000,
+          "open": 61347.84,
+          "high": 61364.14,
+          "low": 61315.99,
+          "close": 61315.99,
+          "volume": 5.35037,
+          "isClosed": false
+        },
+        "dataTime": 1795441156023,
+        "sourceTime": 1795441156015
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:39:18.032Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441140000,
+          "open": 61347.84,
+          "high": 61364.14,
+          "low": 61312.24,
+          "close": 61312.24,
+          "volume": 5.38415,
+          "isClosed": false
+        },
+        "dataTime": 1795441158032,
+        "sourceTime": 1795441158028
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:39:20.043Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441140000,
+          "open": 61347.84,
+          "high": 61364.14,
+          "low": 61312.24,
+          "close": 61312.24,
+          "volume": 5.39644,
+          "isClosed": false
+        },
+        "dataTime": 1795441160043,
+        "sourceTime": 1795441160040
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:39:22.097Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441140000,
+          "open": 61347.84,
+          "high": 61364.14,
+          "low": 61311.73,
+          "close": 61311.73,
+          "volume": 5.94944,
+          "isClosed": false
+        },
+        "dataTime": 1795441162097,
+        "sourceTime": 1795441162093
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:39:24.027Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441140000,
+          "open": 61347.84,
+          "high": 61364.14,
+          "low": 61309.7,
+          "close": 61309.7,
+          "volume": 5.96504,
+          "isClosed": false
+        },
+        "dataTime": 1795441164027,
+        "sourceTime": 1795441164021
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:39:26.029Z",
+      "valid": true,
+      "event": {
+        "pair": "BTCUSDT",
+        "timeframe": "1m",
+        "candle": {
+          "openTime": 1795441140000,
+          "open": 61347.84,
+          "high": 61364.14,
+          "low": 61309.7,
+          "close": 61309.7,
+          "volume": 5.98048,
+          "isClosed": false
+        },
+        "dataTime": 1795441166029,
+        "sourceTime": 1795441166016
+      }
+    }
+  ],
+  "firstFiveSummaries": [
+    {
+      "receivedUtc": "2026-11-23T13:37:58.027Z",
+      "valid": true,
+      "event": {
+        "summary": {
+          "pair": "BTCUSDT",
+          "lastPrice": 61246.81,
+          "change24hPercent": 0.58,
+          "dataTime": 1795441078024
+        },
+        "sourceTime": 1795441078017
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:37:59.016Z",
+      "valid": true,
+      "event": {
+        "summary": {
+          "pair": "BTCUSDT",
+          "lastPrice": 61246.81,
+          "change24hPercent": 0.576,
+          "dataTime": 1795441079016
+        },
+        "sourceTime": 1795441079017
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:38:00.051Z",
+      "valid": true,
+      "event": {
+        "summary": {
+          "pair": "BTCUSDT",
+          "lastPrice": 61246.81,
+          "change24hPercent": 0.576,
+          "dataTime": 1795441080051
+        },
+        "sourceTime": 1795441080017
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:38:01.016Z",
+      "valid": true,
+      "event": {
+        "summary": {
+          "pair": "BTCUSDT",
+          "lastPrice": 61246.81,
+          "change24hPercent": 0.562,
+          "dataTime": 1795441081016
+        },
+        "sourceTime": 1795441081017
+      }
+    },
+    {
+      "receivedUtc": "2026-11-23T13:38:02.018Z",
+      "valid": true,
+      "event": {
+        "summary": {
+          "pair": "BTCUSDT",
+          "lastPrice": 61243.86,
+          "change24hPercent": 0.515,
+          "dataTime": 1795441082018
+        },
+        "sourceTime": 1795441082018
+      }
+    }
+  ],
+  "logs": [
+    {
+      "level": 30,
+      "time": 1795441077821,
+      "pid": 22112,
+      "hostname": "DESKTOP-KE0DR9U",
+      "event": "binance_ws_connected",
+      "isReconnect": false,
+      "downtimeMs": 0,
+      "activeStreamsCount": 2,
+      "msg": "Connected to Binance WebSocket."
+    }
+  ]
+}

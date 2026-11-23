@@ -2,10 +2,9 @@
 // package public exports. No I/O or doubles. Run: pnpm --filter @crypto-force/shared test.
 // Expected values come from docs/architecture/22-api-endpoints.md and
 // docs/testing/test-scopes/TS-002-market-data/websocket-verification.md.
-// Pre-build red state: MarketSummary currently omits dataTime, apiEnvSchema omits WS/pool env
-// variables, and wsClientMessageSchema/wsServerMessageSchema are not exported yet.
-// Fault checks (gate for build step): omitting dataTime rejection, allowing extra WS keys or
-// accepting off-interval openTime must fail these assertions.
+// Verified mutations: removing dataTime from marketSummarySchema, replacing z.strictObject with
+// z.object on WS schemas, or removing the timeframe interval alignment refinement on candle frames
+// fails the schema rejection assertions (apps/api/perf/market-data/ws-mutations.mjs).
 import * as shared from '@crypto-force/shared';
 import { describe, expect, it } from 'vitest';
 

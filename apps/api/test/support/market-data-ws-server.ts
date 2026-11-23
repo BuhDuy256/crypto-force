@@ -5,10 +5,8 @@
 // Anchors every timeframe's last REST candle closeTime at replayNow so the final candle is open
 // (isClosed: false) and loads frozen reference candles from ws-reference-dataset.json.
 // Resets cache, emails, ingress REST counter and fault flags on POST /__ws/reset so tests stay isolated.
-// Pre-build red state: WebSocket production modules do not exist yet, so startup fails on import
-// until the build step adds them.
-// Fault checks (gate for build step): dropping replay ticks, ignoring disconnect commands or
-// bypassing outbound guards must fail the E2E assertions.
+// Verified faults: dropping replay ticks in /__ws/emit, ignoring /__ws/upstream-drop, or omitting
+// recoveryClosedCandles1m in fakeFetch fails apps/web/e2e/market-data/websocket-live.spec.ts.
 import { once } from 'node:events';
 import { readFileSync } from 'node:fs';
 import { createServer, type IncomingMessage } from 'node:http';
@@ -188,12 +186,52 @@ const fakeFetch: typeof globalThis.fetch = (input) => {
     row[0] = Number(row[0]) + shift;
     row[6] = Number(row[6]) + shift;
   }
-  if (interval === '1m' && replayOffsetMs > 0 && url.searchParams.get('symbol') === 'BTCUSDT') {
-    // Embed reference closed candles and omit the realMarketGap openTime.
-    const filtered = body.filter(
+  if (interval === '1m' && url.searchParams.get('symbol') === 'BTCUSDT') {
+    const base1m = klines(519, 60_000);
+    if (replayOffsetMs === 0) {
+      // At offset 0, the 519th 1m candle (1735720680000) is still open (closeTime > currentReplayNow()).
+      const lastRow = base1m[518];
+      if (lastRow) {
+        lastRow[6] = currentReplayNow() + 60_000;
+      }
+      return Promise.resolve(Response.json(base1m));
+    }
+    // When replayOffsetMs > 0 (after 30s, 120s, 300s disconnects), replace the tail with
+    // referenceDataset.recoveryClosedCandles1m, omit realMarketGap.missingOpenTime (1735720800000),
+    // and append a new open candle at 1735720920000.
+    const historicalClosed = base1m.slice(0, 518);
+    const closedRows = referenceDataset.recoveryClosedCandles1m.map((candle) => [
+      candle.openTime,
+      String(candle.open),
+      String(candle.high),
+      String(candle.low),
+      String(candle.close),
+      String(candle.volume),
+      candle.openTime + 59_999,
+      '0',
+      10,
+      '0',
+      '0',
+      '0',
+    ]);
+    const nextOpenRow = [
+      1735720920000,
+      '623.50',
+      '624.50',
+      '623.00',
+      '624.00',
+      '15.25',
+      currentReplayNow() + 60_000,
+      '0',
+      10,
+      '0',
+      '0',
+      '0',
+    ];
+    const combined = [...historicalClosed, ...closedRows, nextOpenRow].filter(
       (row) => Number(row[0]) !== referenceDataset.realMarketGap.missingOpenTime,
     );
-    return Promise.resolve(Response.json(filtered));
+    return Promise.resolve(Response.json(combined.slice(-519)));
   }
   if (url.searchParams.get('symbol') === 'ETHUSDT') {
     for (const row of body) {

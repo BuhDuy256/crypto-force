@@ -2,9 +2,9 @@
 // Run: pnpm --filter @crypto-force/api exec vitest run test/market-data/stream-hub.test.ts.
 // Requires the _test DB from API global setup. Expected values:
 // docs/testing/test-scopes/TS-002-market-data/websocket-verification.md (seam S4).
-// Pre-build red state: src/services/market-data-stream.service.ts does not exist yet.
-// Fault checks (gate for build step): subscribing upstream per client, skipping 5s grace delay,
-// omitting onCandleClosed, or forwarding invalid candles must fail these assertions.
+// Verified mutations & fake faults: shared-subscriptions-per-client, grace-delay-immediate-unsubscribe,
+// cache-invalidation-skip-on-close, invalid-data-bypass-hub, and fake-replay-no-tick-emitted
+// all fail behavioral assertions in this suite (apps/api/perf/market-data/ws-mutations.mjs).
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createMarketDataStreamHub } from '../../src/services/market-data-stream.service';
 import type {

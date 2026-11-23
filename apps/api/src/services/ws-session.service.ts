@@ -1,6 +1,6 @@
 import type { SessionRepository } from '../repositories/session.repository';
 
-export interface ActiveWsSession {
+interface ActiveWsSession {
   sessionId: string;
   expiresAt: number;
 }

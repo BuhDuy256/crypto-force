@@ -13,22 +13,22 @@
 | Xem lịch sử nến, summary và backfill sau gián đoạn (MK-08, MK-25, MK-33, MK-105) | [Endpoint Market Data](#endpoint-market-data) |
 | Phiên hết hạn khi xem Realtime (MK-40) | Endpoint REST Market Data trả 401 `UNAUTHENTICATED`; WebSocket trả 401 lúc upgrade hoặc đóng bằng mã `4401` |
 | Lỗi theo nhóm, không lộ chi tiết upstream (MK-12, MK-18, MK-39, MK-45, MK-130) | [Lỗi Market Data](#lỗi-market-data) và thông điệp `error`/`status` WebSocket |
-| Cập nhật trực tiếp nến và summary, đổi kênh độc lập, tín hiệu sống và trạng thái đồng bộ (MK-93 đến MK-99, MK-104 đến MK-106, MK-110, MK-111) | [Kênh WebSocket Market Data](#kênh-websocket-market-data) *(thiết kế đã duyệt ngày 2026-11-23, chưa triển khai)* |
+| Cập nhật trực tiếp nến và summary, đổi kênh độc lập, tín hiệu sống và trạng thái đồng bộ (MK-93 đến MK-99, MK-104 đến MK-106, MK-110, MK-111) | [Kênh WebSocket Market Data](#kênh-websocket-market-data) |
 | Xác thực, kiểm `Origin`, `WSS` production, cưỡng chế phiên và giới hạn số tab đồng thời (MK-118 đến MK-121, MK-142) | Bắt tay HTTP upgrade tại `/api/market-data/ws` và mã đóng `4401`, `4429` ([Kênh WebSocket Market Data](#kênh-websocket-market-data), [Security](23-security.md)) |
 
 ## Thành phần
 
-`createApp` mount Better Auth bằng `toNodeHandler` trước `express.json()`, vì Better Auth tự đọc body. Router `/api` của ứng dụng được mount sau đó; nó có health, cấu hình Auth công khai và hai endpoint Market Data [[2]](#ref-2). Theo thiết kế vòng WebSocket đã duyệt ngày 2026-11-23 (chưa triển khai), server HTTP của API gắn thêm `WebSocketServer` (`ws@8.23.0` đã cài trong `apps/api/package.json` và khóa trong `pnpm-lock.yaml`) xử lý sự kiện `upgrade` cho duy nhất đường dẫn `/api/market-data/ws` [[9]](#ref-9) [[10]](#ref-10).
+`createApp` mount Better Auth bằng `toNodeHandler` trước `express.json()`, vì Better Auth tự đọc body. Router `/api` của ứng dụng được mount sau đó; nó có health, cấu hình Auth công khai và hai endpoint Market Data [[2]](#ref-2). Server HTTP của API gắn thêm `WebSocketServer` (`ws@8.23.0` trong `apps/api/package.json` và khóa trong `pnpm-lock.yaml`) qua `attachMarketDataWs` xử lý sự kiện `upgrade` cho duy nhất đường dẫn `/api/market-data/ws` [[9]](#ref-9) [[10]](#ref-10).
 
 ## Ranh giới giao tiếp
 
 | Bên gọi → bên nhận | Transport và contract | Hiện trạng |
 | --- | --- | --- |
 | Trình duyệt → API | HTTP cùng origin, prefix `/api` | Đã triển khai: Health, cấu hình công khai, Better Auth và Market Data REST |
-| Trình duyệt ↔ API realtime | WebSocket cùng origin tại `/api/market-data/ws` | Đã duyệt thiết kế (2026-11-23), chưa triển khai server và client WebSocket; Vite proxy `/api` đã bật `ws: true` [[6]](#ref-6) |
+| Trình duyệt ↔ API realtime | WebSocket cùng origin tại `/api/market-data/ws` | Đã triển khai server (`attachMarketDataWs`) và client WebSocket (`createMarketDataWsClient`); Vite proxy `/api` đã bật `ws: true` [[6]](#ref-6) |
 | Google/hộp thư → API qua trình duyệt | Callback OAuth hoặc link kiểm token | Đã triển khai dưới `/api/auth/*`, sau đó chuyển về route Web |
-| API → PostgreSQL | Drizzle adapter và connection pool | Đã triển khai cho Auth; thêm truy vấn đọc phiên theo lô ở thiết kế WebSocket |
-| API ↔ Binance | HTTPS REST (đã triển khai) và WSS combined stream (thiết kế đã duyệt, chưa triển khai) | Chỉ qua `MarketDataProvider` và `MarketDataStreamProvider` [[9]](#ref-9) |
+| API → PostgreSQL | Drizzle adapter và connection pool | Đã triển khai cho Auth và truy vấn đọc phiên theo lô của WebSocket (`SessionRepository`) |
+| API ↔ Binance | HTTPS REST và WSS combined stream | Đã triển khai; chỉ qua `MarketDataProvider` và `MarketDataStreamProvider` [[9]](#ref-9) |
 | Worker → PostgreSQL | pg-boss | Queue bootstrap; chưa có contract payload job nghiệp vụ |
 
 Web gọi API qua module `app/api/`; contract Auth hiện nằm trong `apps/web/app/api/auth.ts`. `AuthConfig` và các schema Market Data được kiểm bằng Zod từ `packages/shared`; kết quả Auth lấy type từ Better Auth client [[3]](#ref-3).
@@ -122,13 +122,13 @@ Header chung do middleware API đặt; các thuộc tính cookie, origin, cache 
 
 ## Realtime và job contracts
 
-API hiện chưa khởi động WebSocket server trong source; tùy chọn `ws: true` của Vite chỉ cho proxy chuyển tiếp WebSocket [[2]](#ref-2) [[6]](#ref-6). Mục [Kênh WebSocket Market Data](#kênh-websocket-market-data) dưới đây là thiết kế đã duyệt ngày 2026-11-23 cho vòng WebSocket (ADR-009 đến ADR-011), chưa triển khai.
+API khởi động `WebSocketServer` cho Market Data qua `attachMarketDataWs` trong `apps/api/src/index.ts`; tùy chọn `ws: true` của Vite cho phép proxy chuyển tiếp WebSocket cùng origin trong development [[2]](#ref-2) [[6]](#ref-6). Mục [Kênh WebSocket Market Data](#kênh-websocket-market-data) dưới đây mô tả contract đã triển khai của vòng WebSocket (ADR-009 đến ADR-011).
 
 Worker mới khởi động pg-boss, chưa có job handler hoặc payload schema nghiệp vụ. HTTP response, event realtime và payload job là ba contract khác nhau; hiện chưa có contract tiến độ hoặc kết quả backtest được nối giữa chúng [[7]](#ref-7).
 
 ### Kênh WebSocket Market Data
 
-Trạng thái: đã duyệt thiết kế ngày 2026-11-23, chưa triển khai. Mọi schema thông điệp được định nghĩa bằng Zod strict trong `packages/shared` để API và Web dùng chung một nguồn contract.
+Trạng thái: đã triển khai. Mọi schema thông điệp được định nghĩa bằng Zod strict trong `packages/shared` để API và Web dùng chung một nguồn contract.
 
 #### Kết nối và bắt tay (HTTP Upgrade)
 
@@ -177,12 +177,12 @@ Tốc độ thông điệp đến từ mỗi kết nối chịu giới hạn t�
 
 | Hạng mục | Quyết định |
 | --- | --- |
-| Quyền sở hữu route | Better Auth sở hữu `/api/auth/*`; router Express của ứng dụng sở hữu `/api/health`, `/api/auth-config`, `/api/market-data/*`; WebSocket Gateway sở hữu upgrade `/api/market-data/ws` *(chưa triển khai)* |
+| Quyền sở hữu route | Better Auth sở hữu `/api/auth/*`; router Express của ứng dụng sở hữu `/api/health`, `/api/auth-config`, `/api/market-data/*`; WebSocket Gateway sở hữu upgrade `/api/market-data/ws` |
 | Callback | URL callback backend thuộc `/api/auth/*`; route form `/reset-password` và route `/sign-up/verify` là Web UI, không thay thế endpoint kiểm token |
 | Cấu hình Google | API trả capability công khai; Auth layout dùng false nếu không đọc được cấu hình, không suy ra secret từ phía client |
 | Truy cập Market Data | Cả REST và WebSocket đều yêu cầu phiên hợp lệ. Endpoint công khai sẽ biến API thành proxy miễn phí tới Binance |
 | Số nến REST | Server quyết định, không nhận từ query |
-| Vai trò song song REST và WebSocket *(chưa triển khai)* | REST phục vụ lịch sử đầu, đổi lựa chọn khi tạm dừng và backfill; WebSocket phục vụ cập nhật trực tiếp và tín hiệu đồng bộ; cả hai dùng chung `candleSchema` và `marketSummarySchema` (ADR-009) |
+| Vai trò song song REST và WebSocket | REST phục vụ lịch sử đầu, đổi lựa chọn khi tạm dừng và backfill; WebSocket phục vụ cập nhật trực tiếp và tín hiệu đồng bộ; cả hai dùng chung `candleSchema` và `marketSummarySchema` (ADR-009) |
 
 ## Rủi ro
 

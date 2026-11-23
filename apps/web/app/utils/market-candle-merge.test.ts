@@ -2,9 +2,9 @@
 // Run: pnpm --filter @crypto-force/web exec vitest run app/utils/market-candle-merge.test.ts.
 // Expected values: docs/testing/test-scopes/TS-002-market-data/websocket-verification.md (seam S7,
 // merge decision table M1-M7 and 50-event buffer overflow boundary).
-// Pre-build red state: apps/web/app/utils/market-candle-merge.ts does not exist yet.
-// Fault checks (gate for build step): duplicating openTime, regressing dataTime, skipping closed
-// boundary detection or filling real market gaps must fail these assertions.
+// Verified mutations: merge-duplicate-opentime, merge-allow-stale-datatime, and
+// merge-skip-missing-close-boundary all fail assertions in this suite
+// (apps/api/perf/market-data/ws-mutations.mjs).
 import type { CandleHistory } from '@crypto-force/shared';
 import { describe, expect, it } from 'vitest';
 import { mergeCandleEvent, reconcileSnapshotWithBuffer } from './market-candle-merge';

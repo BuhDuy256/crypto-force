@@ -2,8 +2,9 @@
 // Run: pnpm --filter @crypto-force/api exec vitest run test/market-data/cache-invalidation.test.ts.
 // Requires the _test DB from API global setup; uses an injected provider fake and manual clock.
 // Expected: docs/testing/test-scopes/TS-002-market-data/websocket-verification.md (seam S2).
-// Pre-build red state: createCachedMarketDataProvider does not yet expose invalidateCandles.
-// Fault checks (gate for build step): omitting invalidation or clearing unrelated keys must fail.
+// Verified mutations: cache-invalidation-wrong-key (clearing candles:${pair}: instead of
+// candles:${pair}:${timeframe}:) fails the cross-timeframe isolation assertion
+// (apps/api/perf/market-data/ws-mutations.mjs).
 import { expect, it, vi } from 'vitest';
 import { createCachedMarketDataProvider } from '../../src/providers/market-data/cached-market-data.provider';
 import { MarketDataProviderError } from '../../src/providers/market-data/market-data-provider';

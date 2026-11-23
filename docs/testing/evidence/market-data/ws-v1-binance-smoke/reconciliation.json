@@ -1,0 +1,57 @@
+{
+  "totalCandleFrames": 43,
+  "closedCandleFrames": 2,
+  "crossedAtLeastOneClosedCandle": true,
+  "invalidCandleFrames": 0,
+  "totalSummaryFrames": 90,
+  "invalidSummaryFrames": 0,
+  "statusEvents": [
+    {
+      "receivedUtc": "2026-11-23T13:37:57.821Z",
+      "status": {
+        "upstream": "available",
+        "resyncRequired": false
+      }
+    }
+  ],
+  "sampleClosedCandle": {
+    "pair": "BTCUSDT",
+    "timeframe": "1m",
+    "candle": {
+      "openTime": 1795441020000,
+      "open": 61247.88,
+      "high": 61255.78,
+      "low": 61229.67,
+      "close": 61246.81,
+      "volume": 6.28281,
+      "isClosed": true
+    },
+    "dataTime": 1795441080052,
+    "sourceTime": 1795441080026
+  },
+  "sampleOpenCandle": {
+    "pair": "BTCUSDT",
+    "timeframe": "1m",
+    "candle": {
+      "openTime": 1795441020000,
+      "open": 61247.88,
+      "high": 61255.78,
+      "low": 61229.67,
+      "close": 61246.81,
+      "volume": 6.15885,
+      "isClosed": false
+    },
+    "dataTime": 1795441078046,
+    "sourceTime": 1795441078016
+  },
+  "sampleSummary": {
+    "summary": {
+      "pair": "BTCUSDT",
+      "lastPrice": 61246.81,
+      "change24hPercent": 0.58,
+      "dataTime": 1795441078024
+    },
+    "sourceTime": 1795441078017
+  },
+  "valid": true
+}

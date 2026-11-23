@@ -1,17 +1,36 @@
 // Checks core WebSocket E2E flows through real API, Better Auth and _market_data_ws_test DB:
 // live candle/summary updates with zero extra API REST calls, timeframe and pair isolation,
-// pause/resume (0 WS while paused, REST-only switches), upstream unavailable and partial backfill
-// recovery, multi-tab independence with 4-tab limit (4429) and sign-out revocation (4401), plus
-// invalid tick rejection, focus retention, live region quietness and absence of ms latency badge.
-// Stale/reset (15s/30s), 120s retry cap and multi-disconnect OHLCV reconciliation are expanded in
-// the build step once the UI transport is wired. Only upstream Binance HTTP/WS are faked.
+// pause/resume (0 WS while paused, REST-only switches) and visibilitychange (live/stale/paused),
+// upstream unavailable and partial backfill recovery, multi-tab independence with 4-tab limit (4429)
+// and sign-out revocation (4401), invalid tick rejection, focus retention, live region quietness,
+// 15s/30s/120s boundaries under +60s and -60s wall-clock skew, and 30s/120s/300s closed-candle
+// OHLCV reconciliation against ws-reference-dataset.json without synthesizing real market gaps.
 // Run: pnpm --filter @crypto-force/web exec playwright test --config playwright.market-data-ws.config.ts --workers=1.
 // Expected values: docs/testing/test-scopes/TS-002-market-data/websocket-verification.md.
-// Pre-build red state: API test server cannot start yet because WebSocket modules are not built.
-// Fault checks (gate for build step): omitting live updates, reporting live before backfill finishes,
-// leaking upstream sentinel text or allowing tab 5 must fail these assertions.
+// Verified mutations: ui-live-before-backfill-complete, ui-paused-reports-reconnecting,
+// ui-retry-cap-240s, and ui-skip-reconnect-backfill all fail behavioral assertions in this suite
+// (apps/api/perf/market-data/ws-mutations.mjs).
 import { randomInt, randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
+
+const referenceDataset = JSON.parse(
+  readFileSync(
+    new URL('../../../api/test/market-data/ws-reference-dataset.json', import.meta.url),
+    'utf8',
+  ),
+) as {
+  realMarketGap: { missingOpenTime: number };
+  recoveryClosedCandles1m: {
+    openTime: number;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+    isClosed: boolean;
+  }[];
+};
 
 const control = 'http://127.0.0.1:3018';
 const password = 'Correct-Horse-91';
@@ -152,7 +171,7 @@ test('switches one chart timeframe without interrupting other charts and discard
       E: OPEN_5M_TIME + 65_000,
       s: 'BTCUSDT',
       k: {
-        t: OPEN_5M_TIME + 240_000,
+        t: 1735720680000,
         i: '1m',
         o: '618.00',
         h: '619.00',
@@ -185,14 +204,40 @@ test('switches one chart timeframe without interrupting other charts and discard
   await expect(page.getByLabel('Chart 1 values', { exact: true })).not.toContainText('618.75');
 });
 
-test('closes WebSocket on pause without disconnect alerts, uses REST only while paused, and starts sync on resume', async ({
+test('closes WebSocket on pause without disconnect alerts, uses REST only while paused, starts sync on resume, and handles visibilitychange across live, paused and disrupted states', async ({
   page,
   request,
 }) => {
   await openRealtimeLive(page);
+
+  // MK-126 branch (a): tab hidden while live with fresh signal (<15s) then visible -> 0 extra REST calls.
+  const restBeforeLiveVisible = (await readLedger(request)).apiRestRequests.length;
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  expect((await readLedger(request)).apiRestRequests.length).toBe(restBeforeLiveVisible);
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /Live|Đang trực tiếp/i,
+  );
+
   await page.getByRole('button', { name: /Pause|Tạm dừng/i }).click();
   await expect(page.getByTestId('realtime-connection-status')).toContainText(/Paused|Đã tạm dừng/i);
   await expect.poll(async () => (await readLedger(request)).activeClientWs).toBe(0);
+
+  // MK-126 branch (c): tab hidden while paused then visible -> remains Paused with 0 WS and 0 REST calls.
+  const restBeforePausedVisible = (await readLedger(request)).apiRestRequests.length;
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  expect((await readLedger(request)).apiRestRequests.length).toBe(restBeforePausedVisible);
+  expect((await readLedger(request)).activeClientWs).toBe(0);
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(/Paused|Đã tạm dừng/i);
 
   // Upstream drop while paused must not show a disconnect warning.
   expect((await request.post(`${control}/__ws/upstream-drop`)).status()).toBe(200);
@@ -220,6 +265,30 @@ test('closes WebSocket on pause without disconnect alerts, uses REST only while 
   await expect
     .poll(async () => (await readLedger(request)).apiRestRequests.length, { timeout: 1000 })
     .toBeGreaterThan(restBeforeResume);
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /Live|Đang trực tiếp/i,
+  );
+
+  // MK-126 branch (b): tab hidden when connection/upstream is disrupted then visible -> starts backfill <= 1000 ms.
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  expect(
+    (
+      await request.post(`${control}/__ws/client-ws-control`, {
+        data: { dropActiveClients: true },
+      })
+    ).status(),
+  ).toBe(200);
+  const restBeforeDisruptedVisible = (await readLedger(request)).apiRestRequests.length;
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect
+    .poll(async () => (await readLedger(request)).apiRestRequests.length, { timeout: 1000 })
+    .toBeGreaterThan(restBeforeDisruptedVisible);
   await expect(page.getByTestId('realtime-connection-status')).toContainText(
     /Live|Đang trực tiếp/i,
   );
@@ -423,16 +492,24 @@ test('enforces 15s stale and 30s reset boundaries despite wall-clock skew, stops
     })
     .toContain('619.25');
 
-  // Shifting wall-clock Date.now by +60s must not trigger false stale state on monotonic clock.
+  // Shifting wall-clock Date.now by +60s and -60s must not trigger false stale state on monotonic clock.
   await page.clock.setSystemTime(new Date(1735845365000));
   await expect(page.getByTestId('realtime-connection-status')).toContainText(
     /Live|Đang trực tiếp/i,
   );
+  await page.clock.setSystemTime(new Date(1735845245000));
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /Live|Đang trực tiếp/i,
+  );
 
-  // 14,999 ms without frames stays Live; 15,000 ms transitions to Stale data.
+  // 14,999 ms without frames stays Live; 15,000 ms and 15,001 ms transition to Stale data (W11).
   await page.clock.runFor(14_999);
   await expect(page.getByTestId('realtime-connection-status')).toContainText(
     /Live|Đang trực tiếp/i,
+  );
+  await page.clock.runFor(1);
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /Stale data|Dữ liệu cũ/i,
   );
   await page.clock.runFor(1);
   await expect(page.getByTestId('realtime-connection-status')).toContainText(
@@ -471,11 +548,19 @@ test('enforces 15s stale and 30s reset boundaries despite wall-clock skew, stops
   await expect(page.getByTestId('realtime-connection-status')).toContainText(
     /retrying|đang thử lại/i,
   );
-
-  // At 119,999 ms from disconnect start, still retrying; at 120,000 ms, stops auto-retry.
-  await page.clock.runFor(119_999);
+  await page.clock.runFor(1);
   await expect(page.getByTestId('realtime-connection-status')).toContainText(
     /retrying|đang thử lại/i,
+  );
+
+  // At 119,999 ms from disconnect start (already advanced 1 ms above), still retrying; at 120,000 ms and 120,001 ms, stops auto-retry (W11).
+  await page.clock.runFor(119_998);
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /retrying|đang thử lại/i,
+  );
+  await page.clock.runFor(1);
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /Mất kết nối hoàn toàn/i,
   );
   await page.clock.runFor(1);
   await expect(page.getByTestId('realtime-connection-status')).toContainText(
@@ -560,6 +645,22 @@ test('isolates initial chart errors from stray WS ticks, reconciles after 30s/12
     /Live|Đang trực tiếp/i,
   );
 
+  // Observe market-data:apply marks (useCandlestickChart calls performance.clearMarks immediately after mark).
+  await page.evaluate(() => {
+    const win = window as unknown as { __last1mApply?: unknown };
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (entry.name !== 'market-data:apply') continue;
+        const detail = (
+          entry as PerformanceEntry & { detail?: { pair?: string; timeframe?: string } }
+        ).detail;
+        if (detail?.pair === 'BTCUSDT' && detail.timeframe === '1m') {
+          win.__last1mApply = detail;
+        }
+      }
+    }).observe({ type: 'mark' });
+  });
+
   // Switch Chart 1 to 1m and reconcile across 30s, 120s and 300s simulated disconnects.
   await selectTimeframe(page, 1, '1m');
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('618.00');
@@ -579,6 +680,52 @@ test('isolates initial chart errors from stray WS ticks, reconciles after 30s/12
     await expect(page.getByTestId('realtime-connection-status')).toContainText(
       /Live|Đang trực tiếp/i,
     );
+  }
+
+  // Reconcile applied 1m closed candles on Chart 1 against ws-reference-dataset.json (QA-17 & MK-35).
+  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('624.00');
+  const last1mApply = await page.evaluate(() => {
+    return (
+      (
+        window as unknown as {
+          __last1mApply?: {
+            candles: { time: number; open: number; high: number; low: number; close: number }[];
+            volume: { time: number; value: number }[];
+          };
+        }
+      ).__last1mApply ?? { candles: [], volume: [] }
+    );
+  });
+
+  expect(last1mApply.candles.length).toBe(500);
+  // 1. Strictly increasing openTimes (0 duplicates).
+  for (let idx = 1; idx < last1mApply.candles.length; idx += 1) {
+    const prev = last1mApply.candles[idx - 1];
+    const curr = last1mApply.candles[idx];
+    expect(curr?.time).toBeGreaterThan(prev?.time ?? 0);
+  }
+  // 2. Real market gap openTime (1735720800000) is NOT synthesized (MK-35).
+  expect(
+    last1mApply.candles.some(
+      (candle) => candle.time * 1000 === referenceDataset.realMarketGap.missingOpenTime,
+    ),
+  ).toBe(false);
+  // 3. Every reference closed candle in recoveryClosedCandles1m is present with exact OHLCV (0 missing, 0 mismatch).
+  for (const expectedCandle of referenceDataset.recoveryClosedCandles1m) {
+    const actualCandle = last1mApply.candles.find(
+      (candle) => candle.time * 1000 === expectedCandle.openTime,
+    );
+    const actualVolume = last1mApply.volume.find(
+      (point) => point.time * 1000 === expectedCandle.openTime,
+    );
+    expect(actualCandle).toEqual({
+      time: expectedCandle.openTime / 1000,
+      open: expectedCandle.open,
+      high: expectedCandle.high,
+      low: expectedCandle.low,
+      close: expectedCandle.close,
+    });
+    expect(actualVolume?.value).toBe(expectedCandle.volume);
   }
 
   // Reload after changing pair and pausing must reset to default BTCUSDT 4 charts in Live state.

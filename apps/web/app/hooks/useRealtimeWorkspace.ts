@@ -710,7 +710,11 @@ export function useRealtimeWorkspace() {
       const silentMs = performance.now() - lastSignalMonoRef.current;
       if (!wsOpenRef.current) {
         connectWebSocket(true);
-      } else if (silentMs >= STALE_THRESHOLD_MS || hasPartialSyncErrorRef.current) {
+      } else if (
+        silentMs >= STALE_THRESHOLD_MS ||
+        hasPartialSyncErrorRef.current ||
+        !upstreamAvailableRef.current
+      ) {
         void runBackfill();
       }
     };

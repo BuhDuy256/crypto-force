@@ -2,9 +2,9 @@
 // network). Run: pnpm --filter @crypto-force/api exec vitest run test/market-data/stream-provider.test.ts.
 // Requires the _test DB from API global setup. Expected values:
 // docs/testing/test-scopes/TS-002-market-data/websocket-verification.md (seam S3).
-// Pre-build red state: src/providers/market-data/binance-stream.provider.ts does not exist yet.
-// Fault checks (gate for build step): omitting kline/ticker mapping, sending >5 commands/sec,
-// skipping re-subscribe or resyncRequired after reconnect, or crashing on malformed JSON must fail.
+// Verified mutations & fake faults: fake-driver-omit-reconnect-resync (setting resyncRequired: false
+// after reconnect) and fake-disconnect-noop (making dropUpstream a no-op in the local WS server fake)
+// fail the reconnect status and re-subscribe assertions (apps/api/perf/market-data/ws-mutations.mjs).
 import { once } from 'node:events';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { WebSocketServer, type RawData, type WebSocket } from 'ws';

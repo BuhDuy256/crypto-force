@@ -2,7 +2,7 @@
 
 Đọc file này để biết cách hệ thống lấy và cập nhật historical, realtime market data, hỗ trợ nhiều timeframe và xử lý khi mất kết nối.
 
-> **Trạng thái:** vòng REST tải lịch sử đã triển khai theo thiết kế trong file này. Web gọi API thật; API gọi Binance qua cache decorator và Binance adapter tạo tại `apps/api/src/index.ts` [[1]](#ref-1). Kết quả kiểm chứng nằm trong [Kiểm chứng REST tải lịch sử](../testing/test-scopes/TS-002-market-data/rest-verification.md#kết-quả-thực-chạy). Cập nhật định kỳ đã triển khai theo [Cập nhật định kỳ](#cập-nhật-định-kỳ) (quyết định tải lại cửa sổ ADR-007 và giữ lỗi nguồn trong cache ADR-008); kết quả và giới hạn nằm trong [Kiểm chứng REST polling](../testing/test-scopes/TS-002-market-data/rest-polling-verification.md). Thiết kế vòng WebSocket trong mục [Cập nhật trực tiếp bằng WebSocket](#cập-nhật-trực-tiếp-bằng-websocket) đã được product owner duyệt ngày 2026-11-23 (ADR-009 đến ADR-011), chưa triển khai trong source.
+> **Trạng thái:** cả ba vòng của Market Data đã triển khai theo thiết kế trong file này. Vòng REST tải lịch sử và cache decorator (`apps/api/src/index.ts`) [[1]](#ref-1) đã kiểm chứng tại [Kiểm chứng REST tải lịch sử](../testing/test-scopes/TS-002-market-data/rest-verification.md#kết-quả-thực-chạy). Vòng cập nhật định kỳ (ADR-007, ADR-008) đã đóng băng làm baseline tại commit `2709f3b` và kiểm chứng tại [Kiểm chứng REST polling](../testing/test-scopes/TS-002-market-data/rest-polling-verification.md). Vòng cập nhật trực tiếp bằng WebSocket trong mục [Cập nhật trực tiếp bằng WebSocket](#cập-nhật-trực-tiếp-bằng-websocket) (ADR-009 đến ADR-011) đã triển khai tại commit `b0da661` (chế độ Trước shared subscriptions) và `6a4f308` (chế độ Sau shared subscriptions); kết quả kiểm chứng, chẩn đoán 3 nguyên nhân, smoke Binance WS thật và benchmark nằm trong [Kiểm chứng WebSocket cập nhật trực tiếp](../testing/test-scopes/TS-002-market-data/websocket-verification.md#kết-quả-thực-chạy-bước-12).
 
 ## Drivers
 
@@ -38,35 +38,35 @@
 
 ## Thành phần và ranh giới
 
-Sơ đồ dưới đây thể hiện mức component của luồng dữ liệu thị trường giữa Web, container API và Binance (10 node). Đường nét liền là phần đã triển khai cho REST; đường nét đứt là phần thiết kế đã duyệt ngày 2026-11-23 cho WebSocket (chưa triển khai). Luồng kiểm phiên theo lô (`WebSocket Gateway → WsSessionService → SessionRepository → PostgreSQL`) nằm trong [Security](23-security.md#kịch-bản-chính); callback vô hiệu hóa cache REST được nối từ composition root để `MarketDataStreamHub` không import file cache decorator:
+Sơ đồ dưới đây thể hiện mức component của luồng dữ liệu thị trường giữa Web, container API và Binance (10 node). Các đường kết nối nét liền thể hiện phần đã triển khai cho cả luồng REST và luồng WebSocket (ADR-009 đến ADR-011). Luồng kiểm phiên theo lô (`WebSocket Gateway → WsSessionService → SessionRepository → PostgreSQL`) nằm trong [Security](23-security.md#kịch-bản-chính); callback vô hiệu hóa cache REST được nối từ composition root để `MarketDataStreamHub` không import file cache decorator:
 
 ```mermaid
 flowchart LR
     W[Web: Realtime] -- HTTP /api --> R[Route và Controller REST]
-    W -. WebSocket /api/market-data/ws .-> G[WebSocket Gateway]
+    W -- WebSocket /api/market-data/ws --> G[WebSocket Gateway]
     R --> S[Market Data Service]
-    G -.-> H[Market Data Stream Hub]
+    G --> H[Market Data Stream Hub]
     S --> I[[MarketDataProvider]]
     B[Cache và Binance REST adapter] -. implements .-> I
     B -- HTTPS REST --> X[Binance]
-    H -.-> SI[[MarketDataStreamProvider]]
+    H --> SI[[MarketDataStreamProvider]]
     BS[Binance WS adapter] -. implements .-> SI
-    BS -. WSS stream .-> X
+    BS -- WSS stream --> X
 ```
 
 | Thành phần | Vị trí | Trách nhiệm | Không làm |
 | --- | --- | --- | --- |
-| Web Market Data | `apps/web/app/api/market-data.ts`, `api/market-data-ws.ts` *(thiết kế)*, `hooks/useMarketData.ts`, `hooks/useRealtimeWorkspace.ts`, `pages/Realtime` | Gọi REST cho lịch sử và backfill, duy trì một kết nối WebSocket mỗi tab, đệm và hợp nhất nến, tính MA, quản lý trạng thái kết nối và đồng bộ | Gọi Binance trực tiếp; biết provider nào đang dùng |
+| Web Market Data | `apps/web/app/api/market-data.ts`, `api/market-data-ws.ts`, `utils/market-candle-merge.ts`, `hooks/useMarketData.ts`, `hooks/useRealtimeWorkspace.ts`, `pages/Realtime` | Gọi REST cho lịch sử và backfill, duy trì một kết nối WebSocket mỗi tab, đệm và hợp nhất nến, tính MA, quản lý trạng thái kết nối và đồng bộ | Gọi Binance trực tiếp; biết provider nào đang dùng |
 | Route, Controller và middleware phiên | `apps/api/src/api/routes/market-data.route.ts`, `api/controllers/market-data.controller.ts`, `api/middlewares/session.middleware.ts` | Kiểm phiên, validate query bằng schema `packages/shared`, gọi service, trả HTTP response | Gọi provider hoặc truy vấn DB trực tiếp |
-| WebSocket Gateway *(thiết kế)* | `apps/api/src/api/ws/market-data.ws.ts` | Xử lý HTTP upgrade `/api/market-data/ws`, kiểm `Origin`, `WSS` production và phiên qua Better Auth cùng `WsSessionService`, parse khung JSON bằng schema `packages/shared`, thực thi giới hạn kết nối/tốc độ/kích thước khung, gửi `heartbeat`, đóng client chậm và thu hồi phiên | Gọi Binance; import `providers/`, `repositories/` hoặc `database/`; chứa logic nghiệp vụ nến |
+| WebSocket Gateway | `apps/api/src/api/ws/market-data.ws.ts` | Xử lý HTTP upgrade `/api/market-data/ws`, kiểm `Origin`, `WSS` production và phiên qua Better Auth cùng `WsSessionService`, parse khung JSON bằng schema `packages/shared`, thực thi giới hạn kết nối/tốc độ/kích thước khung, gửi `heartbeat`, đóng client chậm và thu hồi phiên | Gọi Binance; import `providers/`, `repositories/` hoặc `database/`; chứa logic nghiệp vụ nến |
 | Market Data Service | `apps/api/src/services/market-data.service.ts` | Tính số nến cần lấy, gọi `MarketDataProvider`, kiểm nến, phân loại lỗi, ghi log ngữ cảnh | Phụ thuộc Express, `ws` hoặc kiểu dữ liệu của Binance |
-| Market Data Stream Hub *(thiết kế)* | `apps/api/src/services/market-data-stream.service.ts` | Quản lý sổ đăng ký topic chia sẻ theo bộ đếm tham chiếu, gọi `MarketDataStreamProvider`, validate event bằng schema `packages/shared`, gọi callback `onCandleClosed` được truyền từ composition root để vô hiệu hóa cache REST khi nhận nến đóng, tuần tự hóa một lần để fan-out, ghi log/metric theo `pair`/`timeframe` | Phụ thuộc Express, `ws` trực tiếp, file adapter/cache trong `providers/` hoặc kiểu dữ liệu Binance |
-| WebSocket Session Service *(thiết kế)* | `apps/api/src/services/ws-session.service.ts` | Điều phối kiểm hạn phiên trong bộ nhớ và gọi `SessionRepository` kiểm hiệu lực theo lô cho danh sách `sessionId` đang mở WebSocket | Import Express, `ws` hoặc `database/` trực tiếp |
-| Session Repository *(thiết kế)* | `apps/api/src/repositories/session.repository.ts` | Truy vấn đọc theo lô danh sách `sessionId` từ bảng `session` phục vụ `WsSessionService` | Chứa logic WebSocket, HTTP hoặc nghiệp vụ |
-| `MarketDataProvider` và `MarketDataStreamProvider` | `apps/api/src/providers/market-data/market-data-provider.ts` | Interface REST và interface stream *(thiết kế)* cùng kiểu domain mà mọi provider trả về | Chứa logic của một provider cụ thể |
+| Market Data Stream Hub | `apps/api/src/services/market-data-stream.service.ts` | Quản lý sổ đăng ký topic chia sẻ theo bộ đếm tham chiếu, gọi `MarketDataStreamProvider`, validate event bằng schema `packages/shared`, gọi callback `onCandleClosed` được truyền từ composition root để vô hiệu hóa cache REST khi nhận nến đóng, tuần tự hóa một lần để fan-out, ghi log/metric theo `pair`/`timeframe` | Phụ thuộc Express, `ws` trực tiếp, file adapter/cache trong `providers/` hoặc kiểu dữ liệu Binance |
+| WebSocket Session Service | `apps/api/src/services/ws-session.service.ts` | Điều phối kiểm hạn phiên trong bộ nhớ và gọi `SessionRepository` kiểm hiệu lực theo lô cho danh sách `sessionId` đang mở WebSocket | Import Express, `ws` hoặc `database/` trực tiếp |
+| Session Repository | `apps/api/src/repositories/session.repository.ts` | Truy vấn đọc theo lô danh sách `sessionId` từ bảng `session` phục vụ `WsSessionService` | Chứa logic WebSocket, HTTP hoặc nghiệp vụ |
+| `MarketDataProvider` và `MarketDataStreamProvider` | `apps/api/src/providers/market-data/market-data-provider.ts` | Interface REST và interface stream cùng kiểu domain mà mọi provider trả về | Chứa logic của một provider cụ thể |
 | Binance REST adapter | `apps/api/src/providers/market-data/binance.provider.ts` | Gọi Binance REST, áp timeout, xử lý 429/418 và chuẩn hóa response sang kiểu domain | Kiểm nghiệp vụ; tạo nến thiếu; import Express, `api/`, `services/`, `repositories/`, `database/` |
-| Binance WS adapter *(thiết kế)* | `apps/api/src/providers/market-data/binance-stream.provider.ts` | Duy trì một kết nối combined stream tới Binance, gom `SUBSCRIBE`/`UNSUBSCRIBE` theo giới hạn tốc độ, trả lời ping/pong, xoay kết nối trước hạn 24 giờ, tự reconnect và chuẩn hóa event sang kiểu domain | Kiểm nghiệp vụ nến; quản lý subscriber của từng client; import Express, `api/`, `services/`, `repositories/`, `database/` |
-| Cache decorator | `apps/api/src/providers/market-data/cached-market-data.provider.ts` | Cài `MarketDataProvider`, bọc adapter REST: cache theo khóa, single-flight, giữ lỗi nguồn trong TTL và cung cấp phương thức `invalidateCandles(pair, timeframe)` *(thiết kế)* cho composition root | Biết provider cụ thể; kiểm nghiệp vụ |
+| Binance WS adapter | `apps/api/src/providers/market-data/binance-stream.provider.ts` | Duy trì một kết nối combined stream tới Binance, gom `SUBSCRIBE`/`UNSUBSCRIBE` theo giới hạn tốc độ, trả lời ping/pong, xoay kết nối trước hạn 24 giờ, tự reconnect và chuẩn hóa event sang kiểu domain | Kiểm nghiệp vụ nến; quản lý subscriber của từng client; import Express, `api/`, `services/`, `repositories/`, `database/` |
+| Cache decorator | `apps/api/src/providers/market-data/cached-market-data.provider.ts` | Cài `MarketDataProvider`, bọc adapter REST: cache theo khóa, single-flight, giữ lỗi nguồn trong TTL và cung cấp phương thức `invalidateCandles(pair, timeframe)` cho composition root | Biết provider cụ thể; kiểm nghiệp vụ |
 | Composition root | `apps/api/src/index.ts`, `app.ts`, `api/routes/index.ts` | Tạo HTTP server, gắn Express app, tạo adapter REST/WS, cache decorator, `SessionRepository`, `WsSessionService`, `MarketDataStreamHub` (truyền callback vô hiệu hóa cache từ cache decorator), `MarketDataWsGateway` và nối hook thu hồi phiên từ `createAuth` [[8]](#ref-8) | — |
 
 `providers/` là layer ngang hàng với `repositories/`: repository là đầu ra tới PostgreSQL, provider là đầu ra tới API bên ngoài. Chuẩn hóa dữ liệu Binance (cả REST và WebSocket) nằm trong adapter để kiểu dữ liệu của Binance không thoát khỏi adapter. Ranh giới import được kiểm bởi `app-boundaries/provider-layers` và `no-restricted-imports` trong `eslint.config.js` [[2, Dependency rules]](#ref-2) [[14]](#ref-14):
@@ -87,10 +87,10 @@ Interface trong `market-data-provider.ts` tách hai phần để bên chỉ cầ
 | Interface | Thao tác | Input | Output / Callback | Driver |
 | --- | --- | --- | --- | --- |
 | `MarketDataProvider` *(đã triển khai)* | `getCandles` | `pair`, `timeframe`, `limit` | Danh sách nến chuẩn hóa tăng dần theo `openTime`, gồm nến đang mở và `dataTime` | MK-25, MK-33 |
-| `MarketDataProvider` *(đã triển khai)* | `getSummary` | `pair` | Giá gần nhất, phần trăm thay đổi 24 giờ và `dataTime` *(bổ sung ở vòng WebSocket, chưa triển khai)* | MK-08, MK-111 |
-| `MarketDataStreamProvider` *(thiết kế)* | `subscribe` / `unsubscribe` | Kênh `kline(pair, timeframe)` hoặc `summary(pair)` | Kích hoạt hoặc hủy luồng upstream tương ứng | MK-96, MK-97, QA-15 |
-| `MarketDataStreamProvider` *(thiết kế)* | `onCandle` / `onSummary` / `onStatus` | Handler từ Stream Hub | Event nến chuẩn hóa, event summary chuẩn hóa, hoặc trạng thái nguồn (`available` kèm cờ yêu cầu đồng bộ, `unavailable`) | MK-93, MK-94, MK-130, QA-06 |
-| `MarketDataStreamProvider` *(thiết kế)* | `close` | — | Đóng sạch kết nối upstream khi API shutdown | Vòng đời process |
+| `MarketDataProvider` *(đã triển khai)* | `getSummary` | `pair` | Giá gần nhất, phần trăm thay đổi 24 giờ và `dataTime` | MK-08, MK-111 |
+| `MarketDataStreamProvider` *(đã triển khai)* | `subscribe` / `unsubscribe` | Kênh `kline(pair, timeframe)` hoặc `summary(pair)` | Kích hoạt hoặc hủy luồng upstream tương ứng | MK-96, MK-97, QA-15 |
+| `MarketDataStreamProvider` *(đã triển khai)* | `onCandle` / `onSummary` / `onStatus` | Handler từ Stream Hub | Event nến chuẩn hóa, event summary chuẩn hóa, hoặc trạng thái nguồn (`available` kèm cờ yêu cầu đồng bộ, `unavailable`) | MK-93, MK-94, MK-130, QA-06 |
+| `MarketDataStreamProvider` *(đã triển khai)* | `close` | — | Đóng sạch kết nối upstream khi API shutdown | Vòng đời process |
 
 Khi thêm hoặc đổi provider (cả REST lẫn WebSocket):
 
@@ -138,7 +138,7 @@ Provider phải trả tối đa `limit` nến. Adapter Binance truyền nguyên 
 | `pair` | Enum dùng chung | Lặp lại lựa chọn của request | MK-17 |
 | `lastPrice` | JSON number, dương | Giá gần nhất | MK-08, MK-94 |
 | `change24hPercent` | JSON number | Phần trăm thay đổi trong 24 giờ gần nhất | MK-08, MK-94 |
-| `dataTime` *(bổ sung ở vòng WebSocket, đã duyệt 2026-11-23, chưa triển khai)* | integer, epoch millisecond UTC | Thời điểm API nhận dữ liệu summary từ provider (REST hoặc WebSocket), giúp Web chặn ghi đè dữ liệu cũ hơn trên sidebar | MK-111 |
+| `dataTime` | integer, epoch millisecond UTC | Thời điểm API nhận dữ liệu summary từ provider (REST hoặc WebSocket), giúp Web chặn ghi đè dữ liệu cũ hơn trên sidebar | MK-111 |
 
 ### Chuẩn hóa từ Binance
 
@@ -147,9 +147,9 @@ Adapter Binance REST đọc REST API Spot [[7]](#ref-7); adapter Binance WebSock
 | Kiểu domain | Nguồn Binance | Quy tắc |
 | --- | --- | --- |
 | Nến REST *(đã triển khai)* | `GET /api/v3/klines`, mảng 12 phần tử; dùng vị trí 0 đến 6: thời gian mở, open, high, low, close, volume, thời gian đóng | Đổi chuỗi sang number. `isClosed` là `true` khi thời gian đóng nhỏ hơn `dataTime`. Bỏ các trường còn lại |
-| Summary REST *(đã triển khai; `dataTime` chưa triển khai)* | `GET /api/v3/ticker/24hr`, `lastPrice`, `priceChangePercent` | Đổi chuỗi sang number. Hiện trạng `binance.provider.ts` chưa trả `dataTime` [[17]](#ref-17); vòng WebSocket bổ sung `dataTime` bằng đồng hồ API lúc nhận response để sidebar so sánh mốc dữ liệu (MK-111) |
-| Nến WebSocket *(thiết kế)* | Combined stream `<symbol>@kline_<interval>` (`e: "kline"`, `E`, `s`, `k: { t, o, h, l, c, v, x }`) | Đổi chuỗi `o, h, l, c, v` sang number; `openTime = k.t`, `isClosed = k.x`, `dataTime` là đồng hồ API lúc nhận frame, `sourceTime = E` (chỉ phục vụ đo độ trễ và log) |
-| Summary WebSocket *(thiết kế)* | Combined stream `<symbol>@ticker` (`e: "24hrTicker"`, `E`, `s`, `c`, `P`) | Đổi chuỗi `c` sang `lastPrice`, `P` sang `change24hPercent`; gắn `dataTime` là đồng hồ API lúc nhận frame, `sourceTime = E` |
+| Summary REST *(đã triển khai)* | `GET /api/v3/ticker/24hr`, `lastPrice`, `priceChangePercent` | Đổi chuỗi sang number. Gắn `dataTime` bằng đồng hồ API lúc nhận response để sidebar so sánh mốc dữ liệu (MK-111) [[17]](#ref-17) |
+| Nến WebSocket *(đã triển khai)* | Combined stream `<symbol>@kline_<interval>` (`e: "kline"`, `E`, `s`, `k: { t, o, h, l, c, v, x }`) | Đổi chuỗi `o, h, l, c, v` sang number; `openTime = k.t`, `isClosed = k.x`, `dataTime` là đồng hồ API lúc nhận frame, `sourceTime = E` (chỉ phục vụ đo độ trễ và log) |
+| Summary WebSocket *(đã triển khai)* | Combined stream `<symbol>@ticker` (`e: "24hrTicker"`, `E`, `s`, `c`, `P`) | Đổi chuỗi `c` sang `lastPrice`, `P` sang `change24hPercent`; gắn `dataTime` là đồng hồ API lúc nhận frame, `sourceTime = E` |
 | `dataTime` | Đồng hồ của API lúc nhận response hoặc frame | Không trừ trực tiếp đồng hồ máy người dùng với mốc giờ của sàn (MK-140) |
 
 Adapter từ chối payload không parse được JSON hoặc thiếu trường bắt buộc. Ở luồng REST, adapter ném `MarketDataProviderError('invalid')` để API trả `502 / MARKET_DATA_INVALID` và không cache. Ở luồng WebSocket, adapter loại bỏ frame lỗi, ghi log `warn` kèm tên stream mà không ghi nguyên payload, và không phát sự kiện cho Hub (MK-39, MK-128).
@@ -162,14 +162,14 @@ Hệ thống không lưu dữ liệu Market Data vào PostgreSQL ([Data Model](2
 | --- | --- | --- |
 | Khóa | `pair` + `timeframe` + số nến yêu cầu | `pair` |
 | Thời gian sống (TTL) | 5 giây, cấu hình của API. Tính từ lúc provider resolve thành công | 5 giây, cấu hình của API. Tính từ lúc provider resolve thành công |
-| Giá trị cache | Kết quả đã chuẩn hóa của provider, gồm `dataTime` và `isClosed` lúc nhận | Kết quả đã chuẩn hóa của provider (bổ sung `dataTime` ở vòng WebSocket, chưa triển khai) |
+| Giá trị cache | Kết quả đã chuẩn hóa của provider, gồm `dataTime` và `isClosed` lúc nhận | Kết quả đã chuẩn hóa của provider, gồm `dataTime` |
 
 Quy tắc:
 
 - **Gộp request trùng (single-flight).** Khi khóa chưa có giá trị còn hạn, request đầu tiên gọi provider. Các request cùng khóa đến trong lúc đó chờ chung kết quả này.
 - **Giữ lỗi nguồn trong TTL.** Lỗi nguồn không khả dụng và lỗi dữ liệu nguồn sai được trả cho mọi request đang chờ, rồi được giữ theo khóa trong cùng TTL, tính từ lúc provider bên trong reject. Request cùng khóa trong TTL nhận lại lỗi đó mà không gọi provider, kể cả thử lại của chart (MK-12). Lỗi không lường trước không được giữ (ADR-008).
 - **Mốc và biên TTL.** TTL bắt đầu khi provider bên trong resolve thành công, theo clock của API. Giá trị còn hạn khi thời gian đã qua nhỏ hơn TTL, hết hạn khi thời gian đã qua lớn hơn hoặc bằng TTL.
-- **Vô hiệu hóa khi có nến đóng *(thiết kế vòng WebSocket đã duyệt ngày 2026-11-23, chưa triển khai, ADR-011)*.** Khi `MarketDataStreamHub` nhận một nến có `isClosed: true` cho `(pair, timeframe)`, hub gọi callback `onCandleClosed` (được composition root nối tới `invalidateCandles(pair, timeframe)` của cache decorator). Như vậy, một client vừa reconnect ngay sau mốc đóng nến không nhận snapshot cũ từ cache vẫn đánh dấu nến đó là đang mở.
+- **Vô hiệu hóa khi có nến đóng (ADR-011).** Khi `MarketDataStreamHub` nhận một nến có `isClosed: true` cho `(pair, timeframe)`, hub gọi callback `onCandleClosed` (được composition root nối tới `invalidateCandles(pair, timeframe)` của cache decorator). Như vậy, một client vừa reconnect ngay sau mốc đóng nến không nhận snapshot cũ từ cache vẫn đánh dấu nến đó là đang mở.
 - **Không làm mới chủ động và không cache HTTP.** Cache REST chỉ tải dữ liệu khi nhận request; HTTP response giữ `Cache-Control: no-store` [[4]](#ref-4).
 
 ### Giới hạn request của Binance
@@ -304,7 +304,7 @@ Mỗi client polling gửi request cho các chart mặc định (MK-31) và side
 
 ## Cập nhật trực tiếp bằng WebSocket
 
-Mục này là thiết kế đã được product owner duyệt ngày 2026-11-23 (quyết định chuyển sang WebSocket ADR-009, xác thực ADR-010 và chuyển giao ADR-011), chưa triển khai trong source. Khi áp dụng, Web thay vòng lặp `refetchInterval` của polling bằng một kết nối WebSocket đa kênh tới `/api/market-data/ws` và chỉ dùng REST cho tải lịch sử ban đầu, đổi lựa chọn và đồng bộ bù nến sau gián đoạn.
+Mục này mô tả thiết kế đã triển khai của vòng WebSocket (quyết định chuyển sang WebSocket ADR-009, xác thực ADR-010 và chuyển giao ADR-011). Web thay vòng lặp `refetchInterval` của polling bằng một kết nối WebSocket đa kênh tới `/api/market-data/ws` và chỉ dùng REST cho tải lịch sử ban đầu, đổi lựa chọn và đồng bộ bù nến sau gián đoạn.
 
 ### Shared subscriptions và fan-out
 
@@ -375,7 +375,7 @@ Mọi bước hợp nhất trên Web dùng hàm thuần trong `apps/web/app/util
 
 | Hạng mục REST hiện tại | Đánh giá khi có WebSocket | Thay đổi thiết kế |
 | --- | --- | --- |
-| Endpoint `GET /api/market-data/candles` và `GET /api/market-data/summary` | Tiếp tục đảm nhiệm tải lịch sử ban đầu, đổi lựa chọn và REST backfill | Giữ nguyên path, query, lỗi và contract nến; bổ sung `dataTime` vào `MarketSummary` (đã duyệt ngày 2026-11-23, chưa triển khai) để sidebar thực thi quy tắc không lùi dữ liệu (MK-111) |
+| Endpoint `GET /api/market-data/candles` và `GET /api/market-data/summary` | Tiếp tục đảm nhiệm tải lịch sử ban đầu, đổi lựa chọn và REST backfill | Giữ nguyên path, query, lỗi và contract nến; bổ sung `dataTime` vào `MarketSummary` để sidebar thực thi quy tắc không lùi dữ liệu (MK-111) |
 | Cache decorator 5 giây + single-flight + giữ lỗi nguồn (ADR-008) | Vẫn cần thiết để chống đợt request dồn dập lên Binance khi nhiều client cùng mở Realtime hoặc cùng reconnect backfill | Giữ nguyên cơ chế giữ lỗi nguồn trong TTL (ADR-008) và bổ sung phương thức vô hiệu hóa entry nến khi Stream Hub nhận nến đóng (`isClosed: true`) để tránh trả snapshot cũ ở biên đóng nến (ADR-011) |
 | Vòng lặp `refetchInterval` tải lại toàn bộ cửa sổ nến (ADR-007) | Gây lưu lượng `2,65–2,71 MB/client/phút` và request HTTP lặp ở mỗi chu kỳ cho từng client [[16]](#ref-16) | Thay bằng WebSocket đẩy từng bản cập nhật nhỏ ở vòng WebSocket (quyết định WebSocket ADR-009 đã thay thế quyết định polling ADR-007); giữ commit `2709f3b` làm baseline đối chiếu |
 | Kiểm phiên lặp mỗi HTTP request trên `pg.Pool` mặc định 10 kết nối | Ở mức tải cao nhất của bài đo polling local, các lượt kiểm phiên DB đồng thời làm bão hòa pool mặc định [[16]](#ref-16). Ở WebSocket, trạng thái ổn định không gọi HTTP lặp lại mà dùng hook thu hồi cùng kiểm tra theo lô (ADR-010, [Security](23-security.md#quyết-định)) | Giữ kiểm phiên nghiêm ngặt ở HTTP `requireSession` (không bật cookie cache gây trễ thu hồi HTTP); bổ sung biến môi trường `DATABASE_POOL_MAX` theo [Data Model & Persistence](21-database.md#persistence-và-migration) và theo dõi hàng đợi pool khi đo đợt reconnect đồng loạt ở Bước 11–12 |
@@ -388,12 +388,12 @@ Mục tiêu là phân biệt ba nguyên nhân khi chart chậm hoặc ngừng c�
 | Bằng chứng | Nơi ghi | Trường chính |
 | --- | --- | --- |
 | Request HTTP | `pino-http` trong `app.ts` [[5]](#ref-5) | Method, path đã lọc theo allowlist tĩnh (giữ nguyên cho bốn path REST hiện có; yêu cầu `Upgrade` WebSocket đi qua sự kiện `upgrade` của `http.Server`, không đi qua Express hay `pino-http`), status, `durationMs` |
-| Bắt tay và vòng đời kết nối client WS *(thiết kế)* | Log của `MarketDataWsGateway` (mức `info`/`warn`) | Path cố định `/api/market-data/ws` (không ghi query, cookie hay token), kết quả upgrade (kể cả từ chối `401`/`403`), `clientId` ẩn danh, `closeCode`, `bufferedAmount` khi ngắt `SLOW_CONSUMER`, số kết nối vượt giới hạn tài khoản, `sessionRevalidationDurationMs`, `revokedWsSessionsCount` |
+| Bắt tay và vòng đời kết nối client WS | Log của `MarketDataWsGateway` (mức `info`/`warn`) | Path cố định `/api/market-data/ws` (không ghi query, cookie hay token), kết quả upgrade (kể cả từ chối `401`/`403`), `clientId` ẩn danh, `closeCode`, `bufferedAmount` khi ngắt `SLOW_CONSUMER`, số kết nối vượt giới hạn tài khoản, `sessionRevalidationDurationMs`, `revokedWsSessionsCount` |
 | Kết quả REST Market Data | Log của `MarketDataService` cho mỗi request | `pair`, `timeframe`, số nến yêu cầu và nhận, `providerDurationMs`, `durationMs`, `outcome`, `kind`, `upstreamStatus` |
 | Nến sai và lỗi upstream REST | Log của service (mức `warn`/`error`) và adapter REST | `pair`, `timeframe`, loại vi phạm, vị trí và `openTime`; weight đã dùng và `Retry-After` khi 429/418; không log payload upstream (MK-39) |
-| Cache REST | Log của `CachedMarketDataProvider` (mức `debug`) | Khóa, `hit`/`miss`/`join`, sự kiện vô hiệu hóa do nến đóng *(thiết kế)* |
-| Vòng đời upstream Binance WS *(thiết kế)* | Log của `BinanceStreamProvider` (mức `info`/`warn`) | Sự kiện kết nối/ngắt kết nối/xoay 24 giờ, `code`, `attempt`, `backoffMs`, `downtimeMs`, `activeStreamsCount`, khung lỗi định dạng theo tên stream |
-| Trạng thái Stream Hub và fan-out *(thiết kế)* | Log định kỳ của `MarketDataStreamHub` mỗi **10 giây** khi có kết nối hoạt động (product owner duyệt ngày 2026-11-23: đủ mịn để dựng timeline chẩn đoán sự cố ngắn mà không tạo nhiễu log trên mỗi tick; tác động: tối đa 6 dòng log mỗi phút khi có client) và log sự kiện lỗi | `activeWsClients`, `activeTopics`, `upstreamSubscriptions`, `fanOutRatio`, `eventLoopLagP95Ms` (từ `node:perf_hooks`), `heapUsedMb`, `rssMb`, `dispatchDurationMs` theo `pair`/`timeframe`, `upstreamDelayMs` (`dataTime - sourceTime`), `droppedInvalidEvents` |
+| Cache REST | Log của `CachedMarketDataProvider` (mức `debug`) | Khóa, `hit`/`miss`/`join`, sự kiện vô hiệu hóa do nến đóng (`invalidate`) |
+| Vòng đời upstream Binance WS | Log của `BinanceStreamProvider` (mức `info`/`warn`) | Sự kiện kết nối/ngắt kết nối/xoay 24 giờ, `code`, `attempt`, `backoffMs`, `downtimeMs`, `activeStreamsCount`, khung lỗi định dạng theo tên stream |
+| Trạng thái Stream Hub và fan-out | Log định kỳ của `MarketDataStreamHub` mỗi **10 giây** khi có kết nối hoạt động (product owner duyệt ngày 2026-11-23: đủ mịn để dựng timeline chẩn đoán sự cố ngắn mà không tạo nhiễu log trên mỗi tick; tác động: tối đa 6 dòng log mỗi phút khi có client) và log sự kiện lỗi | `activeWsClients`, `activeTopics`, `upstreamSubscriptions`, `fanOutRatio`, `eventLoopLagP95Ms` (từ `node:perf_hooks`), `heapUsedMb`, `rssMb`, `dispatchDurationMs` theo `pair`/`timeframe`, `upstreamDelayMs` (`dataTime - sourceTime`), `droppedInvalidEvents` |
 | Thời gian và độ mới phía client | Test hiệu năng và chẩn đoán của Web | `backendToChartMs` (QA-05, QA-15), `sourceToChartDelayMs` (QA-14), `clientApplyMs` (nhận frame → hợp nhất → vẽ canvas), thời gian phục hồi sau khôi phục mạng (QA-16) |
 
 Cách chẩn đoán timeline khi một chart chậm hoặc ngừng cập nhật:
@@ -413,15 +413,15 @@ Cách chẩn đoán timeline khi một chart chậm hoặc ngừng cập nhật:
 | Lưu trữ và cache REST | Không lưu Market Data vào PostgreSQL; cache 5 giây trong process API kèm giữ lỗi nguồn trong TTL và vô hiệu hóa khi có nến đóng [[6, ADR-008]](#ref-6) [[6, ADR-011]](#ref-6) |
 | Giới hạn Binance | REST dừng theo `Retry-After` khi 429/418; WS gom lệnh điều khiển theo giới hạn tốc độ và xoay kết nối trước hạn 24 giờ |
 | Cập nhật định kỳ (baseline) | Web làm mới mỗi query theo chu kỳ bằng TTL cache, tải lại toàn bộ cửa sổ [[6, ADR-007]](#ref-6) |
-| Cập nhật trực tiếp bằng WebSocket *(đã duyệt, chưa triển khai)* | Một kết nối WebSocket đa kênh mỗi tab tại `/api/market-data/ws`, shared subscriptions trong API, giữ REST cho lịch sử và backfill [[6, ADR-009]](#ref-6) |
-| Xác thực và cưỡng chế phiên WS *(đã duyệt, chưa triển khai)* | Dùng lại cookie phiên Better Auth lúc HTTP upgrade, kiểm `Origin`, bắt buộc `WSS` trên production, thu hồi qua hook và truy vấn theo lô qua `WsSessionService` [[6, ADR-010]](#ref-6) |
-| Chuyển giao lịch sử → trực tiếp và client chậm *(đã duyệt, chưa triển khai)* | Subscribe và đệm sự kiện trước khi gọi REST snapshot, kiểm biên nến đóng, vô hiệu hóa cache REST theo nến đóng và ngắt client chậm bằng mã `4008` [[6, ADR-011]](#ref-6) |
+| Cập nhật trực tiếp bằng WebSocket | Một kết nối WebSocket đa kênh mỗi tab tại `/api/market-data/ws`, shared subscriptions trong API, giữ REST cho lịch sử và backfill [[6, ADR-009]](#ref-6) |
+| Xác thực và cưỡng chế phiên WS | Dùng lại cookie phiên Better Auth lúc HTTP upgrade, kiểm `Origin`, bắt buộc `WSS` trên production, thu hồi qua hook và truy vấn theo lô qua `WsSessionService` [[6, ADR-010]](#ref-6) |
+| Chuyển giao lịch sử → trực tiếp và client chậm | Subscribe và đệm sự kiện trước khi gọi REST snapshot, kiểm biên nến đóng, vô hiệu hóa cache REST theo nến đóng và ngắt client chậm bằng mã `4008` [[6, ADR-011]](#ref-6) |
 
 ## Rủi ro và giới hạn
 
 - Cache REST và `MarketDataStreamHub` đều nằm trong một process API. Chạy hơn một instance API sẽ nhân bản kết nối tới Binance và tách rời hook thu hồi phiên trong process (khi đó truy vấn phiên theo lô vẫn bảo đảm thu hồi trong thời hạn cưỡng chế MK-121, nhưng cần Redis Pub/Sub nếu muốn chia sẻ fan-out hoặc thu hồi tức thì xuyên instance). Xét lại khi chạy nhiều instance API.
 - Mức trần 504 REST weight/phút và số lượng stream trên một kết nối combined stream chỉ đúng khi tập pair (MK-32) và timeframe (MK-30) giữ nguyên; mở rộng tập pair phải tính lại giới hạn.
-- Thiết kế vòng WebSocket (quyết định ADR-009 đến ADR-011) và giới hạn số tab đồng thời (MK-142) đã được product owner duyệt ngày 2026-11-23 nhưng chưa triển khai và chưa có số đo thực tế; mọi mục tiêu chất lượng (`QA-05`, `QA-06`, `QA-14` đến `QA-17`) cần kiểm chứng ở Bước 11 và Bước 12.
+- Các phép đo hiệu năng WebSocket ở Bước 12 ([Kiểm chứng WebSocket cập nhật trực tiếp](../testing/test-scopes/TS-002-market-data/websocket-verification.md#kết-quả-thực-chạy-bước-12)) dùng tiến trình Node.js `ws` load driver độc lập kèm 1 browser Chromium probe trên cùng máy Windows local; kết quả thể hiện năng lực load-tested trong điều kiện đã ghi nhận, không thay thế phép đo đa máy trên VPS production hoặc mô phỏng hàng trăm tiến trình trình duyệt render đồng thời.
 - Khi số client đạt mục tiêu tải đồng thời (QA-15) cùng reconnect sau mất mạng diện rộng, đợt REST backfill vẫn tạo cụm request HTTP đồng thời cho các chart mặc định (MK-31) và sidebar đi qua `requireSession`; cần đo thực tế hàng đợi `pg.Pool` và tách máy phát tải khỏi máy chủ khi kiểm chứng (QA-15, QA-16).
 - Baseline REST tải lịch sử (`QA-10`, `QA-11`) và REST polling (`QA-12`, mức 50 client và tổng thể `QA-13`) hiện mang kết quả `Inconclusive` trên máy local do thiếu bằng chứng canvas paint và bão hòa host local khi chạy chung 50 Chromium [[11]](#ref-11) [[13]](#ref-13).
 - Interface `MarketDataProvider` và `MarketDataStreamProvider` nằm trong `apps/api`; Worker chưa dùng lại được khi backtest cần dữ liệu thị trường (ADR-003).

@@ -3,10 +3,9 @@
 // revocation (4401) and graceful shutdown (1001) against real HTTP, Better Auth and PostgreSQL _test DB.
 // Run: pnpm --filter @crypto-force/api exec vitest run test/market-data/ws-gateway.test.ts.
 // Expected values: docs/testing/test-scopes/TS-002-market-data/websocket-verification.md (seams S5, S6).
-// Pre-build red state: session.repository.ts, ws-session.service.ts, market-data-stream.service.ts
-// and api/ws/market-data.ws.ts do not exist yet.
-// Fault checks (gate for build step): checking session before Origin/TLS, allowing tab 5, omitting
-// 4401 on DB session deletion, dropping heartbeat or skipping 4008 on >64KB bufferedAmount must fail.
+// Verified mutations & fake faults: gateway-skip-origin-check, gateway-skip-revocation-hook,
+// gateway-skip-batch-db-check, gateway-allow-5th-tab, gateway-skip-slow-consumer-4008, and
+// fake-buffered-amount-always-zero all fail behavioral assertions (apps/api/perf/market-data/ws-mutations.mjs).
 import { once } from 'node:events';
 import { createServer, type Server } from 'node:http';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -468,6 +467,8 @@ describe('WebSocket Gateway handshake security and limits', () => {
   });
 
   it('closes all tabs with 4401 immediately on sign-out via auth hook', async () => {
+    // Fake setInterval so the 3-second batch DB check cannot mask a broken onSessionRevoked hook.
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
     stack = await createWsStack();
     const account = await createVerifiedAccount(stack.harness, ip);
     const tab1 = await connectWs(stack.wsUrl, { origin: APP_URL, cookie: account.cookie });
@@ -482,6 +483,7 @@ describe('WebSocket Gateway handshake security and limits', () => {
   });
 
   it('closes open tabs with 4401 immediately on password reset', async () => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
     stack = await createWsStack();
     const account = await createVerifiedAccount(stack.harness, ip);
     const tab = await connectWs(stack.wsUrl, { origin: APP_URL, cookie: account.cookie });

@@ -8,25 +8,25 @@
 | --- | --- |
 | Thời hạn và thu hồi phiên (SS-01, SS-05, RP-06) | API quản lý hiệu lực session; Web nhận biết qua lần kiểm phiên [[1]](#ref-1) |
 | Phân biệt chưa đăng nhập và không kiểm được phiên (SS-03, SS-07) | Trạng thái truy cập workspace tách khỏi trạng thái session trong DB |
-| Phục hồi khi kết nối Binance bị đóng và đồng bộ lại sau gián đoạn (QA-06, QA-16, MK-98 đến MK-108, MK-122, MK-126 đến MK-130) | Vòng đời kết nối upstream Binance WebSocket, vòng đời kết nối WebSocket của client và máy trạng thái đồng bộ Realtime tại Web *(thiết kế đã duyệt ngày 2026-11-23, chưa triển khai)* [[8]](#ref-8) [[9]](#ref-9) |
-| Dừng cập nhật trực tiếp trên mọi tab khi phiên hết hạn hoặc bị thu hồi (MK-121, MK-129) | Hook thu hồi trong API kết hợp kiểm phiên theo lô đóng mọi kết nối WebSocket liên quan bằng mã `4401` *(thiết kế đã duyệt ngày 2026-11-23, chưa triển khai, ADR-010)* [[6]](#ref-6) |
+| Phục hồi khi kết nối Binance bị đóng và đồng bộ lại sau gián đoạn (QA-06, QA-16, MK-98 đến MK-108, MK-122, MK-126 đến MK-130) | Vòng đời kết nối upstream Binance WebSocket, vòng đời kết nối WebSocket của client và máy trạng thái đồng bộ Realtime tại Web (ADR-009 đến ADR-011) [[8]](#ref-8) [[9]](#ref-9) |
+| Dừng cập nhật trực tiếp trên mọi tab khi phiên hết hạn hoặc bị thu hồi (MK-121, MK-129) | Hook thu hồi trong API kết hợp kiểm phiên theo lô đóng mọi kết nối WebSocket liên quan bằng mã `4401` (ADR-010) [[6]](#ref-6) |
 | Job lỗi có thể được theo dõi (QA-07), quan sát loop (QA-08) | Chưa có state machine nghiệp vụ Job/Search; Worker mới có vòng đời process và queue bootstrap [[2]](#ref-2) |
 
 ## Đối tượng và bên sở hữu trạng thái
 
 | Đối tượng | Bên sở hữu, representation | Sự kiện chuyển trạng thái |
 | --- | --- | --- |
-| Process API | Node.js process; HTTP server, WebSocket server *(thiết kế)* và database pool | Khởi động, nhận `SIGINT`/`SIGTERM`, đóng WebSocket server và upstream stream *(thiết kế)*, đóng HTTP server rồi đóng pool |
+| Process API | Node.js process; HTTP server, WebSocket server và database pool | Khởi động, nhận `SIGINT`/`SIGTERM`, đóng WebSocket server (`1001`) và upstream stream, đóng HTTP server rồi đóng pool |
 | Process Worker | Node.js process; PgBoss instance | Khởi động queue, nhận tín hiệu dừng, `boss.stop({ graceful: true })` |
 | Phiên | API/Better Auth; bản ghi `session` cùng thời hạn và cookie | Tạo, gia hạn, thu hồi, hết hạn |
 | Quyền truy cập workspace tại Web | Router context và kết quả kiểm phiên; không lưu enum trong DB | Điều hướng, tab hiện lại, nhận `401`/`4401` từ Market Data, API trả session/null hoặc lỗi |
 | Reset token | API/Better Auth; bản ghi `verification` | Tạo, hết hạn, bị tiêu thụ hoặc bị vô hiệu sau đổi password |
-| Kết nối upstream Binance WebSocket *(thiết kế)* | `BinanceStreamProvider` trong process API; trạng thái trong bộ nhớ | Có subscriber đầu tiên, kết nối mở, ping/pong, xoay trước 24 giờ, ngắt kết nối, backoff kết nối lại, hết subscriber quá thời gian giữ |
-| Kết nối client WebSocket *(thiết kế)* | `MarketDataWsGateway` trong process API; bảng ánh xạ socket ↔ `(sessionId, userId, channels)` | Upgrade hợp lệ, subscribe/unsubscribe, kiểm phiên theo lô, vượt ngưỡng đệm `SLOW_CONSUMER`, thu hồi phiên (`4401`), client đóng (`1000`), server shutdown (`1001`) |
-| Trạng thái kết nối và đồng bộ Realtime *(thiết kế)* | `useRealtimeWorkspace` và WS client tại Web; tách biệt giữa màn hình và từng slot chart | Tải xong lịch sử đầu, tạm dừng/tiếp tục, quá ngưỡng dữ liệu cũ/đặt lại luồng, mất kết nối, backoff, hết hạn tự thử lại, mở lại kết nối, đồng bộ REST thành công hoặc lỗi từng chart, phiên hết hạn |
+| Kết nối upstream Binance WebSocket | `BinanceStreamProvider` trong process API; trạng thái trong bộ nhớ | Có subscriber đầu tiên, kết nối mở, ping/pong, xoay trước 24 giờ, ngắt kết nối, backoff kết nối lại, hết subscriber quá thời gian giữ |
+| Kết nối client WebSocket | `MarketDataWsGateway` trong process API; bảng ánh xạ socket ↔ `(sessionId, userId, channels)` | Upgrade hợp lệ, subscribe/unsubscribe, kiểm phiên theo lô, vượt ngưỡng đệm `SLOW_CONSUMER`, thu hồi phiên (`4401`), client đóng (`1000`), server shutdown (`1001`) |
+| Trạng thái kết nối và đồng bộ Realtime | `useRealtimeWorkspace` và WS client tại Web; tách biệt giữa màn hình và từng slot chart | Tải xong lịch sử đầu, tạm dừng/tiếp tục, quá ngưỡng dữ liệu cũ/đặt lại luồng, mất kết nối, backoff, hết hạn tự thử lại, mở lại kết nối, đồng bộ REST thành công hoặc lỗi từng chart, phiên hết hạn |
 | Job/Search | Chưa có representation trạng thái nghiệp vụ trong code | Chưa đăng ký handler hoặc transition của domain |
 
-Nguồn cho vòng đời process hiện tại là bootstrap API/Worker [[3]](#ref-3); representation dữ liệu nằm trong Database [[4]](#ref-4). Vòng đời session và token được API kiểm, không phụ thuộc việc Web đang mở hay đã đóng. Ba đối tượng WebSocket là thiết kế đã duyệt ngày 2026-11-23, chưa có trong code.
+Nguồn cho vòng đời process hiện tại là bootstrap API/Worker [[3]](#ref-3); representation dữ liệu nằm trong Database [[4]](#ref-4). Vòng đời session và token được API kiểm, không phụ thuộc việc Web đang mở hay đã đóng.
 
 ## Trạng thái
 
@@ -47,7 +47,7 @@ stateDiagram-v2
     DongDB --> [*]: Ghi lỗi nếu có, kết thúc process
 ```
 
-Hiện tại trong code chưa có bước `DongWS`: API gọi `server.close` rồi đóng `pool`, và exit code dựa trên lỗi của HTTP server [[3]](#ref-3). Khi triển khai WebSocket ở Bước 12, phải đóng các kết nối WebSocket đang mở bằng mã `1001`, dừng timer heartbeat/kiểm phiên và đóng kết nối upstream Binance trước hoặc song song với `server.close`, để `server.close` không bị treo vô hạn do socket keep-alive/WebSocket còn mở.
+Khi nhận `SIGINT` hoặc `SIGTERM`, API thực hiện bước `DongWS` trước: `wsGateway.close()` đóng mọi kết nối WebSocket đang mở bằng mã `1001`, dừng timer heartbeat và timer kiểm phiên, sau đó `streamHub.close()` đóng kết nối upstream Binance trước khi gọi `server.close` rồi đóng `pool` [[3]](#ref-3). Nhờ vậy `server.close` không bị treo do socket WebSocket còn mở.
 
 ### Process Worker
 
@@ -85,7 +85,7 @@ Phiên hết hạn có thể còn bản ghi cho tới khi được kiểm hoặc
 
 ### Kết nối upstream Binance WebSocket
 
-Trạng thái thiết kế (đã duyệt ngày 2026-11-23, chưa triển khai), thuộc sở hữu của `BinanceStreamProvider` trong process API [[8]](#ref-8):
+Trạng thái thuộc sở hữu của `BinanceStreamProvider` trong process API [[8]](#ref-8):
 
 ```mermaid
 stateDiagram-v2
@@ -111,7 +111,7 @@ Khi chuyển từ `DangNhan` sang `ChoThuLai`, Stream Hub phát khung `status` v
 
 ### Kết nối WebSocket và đồng bộ Realtime
 
-Trạng thái thiết kế (đã duyệt ngày 2026-11-23, chưa triển khai), tách rõ hai tầng trên Web để đồng bộ chính xác từng chart (MK-104, MK-127) mà vẫn hiển thị một trạng thái tổng quan cho màn hình Realtime [[9]](#ref-9):
+Trạng thái tách rõ hai tầng trên Web để đồng bộ chính xác từng chart (MK-104, MK-127) mà vẫn hiển thị một trạng thái tổng quan cho màn hình Realtime [[9]](#ref-9):
 
 ```mermaid
 stateDiagram-v2
@@ -154,12 +154,12 @@ Web chỉ xóa QueryClient cache và điều hướng sau khi request Sign out t
 | --- | --- |
 | Trạng thái process và domain | Process phục vụ HTTP/WS hoặc queue có vòng đời riêng, không dùng thay trạng thái session hoặc job |
 | Trạng thái logic và persistence | Hiệu lực session tính từ dữ liệu và thời gian; trạng thái kết nối WebSocket chỉ giữ trong bộ nhớ runtime |
-| Phân tầng trạng thái Realtime *(chưa triển khai)* | Tách trạng thái kết nối cấp tab với trạng thái đồng bộ cấp từng chart để xử lý độc lập lỗi khởi tạo (MK-131) và lỗi đồng bộ từng phần (MK-127) |
-| Trạng thái chưa triển khai | Không coi các trạng thái WebSocket hoặc Job/Search là transition đã có trong code cho tới khi triển khai |
+| Phân tầng trạng thái Realtime | Tách trạng thái kết nối cấp tab với trạng thái đồng bộ cấp từng chart để xử lý độc lập lỗi khởi tạo (MK-131) và lỗi đồng bộ từng phần (MK-127) |
+| Trạng thái chưa triển khai | Không coi trạng thái Job/Search là transition đã có trong code cho tới khi triển khai |
 
 ## Rủi ro
 
-- Với các màn hình workspace không mở WebSocket (ví dụ Strategy, Backtest hiện tại), phiên kết thúc ở tab hoặc thiết bị khác vẫn chỉ đổi sau lần kiểm phiên tiếp theo. Riêng màn hình Realtime khi triển khai WebSocket sẽ nhận tín hiệu đóng `4401` trong thời hạn cưỡng chế phiên (MK-121, ADR-010).
+- Với các màn hình workspace không mở WebSocket (ví dụ Strategy, Backtest hiện tại), phiên kết thúc ở tab hoặc thiết bị khác vẫn chỉ đổi sau lần kiểm phiên tiếp theo. Riêng màn hình Realtime đang mở WebSocket nhận tín hiệu đóng `4401` trong thời hạn cưỡng chế phiên (MK-121, ADR-010).
 - Chưa có trạng thái nghiệp vụ Job/Search để theo dõi retry, hủy hoặc phục hồi sau lỗi; các yêu cầu Reliability/Observability tương ứng chưa có cơ chế triển khai [[2]](#ref-2).
 
 ## References

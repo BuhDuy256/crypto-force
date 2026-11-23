@@ -1,0 +1,709 @@
+{
+  "manifest": {
+    "executedAtUtc": "2026-11-23T14:46:04.385Z",
+    "commitB1": "b0da661",
+    "commitB2": "6a4f308",
+    "pollingBaselineCommit": "2709f3b",
+    "referenceDatasetSha256": "8df76940c6e106bcc1063a89552e973dca4d3b18358fb42f9fe377ff39d3e969",
+    "webBuildSha256": "e6a87c47d44c942ba4acae188219f3d277b6975b5b200a99c5bf47cba5c0ac94",
+    "node": "v22.23.5",
+    "browser": "159.0.8154.6",
+    "os": "win32 10.0.26300",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-1355U",
+    "logicalCores": 12,
+    "ramBytes": 16857645056,
+    "freeRamBytes": 2588049408,
+    "parametersRef": "Confirmed W1-W11 (docs/testing/test-scopes/TS-002-market-data/websocket-verification.md)"
+  },
+  "comparisonA_restPollingVsWebSocket": {
+    "restPolling_2709f3b_paintAt": [
+      {
+        "transportMode": "REST_POLLING",
+        "clients": 1,
+        "dbPoolMax": 10,
+        "dbPoolWaitingMax": 0,
+        "steadyWindowMs": 21000,
+        "sourcePeriodMs": 7000,
+        "phaseMs": 1379,
+        "sourceToChartDelayMs": {
+          "p50": 3694,
+          "p95": 4651,
+          "p99": 4651
+        },
+        "backendToChartMs": null,
+        "staleRatioDelta11000MsPercent": 0,
+        "staleRatioDelta1500MsPercent": 24.55,
+        "steadyBrowserRestRequests": 20,
+        "steadyUpstreamRestRequests": 10,
+        "steadyUpstreamRestWeightPerMin": 57,
+        "activeUpstreamWsConnections": 0,
+        "activeUpstreamWsSubscriptions": 0,
+        "steadyHttpBytes": 832132,
+        "steadyWsBytes": 0,
+        "steadyWsFrames": 0,
+        "steadyBytesPerClientMinute": 2377520,
+        "clockCalibration": {
+          "rttBeforeMs": 36.078,
+          "rttAfterMs": 2.613,
+          "maxHalfRttMs": 18.039,
+          "within50MsBound": true
+        },
+        "paintSensitivity": {
+          "sameDataNoPixelChange": true,
+          "changedDataPixelChanged": true
+        }
+      },
+      {
+        "transportMode": "REST_POLLING",
+        "clients": 10,
+        "dbPoolMax": 10,
+        "dbPoolWaitingMax": 0,
+        "steadyWindowMs": 21000,
+        "sourcePeriodMs": 7000,
+        "phaseMs": 1379,
+        "sourceToChartDelayMs": {
+          "p50": 3730,
+          "p95": 4642,
+          "p99": 4642
+        },
+        "backendToChartMs": null,
+        "staleRatioDelta11000MsPercent": 0,
+        "staleRatioDelta1500MsPercent": 24.85,
+        "steadyBrowserRestRequests": 200,
+        "steadyUpstreamRestRequests": 15,
+        "steadyUpstreamRestWeightPerMin": 86,
+        "activeUpstreamWsConnections": 0,
+        "activeUpstreamWsSubscriptions": 0,
+        "steadyHttpBytes": 832132,
+        "steadyWsBytes": 0,
+        "steadyWsFrames": 0,
+        "steadyBytesPerClientMinute": 2377520,
+        "clockCalibration": {
+          "rttBeforeMs": 4.298,
+          "rttAfterMs": 2.408,
+          "maxHalfRttMs": 2.149,
+          "within50MsBound": true
+        },
+        "paintSensitivity": {
+          "sameDataNoPixelChange": true,
+          "changedDataPixelChanged": true
+        }
+      }
+    ],
+    "webSocket_B2_paintAt": [
+      {
+        "transportMode": "WEBSOCKET_B2",
+        "clients": 1,
+        "dbPoolMax": 20,
+        "dbPoolWaitingMax": 0,
+        "steadyWindowMs": 21000,
+        "sourcePeriodMs": 7000,
+        "phaseMs": 1379,
+        "sourceToChartDelayMs": {
+          "p50": 34,
+          "p95": 41,
+          "p99": 41
+        },
+        "backendToChartMs": {
+          "p50": 34,
+          "p95": 41,
+          "p99": 41
+        },
+        "staleRatioDelta11000MsPercent": 0,
+        "staleRatioDelta1500MsPercent": 0,
+        "steadyBrowserRestRequests": 0,
+        "steadyUpstreamRestRequests": 0,
+        "steadyUpstreamRestWeightPerMin": 0,
+        "activeUpstreamWsConnections": 1,
+        "activeUpstreamWsSubscriptions": 5,
+        "steadyHttpBytes": 0,
+        "steadyWsBytes": 4415,
+        "steadyWsFrames": 28,
+        "steadyBytesPerClientMinute": 12614,
+        "clockCalibration": {
+          "rttBeforeMs": 7.872,
+          "rttAfterMs": 2.462,
+          "maxHalfRttMs": 3.936,
+          "within50MsBound": true
+        },
+        "paintSensitivity": {
+          "sameDataNoPixelChange": true,
+          "changedDataPixelChanged": true
+        }
+      },
+      {
+        "transportMode": "WEBSOCKET_B2",
+        "clients": 10,
+        "dbPoolMax": 20,
+        "dbPoolWaitingMax": 0,
+        "steadyWindowMs": 21000,
+        "sourcePeriodMs": 7000,
+        "phaseMs": 1379,
+        "sourceToChartDelayMs": {
+          "p50": 36,
+          "p95": 40,
+          "p99": 40
+        },
+        "backendToChartMs": {
+          "p50": 36,
+          "p95": 40,
+          "p99": 40
+        },
+        "staleRatioDelta11000MsPercent": 0,
+        "staleRatioDelta1500MsPercent": 0,
+        "steadyBrowserRestRequests": 45,
+        "steadyUpstreamRestRequests": 0,
+        "steadyUpstreamRestWeightPerMin": 0,
+        "activeUpstreamWsConnections": 1,
+        "activeUpstreamWsSubscriptions": 5,
+        "steadyHttpBytes": 0,
+        "steadyWsBytes": 4415,
+        "steadyWsFrames": 28,
+        "steadyBytesPerClientMinute": 12614,
+        "clockCalibration": {
+          "rttBeforeMs": 3.369,
+          "rttAfterMs": 5.198,
+          "maxHalfRttMs": 2.599,
+          "within50MsBound": true
+        },
+        "paintSensitivity": {
+          "sameDataNoPixelChange": true,
+          "changedDataPixelChanged": true
+        }
+      }
+    ]
+  },
+  "comparisonB_beforeVsAfterSharedSubscriptions": {
+    "B1_beforeShared": [
+      {
+        "mode": "B1",
+        "clients": 10,
+        "upstreamWsConnections": 10,
+        "rejectedUpstreamConnections": 0,
+        "upstreamWsSubscriptions": 50,
+        "fanOutRatio": 1,
+        "protocolClientsBackendToClientMs": {
+          "p50": 0,
+          "p95": 2,
+          "p99": 6
+        },
+        "protocolFramesReceived": 891,
+        "chromiumProbeBackendToChartMs": {
+          "p50": 33,
+          "p95": 45,
+          "p99": 45
+        },
+        "abnormalDisconnects": 0,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0,
+        "apiCpuPercent": 3.84,
+        "apiEventLoopLagP95Ms": 20.087,
+        "apiHeapUsedMb": 56.32,
+        "loadGenCpuPercent": 3.28,
+        "loadGenEventLoopLagP95Ms": 19.071,
+        "loadGenSaturated": false,
+        "clockCalibration": {
+          "rttBeforeMs": 7.446,
+          "rttAfterMs": 3.158,
+          "maxHalfRttMs": 3.723,
+          "within50MsBound": true
+        },
+        "qualifiesUpstreamQuotaAndLatency": true,
+        "qualifiesQa15SingleUpstream": false
+      },
+      {
+        "mode": "B1",
+        "clients": 50,
+        "upstreamWsConnections": 50,
+        "rejectedUpstreamConnections": 0,
+        "upstreamWsSubscriptions": 250,
+        "fanOutRatio": 1,
+        "protocolClientsBackendToClientMs": {
+          "p50": 0,
+          "p95": 5,
+          "p99": 13
+        },
+        "protocolFramesReceived": 4851,
+        "chromiumProbeBackendToChartMs": {
+          "p50": 51,
+          "p95": 80,
+          "p99": 80
+        },
+        "abnormalDisconnects": 0,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0,
+        "apiCpuPercent": 13.79,
+        "apiEventLoopLagP95Ms": 20.922,
+        "apiHeapUsedMb": 64.93,
+        "loadGenCpuPercent": 9.4,
+        "loadGenEventLoopLagP95Ms": 18.874,
+        "loadGenSaturated": false,
+        "clockCalibration": {
+          "rttBeforeMs": 6.101,
+          "rttAfterMs": 1.906,
+          "maxHalfRttMs": 3.05,
+          "within50MsBound": true
+        },
+        "qualifiesUpstreamQuotaAndLatency": true,
+        "qualifiesQa15SingleUpstream": false
+      },
+      {
+        "mode": "B1",
+        "clients": 100,
+        "upstreamWsConnections": 100,
+        "rejectedUpstreamConnections": 0,
+        "upstreamWsSubscriptions": 500,
+        "fanOutRatio": 1,
+        "protocolClientsBackendToClientMs": {
+          "p50": 0,
+          "p95": 4,
+          "p99": 7
+        },
+        "protocolFramesReceived": 9451,
+        "chromiumProbeBackendToChartMs": {
+          "p50": 52,
+          "p95": 76,
+          "p99": 76
+        },
+        "abnormalDisconnects": 0,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0,
+        "apiCpuPercent": 23.18,
+        "apiEventLoopLagP95Ms": 27.05,
+        "apiHeapUsedMb": 88.58,
+        "loadGenCpuPercent": 14.67,
+        "loadGenEventLoopLagP95Ms": 17.908,
+        "loadGenSaturated": false,
+        "clockCalibration": {
+          "rttBeforeMs": 3.002,
+          "rttAfterMs": 3.829,
+          "maxHalfRttMs": 1.915,
+          "within50MsBound": true
+        },
+        "qualifiesUpstreamQuotaAndLatency": true,
+        "qualifiesQa15SingleUpstream": false
+      },
+      {
+        "mode": "B1",
+        "clients": 200,
+        "upstreamWsConnections": 200,
+        "rejectedUpstreamConnections": 0,
+        "upstreamWsSubscriptions": 1000,
+        "fanOutRatio": 1,
+        "protocolClientsBackendToClientMs": {
+          "p50": 0,
+          "p95": 0,
+          "p99": 15
+        },
+        "protocolFramesReceived": 17561,
+        "chromiumProbeBackendToChartMs": {
+          "p50": 66,
+          "p95": 129,
+          "p99": 129
+        },
+        "abnormalDisconnects": 0,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0,
+        "apiCpuPercent": 30.42,
+        "apiEventLoopLagP95Ms": 46.563,
+        "apiHeapUsedMb": 202.56,
+        "loadGenCpuPercent": 22.09,
+        "loadGenEventLoopLagP95Ms": 16.957,
+        "loadGenSaturated": false,
+        "clockCalibration": {
+          "rttBeforeMs": 5.122,
+          "rttAfterMs": 16.672,
+          "maxHalfRttMs": 8.336,
+          "within50MsBound": true
+        },
+        "qualifiesUpstreamQuotaAndLatency": true,
+        "qualifiesQa15SingleUpstream": false
+      },
+      {
+        "mode": "B1",
+        "clients": 400,
+        "upstreamWsConnections": 300,
+        "rejectedUpstreamConnections": 1636,
+        "upstreamWsSubscriptions": 1500,
+        "fanOutRatio": 1.33,
+        "protocolClientsBackendToClientMs": {
+          "p50": 0,
+          "p95": 0,
+          "p99": 17
+        },
+        "protocolFramesReceived": 19611,
+        "chromiumProbeBackendToChartMs": {
+          "p50": 123,
+          "p95": 275,
+          "p99": 275
+        },
+        "abnormalDisconnects": 0,
+        "missingClosedCandles": 1636,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0,
+        "apiCpuPercent": 77.09,
+        "apiEventLoopLagP95Ms": 69.075,
+        "apiHeapUsedMb": 60.99,
+        "loadGenCpuPercent": 50.21,
+        "loadGenEventLoopLagP95Ms": 20.808,
+        "loadGenSaturated": false,
+        "clockCalibration": {
+          "rttBeforeMs": 2.965,
+          "rttAfterMs": 60.635,
+          "maxHalfRttMs": 30.317,
+          "within50MsBound": true
+        },
+        "qualifiesUpstreamQuotaAndLatency": false,
+        "qualifiesQa15SingleUpstream": false
+      }
+    ],
+    "B2_afterShared": [
+      {
+        "mode": "B2",
+        "clients": 10,
+        "upstreamWsConnections": 1,
+        "rejectedUpstreamConnections": 0,
+        "upstreamWsSubscriptions": 5,
+        "fanOutRatio": 10,
+        "protocolClientsBackendToClientMs": {
+          "p50": 1,
+          "p95": 3,
+          "p99": 5
+        },
+        "protocolFramesReceived": 882,
+        "chromiumProbeBackendToChartMs": {
+          "p50": 38,
+          "p95": 77,
+          "p99": 77
+        },
+        "abnormalDisconnects": 0,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0,
+        "apiCpuPercent": 1.63,
+        "apiEventLoopLagP95Ms": 18.252,
+        "apiHeapUsedMb": 67.09,
+        "loadGenCpuPercent": 3.09,
+        "loadGenEventLoopLagP95Ms": 18.776,
+        "loadGenSaturated": false,
+        "clockCalibration": {
+          "rttBeforeMs": 4.909,
+          "rttAfterMs": 1.644,
+          "maxHalfRttMs": 2.454,
+          "within50MsBound": true
+        },
+        "qualifiesUpstreamQuotaAndLatency": true,
+        "qualifiesQa15SingleUpstream": true
+      },
+      {
+        "mode": "B2",
+        "clients": 50,
+        "upstreamWsConnections": 1,
+        "rejectedUpstreamConnections": 0,
+        "upstreamWsSubscriptions": 5,
+        "fanOutRatio": 50,
+        "protocolClientsBackendToClientMs": {
+          "p50": 2,
+          "p95": 10,
+          "p99": 14
+        },
+        "protocolFramesReceived": 4802,
+        "chromiumProbeBackendToChartMs": {
+          "p50": 46,
+          "p95": 68,
+          "p99": 68
+        },
+        "abnormalDisconnects": 0,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0,
+        "apiCpuPercent": 7.79,
+        "apiEventLoopLagP95Ms": 19.808,
+        "apiHeapUsedMb": 64.02,
+        "loadGenCpuPercent": 9.55,
+        "loadGenEventLoopLagP95Ms": 19.874,
+        "loadGenSaturated": false,
+        "clockCalibration": {
+          "rttBeforeMs": 7.945,
+          "rttAfterMs": 3.59,
+          "maxHalfRttMs": 3.973,
+          "within50MsBound": true
+        },
+        "qualifiesUpstreamQuotaAndLatency": true,
+        "qualifiesQa15SingleUpstream": true
+      },
+      {
+        "mode": "B2",
+        "clients": 100,
+        "upstreamWsConnections": 1,
+        "rejectedUpstreamConnections": 0,
+        "upstreamWsSubscriptions": 5,
+        "fanOutRatio": 100,
+        "protocolClientsBackendToClientMs": {
+          "p50": 2,
+          "p95": 6,
+          "p99": 10
+        },
+        "protocolFramesReceived": 9702,
+        "chromiumProbeBackendToChartMs": {
+          "p50": 41,
+          "p95": 49,
+          "p99": 49
+        },
+        "abnormalDisconnects": 0,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0,
+        "apiCpuPercent": 11.97,
+        "apiEventLoopLagP95Ms": 22.02,
+        "apiHeapUsedMb": 67.91,
+        "loadGenCpuPercent": 12.78,
+        "loadGenEventLoopLagP95Ms": 18.514,
+        "loadGenSaturated": false,
+        "clockCalibration": {
+          "rttBeforeMs": 6.346,
+          "rttAfterMs": 3.547,
+          "maxHalfRttMs": 3.173,
+          "within50MsBound": true
+        },
+        "qualifiesUpstreamQuotaAndLatency": true,
+        "qualifiesQa15SingleUpstream": true
+      },
+      {
+        "mode": "B2",
+        "clients": 200,
+        "upstreamWsConnections": 1,
+        "rejectedUpstreamConnections": 0,
+        "upstreamWsSubscriptions": 5,
+        "fanOutRatio": 200,
+        "protocolClientsBackendToClientMs": {
+          "p50": 3,
+          "p95": 21,
+          "p99": 33
+        },
+        "protocolFramesReceived": 18517,
+        "chromiumProbeBackendToChartMs": {
+          "p50": 31,
+          "p95": 74,
+          "p99": 74
+        },
+        "abnormalDisconnects": 0,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0,
+        "apiCpuPercent": 20.97,
+        "apiEventLoopLagP95Ms": 29.606,
+        "apiHeapUsedMb": 96.14,
+        "loadGenCpuPercent": 23.89,
+        "loadGenEventLoopLagP95Ms": 18.072,
+        "loadGenSaturated": false,
+        "clockCalibration": {
+          "rttBeforeMs": 2.277,
+          "rttAfterMs": 23.172,
+          "maxHalfRttMs": 11.586,
+          "within50MsBound": true
+        },
+        "qualifiesUpstreamQuotaAndLatency": true,
+        "qualifiesQa15SingleUpstream": true
+      },
+      {
+        "mode": "B2",
+        "clients": 400,
+        "upstreamWsConnections": 1,
+        "rejectedUpstreamConnections": 0,
+        "upstreamWsSubscriptions": 5,
+        "fanOutRatio": 400,
+        "protocolClientsBackendToClientMs": {
+          "p50": 7,
+          "p95": 75,
+          "p99": 121
+        },
+        "protocolFramesReceived": 21090,
+        "chromiumProbeBackendToChartMs": {
+          "p50": 50,
+          "p95": 135,
+          "p99": 135
+        },
+        "abnormalDisconnects": 0,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0,
+        "apiCpuPercent": 33.01,
+        "apiEventLoopLagP95Ms": 53.084,
+        "apiHeapUsedMb": 160.74,
+        "loadGenCpuPercent": 37.76,
+        "loadGenEventLoopLagP95Ms": 18.17,
+        "loadGenSaturated": false,
+        "clockCalibration": {
+          "rttBeforeMs": 3.277,
+          "rttAfterMs": 2.705,
+          "maxHalfRttMs": 1.639,
+          "within50MsBound": true
+        },
+        "qualifiesUpstreamQuotaAndLatency": true,
+        "qualifiesQa15SingleUpstream": true
+      }
+    ]
+  },
+  "recoveryQa16AndQa17": {
+    "sampleCount": 16,
+    "recoveryMsPercentiles": {
+      "p50": 870.94,
+      "p95": 1388.96,
+      "p99": 1388.96
+    },
+    "allSamplesZeroMissingDuplicateMismatch": true,
+    "qa16Passed": true,
+    "qa17Passed": true,
+    "samples": [
+      {
+        "sampleIndex": 1,
+        "simulatedOutageMs": 30000,
+        "recoveryDurationMs": 368.13,
+        "totalCycleMs": 395.93,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 2,
+        "simulatedOutageMs": 30000,
+        "recoveryDurationMs": 1349.55,
+        "totalCycleMs": 1383.15,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 3,
+        "simulatedOutageMs": 30000,
+        "recoveryDurationMs": 1360.76,
+        "totalCycleMs": 1390.66,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 4,
+        "simulatedOutageMs": 30000,
+        "recoveryDurationMs": 1370.51,
+        "totalCycleMs": 1400.18,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 5,
+        "simulatedOutageMs": 30000,
+        "recoveryDurationMs": 1361.82,
+        "totalCycleMs": 1387.54,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 6,
+        "simulatedOutageMs": 30000,
+        "recoveryDurationMs": 339.2,
+        "totalCycleMs": 371.88,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 7,
+        "simulatedOutageMs": 30000,
+        "recoveryDurationMs": 847.46,
+        "totalCycleMs": 876.59,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 8,
+        "simulatedOutageMs": 30000,
+        "recoveryDurationMs": 210.24,
+        "totalCycleMs": 252.9,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 9,
+        "simulatedOutageMs": 30000,
+        "recoveryDurationMs": 845.12,
+        "totalCycleMs": 882.81,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 10,
+        "simulatedOutageMs": 30000,
+        "recoveryDurationMs": 1369.3,
+        "totalCycleMs": 1401.57,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 11,
+        "simulatedOutageMs": 120000,
+        "recoveryDurationMs": 1342.74,
+        "totalCycleMs": 1375.99,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 12,
+        "simulatedOutageMs": 120000,
+        "recoveryDurationMs": 1367.31,
+        "totalCycleMs": 1407.68,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 13,
+        "simulatedOutageMs": 120000,
+        "recoveryDurationMs": 328.83,
+        "totalCycleMs": 360.14,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 14,
+        "simulatedOutageMs": 300000,
+        "recoveryDurationMs": 870.94,
+        "totalCycleMs": 905.02,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 15,
+        "simulatedOutageMs": 300000,
+        "recoveryDurationMs": 859.43,
+        "totalCycleMs": 902.43,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      },
+      {
+        "sampleIndex": 16,
+        "simulatedOutageMs": 300000,
+        "recoveryDurationMs": 1388.96,
+        "totalCycleMs": 1420.02,
+        "missingClosedCandles": 0,
+        "duplicateOpenTimes": 0,
+        "ohlcvMismatches": 0
+      }
+    ]
+  }
+}

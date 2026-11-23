@@ -16,7 +16,7 @@ import type {
 const IDLE_UNSUBSCRIBE_DELAY_MS = 5_000;
 const METRICS_INTERVAL_MS = 10_000;
 
-export type ClientFrameSink = (serializedFrame: string) => void;
+type ClientFrameSink = (serializedFrame: string) => void;
 
 export interface MarketDataStreamHub {
   subscribe(clientId: string, channel: MarketChannel, sink: ClientFrameSink): void;
@@ -30,8 +30,8 @@ export interface MarketDataStreamHub {
 interface TopicEntry {
   channel: MarketChannel;
   subscribers: Map<string, ClientFrameSink>;
-  idleTimer?: ReturnType<typeof setTimeout>;
-  lastValidEventAt?: number;
+  idleTimer?: ReturnType<typeof setTimeout> | undefined;
+  lastValidEventAt?: number | undefined;
 }
 
 function channelKey(channel: MarketChannel): string {
