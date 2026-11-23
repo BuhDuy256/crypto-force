@@ -8,6 +8,8 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Changed
 
+- Cập nhật tầng Knowledge và convention `docs/conventions/knowledge.md`: bổ sung quy tắc trình bày tài liệu kiến thức theo mạch kịch bản thực tế → cơ chế xử lý → hậu quả/đánh đổi, cập nhật mục lục `docs/knowledge/README.md` và bỏ ba file Knowledge cũ (`accessible-status-and-description.md`, `mutation-testing-pitfalls.md`, `playwright-clock-deadline-testing.md`).
+
 - Hoàn tất Bước 08 Task 10 (REST polling): lưu 12 lượt baseline `polling-v2` ở mức 1 và 10 client (nguồn bình thường và nguồn lỗi 503, 3 lần lặp/cohort; mọi lượt đều 120 weight/60 giây ≤ 504, 0 response/apply sai, 0 browser error) cùng evidence lỗi của lượt `polling-v2-success-50-r1` (timeout khởi tạo 50 Chromium client trên cùng host Windows). Theo quyết định của product owner ngày 2026-11-23, ghi QA-13 đạt cho 1/10 client và Inconclusive ở mức 50 client (tổng thể QA-13, QA-12 và tỷ lệ dữ liệu cũ Inconclusive). Cập nhật tài liệu kiểm chứng polling, kiến trúc, execution, plan và đánh dấu Bước 08 hoàn thành trên tracker.
 
 - Runner baseline polling bổ sung `window.json` để tái tính cửa sổ steady từ raw logs. Giữ lượt v1 bị dừng và lý do Inconclusive; chuyển các lượt chính thức sang cohort v2. Không đổi workload hoặc ngưỡng.
@@ -43,6 +45,7 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Added
 
+- Bốn file Knowledge trong `docs/knowledge/261123-market-data-rest-polling/` tổng kết vòng REST polling của Market Data: luồng qua các layer, luồng dữ liệu UI của `MarketChartCard`, bốn cơ chế bảo vệ Binance kèm đánh đổi khi dùng chung cache state, và phân tích bottleneck DB pool cùng băng thông từ số đo baseline `polling-v2`.
 - Bốn file Knowledge rút từ Bước 08 Task 5: vòng đời fetch của TanStack Query v5, test deadline bằng clock của Playwright, status và mô tả cho công nghệ hỗ trợ, lỗi khi dùng mutation để chứng minh test. Mỗi nhận định trích source của phiên bản đang dùng, docs chính thức hoặc evidence của Task 5, hoặc mang nhãn `Inferred`/`Agent đề xuất`.
 - Tầng Knowledge trong `docs/knowledge/` cho kiến thức có nguồn thu được khi làm dự án, kèm convention `docs/conventions/knowledge.md`. `check:docs` kiểm dòng mục đích và References của folder này. File đầu tiên ghi anti-pattern khi code dựa trên test có sẵn, theo ImpossibleBench, METR và danh mục TDD anti-pattern của James Carr. Kế hoạch Bước 08 trích file này thay cho bản chép.
 - Kế hoạch Bước 08 Market Data: build REST tải lịch sử theo năm lát red → green, đo baseline, chốt tài liệu, rồi build REST polling. Mỗi Task kết thúc bằng commit. Ba quyết định vận hành đã được duyệt khi bắt đầu Task 6: cài `k6`, smoke Binance thật và lưu evidence. Plan nêu anti-pattern khi code dựa trên test có sẵn, bốn loại sửa test được phép, testware Market Data chỉ đọc mặc định và rule ESLint chặn code chỉ phục vụ test. Product owner quyết định không dùng screen reader ở Bước 08. Accessibility chỉ kiểm ở mức khai báo bằng Playwright, có ghi các điểm lệch Playwright không phát hiện được và cách giảm. Code đã được build qua Task 5.

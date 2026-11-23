@@ -17,6 +17,7 @@ Quy tắc chung cho mọi tài liệu nằm trong [Documentation Conventions](do
 6. Ví dụ dùng code hoặc tài liệu của repo phải đúng với repo. Ví dụ giả định ghi rõ là giả định. Ví dụ từ nguồn ngoài giữ nguyên nghĩa của nguồn.
 7. File kiến thức mô tả, không đặt quy tắc cho repo. Biện pháp chặn được mô tả như một biện pháp, ví dụ "Rule lint giới hạn việc đọc biến môi trường", không viết thành lệnh như "chỉ được phép" hoặc "không được". Quy tắc sinh từ kiến thức nằm ở tầng sở hữu nó và trích file kiến thức làm nguồn [[1, Các tầng]](#ref-1).
 8. File kiến thức chỉ link tới nguồn của nó. Không link tới nơi áp dụng kiến thức, để không phải giữ một chỉ mục ngược đồng bộ bằng tay.
+9. Khi giải thích một cơ chế, mẫu thiết kế hoặc vấn đề kỹ thuật, trình bày theo mạch **vấn đề hoặc kịch bản cụ thể → cách cơ chế xử lý → hậu quả hoặc đánh đổi** (kèm ví dụ cụ thể; ghi rõ giả định nếu là ví dụ giả định theo quy tắc 6), thay vì chỉ liệt kê tên cơ chế, thuật ngữ và con số. Người đọc cần thấy ngay điều gì sẽ hỏng nếu thiếu cơ chế đó và cái giá phải trả khi dùng nó *(review)*.
 
 ## References
 
