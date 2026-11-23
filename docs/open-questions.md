@@ -65,7 +65,6 @@
 | <a id="oq-033"></a>OQ-033 | Overlay cố định theo signal source, hay người dùng tự chọn? | Chart chỉ có MA(20) | — | Low | [[5]](#ref-5) |
 | <a id="oq-034"></a>OQ-034 | Cờ onboarding tính theo tài khoản hay theo thiết bị? Có Hide riêng từng bước không? | Done dựa trên cờ lưu trong trình duyệt | — | Low | [[5]](#ref-5) |
 | <a id="oq-086"></a>OQ-086 | Chart theo timeframe lớn (1h, 4h, 1d) có cần chu kỳ làm mới dài hơn 5 giây không? | Vòng cập nhật định kỳ dùng một chu kỳ 5 giây cho mọi chart (MK-63), product owner duyệt ngày 2026-11-22. Chu kỳ dài hơn giảm request từ browser và lưu lượng, nhưng nến đang mở của các timeframe này vẫn đổi giá theo từng giao dịch [[16, Theo dõi cập nhật định kỳ]](#ref-16) | — | Low | [[16]](#ref-16) |
-| <a id="oq-087"></a>OQ-087 | Giới hạn số tab Realtime nhận cập nhật trực tiếp đồng thời trên mỗi tài khoản là bao nhiêu, và tab vượt giới hạn hiển thị hành vi nào (cảnh báo và tạm dừng, chuyển sang làm mới thủ công, hay ngắt tab cũ nhất)? | Baseline độc lập ngày 2026-11-23 đề xuất tối đa 4 tab đồng thời mỗi tài khoản và cảnh báo tab vượt giới hạn mà không làm gián đoạn tab cũ [[16, Gap analysis]](#ref-16) | Bảo vệ tài nguyên WebSocket (Bước 10) và trạng thái UI khi vượt giới hạn tab | Medium | [[16]](#ref-16) |
 
 ## News & Sentiment
 
@@ -121,6 +120,7 @@
 
 | ID | Câu hỏi | Trạng thái | Kết quả | Ghi tại |
 | --- | --- | --- | --- | --- |
+| <a id="oq-087"></a>OQ-087 | Giới hạn số tab Realtime nhận cập nhật trực tiếp đồng thời trên mỗi tài khoản là bao nhiêu, và tab vượt giới hạn hiển thị hành vi nào (cảnh báo và tạm dừng, chuyển sang làm mới thủ công, hay ngắt tab cũ nhất)? | Resolved | Tối đa 4 tab đồng thời mỗi tài khoản; tab vượt giới hạn nhận cảnh báo và dừng tự kết nối lại mà không ngắt các tab đang mở (MK-142). Product owner duyệt ngày 2026-11-23 | [[16, Theo dõi cập nhật trực tiếp]](#ref-16) [[15, Quyết định]](#ref-15) |
 | <a id="oq-035"></a>OQ-035 | Có báo mất kết nối khi người dùng đã tạm dừng Live không? | Resolved | Giữ trạng thái tạm dừng và không hiện cảnh báo mất kết nối; kết nối lại và đồng bộ khi người dùng chọn tiếp tục (MK-108). Product owner duyệt ngày 2026-11-23 | [[16, Theo dõi cập nhật trực tiếp]](#ref-16) |
 | <a id="oq-032"></a>OQ-032 | "Load 1,000 past candles" áp dụng cho một chart hay tất cả, và có giới hạn không? | Dropped | Product owner bỏ thao tác tải thêm lịch sử khỏi Realtime | [[16, Xem lịch sử thị trường]](#ref-16) |
 | <a id="oq-085"></a>OQ-085 | Khi cập nhật trực tiếp thêm nến mới, chart giữ cố định 500 nến gần nhất hay số nến tăng dần? | Resolved | Giữ 500 nến gần nhất sau mỗi lần làm mới; nến cũ nhất rời chart khi có nến mới. Product owner duyệt ngày 2026-11-22. Vòng WebSocket xét lại nếu cách cập nhật khác | [[16, Theo dõi cập nhật định kỳ]](#ref-16) |
