@@ -11,7 +11,8 @@
 // bypassing outbound guards must fail the E2E assertions.
 import { once } from 'node:events';
 import { readFileSync } from 'node:fs';
-import { createServer } from 'node:http';
+import { createServer, type IncomingMessage } from 'node:http';
+import type { Duplex } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
@@ -35,6 +36,16 @@ import { deferred, klines } from '../market-data/fixtures';
 const referenceDataset = JSON.parse(
   readFileSync(new URL('../market-data/ws-reference-dataset.json', import.meta.url), 'utf8'),
 ) as {
+  realMarketGap: { missingOpenTime: number };
+  recoveryClosedCandles1m: {
+    openTime: number;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+    isClosed: boolean;
+  }[];
   liveCloseRollover5m: { closingCandle: { openTime: number } };
 };
 
@@ -71,13 +82,31 @@ const apiRestRequests: string[] = [];
 const restLedger: string[] = [];
 const unexpected: string[] = [];
 const upstreamSockets = new Set<WebSocket>();
+const clientUpgradeSockets = new Set<Duplex>();
 let activeClientWs = 0;
 let restFailureTimeframe: string | null = null;
 let holdBackfill = false;
 let heldBackfill = deferred<undefined>();
+let rejectClientUpgrade = false;
+let holdClientUpgrade = false;
+let heldClientUpgrade = deferred<undefined>();
+let pauseServerHeartbeats = false;
+let replayOffsetMs = 0;
+
+const realSetInterval = globalThis.setInterval;
+globalThis.setInterval = ((
+  callback: (...args: unknown[]) => void,
+  ms?: number,
+  ...args: unknown[]
+) =>
+  realSetInterval(() => {
+    if (pauseServerHeartbeats && ms === 5000) return;
+    callback(...args);
+  }, ms)) as typeof globalThis.setInterval;
 // Anchor replayNow at the exact closeTime of the 519th 5m candle so closeTime < dataTime is false
 // (the final candle of every timeframe arrives as isClosed: false, matching live WS openTime).
-const REPLAY_NOW = referenceDataset.liveCloseRollover5m.closingCandle.openTime + 300_000 - 1;
+const BASE_REPLAY_NOW = referenceDataset.liveCloseRollover5m.closingCandle.openTime + 300_000 - 1;
+const currentReplayNow = () => BASE_REPLAY_NOW + replayOffsetMs;
 
 const fakeUpstreamWs = new WebSocketServer({ host: '127.0.0.1', port: 3019 });
 await once(fakeUpstreamWs, 'listening');
@@ -153,10 +182,18 @@ const fakeFetch: typeof globalThis.fetch = (input) => {
   };
   const step = steps[interval] ?? 300000;
   const body = klines(519, step);
-  const shift = Math.floor(REPLAY_NOW / step) * step - (1735689600000 + 518 * step);
+  const nowValue = currentReplayNow();
+  const shift = Math.floor(nowValue / step) * step - (1735689600000 + 518 * step);
   for (const row of body) {
     row[0] = Number(row[0]) + shift;
     row[6] = Number(row[6]) + shift;
+  }
+  if (interval === '1m' && replayOffsetMs > 0 && url.searchParams.get('symbol') === 'BTCUSDT') {
+    // Embed reference closed candles and omit the realMarketGap openTime.
+    const filtered = body.filter(
+      (row) => Number(row[0]) !== referenceDataset.realMarketGap.missingOpenTime,
+    );
+    return Promise.resolve(Response.json(filtered));
   }
   if (url.searchParams.get('symbol') === 'ETHUSDT') {
     for (const row of body) {
@@ -183,7 +220,7 @@ function createCachedProvider() {
   return createCachedMarketDataProvider({
     provider: createBinanceMarketDataProvider({
       fetch: fakeFetch,
-      now: () => REPLAY_NOW,
+      now: currentReplayNow,
       timeoutMs: 5000,
       logger,
     }),
@@ -244,14 +281,6 @@ app.use(
   }),
 );
 const server = createServer(app);
-server.on('upgrade', (req, socket) => {
-  if (req.url === '/api/market-data/ws') {
-    activeClientWs += 1;
-    socket.once('close', () => {
-      activeClientWs = Math.max(0, activeClientWs - 1);
-    });
-  }
-});
 const gateway = attachMarketDataWs({
   server,
   auth,
@@ -262,6 +291,41 @@ const gateway = attachMarketDataWs({
   maxConnectionsPerUser: 4,
   logger,
   now: Date.now,
+});
+const gatewayUpgradeListeners = server.listeners('upgrade') as ((
+  req: IncomingMessage,
+  socket: Duplex,
+  head: Buffer,
+) => void)[];
+server.removeAllListeners('upgrade');
+server.on('upgrade', (req, socket, head) => {
+  if (req.url === '/api/market-data/ws') {
+    if (rejectClientUpgrade) {
+      socket.write('HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n');
+      socket.destroy();
+      return;
+    }
+    const proceed = () => {
+      activeClientWs += 1;
+      clientUpgradeSockets.add(socket);
+      socket.once('close', () => {
+        clientUpgradeSockets.delete(socket);
+        activeClientWs = Math.max(0, activeClientWs - 1);
+      });
+      for (const listener of gatewayUpgradeListeners) {
+        listener(req, socket, head);
+      }
+    };
+    if (holdClientUpgrade) {
+      void heldClientUpgrade.promise.then(proceed);
+      return;
+    }
+    proceed();
+    return;
+  }
+  for (const listener of gatewayUpgradeListeners) {
+    listener(req, socket, head);
+  }
 });
 revokeRef.current = (sessionId) => {
   gateway.revokeSession(sessionId);
@@ -278,8 +342,47 @@ control.post('/__ws/reset', (_req, res) => {
   holdBackfill = false;
   heldBackfill.resolve(undefined);
   heldBackfill = deferred<undefined>();
+  rejectClientUpgrade = false;
+  holdClientUpgrade = false;
+  heldClientUpgrade.resolve(undefined);
+  heldClientUpgrade = deferred<undefined>();
+  pauseServerHeartbeats = false;
+  replayOffsetMs = 0;
   cachedProvider = createCachedProvider();
-  res.json({ ok: true, replayNow: REPLAY_NOW });
+  res.json({ ok: true, replayNow: currentReplayNow() });
+});
+control.post('/__ws/client-ws-control', (req, res) => {
+  const body = req.body as {
+    dropActiveClients?: boolean;
+    rejectUpgrade?: boolean;
+    holdUpgrade?: boolean;
+    pauseServerHeartbeats?: boolean;
+    advanceReplayMs?: number;
+  };
+  if (body.rejectUpgrade !== undefined) rejectClientUpgrade = body.rejectUpgrade;
+  if (body.pauseServerHeartbeats !== undefined) pauseServerHeartbeats = body.pauseServerHeartbeats;
+  if (body.holdUpgrade !== undefined) {
+    holdClientUpgrade = body.holdUpgrade;
+    if (!holdClientUpgrade) {
+      heldClientUpgrade.resolve(undefined);
+      heldClientUpgrade = deferred<undefined>();
+    }
+  }
+  if (body.advanceReplayMs !== undefined) {
+    replayOffsetMs = body.advanceReplayMs;
+    cachedProvider = createCachedProvider();
+  }
+  if (body.dropActiveClients) {
+    for (const sock of [...clientUpgradeSockets]) {
+      sock.destroy();
+    }
+  }
+  res.json({
+    rejectClientUpgrade,
+    holdClientUpgrade,
+    replayOffsetMs,
+    activeClientWs,
+  });
 });
 control.post('/__ws/emit', (req, res) => {
   const payload = JSON.stringify(req.body);

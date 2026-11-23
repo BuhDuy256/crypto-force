@@ -389,3 +389,209 @@ test('drops invalid candle and summary ticks before applying a valid tick, prese
   );
   expect(statusMutations).toBe(0);
 });
+
+test('enforces 15s stale and 30s reset boundaries despite wall-clock skew, stops auto-retry at 120s and locks manual reconnect button while connecting', async ({
+  page,
+  request,
+}) => {
+  await page.clock.install({ time: new Date(1735845300000) });
+  expect(
+    (
+      await request.post(`${control}/__ws/client-ws-control`, {
+        data: { pauseServerHeartbeats: true },
+      })
+    ).status(),
+  ).toBe(200);
+  await openRealtimeLive(page);
+
+  // Anchor the signal clock with a fresh ticker frame, then pause the page clock immediately.
+  await emitUpstream(request, {
+    stream: 'btcusdt@ticker',
+    data: { e: '24hrTicker', E: OPEN_5M_TIME + 75_000, s: 'BTCUSDT', c: '619.00', P: '1.00' },
+  });
+  await expect(page.getByLabel('Last price', { exact: true })).toContainText('619.00');
+  await page.clock.pauseAt(new Date(1735845305000));
+  // Re-emit at the paused clock so staleTimer (15,000 ms) and resetTimer (30,000 ms) anchor at T=0.
+  await emitUpstream(request, {
+    stream: 'btcusdt@ticker',
+    data: { e: '24hrTicker', E: OPEN_5M_TIME + 75_100, s: 'BTCUSDT', c: '619.25', P: '1.00' },
+  });
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(0);
+      return page.getByLabel('Last price', { exact: true }).textContent();
+    })
+    .toContain('619.25');
+
+  // Shifting wall-clock Date.now by +60s must not trigger false stale state on monotonic clock.
+  await page.clock.setSystemTime(new Date(1735845365000));
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /Live|Đang trực tiếp/i,
+  );
+
+  // 14,999 ms without frames stays Live; 15,000 ms transitions to Stale data.
+  await page.clock.runFor(14_999);
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /Live|Đang trực tiếp/i,
+  );
+  await page.clock.runFor(1);
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /Stale data|Dữ liệu cũ/i,
+  );
+
+  // Receiving a valid frame before 30,000 ms returns to Live and resets the silence timer at T=0.
+  await emitUpstream(request, {
+    stream: 'btcusdt@ticker',
+    data: { e: '24hrTicker', E: OPEN_5M_TIME + 80_000, s: 'BTCUSDT', c: '620.00', P: '1.00' },
+  });
+  await expect
+    .poll(async () => {
+      await page.clock.runFor(0);
+      return page.getByLabel('Last price', { exact: true }).textContent();
+    })
+    .toContain('620.00');
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /Live|Đang trực tiếp/i,
+  );
+
+  // Reject subsequent WS upgrades so 30,000 ms silence reset enters reconnecting and hits 120s cap.
+  expect(
+    (
+      await request.post(`${control}/__ws/client-ws-control`, {
+        data: { rejectUpgrade: true },
+      })
+    ).status(),
+  ).toBe(200);
+
+  await page.clock.runFor(29_999);
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /Stale data|Dữ liệu cũ/i,
+  );
+  await page.clock.runFor(1);
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /retrying|đang thử lại/i,
+  );
+
+  // At 119,999 ms from disconnect start, still retrying; at 120,000 ms, stops auto-retry.
+  await page.clock.runFor(119_999);
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /retrying|đang thử lại/i,
+  );
+  await page.clock.runFor(1);
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /Mất kết nối hoàn toàn/i,
+  );
+
+  // Hold upgrade on manual reconnect to verify the Reconnect button disables during the attempt.
+  expect(
+    (
+      await request.post(`${control}/__ws/client-ws-control`, {
+        data: { rejectUpgrade: false, holdUpgrade: true, pauseServerHeartbeats: false },
+      })
+    ).status(),
+  ).toBe(200);
+  await page.clock.resume();
+  const reconnectButton = page.getByRole('button', { name: /Reconnect|Kết nối lại/i });
+  await reconnectButton.click();
+  await expect(reconnectButton).toBeDisabled();
+
+  expect(
+    (
+      await request.post(`${control}/__ws/client-ws-control`, {
+        data: { holdUpgrade: false },
+      })
+    ).status(),
+  ).toBe(200);
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /Live|Đang trực tiếp/i,
+  );
+});
+
+test('isolates initial chart errors from stray WS ticks, reconciles after 30s/120s/300s disconnects without synthesizing real gaps, and resets on reload', async ({
+  page,
+  request,
+}) => {
+  expect(
+    (
+      await request.post(`${control}/__ws/rest-control`, {
+        data: { clearCache: true, failTimeframe: '5m' },
+      })
+    ).status(),
+  ).toBe(200);
+
+  await page.goto('/realtime');
+  const chart1 = page.getByRole('region', { name: 'Chart 1', exact: true });
+  await expect(chart1.getByRole('status')).toHaveText('Cannot load candle history.');
+  await expect(page.getByLabel('Chart 2 values', { exact: true })).toContainText('618.00');
+
+  // Emitting a live 5m tick while Chart 1 failed initial REST load must not draw a stray candle.
+  await emitUpstream(request, {
+    stream: 'btcusdt@kline_5m',
+    data: {
+      e: 'kline',
+      E: OPEN_5M_TIME + 90_000,
+      s: 'BTCUSDT',
+      k: {
+        t: OPEN_5M_TIME,
+        i: '5m',
+        o: '618.00',
+        h: '699.00',
+        l: '617.00',
+        c: '699.00',
+        v: '550',
+        x: false,
+      },
+    },
+  });
+  await expect(chart1.getByRole('status')).toHaveText('Cannot load candle history.');
+  await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveCount(0);
+
+  // Retrying Chart 1 after source recovery loads history and joins live updates.
+  expect(
+    (
+      await request.post(`${control}/__ws/rest-control`, {
+        data: { clearCache: true, failTimeframe: null },
+      })
+    ).status(),
+  ).toBe(200);
+  await chart1.getByRole('button', { name: 'Retry chart 1', exact: true }).click();
+  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('618.00');
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(
+    /Live|Đang trực tiếp/i,
+  );
+
+  // Switch Chart 1 to 1m and reconcile across 30s, 120s and 300s simulated disconnects.
+  await selectTimeframe(page, 1, '1m');
+  await expect(page.getByLabel('Chart 1 values', { exact: true })).toContainText('618.00');
+
+  for (const outageMs of [30_000, 120_000, 300_000]) {
+    const restBefore = (await readLedger(request)).apiRestRequests.length;
+    expect(
+      (
+        await request.post(`${control}/__ws/client-ws-control`, {
+          data: { advanceReplayMs: outageMs, dropActiveClients: true },
+        })
+      ).status(),
+    ).toBe(200);
+    await expect
+      .poll(async () => (await readLedger(request)).apiRestRequests.length)
+      .toBeGreaterThan(restBefore);
+    await expect(page.getByTestId('realtime-connection-status')).toContainText(
+      /Live|Đang trực tiếp/i,
+    );
+  }
+
+  // Reload after changing pair and pausing must reset to default BTCUSDT 4 charts in Live state.
+  await selectPair(page, 'ETHUSDT');
+  await page.getByRole('button', { name: /Pause|Tạm dừng/i }).click();
+  await expect(page.getByTestId('realtime-connection-status')).toContainText(/Paused|Đã tạm dừng/i);
+
+  await page.reload();
+  await openRealtimeLive(page);
+  await expect(page.getByRole('combobox', { name: 'Pair' })).toHaveText('BTCUSDT');
+  for (const [index, tf] of ['5m', '15m', '1h', '4h'].entries()) {
+    await expect(
+      page.getByRole('combobox', { name: `Timeframe for chart ${String(index + 1)}` }),
+    ).toHaveText(tf);
+  }
+});

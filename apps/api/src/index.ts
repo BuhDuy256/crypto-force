@@ -39,13 +39,13 @@ const marketDataProvider = createCachedMarketDataProvider({
   ttlMs: 5000,
   logger,
 });
+const streamProvider = createBinanceStreamProvider({
+  wsUrl: env.BINANCE_WS_URL,
+  now: Date.now,
+  logger,
+});
 const streamHub = createMarketDataStreamHub({
-  createClientStreamProvider: () =>
-    createBinanceStreamProvider({
-      wsUrl: env.BINANCE_WS_URL,
-      now: Date.now,
-      logger,
-    }),
+  streamProvider,
   onCandleClosed(pair, timeframe) {
     marketDataProvider.invalidateCandles(pair, timeframe);
   },

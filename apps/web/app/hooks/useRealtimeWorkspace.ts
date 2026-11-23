@@ -104,6 +104,8 @@ export function useRealtimeWorkspace() {
   const retryAttemptRef = useRef(0);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryCapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const staleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const backfillAbortRef = useRef<AbortController | null>(null);
   const backfillEpochRef = useRef(0);
   const connectWebSocketRef = useRef<(isReconnectAttempt: boolean) => void>(() => undefined);
@@ -119,6 +121,17 @@ export function useRealtimeWorkspace() {
     liveRef.current = live;
   }, [desiredChannels, live, pair, visibleSlots]);
 
+  const clearSignalTimers = useCallback(() => {
+    if (staleTimerRef.current !== null) {
+      clearTimeout(staleTimerRef.current);
+      staleTimerRef.current = null;
+    }
+    if (resetTimerRef.current !== null) {
+      clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = null;
+    }
+  }, []);
+
   const clearRetryTimers = useCallback(() => {
     if (retryTimerRef.current !== null) {
       clearTimeout(retryTimerRef.current);
@@ -129,6 +142,55 @@ export function useRealtimeWorkspace() {
       retryCapTimerRef.current = null;
     }
   }, []);
+
+  const clearBackoffTimer = useCallback(() => {
+    if (retryTimerRef.current !== null) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+  }, []);
+
+  const ensureDisconnectWindow = useCallback(() => {
+    if (disconnectStartMonoRef.current !== null) return;
+    disconnectStartMonoRef.current = performance.now();
+    setDisconnectedAt(Date.now());
+    if (retryCapTimerRef.current !== null) {
+      clearTimeout(retryCapTimerRef.current);
+    }
+    retryCapTimerRef.current = setTimeout(() => {
+      retryCapTimerRef.current = null;
+      if (!wsOpenRef.current && liveRef.current) {
+        if (retryTimerRef.current !== null) {
+          clearTimeout(retryTimerRef.current);
+          retryTimerRef.current = null;
+        }
+        wsRef.current?.close(1000);
+        wsRef.current = null;
+        setConnectionState('disconnected');
+      }
+    }, RETRY_CAP_MS);
+  }, []);
+
+  const scheduleSignalTimers = useCallback(() => {
+    clearSignalTimers();
+    if (!liveRef.current || !wsOpenRef.current || !upstreamAvailableRef.current) return;
+    staleTimerRef.current = setTimeout(() => {
+      staleTimerRef.current = null;
+      if (!liveRef.current || !wsOpenRef.current || !upstreamAvailableRef.current) return;
+      setConnectionState((prev) => (prev === 'live' ? 'stale' : prev));
+    }, STALE_THRESHOLD_MS);
+    resetTimerRef.current = setTimeout(() => {
+      resetTimerRef.current = null;
+      if (!liveRef.current || !wsOpenRef.current || !upstreamAvailableRef.current) return;
+      const current = wsRef.current;
+      wsRef.current = null;
+      wsOpenRef.current = false;
+      current?.close(4000, 'Stream silence reset');
+      ensureDisconnectWindow();
+      setConnectionState('reconnecting');
+      connectWebSocketRef.current(true);
+    }, RESET_THRESHOLD_MS);
+  }, [clearSignalTimers, ensureDisconnectWindow]);
 
   const evaluateReadyState = useCallback(() => {
     if (!liveRef.current) {
@@ -321,6 +383,7 @@ export function useRealtimeWorkspace() {
     (message: WsServerMessage) => {
       if (message.type !== 'error') {
         lastSignalMonoRef.current = performance.now();
+        scheduleSignalTimers();
       }
 
       switch (message.type) {
@@ -338,10 +401,12 @@ export function useRealtimeWorkspace() {
         case 'status': {
           if (message.upstream === 'unavailable') {
             upstreamAvailableRef.current = false;
+            clearSignalTimers();
             setConnectionState('unavailable');
             return;
           }
           upstreamAvailableRef.current = true;
+          scheduleSignalTimers();
           if (message.resyncRequired) {
             void runBackfill();
           } else {
@@ -412,13 +477,20 @@ export function useRealtimeWorkspace() {
         }
       }
     },
-    [clearRetryTimers, client, evaluateReadyState, runBackfill],
+    [
+      clearRetryTimers,
+      clearSignalTimers,
+      client,
+      evaluateReadyState,
+      runBackfill,
+      scheduleSignalTimers,
+    ],
   );
 
   const connectWebSocket = useCallback(
     (isReconnectAttempt: boolean) => {
       if (!liveRef.current || limitExceededRef.current || sessionExpiredRef.current) return;
-      clearRetryTimers();
+      clearBackoffTimer();
       wsRef.current?.close(1000);
       subscribedChannelsRef.current.clear();
 
@@ -434,6 +506,7 @@ export function useRealtimeWorkspace() {
           setIsConnectingManual(false);
           lastSignalMonoRef.current = performance.now();
           clearRetryTimers();
+          scheduleSignalTimers();
 
           const channels = desiredChannelsRef.current;
           subscribedChannelsRef.current = new Map(
@@ -456,6 +529,7 @@ export function useRealtimeWorkspace() {
           wsRef.current = null;
           wsOpenRef.current = false;
           subscribedChannelsRef.current.clear();
+          clearSignalTimers();
           setIsConnectingManual(false);
 
           if (code === 4401) {
@@ -488,24 +562,9 @@ export function useRealtimeWorkspace() {
               });
           }
 
+          ensureDisconnectWindow();
           const nowMono = performance.now();
-          if (disconnectStartMonoRef.current === null) {
-            disconnectStartMonoRef.current = nowMono;
-            setDisconnectedAt(Date.now());
-            const remainingToCap = RETRY_CAP_MS;
-            retryCapTimerRef.current = setTimeout(() => {
-              retryCapTimerRef.current = null;
-              if (!wsOpenRef.current && liveRef.current) {
-                if (retryTimerRef.current !== null) {
-                  clearTimeout(retryTimerRef.current);
-                  retryTimerRef.current = null;
-                }
-                setConnectionState('disconnected');
-              }
-            }, remainingToCap);
-          }
-
-          const elapsed = nowMono - disconnectStartMonoRef.current;
+          const elapsed = nowMono - (disconnectStartMonoRef.current ?? nowMono);
           if (elapsed >= RETRY_CAP_MS) {
             clearRetryTimers();
             setConnectionState('disconnected');
@@ -529,7 +588,17 @@ export function useRealtimeWorkspace() {
 
       wsRef.current = wsClient;
     },
-    [clearRetryTimers, evaluateReadyState, handleServerMessage, revalidate, runBackfill],
+    [
+      clearBackoffTimer,
+      clearRetryTimers,
+      clearSignalTimers,
+      ensureDisconnectWindow,
+      evaluateReadyState,
+      handleServerMessage,
+      revalidate,
+      runBackfill,
+      scheduleSignalTimers,
+    ],
   );
 
   useEffect(() => {
@@ -579,13 +648,14 @@ export function useRealtimeWorkspace() {
     return () => {
       clearTimeout(openTimer);
       clearRetryTimers();
+      clearSignalTimers();
       backfillAbortRef.current?.abort();
       const current = wsRef.current;
       wsRef.current = null;
       wsOpenRef.current = false;
       current?.close(1000);
     };
-  }, [clearRetryTimers, connectWebSocket, live]);
+  }, [clearRetryTimers, clearSignalTimers, connectWebSocket, live]);
 
   // Compute channel diff when pair, timeframe or chartCount changes while WebSocket is open.
   useEffect(() => {
@@ -623,32 +693,6 @@ export function useRealtimeWorkspace() {
     if (toSubscribe.length > 0) ws.subscribe(toSubscribe);
     evaluateReadyState();
   }, [desiredChannels, evaluateReadyState, live]);
-
-  // 15s stale detection and 30s stream reset on monotonic clock (MK-98, MK-99, MK-140).
-  useEffect(() => {
-    if (!live) return;
-    const timer = setInterval(() => {
-      if (!liveRef.current || !wsOpenRef.current || !upstreamAvailableRef.current) return;
-      const silentMs = performance.now() - lastSignalMonoRef.current;
-      if (silentMs >= RESET_THRESHOLD_MS) {
-        const current = wsRef.current;
-        wsRef.current = null;
-        wsOpenRef.current = false;
-        current?.close(4000, 'Stream silence reset');
-        disconnectStartMonoRef.current ??= performance.now();
-        setDisconnectedAt((prev) => prev ?? Date.now());
-        setConnectionState('reconnecting');
-        connectWebSocket(true);
-        return;
-      }
-      if (silentMs >= STALE_THRESHOLD_MS) {
-        setConnectionState((prev) => (prev === 'live' ? 'stale' : prev));
-      }
-    }, 1_000);
-    return () => {
-      clearInterval(timer);
-    };
-  }, [connectWebSocket, live]);
 
   // Fast reconnect on browser 'online' event and tab visibility restoration (MK-101, MK-126).
   useEffect(() => {
@@ -709,6 +753,7 @@ export function useRealtimeWorkspace() {
     if (pausedAt === null) {
       liveRef.current = false;
       clearRetryTimers();
+      clearSignalTimers();
       backfillAbortRef.current?.abort();
       isBackfillingRef.current = false;
       const current = wsRef.current;
@@ -736,8 +781,11 @@ export function useRealtimeWorkspace() {
   function reconnectNow() {
     if (isConnectingManual || !live) return;
     setIsConnectingManual(true);
+    setConnectionState('reconnecting');
     limitExceededRef.current = false;
-    disconnectStartMonoRef.current = performance.now();
+    clearRetryTimers();
+    disconnectStartMonoRef.current = null;
+    ensureDisconnectWindow();
     retryAttemptRef.current = 0;
     connectWebSocket(true);
   }
