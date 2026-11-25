@@ -1,0 +1,5 @@
+{
+  "status": "Inconclusive",
+  "reason": "The runner did not persist the exact steady window bounds. Stopped after measurement started. Raw samples remain available. The next cohort uses a committed runner that writes window.json.",
+  "excludedFromBaseline": true
+}

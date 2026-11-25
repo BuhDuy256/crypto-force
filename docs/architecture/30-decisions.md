@@ -181,7 +181,7 @@ Khi giá có nhiều chữ số hơn số chữ số của pair, Web làm tròn 
 
 ## ADR-006: Cache Market Data trong process API, không lưu vào PostgreSQL
 
-**Status:** Accepted (2026-11-20)
+**Status:** Superseded by ADR-008
 
 ### Bối cảnh
 
@@ -206,6 +206,193 @@ Chọn cache trong process API với TTL 5 giây, gộp request trùng và khôn
 - Dữ liệu có thể cũ tới 5 giây; `dataTime` cho biết thời điểm thật của dữ liệu (MK-27).
 - Xét lại khi chạy hơn một instance API, khi backtest cần dữ liệu thị trường dài hạn, hoặc khi vòng WebSocket đổi cách lấy nến đang mở.
 
+## ADR-007: Web làm mới định kỳ bằng cách tải lại toàn bộ cửa sổ nến qua endpoint lịch sử
+
+**Status:** Superseded by ADR-009
+
+### Bối cảnh
+
+Vòng cập nhật định kỳ cho chart và sidebar tự làm mới theo chu kỳ (MK-63, MK-64), giữ tối đa 500 nến gần nhất (MK-67) và không thay dữ liệu bằng dữ liệu cũ hơn (MK-79) [[8, Theo dõi cập nhật định kỳ]](#ref-8). Vòng này là baseline để so sánh độ mới dữ liệu, request upstream và lưu lượng với WebSocket. Baseline không được dựng yếu chỉ để tạo mức cải thiện [[14]](#ref-14). Endpoint lịch sử nến, cache 5 giây trong API và mức trần request Binance theo số khóa đã có từ vòng tải lịch sử (ADR-006) [[10, Cache và giới hạn request]](#ref-10).
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Web gọi lại endpoint lịch sử theo chu kỳ, nhận lại toàn bộ cửa sổ nến | Không đổi contract và API. Mỗi lần làm mới đã đủ 500 nến và nến khởi động MA, nên không có bước nối nến hay bù khoảng trống. MA tính lại cùng cách với lần tải đầu (ADR-004) | Mỗi lần làm mới nhận lại cả cửa sổ, nên lưu lượng mỗi client lớn |
+| Web gọi endpoint mới chỉ trả các nến từ nến đang mở trở đi, rồi nối vào dữ liệu đang có | Lưu lượng nhỏ | Thêm endpoint và contract. Web phải nối nến, bỏ nến cũ nhất và tính lại MA. Sau khi tab ẩn lâu hoặc mất mạng, Web phải tự phát hiện khoảng trống và tải lại cả cửa sổ |
+| Chu kỳ riêng theo timeframe | Ít request cho timeframe lớn | Nến đang mở của timeframe lớn vẫn đổi giá theo từng giao dịch; thêm giá trị cần chốt (OQ-086) |
+| Server đẩy dữ liệu (SSE hoặc WebSocket) | Độ mới tốt hơn | Thuộc vòng WebSocket; không còn là baseline polling |
+
+### Quyết định
+
+- Mỗi chart và sidebar là một query riêng của TanStack Query, như vòng tải lịch sử. Khi cập nhật đang bật, query đặt `refetchInterval` bằng chu kỳ làm mới (MK-63, MK-64) và không làm mới khi tab ẩn (MK-76).
+- Lần làm mới gọi cùng endpoint lịch sử nến và summary, không đổi contract [[15, Endpoint Market Data]](#ref-15).
+- Chu kỳ là một hằng số cho mọi timeframe, đặt bằng TTL cache của API.
+
+### Lý do
+
+Toàn bộ cửa sổ có sẵn trong cache của API, nên chu kỳ bằng TTL không làm tăng request tới Binance (ADR-006). Tải lại cả cửa sổ loại bỏ lỗi nối nến, giữ đúng các rule nến đã kiểm ở vòng tải lịch sử (MK-51, MK-52) và không cần cơ chế bù khoảng trống riêng cho polling.
+
+### Rủi ro chấp nhận
+
+Response lịch sử nến của smoke Binance có 519 nến, khoảng 64 KB JSON chưa nén [[16]](#ref-16). Source của API không có middleware nén response. `Inferred`: 4 chart làm mới mỗi 5 giây nhận khoảng 3 MB mỗi client mỗi phút. Số đo thật thuộc tài liệu kiểm chứng polling.
+
+### Hệ quả
+
+- Request từ browser tới API tăng theo số client: mỗi client có 4 chart và 1 sidebar, mỗi query làm mới một lần mỗi chu kỳ.
+- So sánh lưu lượng giữa polling và WebSocket phải ghi rằng polling tải lại toàn bộ cửa sổ. Khi dòng CV về lưu lượng dùng so sánh này, cần kèm điều kiện đó, hoặc thêm phương án chỉ tải nến mới và đo lại.
+- Xét lại khi lưu lượng đo được là bottleneck, hoặc khi OQ-086 chốt chu kỳ khác nhau theo timeframe.
+
+## ADR-008: Cache Market Data trong process API, giữ cả lỗi nguồn trong thời gian sống của cache
+
+**Status:** Accepted (2026-11-22)
+
+### Bối cảnh
+
+ADR-006 chọn cache trong process API với TTL 5 giây và không cache lỗi. Lý do không cache lỗi là thao tác thử lại của chart (MK-12) gọi lại nguồn ngay. Ở vòng tải lịch sử, lỗi chỉ dẫn tới lời gọi mới khi người dùng bấm thử lại. Ở vòng cập nhật định kỳ, mỗi client tự làm mới sau mỗi chu kỳ (MK-63, MK-64) [[8, Theo dõi cập nhật định kỳ]](#ref-8). Khi Binance lỗi, single-flight chỉ gộp các lời gọi đồng thời, nên số lời gọi tới Binance tăng theo số client. `Inferred`: với 50 client, mỗi client 5 query làm mới mỗi 5 giây, API có thể gọi Binance khoảng 3000 lần mỗi phút, tức 6000 weight, bằng giới hạn theo IP [[13]](#ref-13). Cooldown 429/418 của adapter chỉ chặn sau khi đã chạm giới hạn. QA-13 yêu cầu mức trần weight không đổi cả khi Binance lỗi [[11, Scalability và Performance]](#ref-11).
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Giữ ADR-006, chỉ dựa vào cooldown 429/418 | Không đổi code cache; thử lại của người dùng gọi nguồn ngay | Số lời gọi tăng theo số client tới khi Binance trả 429; không đạt QA-13 khi Binance lỗi |
+| Decorator giữ lỗi nguồn theo khóa trong cùng TTL với kết quả thành công | Mức trần weight giống khi thành công, không phụ thuộc số client. Logic nằm ở một chỗ, không phụ thuộc cách client làm mới | Thử lại của người dùng trong TTL nhận lại cùng lỗi, tối đa 5 giây |
+| Web giãn chu kỳ sau mỗi lần làm mới lỗi (backoff) | API không đổi | Chu kỳ người dùng thấy thay đổi khi lỗi; tải lên Binance vẫn phụ thuộc hành vi của từng client |
+
+### Quyết định
+
+Giữ mọi phần của ADR-006, trừ quy tắc không cache lỗi. Decorator giữ kết quả lỗi nguồn không khả dụng và lỗi dữ liệu nguồn sai theo khóa, trong cùng TTL, tính từ lúc provider bên trong reject. Lỗi không lường trước không được giữ. Request cùng khóa trong TTL nhận lại lỗi đó mà không gọi provider.
+
+### Lý do
+
+Phương án này giữ mức trần weight ở một nơi mà mọi client đi qua, nên tải lên Binance không phụ thuộc số client hay cách client làm mới. Chu kỳ làm mới người dùng thấy không đổi khi lỗi.
+
+### Rủi ro chấp nhận
+
+Sau khi Binance phục hồi, chart có thể còn báo lỗi thêm tối đa một TTL cộng một chu kỳ làm mới.
+
+### Hệ quả
+
+- ADR-006 có Status `Superseded by ADR-008`. Mục cache trong thiết kế Market Data mô tả quy tắc giữ lỗi.
+- Mức trần weight của Binance khi lỗi bằng mức trần khi thành công [[10, Giới hạn request của Binance]](#ref-10).
+- Xét lại cùng các điều kiện của ADR-006, hoặc khi thời gian báo lỗi thêm sau phục hồi làm người dùng khó chịu.
+
+## ADR-009: Chuyển cập nhật trực tiếp sang WebSocket đa kênh kèm shared subscriptions và giữ REST cho lịch sử và backfill
+
+**Status:** Accepted (2026-11-23)
+
+### Bối cảnh
+
+Vòng cập nhật định kỳ (ADR-007) giữ vai trò baseline đo đạc nhưng bộc lộ hai giới hạn đã ghi nhận trong baseline `polling-v2`: mỗi client gửi request HTTP lặp ở mỗi chu kỳ cho các chart mặc định (MK-31) và sidebar làm truy vấn phiên vào PostgreSQL tăng tuyến tính theo số client, và việc tải lại toàn bộ cửa sổ nến chưa nén tiêu thụ `2,65–2,71 MB/client/phút` [[17]](#ref-17). Các yêu cầu cập nhật trực tiếp đòi hỏi cập nhật nến đang mở và giá sidebar không chờ chu kỳ cố định (MK-93, MK-94), đổi timeframe một chart không rơi cập nhật của chart khác (MK-96), độ trễ từ lúc nhận event và độ mới dữ liệu đạt ngưỡng đề ra (QA-05, QA-14), và phục vụ tải đồng thời với tối đa 1 kết nối trực tiếp tới nguồn cho mỗi tổ hợp `(pair, timeframe)` (QA-15) [[8, Theo dõi cập nhật trực tiếp]](#ref-8) [[11, Scalability và Performance]](#ref-11). Đồng thời, hệ thống vẫn phải tách provider khỏi frontend (QA-09) và bù đủ nến đóng bị thiếu sau gián đoạn (MK-105, QA-06, QA-16).
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Một kết nối WebSocket đa kênh mỗi tab (`/api/market-data/ws`) + shared subscriptions trong `MarketDataStreamHub` trên một combined stream tới Binance; giữ REST cho lịch sử và backfill | Giảm mạnh lưu lượng và số HTTP request ở trạng thái ổn định; đổi 1 chart chỉ `unsubscribe`/`subscribe` 1 kênh (MK-96); 1 combined stream Binance chứa tối đa 1024 stream, đủ cho toàn bộ tập pair (MK-32) và timeframe (MK-30) [[18]](#ref-18); giữ nguyên contract REST và cơ chế cache (ADR-008) | Cần quản lý vòng đời kết nối, bộ đếm tham chiếu topic, heartbeat ứng dụng và hợp nhất dữ liệu phía Web |
+| Một kết nối WebSocket riêng cho mỗi chart | Logic mỗi chart độc lập hoàn toàn | Nhân số socket trên server theo số chart mặc định (MK-31) cộng sidebar cho mỗi client ở mức tải đồng thời (QA-15), tăng chi phí bắt tay/heartbeat và phức tạp hóa trạng thái kết nối chung của màn hình Realtime |
+| Server-Sent Events (SSE) một chiều kèm endpoint HTTP `POST` đổi kênh | Dùng HTTP chuẩn, tự reconnect cơ bản phía trình duyệt | Cần kênh HTTP phụ để subscribe/unsubscribe, không có mã đóng chuẩn phân biệt thu hồi phiên (`4401`) hay giới hạn tab (`4429`), lệch khỏi Tech Stack đã chọn (`ws`) |
+| Mở kết nối WebSocket trực tiếp từ trình duyệt tới Binance | Không tốn tài nguyên fan-out ở API | Vi phạm ranh giới provider (QA-09, frontend không gọi Binance trực tiếp), không kiểm soát được chuẩn hóa và không thống nhất cách đo |
+| Thay luôn tải lịch sử bằng đẩy snapshot qua WebSocket | Chỉ còn một transport | Mất tái sử dụng endpoint/cache REST đã kiểm chứng (ADR-008), khung JSON lịch sử 64 KB chặn hàng đợi gửi realtime trên cùng socket |
+
+### Quyết định
+
+- Mỗi tab Realtime mở một kết nối WebSocket đa kênh tới `/api/market-data/ws`, dùng chung cho toàn bộ chart đang hiển thị và sidebar; hai chart cùng timeframe trên cùng tab dùng chung một kênh subscribe (MK-125) [[15, Kênh WebSocket Market Data]](#ref-15).
+- Backend bổ sung interface `MarketDataStreamProvider` trong `apps/api/src/providers/market-data/market-data-provider.ts` và adapter `BinanceStreamProvider` duy trì một combined stream tới Binance, kèm `MarketDataStreamHub` quản lý sổ đăng ký topic chia sẻ theo bộ đếm tham chiếu và tuần tự hóa JSON một lần mỗi sự kiện để fan-out [[10, Shared subscriptions và fan-out]](#ref-10).
+- Giữ nguyên hai endpoint REST lịch sử và cache decorator giữ lỗi nguồn trong TTL (ADR-008) cho lần tải ban đầu, đổi lựa chọn khi đang tạm dừng (MK-109) và đồng bộ bù nến sau gián đoạn (MK-105). Bổ sung trường `dataTime` vào `MarketSummary` để sidebar đáp ứng quy tắc không lùi dữ liệu (MK-111).
+- Không tạo bảng lưu nến trong PostgreSQL; phạm vi hiển thị và backfill tối đa bằng cửa sổ lịch sử của chart (MK-33) vẫn lấy trực tiếp từ Binance REST qua cache single-flight.
+
+### Lý do
+
+Tách vai trò giữa WebSocket (đẩy thay đổi nhỏ với độ trễ thấp, shared subscriptions giảm tải upstream và bỏ vòng lặp kiểm phiên HTTP) với REST (tải snapshot lớn qua cache single-flight đã kiểm chứng) giải quyết trực tiếp cả hai nút thắt của baseline polling mà vẫn giữ nguyên `candleSchema`, ranh giới provider (QA-09) và tránh chi phí đồng bộ bảng nến trong PostgreSQL.
+
+### Rủi ro chấp nhận
+
+- `MarketDataStreamHub` nằm trong bộ nhớ của một process API nên chỉ chia sẻ subscription trong phạm vi một instance.
+- Khi nhiều client cùng reconnect sau mất mạng diện rộng, đợt REST backfill vẫn tạo cụm HTTP request đồng thời vào API (dù Binance được bảo vệ bởi cache single-flight).
+
+### Hệ quả
+
+- Quyết định làm mới định kỳ (ADR-007) có Status `Superseded by ADR-009` cho hành vi vận hành của Realtime; phiên bản code polling tại commit `2709f3b` vẫn được giữ nguyên làm baseline so sánh.
+- Bổ sung `MarketDataStreamProvider`, `BinanceStreamProvider`, `MarketDataStreamHub` và `MarketDataWsGateway` ở Bước 12; không đổi cấu trúc `candleSchema`.
+- Xét lại khi hệ thống chạy nhiều hơn một instance API (cần lớp phân phối sự kiện như Redis Pub/Sub) hoặc khi Backtest cần kho lịch sử nến dài hạn trong PostgreSQL.
+
+## ADR-010: Xác thực WebSocket bằng cookie phiên hiện có kết hợp kiểm Origin và cưỡng chế thu hồi theo lô
+
+**Status:** Accepted (2026-11-23)
+
+### Bối cảnh
+
+Kênh WebSocket Market Data phải từ chối mở mới khi không có phiên hợp lệ (MK-118), chỉ chấp nhận kết nối từ `Origin` hợp lệ của ứng dụng (MK-119, OWASP ASVS 5.0 V4.4.2), dùng kết nối mã hóa `WSS` trên production (MK-120, V4.4.1), và dừng gửi cập nhật cùng dừng tự kết nối lại trên mọi tab trong thời hạn cưỡng chế khi phiên hết hạn hoặc bị thu hồi (MK-121, MK-129) [[8, Theo dõi cập nhật trực tiếp]](#ref-8) [[19]](#ref-19). Ngoài ra, phân tích baseline `polling-v2` cho thấy việc gọi truy vấn DB kiểm phiên lặp lại theo từng client ở tần suất cao gây bão hòa `pg.Pool` 10 kết nối (mỗi request REST `Inferred` tạo hai lượt truy vấn DB tuần tự) [[17]](#ref-17). Cần chọn cơ chế xác thực handshake và cơ chế cưỡng chế thu hồi phiên vừa đạt yêu cầu bảo mật vừa không tái tạo nút thắt DB.
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Tái sử dụng cookie phiên Better Auth cùng origin lúc HTTP upgrade + kiểm `Origin` chặt + thu hồi qua hook auth trong process kết hợp một truy vấn đọc theo lô lên bảng `session` (chu kỳ trong [Security](23-security.md#quyết-định)) | Không thêm endpoint cấp token và không truyền token qua query string hay bộ nhớ JS; đã đọc nguyên văn OWASP ASVS 5.0 V4.4.3–4.4.4 ngày 2026-11-23 xác nhận dùng lại phiên HTTPS chuẩn không phát sinh yêu cầu quản lý token riêng; số truy vấn kiểm phiên ổn định cố định ở mức 1 câu `SELECT` mỗi chu kỳ theo lô thay vì tăng tuyến tính theo số client như ước tính `Inferred` của polling | Bắt buộc Web và API dùng cùng origin (qua reverse proxy); trình duyệt ẩn HTTP 401 ở bước upgrade thành mã `1006` nên Web cần kiểm lại phiên khi kết nối mới bị từ chối |
+| Cấp token WebSocket ngắn hạn qua endpoint HTTP riêng (ASVS V4.4.3–4.4.4) | Hỗ trợ chạy WebSocket ở domain khác với Web | Thêm endpoint, thêm một vòng RTT mỗi lần kết nối/reconnect, phải tự quản lý lưu trữ, một lần dùng và thu hồi cho loại token thứ hai |
+| Chỉ kiểm phiên lúc HTTP upgrade, không kiểm lại trong vòng đời kết nối | Không tốn truy vấn định kỳ | Vi phạm yêu cầu dừng cập nhật khi phiên hết hạn hoặc bị thu hồi (MK-121) nếu phiên hết hạn tự nhiên hoặc bị xóa ngoài process |
+| Gọi `auth.api.getSession` riêng lẻ cho từng kết nối WebSocket theo chu kỳ | Tái sử dụng trực tiếp API Better Auth | Lặp lại nút thắt tuyến tính theo số client lên `pg.Pool` ở mức tải đồng thời (QA-15) |
+
+### Quyết định
+
+- Xác thực kết nối `/api/market-data/ws` ở bước HTTP `upgrade` bằng cookie phiên Better Auth hiện có (`auth.api.getSession` với `fromNodeHeaders`), chạy sau khi kiểm header `Origin` khớp chính xác `BETTER_AUTH_URL` (kể cả khi `NODE_ENV=test`) và kiểm kết nối mã hóa `WSS` trên `NODE_ENV=production` [[2, Quyết định]](#ref-2).
+- Không cấp token WebSocket riêng; đã xác nhận trên file nguyên văn OWASP ASVS 5.0 `0x13-V4-API-and-Web-Service.md` ngày 2026-11-23 rằng V4.4.3–4.4.4 không áp dụng khi dùng quản lý phiên HTTPS chuẩn [[19]](#ref-19).
+- Cưỡng chế thời hạn thu hồi phiên (MK-121) bằng hai lớp: (1) hook `databaseHooks.session.delete.after` trong `createAuth` thông báo ngay cho `MarketDataWsGateway` đóng mọi kết nối thuộc phiên bị thu hồi trên cùng instance bằng mã `4401`; (2) `WsSessionService` kiểm `expiresAt` trong bộ nhớ và gọi `SessionRepository` chạy một truy vấn đọc theo lô (`SELECT id, expires_at FROM session WHERE id IN (...)`) cho toàn bộ `sessionId` đang mở WebSocket theo chu kỳ quy định trong [Security](23-security.md#quyết-định).
+
+### Lý do
+
+Cookie phiên cùng origin tái sử dụng toàn bộ cơ chế cookie `HttpOnly`/`SameSite`/`Secure` hiện có của Better Auth và loại bỏ nguy cơ rò rỉ token trong URL hoặc JavaScript. Kết hợp hook thu hồi tức thì với một truy vấn theo lô qua `WsSessionService` và `SessionRepository` vừa đáp ứng chặt thời hạn cưỡng chế (MK-121) trong mọi kịch bản (kể cả xóa phiên trực tiếp trong DB) vừa giữ truy vấn DB ở hằng số nhỏ không phụ thuộc số client.
+
+### Rủi ro chấp nhận
+
+- Khi triển khai production, reverse proxy bắt buộc định tuyến `/api/market-data/ws` cùng origin với Web và ghi đè chính xác header `X-Forwarded-Proto`.
+- Nếu phiên bị xóa trực tiếp trong PostgreSQL từ một công cụ ngoài process API, độ trễ tối đa tới lúc đóng kết nối là một chu kỳ kiểm theo lô cộng thời gian truyền khung đóng `4401` (vẫn nằm trong thời hạn cưỡng chế MK-121).
+
+### Hệ quả
+
+- Bổ sung `apps/api/src/services/ws-session.service.ts` và `apps/api/src/repositories/session.repository.ts` để giữ nguyên ranh giới layer `api/ws/` → `services/` → `repositories/` → `database/` [[9, API: layer-based]](#ref-9).
+- Trả mã `4401` khi đóng kết nối đã mở giúp Web dừng tự reconnect ngay và mở màn chặn workspace (MK-40, MK-129); khi bị từ chối `401` ngay lúc upgrade (trình duyệt báo `1006`), Web gọi kiểm phiên để mở màn chặn.
+- Xét lại nếu sau này tách WebSocket sang domain khác với Web (khi đó phải cấp token WebSocket riêng và đáp ứng đầy đủ ASVS 5.0 V4.4.3–4.4.4).
+
+## ADR-011: Chuyển giao lịch sử sang trực tiếp bằng đệm sự kiện phía client, vô hiệu hóa cache theo nến đóng và ngắt client chậm để đồng bộ lại
+
+**Status:** Accepted (2026-11-23)
+
+### Bối cảnh
+
+Sau khi mở Realtime, đổi lựa chọn hoặc kết nối lại sau gián đoạn, hệ thống phải không báo đang trực tiếp trước khi đồng bộ xong (MK-104), bù đủ mọi nến đóng bị thiếu mà không tạo nến giả cho khoảng trống thật (MK-35, MK-105), không tạo nến trùng (MK-110), không lùi dữ liệu trên cả chart lẫn sidebar (MK-111), bảo toàn tính toàn vẹn OHLCV của nến đóng (QA-17), và giữ ổn định tài nguyên ở tải đồng thời khi có client đọc chậm (QA-15) [[8, Theo dõi cập nhật trực tiếp]](#ref-8) [[11, Reliability]](#ref-11). Ngoài ra, cache REST có TTL 5 giây (ADR-008) có thể giữ snapshot chụp vài giây trước mốc đóng nến, tạo rủi ro mất bản chốt cuối của nến vừa đóng nếu client vừa reconnect sau mốc đóng nến.
+
+### Phương án đã xét
+
+| Phương án | Dễ hơn | Khó hơn |
+| --- | --- | --- |
+| Subscribe WS và bật bộ đệm phía client trước khi gọi REST snapshot + Stream Hub gọi callback vô hiệu hóa cache REST khi nhận nến đóng + kiểm biên nến đóng lúc hợp nhất + ngắt client chậm vượt ngưỡng đệm bằng mã `4008` | Không tạo khoảng trống giữa REST và WS; triệt tiêu lệch OHLCV ở biên TTL cache; không bao giờ làm rơi nến đóng âm thầm khi client chậm; giữ RAM server có trần rõ ràng ở tải đồng thời | Cần hàm hợp nhất tất định phía Web và một nhánh retry đồng bộ nếu phát hiện nến cuối REST chưa đóng khi bộ đệm đã sang nến kế tiếp |
+| Gọi REST snapshot trước rồi mới `subscribe` WebSocket | Không cần bộ đệm sự kiện phía client | Mọi nến đóng xảy ra trong khoảng thời gian giữa response REST và lúc `subscribe` hoàn tất đều bị mất, vi phạm toàn vẹn OHLCV (QA-17) |
+| Server giữ ring-buffer nến gần nhất trong RAM để tự phát lại cho client reconnect | Client không cần gọi REST khi đứt kết nối ngắn | Nhân đôi cơ chế lưu trữ lịch sử trên server, vẫn phải fallback REST khi đứt dài hơn dung lượng đệm hoặc khi server restart |
+| Khi client chậm, chỉ bỏ bớt khung tin trên server mà giữ kết nối mở | Không làm client reconnect | Nếu khung bị bỏ là nến đã đóng (`isClosed: true`), chart bị thiếu hoặc sai OHLCV của nến đóng mà không biết để backfill, vi phạm toàn vẹn OHLCV (QA-17) |
+
+### Quyết định
+
+- **Quy trình chuyển giao:** Web luôn gửi `subscribe` và bật bộ đệm sự kiện (giới hạn kích thước đệm quy định trong [Xử lý nến trùng, đến muộn, sai định dạng và client chậm](10-market-data.md#xử-lý-nến-trùng-đến-muộn-sai-định-dạng-và-client-chậm)) trước khi gửi `GET /api/market-data/candles` và `GET /api/market-data/summary`. Sau khi nhận snapshot REST, Web hợp nhất tất định bộ đệm theo `openTime` và `dataTime`, chỉ đánh dấu chart là trực tiếp khi hoàn tất và kiểm không có nến đang mở nào trong snapshot bị bỏ qua bản chốt đóng [[10, Chuyển giao lịch sử sang trực tiếp, reconnect và REST backfill]](#ref-10).
+- **Vô hiệu hóa cache REST theo nến đóng:** Khi `MarketDataStreamHub` nhận sự kiện nến có `isClosed: true` cho `(pair, timeframe)`, hub gọi callback `onCandleClosed` được composition root nối tới `invalidateCandles(pair, timeframe)` của `CachedMarketDataProvider` để đợt REST backfill kế tiếp lấy bản đã chốt mới nhất (giữ nguyên single-flight và giữ lỗi nguồn của cơ chế cache ADR-008 mà `services/` không import file cache decorator).
+- **Ngắt client chậm để đồng bộ lại:** Khi `ws.bufferedAmount` của một kết nối client vượt ngưỡng đệm quy định trong [Security](23-security.md#quyết-định), `MarketDataWsGateway` đóng kết nối đó bằng mã `4008` (`SLOW_CONSUMER`) và ghi log; client tự kết nối lại theo backoff và chạy REST backfill để bảo toàn toàn vẹn nến đóng.
+
+### Lý do
+
+Subscribe trước rồi mới gọi REST là chuẩn mực tránh khoảng trống chuyển giao mà không đòi hỏi server duy trì lịch sử riêng. Vô hiệu hóa cache khi có nến đóng giữ nguyên lợi ích chống tải của cache trong phần lớn thời gian mà vẫn khép lỗ hổng biên đóng nến. Ngắt client chậm bằng mã `4008` đổi một lần reconnect sạch lấy bảo đảm tuyệt đối không rơi nến đóng âm thầm và không làm phình bộ nhớ của các client khác đang cùng kết nối.
+
+### Rủi ro chấp nhận
+
+- Trong khoảng vài trăm millisecond ngay sau mỗi mốc đóng nến, lượt REST backfill đầu tiên sẽ bị cache miss và gọi Binance (tối đa 1 lần nhờ single-flight, không làm vượt mức trần weight của cơ chế cache ADR-008).
+- Một client mạng rất chậm có thể bị ngắt mã `4008` lặp lại và phải chuyển sang chế độ backfill từng đợt tới khi mạng ổn định.
+
+### Hệ quả
+
+- `CachedMarketDataProvider` bổ sung phương thức `invalidateCandles(pair, timeframe)` và composition root truyền callback vào `MarketDataStreamHub`.
+- Hàm hợp nhất snapshot + bộ đệm phía Web viết dạng thuần trong `apps/web/app/utils/` để kiểm thử đơn vị toàn bộ trường hợp trùng, đến muộn, sai định dạng và biên đóng nến.
+- Xét lại nếu tần suất sự kiện tăng cao làm tỷ lệ ngắt `4008` đáng kể trên mạng bình thường (khi đó có thể nâng ngưỡng `bufferedAmount` hoặc hợp nhất các cập nhật nến đang mở `isClosed: false` trong một cửa sổ ngắn trước khi gửi, vẫn giữ nguyên nguyên tắc không bao giờ bỏ qua nến `isClosed: true`).
+
 ## References
 
 1. <a id="ref-1"></a>[Authentication](../UCs/authentication.md)
@@ -221,3 +408,9 @@ Chọn cache trong process API với TTL 5 giây, gộp request trùng và khôn
 11. <a id="ref-11"></a>[Quality Attributes](../UCs/quality-attributes.md)
 12. <a id="ref-12"></a>Binance Spot API, General endpoints, Exchange information, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-endpoints>
 13. <a id="ref-13"></a>Binance Spot API, General API Information (Limits) và response của `GET /api/v3/exchangeInfo?symbol=BTCUSDT`, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/limits>
+14. <a id="ref-14"></a>[Market Data sẽ thêm dòng nào vào CV?](../build/01-prototype-to-implementation/market-data/cv-goal.md)
+15. <a id="ref-15"></a>[API Contracts](22-api-endpoints.md)
+16. <a id="ref-16"></a>Evidence smoke Binance: [`reconciliation.json`](../testing/evidence/market-data/rest-v1-binance-smoke/reconciliation.json), mảng `candles` có 519 phần tử, 63.992 byte khi serialize JSON
+17. <a id="ref-17"></a>[Bottleneck thật sự của REST polling qua số đo baseline](../knowledge/261123-market-data-rest-polling/market-data-rest-polling.polling-bottlenecks.md)
+18. <a id="ref-18"></a>Binance Spot API, WebSocket Streams (combined streams và limits), đọc ngày 2026-11-23. <https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams>
+19. <a id="ref-19"></a>OWASP ASVS 5.0, V4 API and Web Service (V4.4 WebSocket), đọc nguyên văn file `0x13-V4-API-and-Web-Service.md` ngày 2026-11-23. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x13-V4-API-and-Web-Service.md>

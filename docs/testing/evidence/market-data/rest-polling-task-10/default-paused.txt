@@ -1,0 +1,64 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 e2e\market-data\rest-polling.spec.ts:409:1 › reloads with live updates enabled after a keyboard pause (15.0s)
+
+
+  1) e2e\market-data\rest-polling.spec.ts:409:1 › reloads with live updates enabled after a keyboard pause 
+
+    Error: expect(locator).not.toBeChecked() failed
+
+    Locator:  getByRole('switch', { name: 'Live updates' })
+    Expected: not checked
+    Received: checked
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "not toBeChecked" getByRole('switch', { name: 'Live updates' }) with timeout 10000ms
+      - waiting for getByRole('switch', { name: 'Live updates' })
+        23 × locator resolved to <button role="switch" data-slot="button" data-size="default" aria-checked="true" data-variant="outline" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 border bg-background shadow-xs hover:bg-ac…>Live updates</button>
+           - unexpected value "checked"
+
+
+      413 |   const pausedAt = await page.evaluate(() => Date.now());
+      414 |   await toggle.press('Space');
+    > 415 |   await expect(toggle).not.toBeChecked();
+          |                            ^
+      416 |   const paused = await page.getByText(/^Paused at/).textContent();
+      417 |   expect(paused).toContain(
+      418 |     new Intl.DateTimeFormat('en-US', {
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\market-data\rest-polling.spec.ts:415:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\market-data-polling\rest-polling-reloads-with--c6e09-bled-after-a-keyboard-pause\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\market-data-polling\rest-polling-reloads-with--c6e09-bled-after-a-keyboard-pause\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\market-data-polling\rest-polling-reloads-with--c6e09-bled-after-a-keyboard-pause\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\market-data-polling\rest-polling-reloads-with--c6e09-bled-after-a-keyboard-pause\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\market-data\rest-polling.spec.ts:409:1 › reloads with live updates enabled after a keyboard pause 
+undefined
+C:\Users\Duy\Desktop\crypto-force\apps\web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "playwright" not found
+[WebServer] (node:51148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `pnpm --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:54164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:41152) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:44724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `pnpm --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:30232) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+(node:30508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

@@ -38,6 +38,8 @@ apps/
         middlewares/
       services/
       repositories/
+      providers/
+        market-data/    # Provider interface, external adapter và cache decorator
       mappers/
       database/
       configs/
@@ -93,9 +95,14 @@ Quy tắc bật mock, contracts và chuyển sang backend thật nằm tại [HT
 | Controller | Nhận request đã được kiểm tra, gọi application service, trả HTTP response. | Truy vấn DB trực tiếp hoặc chạy thuật toán engine. |
 | Service | Business rules và orchestration; trả về kết quả không gắn với Express. | Phụ thuộc vào `Request`/`Response` của Express hoặc truy vấn DB trực tiếp. |
 | Repository | Data access qua Drizzle; quản lý queries và persistence. | Chứa HTTP handling hoặc business rules. |
+| Provider | Gọi API bên ngoài và chuẩn hóa dữ liệu theo interface domain. | Import Express, `api/`, `services/`, `repositories/`, `database/` hoặc Drizzle. |
 | Mapper | Chuyển đổi representation khi thực sự cần. | Gọi DB, thực hiện I/O hoặc chứa business rules. |
 
 Luồng thường gặp: Route → Middleware → Controller → Service → Repository → PostgreSQL. Đây không phải yêu cầu mọi endpoint phải có đủ các layer. API contracts dùng chung lấy từ `packages/shared`, tránh khai báo DTO trùng lặp.
+
+Market Data đi theo luồng Service → `MarketDataProvider` → adapter của API bên ngoài. Service chỉ import `providers/market-data/market-data-provider.ts`. Composition root tạo adapter và cache decorator. Route, Controller, Repository và `database/` không import `providers/` *(lint)*.
+
+Chỉ `apps/api/src/configs/` đọc biến môi trường. Module khác nhận cấu hình qua tham số hoặc import cấu hình đã parse. Code production trong `apps/*/src` và `apps/web/app` không import testware. File test colocate vẫn có thể import fixture của test *(lint)*.
 
 ## Worker
 

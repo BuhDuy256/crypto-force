@@ -1,0 +1,58 @@
+{
+  "protocol": "docs/testing/test-scopes/TS-002-market-data/rest-polling-verification.md",
+  "clients": 1,
+  "failures": [
+    false,
+    true
+  ],
+  "repeats": [
+    1,
+    2,
+    3
+  ],
+  "warmupMs": 30000,
+  "durationMs": 180000,
+  "tailMs": 15000,
+  "intervalMs": 5000,
+  "ttlMs": 5000,
+  "replayLatencyMs": 50,
+  "phaseMs": 1379,
+  "sourcePeriodMs": 7000,
+  "freshnessStrictlyBelowMs": 11000,
+  "maximumWeightPerMinute": 504,
+  "agentChoices": "Phase and source period prevent polling alignment. The tail retains late samples. These values do not change product thresholds.",
+  "paint": "Inconclusive. The runner measures apply and browser bytes. It does not prove a paint.",
+  "topology": "Chromium clients, API, replay, and Docker PostgreSQL share one Windows host. Production Web build, real Auth and session reads.",
+  "failure": false,
+  "repeat": 1,
+  "run": "polling-v2-success-1-r1",
+  "commit": "2709f3b6568e22a85b92b8c9fd248533862ffc77",
+  "dirtyFiles": "",
+  "dirtyDiffHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "node": "v22.23.5",
+  "browser": "159.0.8154.6",
+  "os": "win32 10.0.26300",
+  "cpu": "13th Gen Intel(R) Core(TM) i7-1355U",
+  "logicalCores": 12,
+  "ram": 16857645056,
+  "freeRam": 4204773376,
+  "environment": {
+    "databaseName": "crypto_force_market_data_perf_test",
+    "version": "PostgreSQL 17.10 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "bytes": "8730291",
+    "users": "50",
+    "sessions": "789",
+    "migrations": [
+      {
+        "id": 1,
+        "hash": "3d776aa7b3a892d2513e6ed5b7b2281ae5455dc47c01f562df656fd08cc695d0",
+        "created_at": "1794795063721"
+      }
+    ]
+  },
+  "sourceHash": "3b52b761622fb278bde03143ffec591cf43f844896455980e384205c8fbd5190",
+  "configHash": "e04c5a1a4adf69192b1aa673be2e6ca89e2161bf4b2f301d0cfd4ee3723330fc",
+  "buildHash": "c202f58ab632c51cabbffb01d32c69c01367892f0e4be3c09b6e5271d859e1b2",
+  "lockfileHash": "6a742200bc397d45a4042282ea79da5b91f036ef90954ab41c2175974c16cd08",
+  "startedUtc": "2026-11-22T02:23:38.319Z"
+}

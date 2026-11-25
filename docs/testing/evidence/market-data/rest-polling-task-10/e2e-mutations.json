@@ -1,0 +1,38 @@
+[
+  {
+    "mutant": "poll-hidden",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "command": "pnpm --filter @crypto-force/web exec playwright test --config playwright.market-data-polling.config.ts --workers=1 --grep sends no requests while hidden"
+  },
+  {
+    "mutant": "skip-resume",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "command": "pnpm --filter @crypto-force/web exec playwright test --config playwright.market-data-polling.config.ts --workers=1 --grep pauses every query"
+  },
+  {
+    "mutant": "hide-data-on-error",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "command": "pnpm --filter @crypto-force/web exec playwright test --config playwright.market-data-polling.config.ts --workers=1 --grep retains data and data time"
+  },
+  {
+    "mutant": "fit-every-refresh",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "command": "pnpm --filter @crypto-force/web exec playwright test --config playwright.market-data-polling.config.ts --workers=1 --grep zoomed historical"
+  },
+  {
+    "mutant": "default-paused",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "command": "pnpm --filter @crypto-force/web exec playwright test --config playwright.market-data-polling.config.ts --workers=1 --grep reloads with live updates"
+  },
+  {
+    "mutant": "ignore-pair",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "command": "pnpm --filter @crypto-force/web exec playwright test --config playwright.market-data-polling.config.ts --workers=1 --grep keeps the new pair"
+  }
+]

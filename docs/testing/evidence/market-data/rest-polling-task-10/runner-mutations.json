@@ -1,0 +1,17 @@
+[
+  {
+    "mutant": "omit-summary-percent",
+    "exitCode": 1,
+    "assertionFailure": true
+  },
+  {
+    "mutant": "mix-initial-and-polling",
+    "exitCode": 1,
+    "assertionFailure": true
+  },
+  {
+    "mutant": "reset-source-timeline",
+    "exitCode": 1,
+    "assertionFailure": true
+  }
+]

@@ -1,0 +1,58 @@
+
+ RUN  v5.1.0 C:/Users/Duy/Desktop/crypto-force/apps/web
+
+ ❯ app/hooks/useMarketData.polling.test.ts (8 tests | 3 failed) 129ms
+   × starts chart and summary refresh at elapsed 5000 ms 17ms
+   × starts chart and summary refresh at elapsed 5001 ms 8ms
+   × keeps data and retries on the next cycle after a refresh error 9ms
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 5 passed (8)
+   Start at  08:41:49
+   Duration  2.89s (environment 54%, import 32%, transform 8%, tests 5%)
+
+undefined
+C:\Users\Duy\Desktop\crypto-force\apps\web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "vitest" not found
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  app/hooks/useMarketData.polling.test.ts > starts chart and summary refresh at elapsed 5000 ms
+ FAIL  app/hooks/useMarketData.polling.test.ts > starts chart and summary refresh at elapsed 5001 ms
+AssertionError: expected [ Array(1) ] to have a length of 2 but got 1
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ app/hooks/useMarketData.polling.test.ts:107:61
+    105|       input instanceof Request ? input.url : String(input),
+    106|     );
+    107|     expect(calls.filter((url) => url.includes('/candles'))).toHaveLeng…
+       |                                                             ^
+    108|     expect(calls.filter((url) => url.includes('/summary'))).toHaveLeng…
+    109|   },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  app/hooks/useMarketData.polling.test.ts > keeps data and retries on the next cycle after a refresh error
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ app/hooks/useMarketData.polling.test.ts:146:27
+    144|   });
+    145|   await flush();
+    146|   expect(history.isError).toBe(false);
+       |                           ^
+    147|   expect(history.data?.candles[0]?.close).toBe(100);
+    148| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+

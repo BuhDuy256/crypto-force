@@ -1,0 +1,100 @@
+{
+  "description": "Frozen reference timeline for WebSocket live update, fault injection and post-reconnect closed-candle OHLCV reconciliation.",
+  "epochMs": 1735689600000,
+  "pairs": ["BTCUSDT", "ETHUSDT", "SOLUSDT"],
+  "timeframes": ["1m", "5m", "15m", "1h", "4h", "1d"],
+  "realMarketGap": {
+    "pair": "BTCUSDT",
+    "timeframe": "1m",
+    "missingOpenTime": 1735720800000,
+    "reason": "Intentional real market gap that backfill must not synthesize."
+  },
+  "recoveryClosedCandles1m": [
+    {
+      "pair": "BTCUSDT",
+      "timeframe": "1m",
+      "openTime": 1735720680000,
+      "open": 618,
+      "high": 620.5,
+      "low": 617.5,
+      "close": 619.25,
+      "volume": 530.5,
+      "isClosed": true
+    },
+    {
+      "pair": "BTCUSDT",
+      "timeframe": "1m",
+      "openTime": 1735720740000,
+      "open": 619.25,
+      "high": 621.75,
+      "low": 618.75,
+      "close": 621.125,
+      "volume": 540.25,
+      "isClosed": true
+    },
+    {
+      "pair": "BTCUSDT",
+      "timeframe": "1m",
+      "openTime": 1735720860000,
+      "open": 621.125,
+      "high": 624,
+      "low": 620.5,
+      "close": 623.5,
+      "volume": 552.75,
+      "isClosed": true
+    }
+  ],
+  "liveCloseRollover5m": {
+    "pair": "BTCUSDT",
+    "timeframe": "5m",
+    "closingCandle": {
+      "openTime": 1735845000000,
+      "open": 618,
+      "high": 625.5,
+      "low": 617,
+      "close": 624.25,
+      "volume": 540.5,
+      "isClosed": true
+    },
+    "nextOpenCandle": {
+      "openTime": 1735845300000,
+      "open": 624.25,
+      "high": 626,
+      "low": 623.75,
+      "close": 625.75,
+      "volume": 12.25,
+      "isClosed": false
+    }
+  },
+  "faultFrames": {
+    "duplicateClosed": {
+      "pair": "BTCUSDT",
+      "timeframe": "1m",
+      "openTime": 1735720680000,
+      "open": 618,
+      "high": 999,
+      "low": 617.5,
+      "close": 998,
+      "volume": 999,
+      "isClosed": true
+    },
+    "staleDataTimeOffsetMs": -5000,
+    "invalidCandleHighBelowLow": {
+      "pair": "BTCUSDT",
+      "timeframe": "5m",
+      "openTime": 1735845000000,
+      "open": 620,
+      "high": 615,
+      "low": 621,
+      "close": 620,
+      "volume": 10,
+      "isClosed": false
+    },
+    "invalidSummaryZeroPrice": {
+      "pair": "BTCUSDT",
+      "lastPrice": 0,
+      "change24hPercent": 1.25
+    }
+  },
+  "disconnectDurationsMs": [30000, 120000, 300000]
+}

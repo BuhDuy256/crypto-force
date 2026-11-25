@@ -1,7 +1,7 @@
 // Checks cache behavior through the provider boundary. Run API Vitest with test/market-data.
 // The _test DB is required by global setup. Expected: docs/testing/test-scopes/TS-002-market-data/rest-verification.md cache state table.
 // TTL starts when the inner provider resolves (approved 2026-11-21): fresh while elapsed < ttlMs.
-// Single-flight and rejected-promise retention mutations must run after the original tests pass.
+// Fault checks: bypassing single-flight or retaining rejection must fail the waiter assertions.
 import type { MarketPair } from '@crypto-force/shared';
 import { describe, expect, it, vi } from 'vitest';
 import { createCachedMarketDataProvider } from '../../src/providers/market-data/cached-market-data.provider';
@@ -37,11 +37,103 @@ it('shares pending work and preserves the received snapshot on a fresh hit', asy
     ],
     dataTime: 1735689659999,
   };
-  expect(await first).toEqual(snapshot);
-  expect(await second).toEqual(snapshot);
+  await first.then((value) => {
+    expect(value).toEqual(snapshot);
+  });
+  await second.then((value) => {
+    expect(value).toEqual(snapshot);
+  });
   now = 1735689660001;
   expect(await cache.getCandles(request)).toEqual(snapshot);
   expect(provider.getCandles).toHaveBeenCalledTimes(1);
+});
+
+it('logs miss, join and hit for the requested candle key', async () => {
+  const pending = deferred<{ candles: ReturnType<typeof candles>; dataTime: number }>();
+  const capture = capturingLogger();
+  const cache = createCachedMarketDataProvider({
+    provider: { getCandles: () => pending.promise, getSummary: vi.fn() },
+    now: () => 0,
+    ttlMs: 5000,
+    logger: capture.logger,
+  });
+  const first = cache.getCandles(request);
+  const second = cache.getCandles(request);
+  pending.resolve({ candles: [], dataTime: 1 });
+  await Promise.all([first, second]);
+  await cache.getCandles(request);
+  expect(capture.records).toEqual([
+    expect.objectContaining({ level: 20, key: 'candles:BTCUSDT:1m:519', cacheState: 'miss' }),
+    expect.objectContaining({ level: 20, key: 'candles:BTCUSDT:1m:519', cacheState: 'join' }),
+    expect.objectContaining({ level: 20, key: 'candles:BTCUSDT:1m:519', cacheState: 'hit' }),
+  ]);
+});
+
+it('shares summary waiters, expires at TTL and retries after an expired refresh fails', async () => {
+  const pending = deferred<{
+    pair: MarketPair;
+    lastPrice: number;
+    change24hPercent: number;
+    dataTime: number;
+  }>();
+  const provider = {
+    getCandles: vi.fn(),
+    getSummary: vi
+      .fn()
+      .mockReturnValueOnce(pending.promise)
+      .mockRejectedValueOnce(new Error('Source failed.'))
+      .mockResolvedValue({
+        pair: 'SOLUSDT',
+        lastPrice: 150.25,
+        change24hPercent: -2,
+        dataTime: 7000,
+      }),
+  };
+  let now = 0;
+  const cache = createCachedMarketDataProvider({
+    provider,
+    now: () => now,
+    ttlMs: 5000,
+    logger: capturingLogger().logger,
+  });
+  const first = cache.getSummary('SOLUSDT');
+  const second = cache.getSummary('SOLUSDT');
+  expect(provider.getSummary).toHaveBeenCalledTimes(1);
+  now = 2000;
+  pending.resolve({ pair: 'SOLUSDT', lastPrice: 149.75, change24hPercent: -1, dataTime: 2000 });
+  await first.then((value) => {
+    expect(value).toEqual({
+      pair: 'SOLUSDT',
+      lastPrice: 149.75,
+      change24hPercent: -1,
+      dataTime: 2000,
+    });
+  });
+  await second.then((value) => {
+    expect(value).toEqual({
+      pair: 'SOLUSDT',
+      lastPrice: 149.75,
+      change24hPercent: -1,
+      dataTime: 2000,
+    });
+  });
+  now = 6999;
+  await expect(cache.getSummary('SOLUSDT')).resolves.toEqual({
+    pair: 'SOLUSDT',
+    lastPrice: 149.75,
+    change24hPercent: -1,
+    dataTime: 2000,
+  });
+  expect(provider.getSummary).toHaveBeenCalledTimes(1);
+  now = 7000;
+  await expect(cache.getSummary('SOLUSDT')).rejects.toThrow('Source failed.');
+  await expect(cache.getSummary('SOLUSDT')).resolves.toEqual({
+    pair: 'SOLUSDT',
+    lastPrice: 150.25,
+    change24hPercent: -2,
+    dataTime: 7000,
+  });
+  expect(provider.getSummary).toHaveBeenCalledTimes(3);
 });
 
 it('rejects all waiters and retries only on the next caller', async () => {
@@ -64,7 +156,7 @@ it('rejects all waiters and retries only on the next caller', async () => {
   pending.reject(new Error('Source failed.'));
   await Promise.all([first, second]);
   expect(provider.getCandles).toHaveBeenCalledTimes(1);
-  expect(await cache.getCandles(request)).toEqual({ candles: [], dataTime: 1 });
+  await expect(cache.getCandles(request)).resolves.toEqual({ candles: [], dataTime: 1 });
   expect(provider.getCandles).toHaveBeenCalledTimes(2);
 });
 

@@ -1,6 +1,9 @@
 // Runs real Express and Better Auth on the integration _test DB with an injected provider.
-// Run API Vitest with test/market-data/http.test.ts. Expected: REST HTTP contract and error envelope.
-// Provider bypass mutations and outbound-fault sensitivity remain Step 08 gates.
+// Run API Vitest with test/market-data/http.test.ts. Expected: REST HTTP contract, safe logs and error envelope.
+// Session bypass, query stripping and error disclosure mutations fail assertions.
+// Provider rejection and malformed outbound JSON reach the HTTP error assertions.
+// Wrong log status, missing duration and credential disclosure mutations fail log assertions.
+// Raw Auth callback and unmatched URL path mutations disclose tokens and fail assertions.
 import { once } from 'node:events';
 import { createServer } from 'node:http';
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest';
@@ -8,11 +11,18 @@ import { z } from 'zod';
 import { createApp } from '../../src/app';
 import { createBinanceMarketDataProvider } from '../../src/providers/market-data/binance.provider';
 import {
+  MarketDataProviderError,
+  type MarketDataProvider,
+} from '../../src/providers/market-data/market-data-provider';
+import {
+  APP_URL,
   controlClock,
   createHarness,
   createIpPool,
   createVerifiedAccount,
   pool,
+  newResetToken,
+  TEST_SECRET,
 } from '../support/harness';
 import { outbound, resetOutbound } from '../support/outbound';
 import { candles } from './fixtures';
@@ -39,9 +49,103 @@ beforeAll(async () => {
   cookie = (await createVerifiedAccount(h, createIpPool(81))).cookie;
 });
 beforeEach(() => {
+  h.logs.length = 0;
   provider.getCandles.mockReset();
   provider.getSummary.mockReset();
 });
+
+it('keeps the reset callback token out of HTTP logs while preserving its redirect', async () => {
+  const ip = createIpPool(84);
+  const account = await createVerifiedAccount(h, ip);
+  const token = await newResetToken(h, account.email, ip());
+  h.logs.length = 0;
+  const callback = new URL(`/api/auth/reset-password/${token}`, origin);
+  callback.searchParams.set('callbackURL', `${APP_URL}/reset-password`);
+  const response = await fetchLoopback(callback, { redirect: 'manual' });
+  expect(response.status).toBe(302);
+  const location = new URL(response.headers.get('location') ?? '', APP_URL);
+  expect(location.pathname).toBe('/reset-password');
+  expect(location.searchParams.get('token')).toBe(token);
+  await response.text();
+  expect(JSON.stringify(h.logs)).not.toContain(token);
+  expect(h.logs.find((entry) => entry.method === 'GET')).toMatchObject({
+    path: '/api/auth/{*splat}',
+    status: 302,
+  });
+});
+
+it('keeps unknown URL path segments out of HTTP logs', async () => {
+  const response = await fetchLoopback(`${origin}/private/Private-path-token`);
+  expect(response.status).toBe(404);
+  expect(await response.json()).toEqual({
+    error: { code: 'NOT_FOUND', message: 'Resource not found' },
+  });
+  expect(JSON.stringify(h.logs)).not.toContain('Private-path-token');
+  expect(h.logs.find((entry) => entry.method === 'GET')).toMatchObject({
+    path: '/unmatched',
+    status: 404,
+  });
+});
+
+it.each(['candles?pair=BTCUSDT&timeframe=1m', 'summary?pair=BTCUSDT'])(
+  'returns a safe 503 with no-store for unavailable source on %s',
+  async (path) => {
+    const fault = new MarketDataProviderError('unavailable', {
+      cause: new Error('Private network sentinel.'),
+    });
+    provider.getCandles.mockRejectedValue(fault);
+    provider.getSummary.mockRejectedValue(fault);
+    const response = await get(path);
+    expect(response.status).toBe(503);
+    expect(response.headers.get('cache-control')).toContain('no-store');
+    expect(await response.json()).toEqual({
+      error: { code: 'MARKET_DATA_UNAVAILABLE', message: 'The market data is unavailable.' },
+    });
+  },
+);
+
+it.each([200, 400, 401, 502, 503, 500])(
+  'logs HTTP method, path, status and duration without credentials for status %s',
+  async (status) => {
+    if (status === 500) provider.getSummary.mockRejectedValue(new Error(TEST_SECRET));
+    else if (status === 503)
+      provider.getSummary.mockRejectedValue(new MarketDataProviderError('unavailable'));
+    else if (status === 502) provider.getSummary.mockResolvedValue({ pair: 'BTCUSDT' });
+    else
+      provider.getSummary.mockResolvedValue({
+        pair: 'BTCUSDT',
+        lastPrice: 271.25,
+        change24hPercent: -2,
+        dataTime: 1735689659999,
+      });
+    const response = await fetchLoopback(
+      `${origin}/api/market-data/summary?pair=BTCUSDT${status === 400 ? '&secret=Private-query-sentinel' : ''}`,
+      {
+        headers: {
+          cookie: status === 401 ? 'Private-cookie-sentinel' : cookie,
+          authorization: 'Bearer Private-token-sentinel',
+        },
+      },
+    );
+    expect(response.status).toBe(status);
+    expect(response.headers.get('cache-control')).toContain('no-store');
+    await response.text();
+    const record = h.logs.find((entry) => entry.method === 'GET');
+    expect(record).toMatchObject({ method: 'GET', path: '/api/market-data/summary', status });
+    expect(record?.durationMs).toEqual(expect.any(Number));
+    expect(Number.isFinite(record?.durationMs)).toBe(true);
+    expect(record?.durationMs).toBeGreaterThanOrEqual(0);
+    const logs = JSON.stringify(h.logs);
+    for (const credential of [
+      cookie,
+      'Private-cookie-sentinel',
+      'Private-token-sentinel',
+      'Private-query-sentinel',
+      TEST_SECRET,
+    ])
+      expect(logs).not.toContain(credential);
+  },
+);
 afterEach(() => {
   expect(outbound.unexpected).toEqual([]);
   resetOutbound();
@@ -184,11 +288,21 @@ it('rejects an expired session without invoking the provider', async () => {
 });
 
 it('returns the selected pair summary without fetching candles', async () => {
-  provider.getSummary.mockResolvedValue({ pair: 'ETHUSDT', lastPrice: 218.5, change24hPercent: 0 });
+  provider.getSummary.mockResolvedValue({
+    pair: 'ETHUSDT',
+    lastPrice: 218.5,
+    change24hPercent: 0,
+    dataTime: 1735689659999,
+  });
   const response = await get('summary?pair=ETHUSDT');
   expect(response.status).toBe(200);
   expect(response.headers.get('cache-control')).toContain('no-store');
-  expect(await response.json()).toEqual({ pair: 'ETHUSDT', lastPrice: 218.5, change24hPercent: 0 });
+  expect(await response.json()).toEqual({
+    pair: 'ETHUSDT',
+    lastPrice: 218.5,
+    change24hPercent: 0,
+    dataTime: 1735689659999,
+  });
   expect(provider.getSummary).toHaveBeenCalledExactlyOnceWith('ETHUSDT');
   expect(provider.getCandles).not.toHaveBeenCalled();
 });
@@ -219,8 +333,12 @@ it.each(['candles', 'summary'] as const)(
       timeoutMs: 5000,
       logger: h.logger,
     });
-    provider.getCandles.mockImplementation((input) => adapter.getCandles(input));
-    provider.getSummary.mockImplementation((pair) => adapter.getSummary(pair));
+    provider.getCandles.mockImplementation(
+      (input: Parameters<MarketDataProvider['getCandles']>[0]) => adapter.getCandles(input),
+    );
+    provider.getSummary.mockImplementation(
+      (pair: Parameters<MarketDataProvider['getSummary']>[0]) => adapter.getSummary(pair),
+    );
     const path =
       resource === 'candles' ? 'candles?pair=BTCUSDT&timeframe=1m' : 'summary?pair=BTCUSDT';
     const response = await get(path);

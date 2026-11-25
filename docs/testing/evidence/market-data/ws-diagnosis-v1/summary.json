@@ -1,0 +1,18 @@
+{
+  "executedAtUtc": "2026-11-23T13:33:46.765Z",
+  "totalRecords": 3613,
+  "scenarios": {
+    "scenario1_upstreamLagAndDrop": {
+      "observedMaxUpstreamDelayMs": 2608,
+      "observedDisconnectEvent": true,
+      "observedUnavailableStatusOnClient": true
+    },
+    "scenario2_backendCpuStall": {
+      "observedBackendStallMs": 420.22
+    },
+    "scenario3_slowConsumer": {
+      "observedSlowConsumerClose4008": true,
+      "healthyClientRemainedOpen": true
+    }
+  }
+}

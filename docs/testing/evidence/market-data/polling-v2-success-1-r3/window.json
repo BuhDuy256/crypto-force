@@ -1,0 +1,17 @@
+{
+  "runnerStart": 493391.6344,
+  "runnerEnd": 673391.6344,
+  "runnerTimeOrigin": 1795314208339.769,
+  "sourceStart": 947881.2064,
+  "sourceEnd": 1127881.2064,
+  "source": {
+    "started": 917312.1765,
+    "wallStarted": 1795314671163,
+    "now": 947881.2064,
+    "phaseMs": 1379,
+    "periodMs": 7000,
+    "failure": false,
+    "version": 5,
+    "timeOrigin": 1795313753850.712
+  }
+}

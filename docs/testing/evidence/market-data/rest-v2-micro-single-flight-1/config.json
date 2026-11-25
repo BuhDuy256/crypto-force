@@ -1,0 +1,6 @@
+{
+  "mode": "micro",
+  "state": "single-flight",
+  "batches": 100,
+  "clients": 10
+}

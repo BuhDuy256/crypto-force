@@ -1,0 +1,15 @@
+node --version
+pnpm --version
+docker compose ps
+docker compose exec -T postgres postgres --version
+node apps/api/perf/market-data/fixture.mjs
+pnpm exec prettier --write apps/api/perf/market-data
+pnpm --filter @crypto-force/web build
+pnpm --filter @crypto-force/api exec tsx perf/market-data/server.mjs
+node apps/api/perf/market-data/run.mjs accounts
+node apps/api/perf/market-data/run.mjs validate
+node apps/api/perf/market-data/run.mjs api
+k6 run --quiet --out json=<run>/raw-k6.jsonl --env CREDENTIALS=<private-file> --env MANIFEST=<run>/manifest.json --env ORACLE=apps/api/perf/market-data/fixtures/replay.json apps/api/perf/market-data/workload.js
+Stop-Process -Id 15224
+POST loopback control /end
+Stop-Process -Id 27632

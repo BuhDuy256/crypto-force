@@ -1,0 +1,25 @@
+
+
+  █ TOTAL RESULTS 
+
+    CUSTOM
+    market_errors........: 0.00%  0 out of 170
+    market_latency.......: avg=211.08ms min=100.25ms med=193.79ms max=698.44ms p(90)=273.6ms  p(95)=321.78ms
+
+    HTTP
+    http_req_duration....: avg=207.76ms min=100.25ms med=191.31ms max=653.24ms p(90)=271.12ms p(95)=318.95ms
+    http_req_failed......: 0.00%  0 out of 171
+    http_reqs............: 171    0.793797/s
+
+    EXECUTION
+    iteration_duration...: avg=6.33s    min=6.2s     med=6.29s    max=6.97s    p(90)=6.41s    p(95)=6.59s   
+    iterations...........: 34     0.157831/s
+    vus..................: 1      min=1        max=1
+    vus_max..............: 1      min=1        max=1
+
+    NETWORK
+    data_received........: 7.7 MB 36 kB/s
+    data_sent............: 48 kB  221 B/s
+
+
+

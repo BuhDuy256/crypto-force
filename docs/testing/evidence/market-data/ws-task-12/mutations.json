@@ -1,0 +1,191 @@
+[
+  {
+    "mutant": "shared-subscriptions-per-client",
+    "group": "Shared subscriptions",
+    "file": "apps/api/src/services/market-data-stream.service.ts",
+    "testFile": "test/market-data/stream-hub.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "skip-5s-grace-delay",
+    "group": "Giữ topic 5 giây",
+    "file": "apps/api/src/services/market-data-stream.service.ts",
+    "testFile": "test/market-data/stream-hub.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "omit-onCandleClosed",
+    "group": "Vô hiệu hóa cache REST (Hub)",
+    "file": "apps/api/src/services/market-data-stream.service.ts",
+    "testFile": "test/market-data/stream-hub.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "clear-wrong-timeframe-cache",
+    "group": "Vô hiệu hóa cache REST (Cache decorator)",
+    "file": "apps/api/src/providers/market-data/cached-market-data.provider.ts",
+    "testFile": "test/market-data/cache-invalidation.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "merge-duplicate-openTime",
+    "group": "Hợp nhất và biên chuyển giao (trùng openTime)",
+    "file": "apps/web/app/utils/market-candle-merge.ts",
+    "testFile": "app/utils/market-candle-merge.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "merge-accept-older-dataTime",
+    "group": "Hợp nhất và biên chuyển giao (lùi dataTime)",
+    "file": "apps/web/app/utils/market-candle-merge.ts",
+    "testFile": "app/utils/market-candle-merge.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "merge-skip-missing-closed-boundary",
+    "group": "Hợp nhất và biên chuyển giao (thiếu bản chốt biên)",
+    "file": "apps/web/app/utils/market-candle-merge.ts",
+    "testFile": "app/utils/market-candle-merge.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "hub-forward-invalid-events",
+    "group": "Dữ liệu sai định dạng",
+    "file": "apps/api/src/services/market-data-stream.service.ts",
+    "testFile": "test/market-data/stream-hub.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "gateway-bypass-origin-check",
+    "group": "Bảo mật upgrade (Origin)",
+    "file": "apps/api/src/api/ws/market-data.ws.ts",
+    "testFile": "test/market-data/ws-gateway.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "gateway-skip-revocation-hook",
+    "group": "Cưỡng chế thu hồi phiên (hook)",
+    "file": "apps/api/src/configs/auth.ts",
+    "testFile": "test/market-data/ws-gateway.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "gateway-skip-batch-db-check",
+    "group": "Cưỡng chế thu hồi phiên (kiểm theo lô DB 3s)",
+    "file": "apps/api/src/api/ws/market-data.ws.ts",
+    "testFile": "test/market-data/ws-gateway.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "gateway-allow-tab-5",
+    "group": "Giới hạn tài nguyên (4 tab)",
+    "file": "apps/api/src/api/ws/market-data.ws.ts",
+    "testFile": "test/market-data/ws-gateway.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "gateway-skip-slow-consumer-4008",
+    "group": "Giới hạn tài nguyên (backpressure 4008)",
+    "file": "apps/api/src/api/ws/market-data.ws.ts",
+    "testFile": "test/market-data/ws-gateway.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "fake-driver-omit-reconnect-resync",
+    "group": "Độ nhạy fake/replay (resyncRequired)",
+    "file": "apps/api/src/providers/market-data/binance-stream.provider.ts",
+    "testFile": "test/market-data/stream-provider.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "fake-replay-no-tick-emitted",
+    "group": "Độ nhạy fake/replay (replay không phát tick)",
+    "file": "apps/api/test/market-data/stream-hub.test.ts",
+    "testFile": "test/market-data/stream-hub.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "fake-disconnect-noop",
+    "group": "Độ nhạy fake/replay (ngắt kết nối không đóng socket)",
+    "file": "apps/api/test/market-data/stream-provider.test.ts",
+    "testFile": "test/market-data/stream-provider.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "fake-buffered-amount-always-zero",
+    "group": "Độ nhạy fake/replay (bufferedAmount luôn bằng 0)",
+    "file": "apps/api/test/market-data/ws-gateway.test.ts",
+    "testFile": "test/market-data/ws-gateway.test.ts",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "ui-live-before-backfill-complete",
+    "group": "Trạng thái đồng bộ UI (báo trực tiếp trước khi backfill xong)",
+    "file": "apps/web/app/hooks/useRealtimeWorkspace.ts",
+    "testFile": "e2e/market-data/websocket-live.spec.ts (-g \"shows unavailable on upstream drop\")",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "ui-paused-reports-reconnecting",
+    "group": "Trạng thái đồng bộ UI (báo mất kết nối khi đang tạm dừng)",
+    "file": "apps/web/app/hooks/useRealtimeWorkspace.ts",
+    "testFile": "e2e/market-data/websocket-live.spec.ts (-g \"closes WebSocket on pause\")",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "ui-stale-boundary-off-by-one",
+    "group": "Trạng thái đồng bộ UI (biên 15s/30s/120s Spec 7)",
+    "file": "apps/web/app/hooks/useRealtimeWorkspace.ts",
+    "testFile": "e2e/market-data/websocket-live.spec.ts (-g \"enforces 15s stale and 30s reset boundaries\")",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  },
+  {
+    "mutant": "ui-skip-reconnect-backfill",
+    "group": "Trạng thái đồng bộ UI (bỏ qua REST backfill sau reconnect Spec 8)",
+    "file": "apps/web/app/hooks/useRealtimeWorkspace.ts",
+    "testFile": "e2e/market-data/websocket-live.spec.ts (-g \"isolates initial chart errors\")",
+    "exitCode": 1,
+    "assertionFailure": true,
+    "restoredGreen": true
+  }
+]

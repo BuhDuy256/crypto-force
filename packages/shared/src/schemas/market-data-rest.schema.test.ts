@@ -155,14 +155,28 @@ describe('REST summary', () => {
     'accepts finite percentage %s without a cap',
     (change24hPercent) => {
       expect(
-        marketSummarySchema.parse({ pair: 'BTCUSDT', lastPrice: 618.125, change24hPercent }),
-      ).toEqual({ pair: 'BTCUSDT', lastPrice: 618.125, change24hPercent });
+        marketSummarySchema.parse({
+          pair: 'BTCUSDT',
+          lastPrice: 618.125,
+          change24hPercent,
+          dataTime: 1735689600000,
+        }),
+      ).toEqual({
+        pair: 'BTCUSDT',
+        lastPrice: 618.125,
+        change24hPercent,
+        dataTime: 1735689600000,
+      });
     },
   );
   it.each([0, -1, NaN, Infinity, '618', null, undefined])('rejects lastPrice %j', (lastPrice) => {
     expect(
-      marketSummarySchema.safeParse({ pair: 'BTCUSDT', lastPrice, change24hPercent: -1.25 })
-        .success,
+      marketSummarySchema.safeParse({
+        pair: 'BTCUSDT',
+        lastPrice,
+        change24hPercent: -1.25,
+        dataTime: 1735689600000,
+      }).success,
     ).toBe(false);
   });
 });

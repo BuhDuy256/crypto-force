@@ -23,10 +23,19 @@ export {
   candleHistoryInputSchema,
   candleHistorySchema,
   marketSummarySchema,
+  marketSummaryInputSchema,
+  wsClientMessageSchema,
+  wsServerMessageSchema,
+  marketPairPriceDecimals,
 } from './schemas/market-data.schema';
 export type {
   MarketPair,
   MarketTimeframe,
+  Candle,
   CandleHistory,
   MarketSummary,
+  MarketChannel,
+  WsClientMessage,
+  WsServerMessage,
+  WsErrorCode,
 } from './schemas/market-data.schema';

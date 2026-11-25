@@ -1,0 +1,56 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 e2e\market-data\rest-polling.spec.ts:389:1 › does not overlap a held refresh and keeps old data at the chart deadline (7.1s)
+
+
+  1) e2e\market-data\rest-polling.spec.ts:389:1 › does not overlap a held refresh and keeps old data at the chart deadline 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 3
+    Received length: 4
+    Received array:  ["/api/market-data/candles?pair=BTCUSDT&timeframe=5m", "/api/market-data/candles?pair=BTCUSDT&timeframe=5m", "/api/market-data/candles?pair=BTCUSDT&timeframe=5m", "/api/market-data/candles?pair=BTCUSDT&timeframe=5m"]
+
+      405 |   expect(
+      406 |     (await state(request)).pollingRequests.filter((url) => url.includes('timeframe=5m')),
+    > 407 |   ).toHaveLength(initial + 1);
+          |     ^
+      408 |   await page.clock.runFor(1);
+      409 |   const chart = page.getByRole('region', { name: 'Chart 1', exact: true });
+      410 |   await expect
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\market-data\rest-polling.spec.ts:407:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\market-data-polling\rest-polling-does-not-over-6bb7a--data-at-the-chart-deadline\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\market-data-polling\rest-polling-does-not-over-6bb7a--data-at-the-chart-deadline\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\market-data-polling\rest-polling-does-not-over-6bb7a--data-at-the-chart-deadline\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\market-data-polling\rest-polling-does-not-over-6bb7a--data-at-the-chart-deadline\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\market-data\rest-polling.spec.ts:389:1 › does not overlap a held refresh and keeps old data at the chart deadline 
+undefined
+C:\Users\Duy\Desktop\crypto-force\apps\web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "playwright" not found
+[WebServer] (node:9456) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `pnpm --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:46720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:24032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `pnpm --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:44172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:27740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+(node:20808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

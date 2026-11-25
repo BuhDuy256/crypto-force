@@ -1,0 +1,62 @@
+{
+  "run": "rest-v1-api-default-1-1",
+  "environment": "local, replay 50 ms",
+  "rawCount": 90,
+  "measured": 65,
+  "failed": 57,
+  "errorRate": 0.8769230769230769,
+  "requestsPerSecond": 0.3611111111111111,
+  "burstsPerSecond": 0.07222222222222222,
+  "histogram": {
+    "BTCUSDT:5m": 13,
+    "BTCUSDT:15m": 13,
+    "BTCUSDT:1h": 13,
+    "BTCUSDT:4h": 13,
+    "BTCUSDT:summary": 13
+  },
+  "timeline": {
+    "1795246802": 5,
+    "1795246808": 5,
+    "1795246815": 5,
+    "1795246821": 5,
+    "1795246827": 5,
+    "1795246833": 5,
+    "1795246839": 5,
+    "1795246846": 5,
+    "1795246852": 5,
+    "1795246858": 5,
+    "1795246865": 5,
+    "1795246871": 5,
+    "1795246878": 5
+  },
+  "unmatched": 65,
+  "reconciliation": {
+    "responses": 0,
+    "invalid": 0
+  },
+  "groups": {
+    "candles:unknown:error": {
+      "count": 52,
+      "p50": 180.4039,
+      "p95": 649.0549,
+      "p99": 730.5444
+    },
+    "summary:unknown:error": {
+      "count": 5,
+      "p50": 167.9179,
+      "p95": 235.3695,
+      "p99": 235.3695
+    },
+    "summary:unknown:success": {
+      "count": 8,
+      "p50": 208.7563,
+      "p95": 748.3405,
+      "p99": 748.3405
+    }
+  },
+  "capacity": "Inconclusive: no approved HTTP latency, error rate, or capacity threshold.",
+  "eligibleForBaseline": false,
+  "outcome": "Aborted: measurement harness errors.",
+  "reason": "The k6 JSON comparison depended on object key order. Mounted router paths prevented server reconciliation. The orchestrator stopped before the full workload completed.",
+  "latencyInterpretation": "Harness diagnostics only. No product latency conclusion."
+}

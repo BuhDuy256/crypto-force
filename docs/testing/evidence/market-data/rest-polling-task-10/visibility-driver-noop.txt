@@ -1,0 +1,56 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 e2e\market-data\rest-polling.spec.ts:595:1 › sends no requests while hidden and refreshes on visibility return (5.8s)
+
+
+  1) e2e\market-data\rest-polling.spec.ts:595:1 › sends no requests while hidden and refreshes on visibility return 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 10
+    Received length: 19
+    Received array:  ["/api/market-data/candles?pair=BTCUSDT&timeframe=5m", "/api/market-data/candles?pair=BTCUSDT&timeframe=15m", "/api/market-data/candles?pair=BTCUSDT&timeframe=1h", "/api/market-data/candles?pair=BTCUSDT&timeframe=4h", "/api/market-data/summary?pair=BTCUSDT", "/api/market-data/candles?pair=BTCUSDT&timeframe=1h", "/api/market-data/candles?pair=BTCUSDT&timeframe=5m", "/api/market-data/candles?pair=BTCUSDT&timeframe=4h", "/api/market-data/candles?pair=BTCUSDT&timeframe=15m", "/api/market-data/summary?pair=BTCUSDT", …]
+
+      609 |   await cycle(page, request);
+      610 |
+    > 611 |   expect((await state(request)).pollingRequests).toHaveLength(before);
+          |                                                  ^
+      612 |
+      613 |   await visibility(page, false);
+      614 |
+        at C:\Users\Duy\Desktop\crypto-force\apps\web\e2e\market-data\rest-polling.spec.ts:611:50
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\market-data-polling\rest-polling-sends-no-requ-dce5d-reshes-on-visibility-return\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\market-data-polling\rest-polling-sends-no-requ-dce5d-reshes-on-visibility-return\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\market-data-polling\rest-polling-sends-no-requ-dce5d-reshes-on-visibility-return\trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results\market-data-polling\rest-polling-sends-no-requ-dce5d-reshes-on-visibility-return\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e\market-data\rest-polling.spec.ts:595:1 › sends no requests while hidden and refreshes on visibility return 
+undefined
+C:\Users\Duy\Desktop\crypto-force\apps\web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "playwright" not found
+[WebServer] (node:24672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `pnpm --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:42252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:29436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `pnpm --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:24448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+(node:51400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

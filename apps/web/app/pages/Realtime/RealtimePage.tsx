@@ -16,7 +16,19 @@ export function RealtimePage() {
         onPairChange={workspace.setPair}
         chartCount={workspace.chartCount}
         onChartCountChange={workspace.setChartCount}
+        live={workspace.live}
+        pausedAt={workspace.pausedAt}
+        connectionState={workspace.connectionState}
+        disconnectedAt={workspace.disconnectedAt}
+        isConnectingManual={workspace.isConnectingManual}
+        onToggleLive={workspace.toggleLive}
+        onReconnect={workspace.reconnectNow}
+        onResync={workspace.resyncNow}
       />
+      {/* Chart times use the device time zone; the page names it (docs/UCs/market-data.md, MK-43). */}
+      <p className="text-xs text-muted-foreground">
+        Times in {Intl.DateTimeFormat().resolvedOptions().timeZone}
+      </p>
       <div className="grid min-w-0 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
         <div className={cn('grid min-w-0 gap-4', workspace.chartCount > 1 && 'lg:grid-cols-2')}>
           {workspace.slots.map((slot) => (
@@ -26,10 +38,11 @@ export function RealtimePage() {
               pair={workspace.pair}
               timeframe={slot.timeframe}
               onTimeframeChange={workspace.setTimeframe}
+              live={workspace.live}
             />
           ))}
         </div>
-        <MarketSummary pair={workspace.pair} timeframe={workspace.slots[0]?.timeframe ?? '1m'} />
+        <MarketSummary pair={workspace.pair} live={workspace.live} />
       </div>
     </section>
   );

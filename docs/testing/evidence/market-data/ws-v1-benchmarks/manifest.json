@@ -1,0 +1,16 @@
+{
+  "executedAtUtc": "2026-11-23T14:46:04.385Z",
+  "commitB1": "b0da661",
+  "commitB2": "6a4f308",
+  "pollingBaselineCommit": "2709f3b",
+  "referenceDatasetSha256": "8df76940c6e106bcc1063a89552e973dca4d3b18358fb42f9fe377ff39d3e969",
+  "webBuildSha256": "e6a87c47d44c942ba4acae188219f3d277b6975b5b200a99c5bf47cba5c0ac94",
+  "node": "v22.23.5",
+  "browser": "159.0.8154.6",
+  "os": "win32 10.0.26300",
+  "cpu": "13th Gen Intel(R) Core(TM) i7-1355U",
+  "logicalCores": 12,
+  "ramBytes": 16857645056,
+  "freeRamBytes": 2588049408,
+  "parametersRef": "Confirmed W1-W11 (docs/testing/test-scopes/TS-002-market-data/websocket-verification.md)"
+}

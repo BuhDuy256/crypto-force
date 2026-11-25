@@ -11,6 +11,7 @@ const intervals = {
   '15m': 900_000,
   '1h': 3_600_000,
   '4h': 14_400_000,
+  '1d': 86_400_000,
 };
 const prices = { BTCUSDT: 67_000, ETHUSDT: 3_000, SOLUSDT: 150 };
 
@@ -18,7 +19,7 @@ export function candleFixture(pair: MarketPair, timeframe: MarketTimeframe) {
   const base = prices[pair];
   const step = base / 1000;
   const start = 1_799_971_200_000;
-  // Closes are base + step * (1..24). MA(20) values below are precomputed means.
+  // Closes are base + step * (1..24).
   return candleHistorySchema.parse({
     pair,
     timeframe,
@@ -29,11 +30,10 @@ export function candleFixture(pair: MarketPair, timeframe: MarketTimeframe) {
       low: base + step * (index - 1),
       close: base + step * (index + 1),
       volume: (index + 1) * 100,
+      isClosed: true,
     })),
-    ma20: [10.5, 11.5, 12.5, 13.5, 14.5].map((mean, index) => ({
-      openTime: start + (index + 19) * intervals[timeframe],
-      value: base + step * mean,
-    })),
+    warmupCount: 0,
+    dataTime: start + 24 * intervals[timeframe],
   });
 }
 
@@ -42,5 +42,6 @@ export function summaryFixture(pair: MarketPair) {
     pair,
     lastPrice: prices[pair] * 1.024,
     change24hPercent: pair === 'ETHUSDT' ? -1.25 : 2.4,
+    dataTime: 1_799_971_200_000,
   });
 }

@@ -1,7 +1,7 @@
 // Checks adapter/cache substitution through the approved provider interface, with HTTP input only.
 // Run API Vitest with test/market-data/provider-contract.test.ts. Global setup requires the _test DB.
 // Expected: docs/testing/test-scopes/TS-002-market-data/rest-verification.md cooldown/fresh-cache row. The fake returns both success and rate limits.
-// Missing production modules prevent assertions. Reversing cache/cooldown precedence must fail after Step 08.
+// Fault check: removing the adapter cooldown must fail the HTTP call count assertion.
 import { expect, it, vi } from 'vitest';
 import { createBinanceMarketDataProvider } from '../../src/providers/market-data/binance.provider';
 import { createCachedMarketDataProvider } from '../../src/providers/market-data/cached-market-data.provider';

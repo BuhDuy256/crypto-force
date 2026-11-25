@@ -1,0 +1,11 @@
+{
+  "startedUtc": "2026-11-23T13:37:57.291Z",
+  "completedUtc": "2026-11-23T13:39:27.570Z",
+  "source": "wss://stream.binance.com:9443/stream",
+  "durationMs": 90000,
+  "channels": [
+    "btcusdt@kline_1m",
+    "btcusdt@ticker"
+  ],
+  "parameterRef": "W8 (docs/testing/test-scopes/TS-002-market-data/websocket-verification.md)"
+}

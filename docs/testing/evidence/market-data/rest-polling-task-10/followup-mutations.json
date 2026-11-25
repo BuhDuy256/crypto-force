@@ -1,0 +1,27 @@
+[
+  {
+    "mutant": "do-not-follow-tail",
+    "exitCode": 1,
+    "assertionFailure": true
+  },
+  {
+    "mutant": "announce-success-refresh",
+    "exitCode": 1,
+    "assertionFailure": true
+  },
+  {
+    "mutant": "visibility-driver-noop",
+    "exitCode": 1,
+    "assertionFailure": true
+  },
+  {
+    "mutant": "hold-driver-immediate",
+    "exitCode": 1,
+    "assertionFailure": true
+  },
+  {
+    "mutant": "source-driver-always-success",
+    "exitCode": 1,
+    "assertionFailure": true
+  }
+]

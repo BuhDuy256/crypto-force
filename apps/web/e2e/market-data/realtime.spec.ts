@@ -3,6 +3,9 @@ import AxeBuilder from '@axe-core/playwright';
 
 // Checks the chart through controlled HTTP responses, without a backend or service worker.
 // Run with playwright.market-data.config.ts. Values come from the Step 2 sample case.
+// Defaults follow MK-31 (5m, 15m, 1h, 4h). Load history and sidebar MA/volume are not product behavior
+// (MK-61, MK-60). A failed refresh that keeps old candles starts with the polling round (MK-13), so no
+// test of this history round expects it.
 // Removing the chart made the render test fail. Disabling timeframe changes broke the cache test.
 // Removing the grid or fixing chart width broke the resize test.
 // Removing pair from the summary key broke the pair test. Keeping old candles broke the response-gate test.
@@ -35,7 +38,9 @@ function candleResponse(url: string) {
           ? 900_000
           : timeframe === '1h'
             ? 3_600_000
-            : 14_400_000;
+            : timeframe === '4h'
+              ? 14_400_000
+              : 86_400_000;
   const volumeStep = timeframe === '5m' ? 60 : 30;
   return {
     pair,
@@ -47,8 +52,10 @@ function candleResponse(url: string) {
       low: base + index - 1,
       close: base + index + 1,
       volume: (index + 1) * volumeStep,
+      isClosed: true,
     })),
-    ma20: [{ openTime: 1799971200000 + 19 * interval, value: base + 10.5 }],
+    warmupCount: 0,
+    dataTime: 1799971200000 + 20 * interval,
   };
 }
 test.beforeEach(async ({ page }) => {
@@ -82,6 +89,7 @@ test.beforeEach(async ({ page }) => {
         pair,
         lastPrice: pair === 'BTCUSDT' ? 123 : pair === 'ETHUSDT' ? 234 : 345,
         change24hPercent: pair === 'ETHUSDT' ? -1.25 : 2.4,
+        dataTime: 1_799_971_200_000,
       },
     });
   });
@@ -89,7 +97,7 @@ test.beforeEach(async ({ page }) => {
 
 test('renders the chart and TradingView attribution', async ({ page }) => {
   await page.goto('/realtime');
-  await expect(page.getByLabel('BTCUSDT 1m candlesticks, volume and MA(20)')).toBeVisible();
+  await expect(page.getByLabel('BTCUSDT 5m candlesticks, volume and MA(20)')).toBeVisible();
   await expect(page.locator('canvas').first()).toBeVisible();
   await expect(page.getByRole('link', { name: /TradingView/ }).first()).toBeVisible();
 });
@@ -123,18 +131,18 @@ test('keeps hidden timeframes and shares a request for matching selections', asy
   }
   const listenersBefore = await listenerCounts();
   requests.length = 0;
-  await selectTimeframe(page, 2, '4h');
-  await expect(page.getByLabel('BTCUSDT 4h candlesticks, volume and MA(20)')).toBeVisible();
-  expect(requests.map((url) => new URL(url).searchParams.get('timeframe'))).toEqual(['4h']);
+  await selectTimeframe(page, 2, '1d');
+  await expect(page.getByLabel('BTCUSDT 1d candlesticks, volume and MA(20)')).toBeVisible();
+  expect(requests.map((url) => new URL(url).searchParams.get('timeframe'))).toEqual(['1d']);
   expect(await chart1.evaluate((node) => node.isConnected)).toBe(true);
-  await selectTimeframe(page, 3, '4h');
-  await expect(page.getByLabel('BTCUSDT 4h candlesticks, volume and MA(20)')).toHaveCount(2);
+  await selectTimeframe(page, 3, '1d');
+  await expect(page.getByLabel('BTCUSDT 1d candlesticks, volume and MA(20)')).toHaveCount(2);
   expect(requests).toHaveLength(1);
   await page.getByRole('radio', { name: '1 chart', exact: true }).click();
   await expect(page.getByRole('region', { name: /^Chart \d$/ })).toHaveCount(1);
   await page.getByRole('radio', { name: '4 charts', exact: true }).click();
-  await expect(page.getByRole('combobox', { name: 'Timeframe for chart 2' })).toHaveText('4h');
-  await expect(page.getByRole('combobox', { name: 'Timeframe for chart 3' })).toHaveText('4h');
+  await expect(page.getByRole('combobox', { name: 'Timeframe for chart 2' })).toHaveText('1d');
+  await expect(page.getByRole('combobox', { name: 'Timeframe for chart 3' })).toHaveText('1d');
   expect(requests).toHaveLength(1);
   await expect(page.locator('.tv-lightweight-charts')).toHaveCount(4);
   expect(await listenerCounts()).toEqual(listenersBefore);
@@ -170,12 +178,12 @@ test('resizes the grid and supports keyboard timeframe selection on mobile', asy
   await selector.focus();
   await expect(selector).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('option', { name: '1m', exact: true })).toBeFocused();
+  await expect(page.getByRole('option', { name: '5m', exact: true })).toBeFocused();
   await page.keyboard.press('End');
-  await expect(page.getByRole('option', { name: '4h', exact: true })).toBeFocused();
+  await expect(page.getByRole('option', { name: '1d', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(selector).toHaveText('4h');
-  await expect(page.getByLabel('BTCUSDT 4h candlesticks, volume and MA(20)')).toBeVisible();
+  await expect(selector).toHaveText('1d');
+  await expect(page.getByLabel('BTCUSDT 1d candlesticks, volume and MA(20)')).toBeVisible();
 });
 
 async function selectPair(page: Page, pair: string) {
@@ -196,18 +204,18 @@ test('updates all charts and keeps summary independent of the first timeframe', 
   await selectPair(page, 'ETHUSDT');
   await expect(page.getByLabel('Last price', { exact: true })).toHaveText('234.00 USDT');
   await expect(page.getByLabel('Change 24h', { exact: true })).toHaveText('-1.25%');
-  for (const timeframe of ['1m', '5m', '15m', '1h']) {
+  for (const timeframe of ['5m', '15m', '1h', '4h']) {
     await expect(
       page.getByLabel(`ETHUSDT ${timeframe} candlesticks, volume and MA(20)`),
     ).toBeVisible();
   }
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
+    'Close 220.00 · Volume 1,200 · MA(20) 210.50',
+  );
+  await selectTimeframe(page, 1, '1m');
+  await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
     'Close 220.00 · Volume 600 · MA(20) 210.50',
   );
-  await expect(page.getByLabel('Summary MA20', { exact: true })).toHaveText('210.5');
-  await selectTimeframe(page, 1, '5m');
-  await expect(page.getByLabel('Summary volume', { exact: true })).toHaveText('1,200');
-  await expect(page.getByRole('heading', { name: 'Chart 1 · 5m', exact: true })).toBeVisible();
   await expect(page.getByLabel('Last price', { exact: true })).toHaveText('234.00 USDT');
   await expect(page.getByLabel('Change 24h', { exact: true })).toHaveText('-1.25%');
   expect(summaryRequests).toHaveLength(1);
@@ -234,14 +242,14 @@ test('keeps the new pair when an older response is released last', async ({ page
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveCount(0);
   await selectPair(page, 'SOLUSDT');
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
-    'Close 320.00 · Volume 600 · MA(20) 310.50',
+    'Close 320.00 · Volume 1,200 · MA(20) 310.50',
   );
   gate.resolve();
   await released.promise;
-  await expect(page.getByLabel('SOLUSDT 1m candlesticks, volume and MA(20)')).toBeVisible();
+  await expect(page.getByLabel('SOLUSDT 5m candlesticks, volume and MA(20)')).toBeVisible();
   await expect(page.getByLabel('Last price', { exact: true })).toHaveText('345.00 USDT');
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
-    'Close 320.00 · Volume 600 · MA(20) 310.50',
+    'Close 320.00 · Volume 1,200 · MA(20) 310.50',
   );
 });
 
@@ -254,11 +262,19 @@ test('isolates slow, empty, invalid and failed candle responses and retries one 
   await page.route('**/api/market-data/candles?*', async (route) => {
     const timeframe = new URL(route.request().url()).searchParams.get('timeframe');
     requests.push(timeframe ?? '');
-    if (timeframe === '1m') await gate.promise;
-    if (timeframe === '5m')
-      return route.fulfill({ json: { pair: 'BTCUSDT', timeframe: '5m', candles: [], ma20: [] } });
-    if (timeframe === '15m') return route.fulfill({ json: { invalid: 'internal payload' } });
-    if (timeframe === '1h' && !recover)
+    if (timeframe === '5m') await gate.promise;
+    if (timeframe === '15m')
+      return route.fulfill({
+        json: {
+          pair: 'BTCUSDT',
+          timeframe: '15m',
+          candles: [],
+          warmupCount: 0,
+          dataTime: 1799971200000,
+        },
+      });
+    if (timeframe === '1h') return route.fulfill({ json: { invalid: 'internal payload' } });
+    if (timeframe === '4h' && !recover)
       return route.fulfill({ status: 503, json: { stack: 'internal stack' } });
     return route.fulfill({ json: candleResponse(route.request().url()) });
   });
@@ -278,60 +294,43 @@ test('isolates slow, empty, invalid and failed candle responses and retries one 
   await expect(page.getByRole('button', { name: 'Retry chart 4', exact: true })).toBeVisible();
   await expect(page.getByText(/internal payload|internal stack/)).toHaveCount(0);
   gate.resolve();
-  await expect(page.getByLabel('BTCUSDT 1m candlesticks, volume and MA(20)')).toBeVisible();
+  await expect(page.getByLabel('BTCUSDT 5m candlesticks, volume and MA(20)')).toBeVisible();
   recover = true;
   requests.length = 0;
   await page.getByRole('button', { name: 'Retry chart 4', exact: true }).click();
-  await expect(page.getByLabel('BTCUSDT 1h candlesticks, volume and MA(20)')).toBeVisible();
-  expect(requests).toEqual(['1h']);
-  await expect(first.getByText('Data loaded · 1m', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('BTCUSDT 4h candlesticks, volume and MA(20)')).toBeVisible();
+  expect(requests).toEqual(['4h']);
+  await expect(first.getByText(/^Data time .+ · 5m$/)).toBeVisible();
 });
 
-test('keeps candles after a failed refresh and handles missing MA and summary errors', async ({
+test('handles missing MA samples and a summary error without reloading charts', async ({
   page,
 }) => {
-  let failRefresh = false;
   const requests: string[] = [];
   await page.route('**/api/market-data/candles?*', (route) => {
     const timeframe = new URL(route.request().url()).searchParams.get('timeframe');
     requests.push(timeframe ?? '');
-    if (timeframe === '1m' && failRefresh)
-      return route.fulfill({ status: 500, json: { message: 'internal payload' } });
     const data = candleResponse(route.request().url());
-    return route.fulfill({ json: { ...data, candles: data.candles.slice(0, 3), ma20: [] } });
+    return route.fulfill({ json: { ...data, candles: data.candles.slice(0, 3) } });
   });
   await page.route('**/api/market-data/summary?*', (route) =>
     route.fulfill({ status: 503, json: { stack: 'internal stack' } }),
   );
   await page.goto('/realtime');
   await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
-    'Close 103.00 · Volume 90 · MA(20) Not enough data',
+    'Close 103.00 · Volume 180 · MA(20) Not enough data',
   );
-  await expect(page.getByLabel('Summary MA20', { exact: true })).toHaveText('Not enough data');
-  await expect(page.getByLabel('Summary volume', { exact: true })).toHaveText('90');
   await expect(page.getByText('Cannot load the market summary.', { exact: true })).toBeVisible();
   await expect(page.locator('.tv-lightweight-charts')).toHaveCount(4);
-  failRefresh = true;
   requests.length = 0;
-  await page.getByRole('button', { name: 'Load history for chart 1', exact: true }).click();
-  await expect(
-    page.getByText('Could not refresh candles. Previous data remains visible.', { exact: true }),
-  ).toBeVisible();
-  await expect(page.getByLabel('Chart 1 values', { exact: true })).toHaveText(
-    'Close 103.00 · Volume 90 · MA(20) Not enough data',
-  );
-  await expect(
-    page.getByText('Chart information refresh failed. Previous values remain visible.', {
-      exact: true,
-    }),
-  ).toBeVisible();
-  expect(requests).toEqual(['1m']);
   await page.route('**/api/market-data/summary?*', (route) =>
-    route.fulfill({ json: { pair: 'BTCUSDT', lastPrice: 123, change24hPercent: 2.4 } }),
+    route.fulfill({
+      json: { pair: 'BTCUSDT', lastPrice: 123, change24hPercent: 2.4, dataTime: 1_799_971_200_000 },
+    }),
   );
   await page.getByRole('button', { name: 'Retry summary', exact: true }).click();
   await expect(page.getByLabel('Last price', { exact: true })).toHaveText('123.00 USDT');
-  expect(requests).toEqual(['1m']);
+  expect(requests).toEqual([]);
 });
 
 test('has no serious accessibility violations at desktop, tablet, mobile or error state', async ({
@@ -354,7 +353,7 @@ test('has no serious accessibility violations at desktop, tablet, mobile or erro
   await page.route('**/api/market-data/candles?*', (route) =>
     route.fulfill({ status: 500, json: {} }),
   );
-  await page.getByRole('button', { name: 'Load history for chart 1', exact: true }).click();
+  await selectTimeframe(page, 1, '1m');
   await expect(page.getByRole('button', { name: 'Retry chart 1', exact: true })).toBeVisible();
   const errors = await new AxeBuilder({ page }).analyze();
   expect(

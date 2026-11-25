@@ -134,6 +134,9 @@ test('citation without entry and entry without citation fail', () => {
       /not the last section/,
     ),
   );
+  assert.ok(
+    has(messages('docs/knowledge/a.md', cited.replace('Câu [[1]](#ref-1).', 'Câu.')), /not cited/),
+  );
 });
 
 test('missing purpose line fails in structured folders', () => {
@@ -141,6 +144,13 @@ test('missing purpose line fails in structured folders', () => {
   assert.ok(
     !has(
       messages('docs/conventions/x.md', '# X\n\nĐọc file này để biết quy tắc.\n'),
+      /purpose line/,
+    ),
+  );
+  assert.ok(has(messages('docs/knowledge/x.md', '# X\n\nKiến thức.\n'), /purpose line/));
+  assert.ok(
+    !has(
+      messages('docs/knowledge/x.md', '# X\n\nĐọc file này để biết kiến thức.\n'),
       /purpose line/,
     ),
   );

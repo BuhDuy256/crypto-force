@@ -1,6 +1,12 @@
 // Runs a real Express API and Auth against a dedicated _market_data_rest_test DB.
 // Starts from playwright.market-data-rest.config.ts. Only upstream HTTP uses a fake.
-// Missing adapter/cache modules prevent startup until Step 08. No outbound sensitivity claim is made.
+// Scenarios: full, empty, short, held (upstream BTC/5m waits for release), chart-error (5m 503),
+// summary-error (24h ticker 503),
+// unavailable, gap (index 10 removed), flat (flat, rising and falling candles), open (last 5m candle
+// open, other timeframes empty) and web-hold (the HTTP request for BTC/5m candles waits for release
+// before the API handles it, so the Web deadline can end it without an API or upstream timeout).
+// Faults tried: ETH rows without the +100 offset and a 5m error sent for every interval made the
+// related E2E tests fail; the gap fixture that keeps index 10 made the gap test fail.
 import { once } from 'node:events';
 import { fileURLToPath } from 'node:url';
 import { drizzle } from 'drizzle-orm/node-postgres';
@@ -60,7 +66,17 @@ const auth = createAuth({
 const ledger: string[] = [];
 const unexpected: string[] = [];
 let scenario = 'full';
+// The polling clock is independent from Auth and Node timers.
+let pollingTime = 1800000000000;
+let pollingFailure = false;
+let pollingHold = false;
+const pollingRequests: string[] = [];
+
 let held = deferred<Response>();
+let webHeld = deferred<undefined>();
+let webHeldCount = 0;
+// Close time of the last of 519 5m candles: that candle is open, the earlier ones are closed.
+const OPEN_5M_DATA_TIME = 1735689600000 + 519 * 300000 - 1;
 const fakeFetch: typeof globalThis.fetch = (input) => {
   const url = new URL(input instanceof Request ? input.url : String(input));
   if (
@@ -71,6 +87,9 @@ const fakeFetch: typeof globalThis.fetch = (input) => {
     return Promise.reject(new Error('The REST upstream fake blocked an unknown endpoint.'));
   }
   ledger.push(url.toString());
+  if (scenario === 'polling' && pollingFailure)
+    return Promise.resolve(new Response('Replay source failure.', { status: 503 }));
+
   if (scenario === 'unavailable')
     return Promise.resolve(new Response('Private source sentinel.', { status: 503 }));
   const pair = url.searchParams.get('symbol');
@@ -87,11 +106,18 @@ const fakeFetch: typeof globalThis.fetch = (input) => {
     url.searchParams.get('interval') === '5m'
   )
     return held.promise;
+  if (scenario === 'summary-error' && url.pathname === '/api/v3/ticker/24hr')
+    return Promise.resolve(new Response('Private upstream sentinel.', { status: 503 }));
   if (url.pathname === '/api/v3/ticker/24hr')
     return Promise.resolve(
       Response.json({
         symbol: pair,
-        lastPrice: pair === 'ETHUSDT' ? '218.5' : '618.125',
+        lastPrice:
+          scenario === 'polling'
+            ? String(618 + Math.floor((pollingTime - 1800000000000) / 5000) * 10)
+            : pair === 'ETHUSDT'
+              ? '218.5'
+              : '618.125',
         priceChangePercent: pair === 'ETHUSDT' ? '0' : '-1.25',
       }),
     );
@@ -103,10 +129,36 @@ const fakeFetch: typeof globalThis.fetch = (input) => {
     '4h': 14400000,
     '1d': 86400000,
   };
-  const body = klines(
-    scenario === 'empty' ? 0 : scenario === 'short' ? 19 : 519,
-    intervals[url.searchParams.get('interval') ?? '1m'],
-  );
+  const interval = url.searchParams.get('interval') ?? '1m';
+  // Same default as klines(): an interval outside the table uses 1m.
+  const step = intervals[interval] ?? 60000;
+  const body =
+    scenario === 'gap'
+      ? klines(21, step).filter((_, index) => index !== 10)
+      : scenario === 'flat'
+        ? flatKlines(step)
+        : klines(
+            scenario === 'empty' || (scenario === 'open' && interval !== '5m')
+              ? 0
+              : scenario === 'short'
+                ? 19
+                : 519,
+            step,
+          );
+  if (scenario === 'polling') {
+    const shift = Math.floor(pollingTime / step) * step - (1735689600000 + 518 * step);
+    for (const row of body) {
+      row[0] = Number(row[0]) + shift;
+      row[6] = Number(row[6]) + shift;
+    }
+    const last = body.at(-1);
+    if (last) {
+      const close =
+        618 + Math.floor((pollingTime - 1800000000000) / 5000) * 10 + (interval === '1d' ? 100 : 0);
+      last[2] = String(close + 1);
+      last[4] = String(close);
+    }
+  }
   if (url.searchParams.get('symbol') === 'ETHUSDT') {
     for (const row of body) {
       for (const index of [1, 2, 3, 4]) row[index] = String(Number(row[index]) + 100);
@@ -114,6 +166,18 @@ const fakeFetch: typeof globalThis.fetch = (input) => {
   }
   return Promise.resolve(Response.json(body));
 };
+// 20 candles at 100 with volume 0, then one rising (100/102/99/101) and one falling (101/102/99/100).
+function flatKlines(interval: number) {
+  return klines(22, interval).map((row, index) => {
+    const ohlc =
+      index < 20
+        ? ['100', '100', '100', '100']
+        : index === 20
+          ? ['100', '102', '99', '101']
+          : ['101', '102', '99', '100'];
+    return [row[0], ...ohlc, index < 20 ? '0' : '5', ...row.slice(6)];
+  });
+}
 // Auth password checks use an empty Pwned Passwords response. Other external fetch calls are blocked.
 const nativeFetch = globalThis.fetch;
 globalThis.fetch = (input, init) => {
@@ -128,14 +192,15 @@ globalThis.fetch = (input, init) => {
   return Promise.reject(new Error('The REST test server blocked an external request.'));
 };
 function provider() {
+  const receivedAt = scenario === 'open' ? OPEN_5M_DATA_TIME : 1800000000000;
   return createCachedMarketDataProvider({
     provider: createBinanceMarketDataProvider({
       fetch: fakeFetch,
-      now: () => 1800000000000,
+      now: () => (scenario === 'polling' ? pollingTime : receivedAt),
       timeoutMs: 5000,
       logger,
     }),
-    now: () => 0,
+    now: () => (scenario === 'polling' ? pollingTime : 0),
     ttlMs: 5000,
     logger,
   });
@@ -146,24 +211,68 @@ const marketDataProvider = {
   getSummary: (...args: Parameters<typeof current.getSummary>) => current.getSummary(...args),
 };
 const dependencies = { logger, auth, authConfig: { google: false }, marketDataProvider };
-const app = createApp(dependencies);
+const app = express();
+// Same response headers as createApp, which also disables x-powered-by.
+app.disable('x-powered-by');
+app.use((req, _res, next) => {
+  if (scenario === 'polling' && req.path.startsWith('/api/market-data/')) {
+    pollingRequests.push(req.originalUrl);
+    if (pollingHold && req.path.endsWith('/candles') && req.query.timeframe === '5m') {
+      void webHeld.promise.then(() => {
+        next();
+      });
+      return;
+    }
+  }
+
+  if (
+    scenario === 'web-hold' &&
+    req.path === '/api/market-data/candles' &&
+    req.query.pair === 'BTCUSDT' &&
+    req.query.timeframe === '5m'
+  ) {
+    webHeldCount += 1;
+    void webHeld.promise.then(() => {
+      next();
+    });
+    return;
+  }
+  next();
+});
+app.use(createApp(dependencies));
 const control = express();
 // Control endpoints are confined to this test entrypoint and loopback listener.
 control.post('/__rest/reset/:scenario', (req, res) => {
   scenario = req.params.scenario;
+  pollingTime = 1800000000000;
+  pollingFailure = false;
+  pollingHold = false;
+  pollingRequests.length = 0;
   held.resolve(Response.json(klines(519, 300000)));
   held = deferred<Response>();
+  webHeld.resolve(undefined);
+  webHeld = deferred<undefined>();
+  webHeldCount = 0;
   ledger.length = 0;
   unexpected.length = 0;
   current = provider();
   res.json({ scenario });
 });
+control.use(express.json());
+control.post('/__rest/polling', (req, res) => {
+  const input = req.body as { elapsed?: number; failure?: boolean; hold?: boolean };
+  if (input.elapsed !== undefined) pollingTime = 1800000000000 + input.elapsed;
+  if (input.failure !== undefined) pollingFailure = input.failure;
+  if (input.hold !== undefined) pollingHold = input.hold;
+  res.json({ pollingTime, pollingFailure, pollingHold });
+});
 control.post('/__rest/release', (_req, res) => {
   held.resolve(Response.json(klines(519, 300000)));
+  webHeld.resolve(undefined);
   res.json({ released: true });
 });
 control.get('/__rest/ledger', (_req, res) => {
-  res.json({ ledger, unexpected });
+  res.json({ ledger, unexpected, webHeld: webHeldCount, pollingRequests, pollingTime });
 });
 control.get('/__rest/mail', (_req, res) => {
   res.json(sent);

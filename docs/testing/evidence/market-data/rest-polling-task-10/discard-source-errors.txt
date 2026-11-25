@@ -1,0 +1,67 @@
+
+ RUN  v5.1.0 C:/Users/Duy/Desktop/crypto-force/apps/api
+
+ ❯ test/market-data/polling-cache.test.ts (6 tests | 3 failed) 43ms
+   × retains a candle invalid error until 5000 ms after rejection 28ms
+   × retains a candle unavailable error until 5000 ms after rejection 2ms
+   × reads a summary error at elapsed 4999 ms 3ms
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 3 passed (6)
+   Start at  08:41:57
+   Duration  1.81s (import 56%, transform 28%, tests 14%, worker 2%)
+
+undefined
+C:\Users\Duy\Desktop\crypto-force\apps\api:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "vitest" not found
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/market-data/polling-cache.test.ts > retains a candle invalid error until 5000 ms after rejection
+ FAIL  test/market-data/polling-cache.test.ts > retains a candle unavailable error until 5000 ms after rejection
+AssertionError: promise resolved "{ candles: [], dataTime: 9000 }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "candles": [],
++   "dataTime": 9000,
+  }
+
+ ❯ test/market-data/polling-cache.test.ts:37:44
+     35|     await Promise.all([first, joined]);
+     36|     now = 6999;
+     37|     await expect(cache.getCandles(request)).rejects.toMatchObject({ ki…
+       |                                            ^
+     38|     expect(provider.getCandles).toHaveBeenCalledTimes(1);
+     39|     now = 7000;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  test/market-data/polling-cache.test.ts > reads a summary error at elapsed 4999 ms
+AssertionError: promise resolved "{ pair: 'BTCUSDT', …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "change24hPercent": -1,
++   "lastPrice": 123,
++   "pair": "BTCUSDT",
+  }
+
+ ❯ test/market-data/polling-cache.test.ts:64:46
+     62|   now = 1000 + elapsed;
+     63|   if (elapsed === 4999) {
+     64|     await expect(cache.getSummary('BTCUSDT')).rejects.toMatchObject({ …
+       |                                              ^
+     65|     expect(provider.getSummary).toHaveBeenCalledTimes(1);
+     66|   } else {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
