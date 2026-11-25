@@ -37,7 +37,7 @@ Read this file to learn the steps of Task 1, which builds the deterministic Bina
 - Add a lint-disable directive, `@ts-expect-error`, or warning comment.
 - Commit or push.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `apps/api/perf/market-data/ws-k6/replay-ws.test.mjs` with this code:
 
@@ -181,12 +181,12 @@ describe('replay-ws server', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test and make sure that it fails**
+- [x] **Step 2: Run the test and make sure that it fails**
 
 Run: `node --test apps/api/perf/market-data/ws-k6/replay-ws.test.mjs`
 Expected: FAIL. The output contains `ERR_MODULE_NOT_FOUND`.
 
-- [ ] **Step 3: Implement `apps/api/perf/market-data/ws-k6/replay-ws.mjs`**
+- [x] **Step 3: Implement `apps/api/perf/market-data/ws-k6/replay-ws.mjs`**
 
 Implement these exact exports and behaviors:
 - `BENCHMARK_CHANNELS`:
@@ -218,7 +218,7 @@ Implement these exact exports and behaviors:
     - `GET /ledger`: return JSON with `upstreamConnections`, `maxUpstreamConnections`, `subscribedStreams`, `steadyStartMs`, `steadyEndMs`, `eventsByChannel`, `totalSteadyEvents`, `vuReports`, and `faultMode`.
   - Support direct CLI execution when `process.argv[1]` ends with `replay-ws.mjs` (reads `--port` and `--interval-ms`, prints `{ ready: true, port, wsUrl, httpUrl }`, stops cleanly on `SIGINT`/`SIGTERM`).
 
-- [ ] **Step 4: Run the tests and lint checks**
+- [x] **Step 4: Run the tests and lint checks**
 
 Run: `node --test apps/api/perf/market-data/ws-k6/replay-ws.test.mjs`
 Expected: PASS. The output contains `# fail 0`.
@@ -226,7 +226,7 @@ Expected: PASS. The output contains `# fail 0`.
 Run: `pnpm exec eslint apps/api/perf/market-data/ws-k6/replay-ws.mjs apps/api/perf/market-data/ws-k6/replay-ws.test.mjs && pnpm exec prettier --check apps/api/perf/market-data/ws-k6/replay-ws.mjs apps/api/perf/market-data/ws-k6/replay-ws.test.mjs`
 Expected: PASS. Exit code 0 with no errors.
 
-- [ ] **Step 5: Write the report file and stop**
+- [x] **Step 5: Write the report file and stop**
 
 1. Mark Steps 1 to 4 as `- [x]` in this file.
 2. Change the Task 1 row in `docs/build/01-prototype-to-implementation/market-data/load-testing/README.md` to `Done` and link `reports/task-01-replay-server-and-collector.md`.

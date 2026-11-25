@@ -4,7 +4,7 @@ Read this file to find execution reports for each task in the Market Data WebSoc
 
 | Task | Status | Report |
 | --- | --- | --- |
-| 1 | Pending | `task-01-replay-server-and-collector.md` |
+| 1 | Done | `task-01-replay-server-and-collector.md` |
 | 2 | Pending | `task-02-k6-ws-workload.md` |
 | 3 | Pending | `task-03-orchestrator-monitor-and-reconciler.md` |
 | 4 | Pending | `task-04-fault-injection-and-five-run-execution.md` |
