@@ -1,6 +1,6 @@
 # Market Data Deep Dive — Research Roadmap
 
-Đọc file này để tìm toàn bộ 35 câu hỏi nghiên cứu Market Data, các nguồn tương ứng và lộ trình tự đánh giá kỹ năng.
+Đọc file này để tìm toàn bộ 35 câu hỏi nghiên cứu Market Data, các nguồn tương ứng, lộ trình tự đánh giá kỹ năng và cách ghi lời giải trong [`self-resolve/`](self-resolve/).
 
 ## Phạm vi
 
@@ -13,6 +13,15 @@
 | Reliability | Q15–Q20 | [reliability.md](reliability.md) |
 | Performance | Q21–Q30 | [performance.md](performance.md) |
 | Trade-offs | Q31–Q35 | [trade-offs.md](trade-offs.md) |
+
+## Lời giải trong `self-resolve/`
+
+**Ghi chú của người viết:** Mỗi câu hỏi được tách thành một file riêng trong [`self-resolve/`](self-resolve/) để trả lời và tự đánh giá độc lập, không gộp nhiều câu vào một file.
+
+- Tên file theo dạng `Q<nn>-<chủ-đề>.md`, ví dụ [Q01-rest-polling-vs-websocket.md](self-resolve/Q01-rest-polling-vs-websocket.md). Số trong tên file là thứ tự người viết tạo file, không phải ID của câu hỏi gốc.
+- Mỗi file chứa một câu hỏi và lời giải. Nội dung file, cấu trúc section và độ dài do người viết quyết định.
+- Câu hỏi trong file được người viết tự do ghi lại, có thể khác câu hỏi gốc về cách diễn đạt, phạm vi hoặc thứ tự; không cần khớp ID `Q<nn>` với file domain.
+- Câu hỏi gốc trong các file domain chỉ dùng làm tham khảo. Bản ghi lại nằm trong `self-resolve/`, không sửa ngược vào file domain.
 
 ## Core ideas và research overlap
 
