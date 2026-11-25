@@ -115,11 +115,11 @@ Phân tích đã đối chiếu xong với ba baseline độc lập và ghi nh�
 3. <a id="ref-3"></a>[Quality Attributes](../../../UCs/quality-attributes.md)
 4. <a id="ref-4"></a>[Market Data](../../../UCs/market-data.md)
 5. <a id="ref-5"></a>[Open Questions](../../../open-questions.md)
-6. <a id="ref-6"></a>[Kế hoạch triển khai Market Data ở mức tổng quan](../../../build/01-prototype-to-implementation/market-data/abstract-implementation-plan.md)
+6. <a id="ref-6"></a>[Kế hoạch triển khai Market Data ở mức tổng quan](../../../build/01-prototype-to-implementation/market-data/implementation/abstract-implementation-plan.md)
 7. <a id="ref-7"></a>[Project Brief](../../../UCs/sources/project-brief.md)
 8. <a id="ref-8"></a>[Realtime](../../../design/prototype/docs/requirements/realtime.md)
-9. <a id="ref-9"></a>[Những thứ cần đạt được trong lúc build Market Data](../../../build/01-prototype-to-implementation/market-data/goal.md)
-10. <a id="ref-10"></a>[Market Data sẽ thêm dòng nào vào CV?](../../../build/01-prototype-to-implementation/market-data/cv-goal.md)
+9. <a id="ref-9"></a>[Những thứ cần đạt được trong lúc build Market Data](../../../build/01-prototype-to-implementation/market-data/implementation/goal.md)
+10. <a id="ref-10"></a>[Market Data sẽ thêm dòng nào vào CV?](../../../build/01-prototype-to-implementation/market-data/implementation/cv-goal.md)
 11. <a id="ref-11"></a>[Architectural Decisions](../../../architecture/30-decisions.md)
 12. <a id="ref-12"></a>W3C, *Web Content Accessibility Guidelines (WCAG) 2.2*, W3C Recommendation, 12/12/2024. <https://www.w3.org/TR/WCAG22/>
 13. <a id="ref-13"></a>W3C, *Understanding SC 2.2.2: Pause, Stop, Hide (Level A)*, cập nhật 04/10/2026, đọc ngày 2026-11-22. <https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html>

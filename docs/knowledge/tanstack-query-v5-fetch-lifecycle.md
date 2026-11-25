@@ -25,7 +25,7 @@ Nguồn [[1]](#ref-1) và [[5]](#ref-5) là source của `@tanstack/query-core@5
 
 1. <a id="ref-1"></a>[query.ts, @tanstack/query-core 5.107.1](https://unpkg.com/@tanstack/query-core@5.107.1/src/query.ts), TanStack, truy cập ngày 2026-11-21
 2. <a id="ref-2"></a>[useQuery](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery), TanStack Query v5 docs, truy cập ngày 2026-11-21
-3. <a id="ref-3"></a>[Kết quả build REST Market Data](../build/01-prototype-to-implementation/market-data/work/step-08-rest-build/execution.md)
+3. <a id="ref-3"></a>[Kết quả build REST Market Data](../build/01-prototype-to-implementation/market-data/implementation/work/step-08-rest-build/execution.md)
 4. <a id="ref-4"></a>[Query Cancellation](https://tanstack.com/query/v5/docs/framework/react/guides/query-cancellation), TanStack Query v5 docs, truy cập ngày 2026-11-21
 5. <a id="ref-5"></a>[queryObserver.ts, @tanstack/query-core 5.107.1](https://unpkg.com/@tanstack/query-core@5.107.1/src/queryObserver.ts), TanStack, truy cập ngày 2026-11-21
 6. <a id="ref-6"></a>[StrictMode](https://react.dev/reference/react/StrictMode), React docs, truy cập ngày 2026-11-21

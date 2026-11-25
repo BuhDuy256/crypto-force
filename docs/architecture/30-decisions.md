@@ -408,7 +408,7 @@ Subscribe trước rồi mới gọi REST là chuẩn mực tránh khoảng tr�
 11. <a id="ref-11"></a>[Quality Attributes](../UCs/quality-attributes.md)
 12. <a id="ref-12"></a>Binance Spot API, General endpoints, Exchange information, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-endpoints>
 13. <a id="ref-13"></a>Binance Spot API, General API Information (Limits) và response của `GET /api/v3/exchangeInfo?symbol=BTCUSDT`, đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/limits>
-14. <a id="ref-14"></a>[Market Data sẽ thêm dòng nào vào CV?](../build/01-prototype-to-implementation/market-data/cv-goal.md)
+14. <a id="ref-14"></a>[Market Data sẽ thêm dòng nào vào CV?](../build/01-prototype-to-implementation/market-data/implementation/cv-goal.md)
 15. <a id="ref-15"></a>[API Contracts](22-api-endpoints.md)
 16. <a id="ref-16"></a>Evidence smoke Binance: [`reconciliation.json`](../testing/evidence/market-data/rest-v1-binance-smoke/reconciliation.json), mảng `candles` có 519 phần tử, 63.992 byte khi serialize JSON
 17. <a id="ref-17"></a>[Bottleneck thật sự của REST polling qua số đo baseline](../knowledge/261123-market-data-rest-polling/market-data-rest-polling.polling-bottlenecks.md)

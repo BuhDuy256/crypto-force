@@ -56,4 +56,4 @@ Exploratory scenario: áp lực ngoài dự kiến.
 2. <a id="ref-2"></a>[Project Brief](sources/project-brief.md)
 3. <a id="ref-3"></a>Binance Spot API, General API Information (Limits), đọc ngày 2026-11-20. <https://developers.binance.com/docs/binance-spot-api-docs/rest-api/limits>
 4. <a id="ref-4"></a>[Architectural Decisions](../architecture/30-decisions.md)
-5. <a id="ref-5"></a>[Market Data sẽ thêm dòng nào vào CV?](../build/01-prototype-to-implementation/market-data/cv-goal.md)
+5. <a id="ref-5"></a>[Market Data sẽ thêm dòng nào vào CV?](../build/01-prototype-to-implementation/market-data/implementation/cv-goal.md)

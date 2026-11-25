@@ -429,7 +429,7 @@ Cách chẩn đoán timeline khi một chart chậm hoặc ngừng cập nhật:
 
 ## References
 
-1. <a id="ref-1"></a>[Kết quả build REST Market Data](../build/01-prototype-to-implementation/market-data/work/step-08-rest-build/execution.md)
+1. <a id="ref-1"></a>[Kết quả build REST Market Data](../build/01-prototype-to-implementation/market-data/implementation/work/step-08-rest-build/execution.md)
 2. <a id="ref-2"></a>[Project Structure](../conventions/project-structure.md)
 3. <a id="ref-3"></a>`apps/api/src/api/middlewares/error-handler.middleware.ts`, `apps/api/src/errors/app-error.ts` tại commit `caf7ffb`
 4. <a id="ref-4"></a>[API & Realtime Communication Contracts](22-api-endpoints.md)

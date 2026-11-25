@@ -28,7 +28,7 @@ Contract expected nằm trong thiết kế nến, cache và chuẩn hóa [[3]](#
 
 ## Chênh lệch với source hiện tại
 
-Bảng dưới ghi source tại commit test basis. Bước 08 đã triển khai đủ bốn dòng trong Task 1–5, theo [kết quả build REST Market Data](../../../build/01-prototype-to-implementation/market-data/work/step-08-rest-build/execution.md).
+Bảng dưới ghi source tại commit test basis. Bước 08 đã triển khai đủ bốn dòng trong Task 1–5, theo [kết quả build REST Market Data](../../../build/01-prototype-to-implementation/market-data/implementation/work/step-08-rest-build/execution.md).
 
 | Nơi đã đọc                                                                              | Hiện có tại commit test basis                                                                                                                                                       | Bước 08 phải triển khai                                                                           |
 | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
@@ -428,11 +428,11 @@ Lượt phụ, dev build, lượt thiếu mẫu và lượt có dữ liệu sai 
 
 Chưa có ngưỡng latency HTTP, tỷ lệ lỗi hoặc capacity REST được duyệt. Do đó không tự đặt SLO mới cho những chỉ số này. Dữ liệu sai luôn làm lượt đo không đủ điều kiện đạt tải. Capacity lịch sử, nếu được xác nhận sau này, phải ghi kèm request throughput, số client, mix/cache, môi trường và tiêu chí đã duyệt. Con số đó không thay số client đang nhận cập nhật realtime trong mục tiêu CV [[31]](#ref-31).
 
-Riêng 18 lượt API của Bước 08 Task 6, product owner chấp thuận giữ số liệu mô tả dù native k6 dùng wall clock. Quyết định và giới hạn kết luận nằm trong [kết quả Task 6](../../../build/01-prototype-to-implementation/market-data/work/step-08-rest-build/execution.md#task-6-kết-quả-baseline-rest). Các lượt baseline đủ điều kiện trong tương lai vẫn phải dùng clock đơn điệu.
+Riêng 18 lượt API của Bước 08 Task 6, product owner chấp thuận giữ số liệu mô tả dù native k6 dùng wall clock. Quyết định và giới hạn kết luận nằm trong [kết quả Task 6](../../../build/01-prototype-to-implementation/market-data/implementation/work/step-08-rest-build/execution.md#task-6-kết-quả-baseline-rest). Các lượt baseline đủ điều kiện trong tương lai vẫn phải dùng clock đơn điệu.
 
 ## Kết quả thực chạy
 
-Kết quả dưới đây là của Bước 08. Cột Commit ghi commit của lượt chạy cuối. Lệnh, số red/green, mutation và quyết định của từng Task nằm trong [kết quả build REST Market Data](../../../build/01-prototype-to-implementation/market-data/work/step-08-rest-build/execution.md). Mọi lượt chạy dùng Windows 11 local, Node `22.23.5`, pnpm `9.15.9` và PostgreSQL 17 qua Docker Compose.
+Kết quả dưới đây là của Bước 08. Cột Commit ghi commit của lượt chạy cuối. Lệnh, số red/green, mutation và quyết định của từng Task nằm trong [kết quả build REST Market Data](../../../build/01-prototype-to-implementation/market-data/implementation/work/step-08-rest-build/execution.md). Mọi lượt chạy dùng Windows 11 local, Node `22.23.5`, pnpm `9.15.9` và PostgreSQL 17 qua Docker Compose.
 
 ### Test tự động và mutation
 
@@ -525,8 +525,8 @@ Các lượt bị hủy, bị dừng hoặc lỗi được giữ trong evidence 
 2. <a id="ref-2"></a>[Quality Attributes](../../../UCs/quality-attributes.md)
 3. <a id="ref-3"></a>[Market Data & Realtime Updates](../../../architecture/10-market-data.md)
 4. <a id="ref-4"></a>[API & Realtime Communication Contracts](../../../architecture/22-api-endpoints.md)
-5. <a id="ref-5"></a>[Kết quả thiết kế contract nến và API REST](../../../build/01-prototype-to-implementation/market-data/work/step-05-rest-contract/execution.md)
-6. <a id="ref-6"></a>[Kết quả thiết kế database và cache cho REST](../../../build/01-prototype-to-implementation/market-data/work/step-06-rest-storage-cache/execution.md)
+5. <a id="ref-5"></a>[Kết quả thiết kế contract nến và API REST](../../../build/01-prototype-to-implementation/market-data/implementation/work/step-05-rest-contract/execution.md)
+6. <a id="ref-6"></a>[Kết quả thiết kế database và cache cho REST](../../../build/01-prototype-to-implementation/market-data/implementation/work/step-06-rest-storage-cache/execution.md)
 7. <a id="ref-7"></a>[Shared Market Data schema](../../../../packages/shared/src/schemas/market-data.schema.ts)
 8. <a id="ref-8"></a>[Web Market Data HTTP access](../../../../apps/web/app/api/market-data.ts)
 9. <a id="ref-9"></a>[Web Market Data query hooks](../../../../apps/web/app/hooks/useMarketData.ts)
@@ -549,7 +549,7 @@ Các lượt bị hủy, bị dừng hoặc lỗi được giữ trong evidence 
 26. <a id="ref-26"></a>W3C, _Web Content Accessibility Guidelines (WCAG) 2.2_, Recommendation 12/12/2024, SC [1.1.1](https://www.w3.org/TR/2024/REC-WCAG22-20241212/#non-text-content), [1.4.1](https://www.w3.org/TR/2024/REC-WCAG22-20241212/#use-of-color), [1.4.10](https://www.w3.org/TR/2024/REC-WCAG22-20241212/#reflow), [2.1.1](https://www.w3.org/TR/2024/REC-WCAG22-20241212/#keyboard), [2.4.7](https://www.w3.org/TR/2024/REC-WCAG22-20241212/#focus-visible), [4.1.3](https://www.w3.org/TR/2024/REC-WCAG22-20241212/#status-messages).
 27. <a id="ref-27"></a>[Test Strategy](../../test-strategy.md)
 28. <a id="ref-28"></a>[Architectural Decisions](../../../architecture/30-decisions.md)
-29. <a id="ref-29"></a>[Kế hoạch kiểm chứng REST và baseline](../../../build/01-prototype-to-implementation/market-data/work/step-07-rest-verification/plan.md)
-30. <a id="ref-30"></a>[Những thứ cần đạt được trong lúc build Market Data](../../../build/01-prototype-to-implementation/market-data/goal.md)
-31. <a id="ref-31"></a>[Market Data sẽ thêm dòng nào vào CV?](../../../build/01-prototype-to-implementation/market-data/cv-goal.md)
-32. <a id="ref-32"></a>[Giới hạn kiểm accessibility bằng Playwright](../../../build/01-prototype-to-implementation/market-data/work/step-08-rest-build/accessibility-verification-limits.md)
+29. <a id="ref-29"></a>[Kế hoạch kiểm chứng REST và baseline](../../../build/01-prototype-to-implementation/market-data/implementation/work/step-07-rest-verification/plan.md)
+30. <a id="ref-30"></a>[Những thứ cần đạt được trong lúc build Market Data](../../../build/01-prototype-to-implementation/market-data/implementation/goal.md)
+31. <a id="ref-31"></a>[Market Data sẽ thêm dòng nào vào CV?](../../../build/01-prototype-to-implementation/market-data/implementation/cv-goal.md)
+32. <a id="ref-32"></a>[Giới hạn kiểm accessibility bằng Playwright](../../../build/01-prototype-to-implementation/market-data/implementation/work/step-08-rest-build/accessibility-verification-limits.md)

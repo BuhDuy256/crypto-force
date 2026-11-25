@@ -15,8 +15,8 @@ Recommend a dependency-aware order for building the feature flows after Market D
 | Area | Documented implementation status | Source |
 | --- | --- | --- |
 | Foundation, Landing, Auth, workspace shell | Implemented; authenticated workspace routing and UI shell exist. | [System architecture](../../architecture/00-system.md) |
-| Market Data | [Tracker](market-data/tracker.md) records steps 01–12 completed: REST history, REST polling, WebSocket updates, shared subscriptions, and recovery. | [Market Data tracker](market-data/tracker.md) |
-| Market Data verification | Step 12 records passing scoped automated tests and reduced benchmarks. Full isolated-machine `180s × 3` benchmark remains **Inconclusive**. | [Market Data tracker](market-data/tracker.md) |
+| Market Data | [Tracker](market-data/implementation/tracker.md) records steps 01–12 completed: REST history, REST polling, WebSocket updates, shared subscriptions, and recovery. | [Market Data tracker](market-data/implementation/tracker.md) |
+| Market Data verification | Step 12 records passing scoped automated tests and reduced benchmarks. Full isolated-machine `180s × 3` benchmark remains **Inconclusive**. | [Market Data tracker](market-data/implementation/tracker.md) |
 | Strategy, Library, Backtest, Discovery, News | Workspace feature pages are placeholders; their functional flows are not implemented yet. | [System architecture](../../architecture/00-system.md) |
 | Domain execution | `packages/engine` has no exported domain computation; worker has pg-boss lifecycle but no business job handlers. | [System architecture](../../architecture/00-system.md) |
 | News sentiment | LLM integration is described as a future design, not an implemented integration. | [System architecture](../../architecture/00-system.md) |
@@ -88,7 +88,7 @@ Review this proposal when a dependency is completed, requirements are approved o
 ## 8. References
 
 - [Existing Prototype to Implementation Roadmap](draft/implementation-plan/roadmap.md)
-- [Market Data tracker](market-data/tracker.md)
+- [Market Data tracker](market-data/implementation/tracker.md)
 - [System architecture](../../architecture/00-system.md)
 - [Use Cases](../../UCs/README.md)
 - [Project brief](../../UCs/sources/project-brief.md)

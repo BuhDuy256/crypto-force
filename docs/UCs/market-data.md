@@ -342,13 +342,13 @@ Gap MK-86 đến MK-91 được đóng hoặc chấp nhận bằng rule do agent
 
 ## References
 
-1. <a id="ref-1"></a>[Phạm vi flow REST đầu tiên](../build/01-prototype-to-implementation/market-data/work/step-01-rest-scope/plan.md)
+1. <a id="ref-1"></a>[Phạm vi flow REST đầu tiên](../build/01-prototype-to-implementation/market-data/implementation/work/step-01-rest-scope/plan.md)
 2. <a id="ref-2"></a>[Project Brief](sources/project-brief.md)
 3. <a id="ref-3"></a>W3C, *Web Content Accessibility Guidelines (WCAG) 2.2*, W3C Recommendation, 12/12/2024. <https://www.w3.org/TR/WCAG22/>
 4. <a id="ref-4"></a>[Authentication](authentication.md)
-5. <a id="ref-5"></a>[Market Data sẽ thêm dòng nào vào CV?](../build/01-prototype-to-implementation/market-data/cv-goal.md)
+5. <a id="ref-5"></a>[Market Data sẽ thêm dòng nào vào CV?](../build/01-prototype-to-implementation/market-data/implementation/cv-goal.md)
 6. <a id="ref-6"></a>[Architectural Decisions](../architecture/30-decisions.md)
 7. <a id="ref-7"></a>[Realtime](../design/prototype/docs/requirements/realtime.md)
 8. <a id="ref-8"></a>W3C, *Understanding SC 2.2.2: Pause, Stop, Hide (Level A)*, cập nhật 04/10/2026, đọc ngày 2026-11-22. <https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html>
-9. <a id="ref-9"></a>[Những thứ cần đạt được trong lúc build Market Data](../build/01-prototype-to-implementation/market-data/goal.md)
+9. <a id="ref-9"></a>[Những thứ cần đạt được trong lúc build Market Data](../build/01-prototype-to-implementation/market-data/implementation/goal.md)
 10. <a id="ref-10"></a>OWASP ASVS 5.0, V4 API and Web Service (V4.4 WebSocket), đọc nguyên văn file `0x13-V4-API-and-Web-Service.md` ngày 2026-11-23. <https://raw.githubusercontent.com/OWASP/ASVS/master/5.0/en/0x13-V4-API-and-Web-Service.md>

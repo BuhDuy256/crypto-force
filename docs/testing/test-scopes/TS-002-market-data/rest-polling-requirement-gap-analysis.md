@@ -88,12 +88,12 @@ Requirements của vòng cập nhật định kỳ đủ để thiết kế test
 
 ## References
 
-1. <a id="ref-1"></a>[Kết quả build REST Market Data](../../../build/01-prototype-to-implementation/market-data/work/step-08-rest-build/execution.md)
+1. <a id="ref-1"></a>[Kết quả build REST Market Data](../../../build/01-prototype-to-implementation/market-data/implementation/work/step-08-rest-build/execution.md)
 2. <a id="ref-2"></a>[Market Data](../../../UCs/market-data.md)
 3. <a id="ref-3"></a>[Quality Attributes](../../../UCs/quality-attributes.md)
 4. <a id="ref-4"></a>[Project Brief](../../../UCs/sources/project-brief.md)
 5. <a id="ref-5"></a>[Realtime](../../../design/prototype/docs/requirements/realtime.md)
-6. <a id="ref-6"></a>[Market Data sẽ thêm dòng nào vào CV?](../../../build/01-prototype-to-implementation/market-data/cv-goal.md)
+6. <a id="ref-6"></a>[Market Data sẽ thêm dòng nào vào CV?](../../../build/01-prototype-to-implementation/market-data/implementation/cv-goal.md)
 7. <a id="ref-7"></a>[Open Questions](../../../open-questions.md)
 8. <a id="ref-8"></a>W3C, _Web Content Accessibility Guidelines (WCAG) 2.2_, W3C Recommendation, 12/12/2024. <https://www.w3.org/TR/WCAG22/>
 9. <a id="ref-9"></a>W3C, _Understanding SC 2.2.2: Pause, Stop, Hide (Level A)_, cập nhật 04/10/2026, đọc ngày 2026-11-22. <https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html>

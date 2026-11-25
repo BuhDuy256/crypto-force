@@ -55,7 +55,7 @@ Requirements của vòng tải lịch sử đủ để thiết kế test chức 
 
 ## References
 
-1. <a id="ref-1"></a>[Bằng chứng triển khai frontend mock](../../../build/01-prototype-to-implementation/market-data/work/step-02-mock-frontend/execution.md)
+1. <a id="ref-1"></a>[Bằng chứng triển khai frontend mock](../../../build/01-prototype-to-implementation/market-data/implementation/work/step-02-mock-frontend/execution.md)
 2. <a id="ref-2"></a>[Market Data](../../../UCs/market-data.md)
 3. <a id="ref-3"></a>[Quality Attributes](../../../UCs/quality-attributes.md)
 4. <a id="ref-4"></a>[Project Brief](../../../UCs/sources/project-brief.md)
