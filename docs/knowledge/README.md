@@ -23,6 +23,8 @@ Folder này là tầng Knowledge: kiến thức có nguồn thu được khi là
 | [market-data-rest-polling.upstream-resilience.md](261123-market-data-rest-polling/market-data-rest-polling.upstream-resilience.md) | Bảo vệ Binance trước tải polling: single-flight, negative caching, deadline layering, cooldown và giới hạn in-process |
 | [market-data-rest-polling.polling-bottlenecks.md](261123-market-data-rest-polling/market-data-rest-polling.polling-bottlenecks.md) | Bottleneck thật sự của REST polling qua số đo baseline: truy vấn phiên vào PostgreSQL ở 50 client và lưu lượng full-window polling |
 
+| [Market Data Deep Dive — Research Roadmap](261125-market-data-deep-dive/README.md) | 35 câu hỏi nghiên cứu Fundamentals, Architecture, Reliability, Performance và Trade-offs; lộ trình tự đánh giá | 
+
 ## References
 
 1. <a id="ref-1"></a>[Conventions](../conventions/README.md)
