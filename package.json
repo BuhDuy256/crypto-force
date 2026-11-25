@@ -23,6 +23,7 @@
     "test:e2e": "pnpm --filter @crypto-force/web test:e2e",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d --wait postgres && pnpm db:migrate",
     "db:generate": "pnpm --filter @crypto-force/api db:generate",
     "db:migrate": "pnpm --filter @crypto-force/api db:migrate",
     "skills:sync": "node scripts/sync-skills.mjs",

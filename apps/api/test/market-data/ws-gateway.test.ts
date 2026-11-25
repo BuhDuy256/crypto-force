@@ -8,6 +8,7 @@
 // fake-buffered-amount-always-zero all fail behavioral assertions (apps/api/perf/market-data/ws-mutations.mjs).
 import { once } from 'node:events';
 import { createServer, type Server } from 'node:http';
+import type { Socket } from 'node:net';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { WebSocket, type RawData } from 'ws';
 import { createApp } from '../../src/app';
@@ -144,6 +145,16 @@ async function createWsStack(
     marketDataProvider: { getCandles: vi.fn(), getSummary: vi.fn() },
   });
   const server: Server = createServer(app);
+  const serverSockets = new Map<number, Socket>();
+  server.on('connection', (socket) => {
+    const { remotePort } = socket;
+    if (remotePort !== undefined) {
+      serverSockets.set(remotePort, socket);
+      socket.once('close', () => {
+        serverSockets.delete(remotePort);
+      });
+    }
+  });
   const sessionRepository = createSessionRepository(db);
   const wsSessionService = createWsSessionService({ sessionRepository, now: Date.now });
   const streamHub = createMarketDataStreamHub({
@@ -204,6 +215,7 @@ async function createWsStack(
     fakeStream,
     gateway,
     streamHub,
+    serverSockets,
     async stop() {
       await gateway.close();
       await streamHub.close();
@@ -420,49 +432,66 @@ describe('WebSocket Gateway handshake security and limits', () => {
       expect(healthy.messages).toContainEqual(expect.objectContaining({ type: 'subscribed' }));
     });
 
-    // Pause reads on the slow client TCP socket so server-side bufferedAmount grows past 64 KB
-    // even after filling the OS loopback kernel TCP buffer, then resume to receive close frame 4008.
+    // Pause reads on the slow client TCP socket and cork its server-side socket so
+    // server-side bufferedAmount deterministically grows past 64 KB regardless of OS
+    // loopback TCP buffer sizes, then uncork/resume to deliver close frame 4008.
     const rawSocket = (
-      slow.ws as unknown as { _socket?: { pause: () => void; resume: () => void } }
-    )._socket;
-    rawSocket?.pause();
-    for (let index = 0; index < 3000; index += 1) {
-      stack.fakeStream.emitCandle({
-        pair: 'BTCUSDT',
-        timeframe: '5m',
-        candle: {
-          openTime: 1735689600000,
-          open: 100,
-          high: 102 + index * 0.125,
-          low: 99,
-          close: 101 + index * 0.125,
-          volume: 10 + index,
-          isClosed: false,
-        },
-        dataTime: 1735689600500 + index,
-      });
-      if (
-        stack.capture.records.some(
-          (record) =>
-            typeof record === 'object' &&
-            record !== null &&
-            'closeCode' in record &&
-            record.closeCode === 4008,
-        )
-      )
-        break;
-      if (index % 50 === 49) {
-        await new Promise<void>((resolve) => {
-          setImmediate(resolve);
-        });
+      slow.ws as unknown as {
+        _socket?: {
+          localPort?: number;
+          pause: () => void;
+          resume: () => void;
+          isPaused: () => boolean;
+        };
       }
+    )._socket;
+    const slowServerSocket =
+      rawSocket?.localPort !== undefined ? stack.serverSockets.get(rawSocket.localPort) : undefined;
+    rawSocket?.pause();
+    if (rawSocket?.isPaused()) {
+      slowServerSocket?.cork();
     }
-    rawSocket?.resume();
+    try {
+      for (let index = 0; index < 3000; index += 1) {
+        stack.fakeStream.emitCandle({
+          pair: 'BTCUSDT',
+          timeframe: '5m',
+          candle: {
+            openTime: 1735689600000,
+            open: 100,
+            high: 102 + index * 0.125,
+            low: 99,
+            close: 101 + index * 0.125,
+            volume: 10 + index,
+            isClosed: false,
+          },
+          dataTime: 1735689600500 + index,
+        });
+        if (
+          stack.capture.records.some(
+            (record) =>
+              typeof record === 'object' &&
+              record !== null &&
+              'closeCode' in record &&
+              record.closeCode === 4008,
+          )
+        )
+          break;
+        if (index % 50 === 49) {
+          await new Promise<void>((resolve) => {
+            setImmediate(resolve);
+          });
+        }
+      }
+    } finally {
+      slowServerSocket?.uncork();
+      rawSocket?.resume();
+    }
 
+    expect(stack.capture.records).toContainEqual(expect.objectContaining({ closeCode: 4008 }));
     const slowClose = await slow.closed;
     expect(slowClose.code).toBe(4008);
     expect(healthy.ws.readyState).toBe(WebSocket.OPEN);
-    expect(stack.capture.records).toContainEqual(expect.objectContaining({ closeCode: 4008 }));
     healthy.ws.close(1000);
   });
 
