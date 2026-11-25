@@ -44,7 +44,7 @@ Read this file to learn the steps of Task 2, which builds the frame tracker and 
 - Add a lint-disable directive, `@ts-expect-error`, or warning comment.
 - Commit or push.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `apps/api/perf/market-data/ws-k6/tracker.test.mjs` with this code:
 
@@ -204,12 +204,12 @@ describe('tracker helper', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test and make sure that it fails**
+- [x] **Step 2: Run the test and make sure that it fails**
 
 Run: `node --test apps/api/perf/market-data/ws-k6/tracker.test.mjs`
 Expected: FAIL. The output contains `ERR_MODULE_NOT_FOUND`.
 
-- [ ] **Step 3: Implement `apps/api/perf/market-data/ws-k6/tracker.mjs`**
+- [x] **Step 3: Implement `apps/api/perf/market-data/ws-k6/tracker.mjs`**
 
 Implement pure ES module helpers with zero Node-only imports so k6 can import `tracker.mjs` directly:
 - `WORKLOAD_CHANNELS`: exact 5 channel objects matching `wsClientMessageSchema` (`{ kind: 'kline', pair: 'BTCUSDT', timeframe: '1m' }`, `{ kind: 'kline', pair: 'BTCUSDT', timeframe: '5m' }`, `{ kind: 'kline', pair: 'ETHUSDT', timeframe: '1m' }`, `{ kind: 'kline', pair: 'SOLUSDT', timeframe: '1m' }`, `{ kind: 'summary', pair: 'BTCUSDT' }`).
@@ -225,7 +225,7 @@ Implement pure ES module helpers with zero Node-only imports so k6 can import `t
     - Any parse error or failed field check increments `invalidMessages` and returns `{ kind: 'invalid' }`.
   - `snapshot(closeCode, closeReason)`: compute internal gaps (`missingInternalSeqs`, capped to first 50 entries for payload size) and return `{ vu, subscribedAck, closeCode, closeReason, steadyMessages, uniqueSteadyMessages, duplicateMessages, outOfOrderMessages, invalidMessages, serverErrorCount, heartbeatCount, channels }`.
 
-- [ ] **Step 4: Implement `apps/api/perf/market-data/ws-k6/workload-ws.js`**
+- [x] **Step 4: Implement `apps/api/perf/market-data/ws-k6/workload-ws.js`**
 
 Write `apps/api/perf/market-data/ws-k6/workload-ws.js` using `k6/ws`, `k6/http`, `k6/metrics`, `k6`, and `./tracker.mjs`:
 - Configure `options.scenarios.sustained` with `executor: 'per-vu-iterations'`, `vus: Number(__ENV.VUS || 100)`, `iterations: 1`, `maxDuration: `${totalSeconds + 30}s``.
@@ -251,7 +251,7 @@ Write `apps/api/perf/market-data/ws-k6/workload-ws.js` using `k6/ws`, `k6/http`,
   9. On `close`, capture close code (record `ws_abnormal_disconnects` if code is not `1000`) and post `tracker.snapshot(closeCode, closeReason)` to `${REPLAY_HTTP_URL}/vu-report`.
 - Export `handleSummary(data)` returning `{ [__ENV.SUMMARY_PATH]: JSON.stringify(data, null, 2) }`.
 
-- [ ] **Step 5: Run tests and lint checks**
+- [x] **Step 5: Run tests and lint checks**
 
 Run: `node --test apps/api/perf/market-data/ws-k6/tracker.test.mjs`
 Expected: PASS. The output contains `# fail 0`.
@@ -259,7 +259,7 @@ Expected: PASS. The output contains `# fail 0`.
 Run: `pnpm exec eslint apps/api/perf/market-data/ws-k6/tracker.mjs apps/api/perf/market-data/ws-k6/tracker.test.mjs apps/api/perf/market-data/ws-k6/workload-ws.js && pnpm exec prettier --check apps/api/perf/market-data/ws-k6/tracker.mjs apps/api/perf/market-data/ws-k6/tracker.test.mjs apps/api/perf/market-data/ws-k6/workload-ws.js`
 Expected: PASS. Exit code 0 with no errors.
 
-- [ ] **Step 6: Write the report file and stop**
+- [x] **Step 6: Write the report file and stop**
 
 1. Mark Steps 1 to 5 as `- [x]` in this file.
 2. Change the Task 2 row in `docs/build/01-prototype-to-implementation/market-data/load-testing/README.md` to `Done` and link `reports/task-02-k6-ws-workload.md`.
