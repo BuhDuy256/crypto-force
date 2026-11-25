@@ -56,5 +56,5 @@ Read this file to learn the goal, decisions, global constraints, and task order 
 | --- | --- | --- |
 | 1 | Done | [Replay Server and VU Collector](task-01-replay-server-and-collector.md) ([report](reports/task-01-replay-server-and-collector.md)) |
 | 2 | Done | [k6 WebSocket Workload and Sequence Tracker](task-02-k6-ws-workload.md) ([report](reports/task-02-k6-ws-workload.md)) |
-| 3 | Pending | [Orchestrator, Process Monitor, and Reconciler](task-03-orchestrator-monitor-and-reconciler.md) |
+| 3 | Done | [Orchestrator, Process Monitor, and Reconciler](task-03-orchestrator-monitor-and-reconciler.md) ([report](reports/task-03-orchestrator-monitor-and-reconciler.md)) |
 | 4 | Pending | [Fault-Injection Validation and Five-Run Execution](task-04-fault-injection-and-five-run-execution.md) |

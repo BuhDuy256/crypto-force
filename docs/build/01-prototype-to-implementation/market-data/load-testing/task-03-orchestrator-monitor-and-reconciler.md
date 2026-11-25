@@ -49,7 +49,7 @@ Read this file to learn the steps of Task 3, which extends `monitor.ps1` with an
 - Add a lint-disable directive, `@ts-expect-error`, or warning comment.
 - Commit or push.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `apps/api/perf/market-data/ws-k6/run.test.mjs` with this code:
 
@@ -248,16 +248,16 @@ describe('ws-k6 run reconciler and aggregators', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test and make sure that it fails**
+- [x] **Step 2: Run the test and make sure that it fails**
 
 Run: `node --test apps/api/perf/market-data/ws-k6/run.test.mjs`
 Expected: FAIL. The output contains `ERR_MODULE_NOT_FOUND`.
 
-- [ ] **Step 3: Update `apps/api/perf/market-data/monitor.ps1`**
+- [x] **Step 3: Update `apps/api/perf/market-data/monitor.ps1`**
 
 Add an optional third parameter `[string]$ProcessName = 'k6'` in `apps/api/perf/market-data/monitor.ps1` and replace the hardcoded `'k6'` string with `$ProcessName`. Keep `-TargetProcessId` and `-OutputPath` unchanged so existing callers still work.
 
-- [ ] **Step 4: Implement `apps/api/perf/market-data/ws-k6/run.mjs`**
+- [x] **Step 4: Implement `apps/api/perf/market-data/ws-k6/run.mjs`**
 
 Implement the four exported pure functions and the three CLI modes (`seed`, `validate`, `benchmark`):
 - **Database and seeding (`seed`)**:
@@ -286,7 +286,7 @@ Implement the four exported pure functions and the three CLI modes (`seed`, `val
   - Run 5 independent runs (`r1` to `r5`) at `100 VUs`, `30s warm-up + 180s steady-state + 15s drain`.
   - Write combined `docs/testing/evidence/market-data/ws-k6-100vu-v1/summary.json` including per-run metrics, 5-run `median`/`min`/`max`, load-generator saturation verdict, and cross-reference to `docs/testing/evidence/market-data/ws-v1-benchmarks/summary.json` (`recoveryQa16AndQa17`).
 
-- [ ] **Step 5: Run tests and lint checks**
+- [x] **Step 5: Run tests and lint checks**
 
 Run: `node --test apps/api/perf/market-data/ws-k6/run.test.mjs`
 Expected: PASS. The output contains `# fail 0`.
@@ -294,7 +294,7 @@ Expected: PASS. The output contains `# fail 0`.
 Run: `pnpm exec eslint apps/api/perf/market-data/ws-k6/run.mjs apps/api/perf/market-data/ws-k6/run.test.mjs && pnpm exec prettier --check apps/api/perf/market-data/ws-k6/run.mjs apps/api/perf/market-data/ws-k6/run.test.mjs`
 Expected: PASS. Exit code 0 with no errors.
 
-- [ ] **Step 6: Write the report file and stop**
+- [x] **Step 6: Write the report file and stop**
 
 1. Mark Steps 1 to 5 as `- [x]` in this file.
 2. Change the Task 3 row in `docs/build/01-prototype-to-implementation/market-data/load-testing/README.md` to `Done` and link `reports/task-03-orchestrator-monitor-and-reconciler.md`.
