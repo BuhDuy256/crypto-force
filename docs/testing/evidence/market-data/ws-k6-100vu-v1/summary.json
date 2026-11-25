@@ -1,0 +1,231 @@
+{
+  "generatedAtUtc": "2026-11-25T09:10:22.135Z",
+  "parameters": {
+    "vus": 100,
+    "runs": 5,
+    "warmupSeconds": 30,
+    "steadySeconds": 180,
+    "drainSeconds": 15
+  },
+  "environment": {
+    "os": "win32 10.0.26300",
+    "host": "DESKTOP-KE0DR9U",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-1355U",
+    "logicalCores": 12,
+    "ramBytes": 16857645056,
+    "freeRamBytes": 3095191552,
+    "node": "v22.23.5",
+    "apiEntry": "C:\\Users\\Duy\\Desktop\\crypto-force\\apps\\api\\dist\\index.js"
+  },
+  "runCount": 5,
+  "runs": [
+    {
+      "runId": "r1",
+      "startedUtc": "2026-11-25T08:49:37.669Z",
+      "finishedUtc": "2026-11-25T08:53:44.751Z",
+      "vus": 100,
+      "k6ExitCode": 0,
+      "reconciliationPassed": true,
+      "deliveredMessagesPerSec": 983.33,
+      "p95LatencyMs": 18,
+      "p99LatencyMs": 49,
+      "errorRate": 0,
+      "apiCpuPercent": 28.31,
+      "k6CpuPercent": 2.61,
+      "apiHeapMaxMb": 62.04,
+      "apiRssMaxMb": 130.69,
+      "apiEventLoopLagP95MaxMs": 74.318,
+      "k6RamMaxMb": 147.58,
+      "loadGeneratorSaturated": false,
+      "missingEventsTotal": 0,
+      "duplicateEventsTotal": 0,
+      "invalidEventsTotal": 0,
+      "abnormalDisconnects": 0,
+      "missingVuReports": 0
+    },
+    {
+      "runId": "r2",
+      "startedUtc": "2026-11-25T08:53:44.939Z",
+      "finishedUtc": "2026-11-25T08:57:55.406Z",
+      "vus": 100,
+      "k6ExitCode": 0,
+      "reconciliationPassed": true,
+      "deliveredMessagesPerSec": 983.33,
+      "p95LatencyMs": 14,
+      "p99LatencyMs": 30,
+      "errorRate": 0,
+      "apiCpuPercent": 28.15,
+      "k6CpuPercent": 2.57,
+      "apiHeapMaxMb": 48.92,
+      "apiRssMaxMb": 122.53,
+      "apiEventLoopLagP95MaxMs": 63.963,
+      "k6RamMaxMb": 145.55,
+      "loadGeneratorSaturated": false,
+      "missingEventsTotal": 0,
+      "duplicateEventsTotal": 0,
+      "invalidEventsTotal": 0,
+      "abnormalDisconnects": 0,
+      "missingVuReports": 0
+    },
+    {
+      "runId": "r3",
+      "startedUtc": "2026-11-25T08:57:55.464Z",
+      "finishedUtc": "2026-11-25T09:02:07.338Z",
+      "vus": 100,
+      "k6ExitCode": 0,
+      "reconciliationPassed": true,
+      "deliveredMessagesPerSec": 980.56,
+      "p95LatencyMs": 22,
+      "p99LatencyMs": 65,
+      "errorRate": 0,
+      "apiCpuPercent": 27.61,
+      "k6CpuPercent": 2.64,
+      "apiHeapMaxMb": 46.02,
+      "apiRssMaxMb": 126.1,
+      "apiEventLoopLagP95MaxMs": 103.088,
+      "k6RamMaxMb": 152.21,
+      "loadGeneratorSaturated": false,
+      "missingEventsTotal": 0,
+      "duplicateEventsTotal": 0,
+      "invalidEventsTotal": 0,
+      "abnormalDisconnects": 0,
+      "missingVuReports": 0
+    },
+    {
+      "runId": "r4",
+      "startedUtc": "2026-11-25T09:02:07.400Z",
+      "finishedUtc": "2026-11-25T09:06:12.433Z",
+      "vus": 100,
+      "k6ExitCode": 0,
+      "reconciliationPassed": true,
+      "deliveredMessagesPerSec": 986.11,
+      "p95LatencyMs": 19,
+      "p99LatencyMs": 67,
+      "errorRate": 0,
+      "apiCpuPercent": 27.15,
+      "k6CpuPercent": 2.75,
+      "apiHeapMaxMb": 56.38,
+      "apiRssMaxMb": 130.5,
+      "apiEventLoopLagP95MaxMs": 70.779,
+      "k6RamMaxMb": 157.91,
+      "loadGeneratorSaturated": false,
+      "missingEventsTotal": 0,
+      "duplicateEventsTotal": 0,
+      "invalidEventsTotal": 0,
+      "abnormalDisconnects": 0,
+      "missingVuReports": 0
+    },
+    {
+      "runId": "r5",
+      "startedUtc": "2026-11-25T09:06:12.527Z",
+      "finishedUtc": "2026-11-25T09:10:22.110Z",
+      "vus": 100,
+      "k6ExitCode": 0,
+      "reconciliationPassed": true,
+      "deliveredMessagesPerSec": 986.11,
+      "p95LatencyMs": 18,
+      "p99LatencyMs": 49,
+      "errorRate": 0,
+      "apiCpuPercent": 29.8,
+      "k6CpuPercent": 2.99,
+      "apiHeapMaxMb": 63.36,
+      "apiRssMaxMb": 131.43,
+      "apiEventLoopLagP95MaxMs": 72.942,
+      "k6RamMaxMb": 145.48,
+      "loadGeneratorSaturated": false,
+      "missingEventsTotal": 0,
+      "duplicateEventsTotal": 0,
+      "invalidEventsTotal": 0,
+      "abnormalDisconnects": 0,
+      "missingVuReports": 0
+    }
+  ],
+  "aggregate": {
+    "deliveredMessagesPerSec": {
+      "median": 983.33,
+      "min": 980.56,
+      "max": 986.11,
+      "quantiles": {
+        "p50": 983.33,
+        "p95": 986.11,
+        "p99": 986.11
+      }
+    },
+    "p95LatencyMs": {
+      "median": 18,
+      "min": 14,
+      "max": 22,
+      "quantiles": {
+        "p50": 18,
+        "p95": 22,
+        "p99": 22
+      }
+    },
+    "p99LatencyMs": {
+      "median": 49,
+      "min": 30,
+      "max": 67,
+      "quantiles": {
+        "p50": 49,
+        "p95": 67,
+        "p99": 67
+      }
+    },
+    "errorRate": {
+      "median": 0,
+      "min": 0,
+      "max": 0,
+      "quantiles": {
+        "p50": 0,
+        "p95": 0,
+        "p99": 0
+      }
+    },
+    "apiCpuPercent": {
+      "median": 28.15,
+      "min": 27.15,
+      "max": 29.8,
+      "quantiles": {
+        "p50": 28.15,
+        "p95": 29.8,
+        "p99": 29.8
+      }
+    },
+    "k6CpuPercent": {
+      "median": 2.64,
+      "min": 2.57,
+      "max": 2.99,
+      "quantiles": {
+        "p50": 2.64,
+        "p95": 2.99,
+        "p99": 2.99
+      }
+    },
+    "apiHeapMaxMb": {
+      "median": 56.38,
+      "min": 46.02,
+      "max": 63.36,
+      "quantiles": {
+        "p50": 56.38,
+        "p95": 63.36,
+        "p99": 63.36
+      }
+    }
+  },
+  "loadGeneratorSaturated": false,
+  "allRunsPassed": true,
+  "recoveryEvidence": {
+    "source": "docs/testing/evidence/market-data/ws-v1-benchmarks/summary.json",
+    "field": "recoveryQa16AndQa17",
+    "available": true,
+    "sampleCount": 16,
+    "recoveryMsPercentiles": {
+      "p50": 870.94,
+      "p95": 1388.96,
+      "p99": 1388.96
+    },
+    "allSamplesZeroMissingDuplicateMismatch": true,
+    "qa16Passed": true,
+    "qa17Passed": true
+  }
+}

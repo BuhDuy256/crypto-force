@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "expectedVus": 100,
+  "vuReports": 100,
+  "missingVuReports": 0,
+  "steadySeconds": 180,
+  "expectedDeliveredTotal": 176500,
+  "actualDeliveredTotal": 176500,
+  "deliveredMessagesPerSec": 980.56,
+  "missingEventsTotal": 0,
+  "duplicateEventsTotal": 0,
+  "invalidEventsTotal": 0,
+  "abnormalDisconnects": 0,
+  "missingSubscribedAcks": 0,
+  "vusWithMissingEvents": 0,
+  "maxUpstreamConnections": 1
+}

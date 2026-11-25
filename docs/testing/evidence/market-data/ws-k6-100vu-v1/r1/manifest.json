@@ -1,0 +1,44 @@
+{
+  "runId": "r1",
+  "startedUtc": "2026-11-25T08:49:37.669Z",
+  "finishedUtc": "2026-11-25T08:53:44.751Z",
+  "vus": 100,
+  "warmupSeconds": 30,
+  "steadySeconds": 180,
+  "drainSeconds": 15,
+  "faultMode": null,
+  "api": {
+    "entry": "C:\\Users\\Duy\\Desktop\\crypto-force\\apps\\api\\dist\\index.js",
+    "origin": "http://127.0.0.1:3095",
+    "wsUrl": "ws://127.0.0.1:3095/api/market-data/ws",
+    "node": "v22.23.5"
+  },
+  "replay": {
+    "httpUrl": "http://127.0.0.1:3096",
+    "wsUrl": "ws://127.0.0.1:3096/stream",
+    "intervalMs": 500,
+    "channels": [
+      "kline:BTCUSDT:1m",
+      "kline:BTCUSDT:5m",
+      "kline:ETHUSDT:1m",
+      "kline:SOLUSDT:1m",
+      "summary:BTCUSDT"
+    ]
+  },
+  "database": {
+    "name": "crypto_force_ws_k6_perf"
+  },
+  "k6": {
+    "path": "C:\\Users\\Duy\\AppData\\Local\\crypto-force-tools\\k6-2.4.0\\k6-v2.4.0-windows-amd64\\k6.exe",
+    "exitCode": 0
+  },
+  "host": {
+    "os": "win32 10.0.26300",
+    "host": "DESKTOP-KE0DR9U",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-1355U",
+    "logicalCores": 12,
+    "ramBytes": 16857645056,
+    "freeRamBytes": 3110125568
+  },
+  "credentialsPath": "C:\\Users\\Duy\\Desktop\\crypto-force\\node_modules\\.cache\\market-data-ws-k6\\credentials.json"
+}
