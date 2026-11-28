@@ -58,7 +58,7 @@ Read this file to learn Task 5 steps, which build the Backtest setup form, run s
 - Add a lint-disable directive, `@ts-expect-error`, or warning comment.
 - Commit or push.
 
-- [ ] **Step 1: Create `BacktestSetupForm.tsx`, `RunStatusCard.tsx`, and `ActiveRunConflictDialog.tsx`**
+- [x] **Step 1: Create `BacktestSetupForm.tsx`, `RunStatusCard.tsx`, and `ActiveRunConflictDialog.tsx`**
 
 Create `apps/web/app/pages/Backtest/components/BacktestSetupForm.tsx` using `react-hook-form` + `@hookform/resolvers/zod`:
 
@@ -95,7 +95,7 @@ Create `apps/web/app/pages/Backtest/components/ActiveRunConflictDialog.tsx` usin
   - `View running run`: closes the dialog and opens the active run detail view.
   - `Cancel it and run the new one` (label `Cancellingâ€¦` while pending): awaits `cancelBacktest(activeRun.id)` first, then submits the pending `CreateBacktestInput`.
 
-- [ ] **Step 2: Create `RunsListView.tsx` and `RunDetailView.tsx`**
+- [x] **Step 2: Create `RunsListView.tsx` and `RunDetailView.tsx`**
 
 Create `apps/web/app/pages/Backtest/components/RunsListView.tsx`:
 
@@ -120,7 +120,7 @@ Create `apps/web/app/pages/Backtest/components/RunDetailView.tsx`:
   - Actions: `Run again with these settings` (or `Retry with these settings` for failed runs) and `Copy settings to a new backtest`.
   - Render `renderResults?.(detail)` when `detail.status === 'completed'` and `detail.result` exists.
 
-- [ ] **Step 3: Create `BacktestPage.tsx` and wire `apps/web/app/routes/backtest.tsx`**
+- [x] **Step 3: Create `BacktestPage.tsx` and wire `apps/web/app/routes/backtest.tsx`**
 
 Create `apps/web/app/pages/Backtest/BacktestPage.tsx`:
 
@@ -138,12 +138,12 @@ Create `apps/web/app/pages/Backtest/BacktestPage.tsx`:
 
 Update `apps/web/app/routes/backtest.tsx` to render `<BacktestPage />` instead of `<ScreenPlaceholder title="Backtest" />`.
 
-- [ ] **Step 4: Run typecheck, lint, tests, and prettier**
+- [x] **Step 4: Run typecheck, lint, tests, and prettier**
 
 Run: `pnpm --filter @crypto-force/web typecheck && pnpm --filter @crypto-force/web test && pnpm exec eslint apps/web/app/routes/backtest.tsx apps/web/app/pages/Backtest/BacktestPage.tsx apps/web/app/pages/Backtest/components/BacktestSetupForm.tsx apps/web/app/pages/Backtest/components/RunStatusCard.tsx apps/web/app/pages/Backtest/components/ActiveRunConflictDialog.tsx apps/web/app/pages/Backtest/components/RunsListView.tsx apps/web/app/pages/Backtest/components/RunDetailView.tsx && pnpm exec prettier --check apps/web/app/routes/backtest.tsx apps/web/app/pages/Backtest/BacktestPage.tsx apps/web/app/pages/Backtest/components/BacktestSetupForm.tsx apps/web/app/pages/Backtest/components/RunStatusCard.tsx apps/web/app/pages/Backtest/components/ActiveRunConflictDialog.tsx apps/web/app/pages/Backtest/components/RunsListView.tsx apps/web/app/pages/Backtest/components/RunDetailView.tsx`
 Expected: PASS. Typecheck exits with code 0, Vitest passes, ESLint exits with code 0, and Prettier reports all files formatted.
 
-- [ ] **Step 5: Write the report file and stop**
+- [x] **Step 5: Write the report file and stop**
 
 1. Mark Steps 1 to 4 as `- [x]` in this file.
 2. In `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md`, change its row status to `Done` and link `reports/task-05-backtest-setup-and-runs.md` in the `Report` column.

@@ -1,4 +1,4 @@
-import { ScreenPlaceholder } from '~/layouts/workspace/ScreenPlaceholder';
+import { BacktestPage } from '~/pages/Backtest/BacktestPage';
 import type { Route } from './+types/backtest';
 
 export function meta(): Route.MetaDescriptors {
@@ -6,5 +6,5 @@ export function meta(): Route.MetaDescriptors {
 }
 
 export default function BacktestRoute() {
-  return <ScreenPlaceholder title="Backtest" />;
+  return <BacktestPage />;
 }
