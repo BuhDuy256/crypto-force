@@ -37,6 +37,8 @@ export const strategyPreviewResponseSchema = z.strictObject({
   assumptions: z.array(z.string().min(1)),
   definitionJson: z.string().min(2),
   checks: z.array(strategyValidationCheckSchema).min(1),
+  suggestedName: z.string().trim().min(1).max(60),
+  suggestedTags: z.array(z.string().trim().min(1).max(32)),
 });
 
 export const strategyLibraryItemSchema = z.strictObject({

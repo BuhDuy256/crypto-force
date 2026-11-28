@@ -417,6 +417,7 @@ function BacktestWorkspace({
           {resultsRun === null ? null : (
             <BacktestResultsSection
               run={resultsRun}
+              metaPrefix="Latest completed run"
               isStale={inputsChanged}
               runDisabled={createBacktest.isPending}
               onRunAgain={() => {

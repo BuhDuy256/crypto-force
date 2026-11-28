@@ -4,7 +4,11 @@ import {
   type BacktestRunDetail,
 } from '@crypto-force/shared';
 import { http, HttpResponse } from 'msw';
-import { createMockRunResult, seedBacktestRuns } from './fixtures/strategy-backtest';
+import {
+  createMockRunResult,
+  formatResultLabel,
+  seedBacktestRuns,
+} from './fixtures/strategy-backtest';
 import { readMockLibraryItems } from './strategy.handlers';
 
 const LISTING_DATES: Record<BacktestRun['pair'], string> = {
@@ -18,7 +22,7 @@ const MA_CROSSOVER_RULES = [
   'Stop loss and take profit from the strategy settings',
 ];
 
-let runs: BacktestRun[] = seedBacktestRuns();
+const runs: BacktestRun[] = seedBacktestRuns();
 
 function errorResponse(status: number, code: string, message: string) {
   return HttpResponse.json({ error: { code, message } }, { status });
@@ -78,7 +82,7 @@ function advanceActiveRuns(): void {
     }
     run.status = 'completed';
     const result = createMockRunResult(run.feePercent, run.slippageBps);
-    run.resultLabel = `+${result.netReturnPercent}% · max DD ${result.maxDrawdownPercent}%`;
+    run.resultLabel = formatResultLabel(result);
     run.failureReason = null;
   }
 }
@@ -105,10 +109,6 @@ function toDetail(run: BacktestRun): BacktestRunDetail {
     result:
       run.status === 'completed' ? createMockRunResult(run.feePercent, run.slippageBps) : null,
   };
-}
-
-export function resetMockBacktestStore(): void {
-  runs = seedBacktestRuns();
 }
 
 export const backtestHandlers = [

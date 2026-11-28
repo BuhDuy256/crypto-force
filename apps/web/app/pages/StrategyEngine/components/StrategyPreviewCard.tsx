@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import type { StrategyPreviewResponse } from '@crypto-force/shared';
+import { Triangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
+import { WorkspaceStatus } from './WorkspaceStatus';
 
 interface StrategyPreviewCardProps {
   preview: StrategyPreviewResponse | null;
@@ -13,6 +15,11 @@ interface StrategyPreviewCardProps {
   hasShort: boolean;
   onRetry: () => void;
   onHasShortChange: (value: boolean) => void;
+  className?: string;
+}
+
+function Assumed() {
+  return <span className="text-warning"> (assumed)</span>;
 }
 
 export function StrategyPreviewCard({
@@ -22,15 +29,20 @@ export function StrategyPreviewCard({
   hasShort,
   onRetry,
   onHasShortChange,
+  className,
 }: StrategyPreviewCardProps) {
   const [showJson, setShowJson] = useState(false);
+  const [copiedJson, setCopiedJson] = useState<string | null>(null);
+  const copied = preview !== null && copiedJson === preview.definitionJson;
 
   async function copyJson(): Promise<void> {
     if (preview === null) return;
     try {
       await navigator.clipboard.writeText(preview.definitionJson);
+      setCopiedJson(preview.definitionJson);
       toast.success('Strategy JSON copied to the clipboard.');
     } catch {
+      setCopiedJson(null);
       toast.error('Could not copy the JSON. Select the text and copy it manually.');
     }
   }
@@ -49,9 +61,12 @@ export function StrategyPreviewCard({
   }
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
-        <h2 className="text-lg font-semibold">Strategy preview</h2>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <h2 className="text-lg font-semibold">Strategy preview</h2>
+          <WorkspaceStatus label={preview === null ? 'Not analyzed' : 'Example ready'} />
+        </div>
         <CardDescription>Inspect rules, assumptions and the example definition.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -98,7 +113,10 @@ export function StrategyPreviewCard({
                     scope="row"
                     className="w-[32%] py-3 pr-4 text-left font-semibold text-success"
                   >
-                    Go long
+                    <span className="inline-flex items-center gap-2">
+                      <Triangle className="size-2.5 fill-current" aria-hidden="true" />
+                      Go long
+                    </span>
                   </th>
                   <td className="py-3">{preview.rules[0] ?? 'No long rule recorded.'}</td>
                 </tr>
@@ -108,7 +126,10 @@ export function StrategyPreviewCard({
                       scope="row"
                       className="w-[32%] py-3 pr-4 text-left font-semibold text-destructive"
                     >
-                      Short condition (example)
+                      <span className="inline-flex items-center gap-2">
+                        <Triangle className="size-2.5 rotate-180 fill-current" aria-hidden="true" />
+                        Short condition (example)
+                      </span>
                     </th>
                     <td className="py-3">{preview.shortRuleText}</td>
                   </tr>
@@ -123,13 +144,19 @@ export function StrategyPreviewCard({
                   <th scope="row" className="py-3 pr-4 text-left font-semibold">
                     Timeframe
                   </th>
-                  <td className="py-3">{preview.assumedTimeframe}</td>
+                  <td className="py-3">
+                    {preview.assumedTimeframe}
+                    <Assumed />
+                  </td>
                 </tr>
                 <tr>
                   <th scope="row" className="py-3 pr-4 text-left font-semibold">
                     Pairs
                   </th>
-                  <td className="py-3">{preview.assumedPairs}</td>
+                  <td className="py-3">
+                    {preview.assumedPairs}
+                    <Assumed />
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -144,9 +171,13 @@ export function StrategyPreviewCard({
                   <li>
                     A mirrored SHORT rule is shown as an example. Confirm whether short positions
                     belong in this strategy.{' '}
-                    <Button type="button" variant="link" size="sm" onClick={removeShort}>
+                    <button
+                      type="button"
+                      onClick={removeShort}
+                      className="text-info underline underline-offset-4 hover:text-info/80"
+                    >
                       Remove short example
-                    </Button>
+                    </button>
                   </li>
                 ) : null}
               </ul>
@@ -179,7 +210,7 @@ export function StrategyPreviewCard({
                       void copyJson();
                     }}
                   >
-                    Copy
+                    {copied ? 'Copied' : 'Copy'}
                   </Button>
                 </div>
               </div>

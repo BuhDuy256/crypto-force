@@ -28,16 +28,20 @@ The test also uses `E2E_Contrast` and `e2e-run-2001` as its own fixture values i
 | `pnpm exec prettier --check` on the three source files and the three changed Markdown files | 0 | `All matched files use Prettier code style!` |
 | `pnpm check:docs` | 1 | Existing problems under `docs/knowledge/261125-market-data-deep-dive/self-resolve/`; none in a file changed by this task |
 
-The `pnpm check:exports` failure is outside this task's `Files` block. Each of the five symbols is used inside its own module, so the production behavior is correct; the exports are only unnecessary. Removing the five `export` keywords would make the check pass. The task row stays `Pending` until a person approves that change.
+The `pnpm check:exports` failure is outside this task's `Files` block. Each of the five symbols is used inside its own module, so the production behavior is correct; the exports are only unnecessary. Removing the five `export` keywords would make the check pass. The task row stays `Pending` until a person approves that change. The [Follow-up](#follow-up) section replaces this paragraph.
 
 ## What the commands do not prove
 
-- The `check:exports` command does not prove zero unused production exports. Five exports from Tasks 1 and 2 have no importer outside their own module.
+- The `check:exports` command does not prove zero unused production exports. Five exports from Tasks 1 and 2 have no importer outside their own module. The [Follow-up](#follow-up) section replaces this item.
 - The `ui` tests replace every HTTP response the screen needs. They do not prove that the real API returns the same paths, statuses, or bodies.
 - The `msw` tests use the seeded development data in `apps/web/mocks/`. They do not prove that the real backend and worker produce the same strategy versions, run progress, failures, or drift.
 - The conflict test creates the blocking run through `POST /api/backtests` instead of a second form submit, for the reason above.
 - No accessibility scan runs on the three screens, and no test sets a mobile or tablet viewport.
-- The Strategy Engine test covers the description input only. It does not cover importing from a link, duplicate strategy names, the edit flow, the stop-editing dialog, or tag editing.
+- The Strategy Engine test covers the description input only. It does not cover importing from a link, a duplicate name that the user types, the edit flow, the stop-editing dialog, or tag editing. The follow-up checks a duplicate suggested name.
 - The Strategy Library test covers one strategy item. It does not cover the composite drawer, the signal-source action, or the empty-search state.
 - The Backtest test does not cover cancelling a watched run from `RunStatusCard`, the rerun and copy-settings actions, the full-screen chart, column sorting, or the results error state.
 - The build proves that the production bundle compiles and contains no MSW module. It does not prove runtime behavior of the built app.
+
+## Follow-up
+
+Task 8 changed the Phase 1 screens, the mock result, and the two spec files after this report. `pnpm check:exports` now exits 0, and the Strategy Engine test checks a duplicate suggested name. The [Task 8 report](task-08-prototype-parity.md) gives the commands, the results, and the mutants. The product owner approved this report on 2026-11-28.

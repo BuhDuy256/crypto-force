@@ -6,6 +6,7 @@ import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import { WorkspaceStatus } from './WorkspaceStatus';
 
 interface StrategySaveCardProps {
   preview: StrategyPreviewResponse | null;
@@ -20,6 +21,8 @@ interface StrategySaveCardProps {
   onNameBlur: () => void;
   onTagsChange: (tags: string[]) => void;
   onSave: () => void;
+  statusLabel: string;
+  className?: string;
 }
 
 export function StrategySaveCard({
@@ -35,6 +38,8 @@ export function StrategySaveCard({
   onNameBlur,
   onTagsChange,
   onSave,
+  statusLabel,
+  className,
 }: StrategySaveCardProps) {
   const [showChecks, setShowChecks] = useState(false);
   const [tagDraft, setTagDraft] = useState('');
@@ -61,9 +66,12 @@ export function StrategySaveCard({
   }
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
-        <h2 className="text-lg font-semibold">Validation &amp; actions</h2>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <h2 className="text-lg font-semibold">Validation &amp; actions</h2>
+          <WorkspaceStatus label={statusLabel} />
+        </div>
         <CardDescription>
           Check the example rules, then name and save your strategy.
         </CardDescription>
@@ -93,6 +101,7 @@ export function StrategySaveCard({
                   type="button"
                   variant="link"
                   size="sm"
+                  className="h-auto p-0 text-info underline"
                   aria-expanded={showChecks}
                   onClick={() => {
                     setShowChecks((current) => !current);

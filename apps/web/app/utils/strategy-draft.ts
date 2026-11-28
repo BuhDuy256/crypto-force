@@ -114,7 +114,7 @@ function formatIsoDate(date: Date): string {
 }
 
 /**
- * Formats a Backtest period, for example `01 May 2025 -> 15 May 2025 · 14 days`.
+ * Formats a Backtest period, for example `01 May 2025 → 15 May 2025 · 14 days`.
  * Returns `null` when either date is invalid or the end date is not after the start date.
  */
 export function formatBacktestPeriod(from: string, to: string): string | null {
@@ -122,7 +122,25 @@ export function formatBacktestPeriod(from: string, to: string): string | null {
   const toDate = parseIsoDate(to);
   if (fromDate === null || toDate === null || fromDate.getTime() >= toDate.getTime()) return null;
   const days = Math.round((toDate.getTime() - fromDate.getTime()) / DAY_MS);
-  return `${formatIsoDate(fromDate)} -> ${formatIsoDate(toDate)} · ${days} days`;
+  return `${formatIsoDate(fromDate)} → ${formatIsoDate(toDate)} · ${days} days`;
+}
+
+/** Formats a run title, for example `MA Crossover · BTCUSDT 5m · 01 May 2025 – 15 May 2025`. */
+export function formatRunTitle(run: {
+  strategyName: string;
+  pair: string;
+  timeframe: string;
+  from: string;
+  to: string;
+}): string {
+  return `${run.strategyName} · ${run.pair} ${run.timeframe} · ${formatRunPeriod(run.from, run.to)}`;
+}
+
+/** Formats the date range in a run title, for example `01 May 2025 – 15 May 2025`. Keeps an invalid date as it is. */
+export function formatRunPeriod(from: string, to: string): string {
+  const fromDate = parseIsoDate(from);
+  const toDate = parseIsoDate(to);
+  return `${fromDate === null ? from : formatIsoDate(fromDate)} – ${toDate === null ? to : formatIsoDate(toDate)}`;
 }
 
 /** Whether an ISO calendar date is later than the given ISO today. */

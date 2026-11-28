@@ -12,6 +12,7 @@ import {
 } from '~/components/ui/dialog';
 import { useSignOut } from '~/hooks/useAuth';
 import { useActiveBacktest } from '~/hooks/useBacktests';
+import { useBacktestFinishNotice } from '~/hooks/useBacktestFinishNotice';
 import { cn } from '~/utils/cn';
 import { AccountMenu } from './AccountMenu';
 import { MobileNav } from './MobileNav';
@@ -39,6 +40,7 @@ export function AppHeader({ user }: AppHeaderProps) {
   const activeQuery = useActiveBacktest();
   const activeRun = activeQuery.data?.run ?? null;
   const runningRun = activeRun?.status === 'running' ? activeRun : null;
+  useBacktestFinishNotice(activeRun);
   const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
 
   const onSignOut = () => {

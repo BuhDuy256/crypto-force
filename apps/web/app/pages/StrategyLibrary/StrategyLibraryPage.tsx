@@ -1,5 +1,6 @@
 import { useState, type JSX } from 'react';
 import type { StrategyLibraryItem } from '@crypto-force/shared';
+import { Plus } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
@@ -145,7 +146,10 @@ export function StrategyLibraryPage(): JSX.Element {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild>
-            <Link to="/strategy">New strategy</Link>
+            <Link to="/strategy">
+              <Plus aria-hidden="true" />
+              New strategy
+            </Link>
           </Button>
           <Button asChild variant="outline">
             <Link to="/discovery">New composite</Link>
@@ -296,7 +300,7 @@ export function StrategyLibraryPage(): JSX.Element {
                   </div>
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     <span className="text-sm text-muted-foreground">{itemRunSummary(item)}</span>
-                    <Button asChild variant="outline" size="sm">
+                    <Button asChild variant="outline">
                       <Link
                         to={`/backtest?strategy=${encodeURIComponent(item.id)}`}
                         state={{ from: 'your library' }}
@@ -304,13 +308,12 @@ export function StrategyLibraryPage(): JSX.Element {
                         Backtest
                       </Link>
                     </Button>
-                    <Button asChild variant="outline" size="sm">
+                    <Button asChild variant="outline">
                       <Link to={editHref}>Edit</Link>
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
-                      size="sm"
                       aria-label={`Details for ${item.name}`}
                       onClick={() => {
                         openLibraryItem(item);

@@ -6,7 +6,7 @@ import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Skeleton } from '~/components/ui/skeleton';
 import { useBacktestRunDetail, useCancelBacktest } from '~/hooks/useBacktests';
-import { formatBacktestPeriod } from '~/utils/strategy-draft';
+import { formatRunPeriod, formatRunTitle } from '~/utils/strategy-draft';
 
 const STATUS_LABEL: Record<BacktestRunStatus, string> = {
   running: 'Running',
@@ -39,10 +39,6 @@ function versionLabel(version: string): string {
   if (version === 'built-in') return 'built-in';
   if (version === 'unsaved') return 'not saved in the library';
   return `v${version}`;
-}
-
-function periodLabel(detail: BacktestRunDetail): string {
-  return formatBacktestPeriod(detail.from, detail.to) ?? `${detail.from} – ${detail.to}`;
 }
 
 interface RunDetailViewProps {
@@ -145,7 +141,7 @@ function RunDetailContent({
       >
         <div className="flex flex-wrap items-center gap-2">
           <h2 id="backtest-run-heading" className="mr-auto text-xl font-semibold break-words">
-            {detail.strategyName} · {detail.pair} {detail.timeframe}
+            {formatRunTitle(detail)}
           </h2>
           <Badge variant={STATUS_VARIANT[detail.status]}>{STATUS_LABEL[detail.status]}</Badge>
           <span className="text-sm text-muted-foreground">
@@ -239,7 +235,7 @@ function RunDetailContent({
           </div>
           <div className="flex flex-col gap-0.5">
             <dt className="text-xs text-muted-foreground">Period</dt>
-            <dd className="text-sm break-words">{periodLabel(detail)}</dd>
+            <dd className="text-sm break-words">{formatRunPeriod(detail.from, detail.to)}</dd>
           </div>
           <div className="flex flex-col gap-0.5">
             <dt className="text-xs text-muted-foreground">Capital</dt>

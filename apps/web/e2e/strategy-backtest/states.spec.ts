@@ -7,6 +7,8 @@ import { expect, test, type BrowserContext } from '@playwright/test';
 // Expected text comes from the Phase 1 task files in
 // docs/build/01-prototype-to-implementation/strategy-backtest/implementation/plan/.
 // The delayed list responses produce the skeleton states; the 500 responses produce the alerts.
+// The preview double returns a suggested name, and the preview test checks that the Name field
+// shows it. A mutant run on 2026-11-28 that leaves the Name field empty made that test fail.
 
 function requestGate() {
   let release: (() => void) | undefined;
@@ -80,6 +82,8 @@ const preview = {
   assumptions: ['No timeframe given, so we used 1h.'],
   definitionJson: '{"name":"E2E_Contrast","version":"1.0.0"}',
   checks: [{ title: 'Required fields', detail: 'None missing', passed: true }],
+  suggestedName: 'E2E_Contrast',
+  suggestedTags: ['RSI'],
 };
 
 async function stubSession(context: BrowserContext): Promise<void> {
@@ -189,4 +193,5 @@ test('shows a preview error and retries the preview', async ({ page, context }) 
   mode = 'ok';
   await page.getByRole('button', { name: 'Retry' }).click();
   await expect(page.getByRole('rowheader', { name: 'Go long' })).toBeVisible();
+  await expect(page.getByLabel('Name', { exact: true })).toHaveValue('E2E_Contrast');
 });

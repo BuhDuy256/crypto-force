@@ -1,7 +1,7 @@
 import type { BacktestRun, BacktestRunStatus } from '@crypto-force/shared';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
-import { formatBacktestPeriod } from '~/utils/strategy-draft';
+import { formatRunTitle } from '~/utils/strategy-draft';
 
 const STATUS_LABEL: Record<BacktestRunStatus, string> = {
   running: 'Running',
@@ -30,11 +30,6 @@ function formatStamp(value: string | null): string {
   });
 }
 
-function runTitle(run: BacktestRun): string {
-  const period = formatBacktestPeriod(run.from, run.to) ?? `${run.from} – ${run.to}`;
-  return `${run.strategyName} · ${run.pair} ${run.timeframe} · ${period}`;
-}
-
 interface RunStatusCardProps {
   run: BacktestRun;
   isCancelling: boolean;
@@ -56,7 +51,7 @@ export function RunStatusCard({
       className="flex flex-col gap-3 rounded-xl border bg-card p-4 sm:p-5"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="mr-auto text-base font-semibold break-words">{runTitle(run)}</h2>
+        <h2 className="mr-auto text-base font-semibold break-words">{formatRunTitle(run)}</h2>
         <Badge variant={STATUS_VARIANT[run.status]}>{STATUS_LABEL[run.status]}</Badge>
         <span className="text-sm text-muted-foreground">
           Run {run.id} · started {formatStamp(run.startedAt)}

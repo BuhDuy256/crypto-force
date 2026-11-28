@@ -9,14 +9,14 @@ import type {
   StrategySource,
 } from '@crypto-force/shared';
 
-const CAPITAL_USD = 100;
-const GROSS_PNL_USD = 22.66;
-const BASE_FEE_USD = 8.9;
-const BASE_SLIPPAGE_USD = 5.34;
+const CAPITAL_CENTS = 10000;
+const GROSS_PNL_CENTS = 2266;
+const BASE_FEE_CENTS = 890;
+const BASE_SLIPPAGE_CENTS = 534;
 const BASE_FEE_PERCENT = 0.08;
 const BASE_SLIPPAGE_BPS = 5;
 const TOTAL_TRADES = 178;
-const WINNING_TRADES = 96;
+const BUY_AND_HOLD_PERCENT = 1.29;
 
 const MA_CROSSOVER_RULES = [
   'LONG when MA(20) crosses above MA(50); SHORT when it crosses below',
@@ -152,11 +152,6 @@ export function buildStrategyPreview(
     assumptions: [
       'No timeframe given, so we used 1h.',
       'No pairs specified. This demo assumes all USDT spot pairs; confirm the intended markets before testing.',
-      ...(includeShort
-        ? [
-            'A mirrored SHORT rule is shown as an example. Confirm whether short positions belong in this strategy.',
-          ]
-        : []),
     ],
     definitionJson: JSON.stringify(definition, null, 2),
     checks: [
@@ -164,147 +159,270 @@ export function buildStrategyPreview(
       { title: 'Logic', detail: 'Consistent', passed: true },
       { title: 'Indicators', detail: 'All supported', passed: true },
     ],
+    suggestedName: 'RSI_BB_LB_LONG_SL2_TP4',
+    suggestedTags: ['RSI', 'Bollinger', 'Mean Reversion', 'Long'],
   };
 }
 
-function interpolate(points: ReadonlyArray<readonly [number, number]>, index: number): number {
-  for (let position = 1; position < points.length; position += 1) {
-    const start = points[position - 1];
-    const end = points[position];
+const HOUR_SEC = 3600;
+const TRADE_SPACING_SEC = 6600;
+const FIRST_TRADE_SEC = 1746080100;
+const PRICE_START_SEC = 1746079200;
+const PRICE_CANDLE_SEC = 900;
+const PRICE_CANDLE_COUNT = 96;
+const STOP_LOSS_FRACTION = 0.0075;
+const TAKE_PROFIT_FRACTION = 0.015;
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const EQUITY_WAYPOINTS: ReadonlyArray<readonly [number, number]> = [
+  [0, 100],
+  [0.12, 101.6],
+  [0.25, 103.1],
+  [0.33, 102.4],
+  [0.42, 105.9],
+  [0.53, 102.69],
+  [0.64, 104.3],
+  [0.78, 106.4],
+  [0.9, 107.2],
+  [1, 108.42],
+];
+
+const PRICE_WAYPOINTS: ReadonlyArray<readonly [number, number]> = [
+  [0, 68100],
+  [0.04, 67850],
+  [0.12, 68350],
+  [0.26, 69250],
+  [0.38, 69800],
+  [0.45, 68950],
+  [0.54, 68450],
+  [0.64, 69050],
+  [0.74, 69500],
+  [0.84, 69150],
+  [0.94, 68950],
+  [1, 68980],
+];
+
+function interpolate(points: ReadonlyArray<readonly [number, number]>, position: number): number {
+  for (let index = 1; index < points.length; index += 1) {
+    const start = points[index - 1];
+    const end = points[index];
     if (!start || !end) continue;
-    if (index <= end[0]) {
-      return start[1] + ((end[1] - start[1]) * (index - start[0])) / (end[0] - start[0]);
+    if (position <= end[0]) {
+      return start[1] + ((end[1] - start[1]) * (position - start[0])) / (end[0] - start[0]);
     }
   }
   const last = points[points.length - 1];
   return last ? last[1] : 0;
 }
 
-function buildEquityCurve(): BacktestEquityPoint[] {
-  const waypoints: ReadonlyArray<readonly [number, number]> = [
-    [0, 100],
-    [7, 101.6],
-    [14, 103.1],
-    [19, 102.4],
-    [24, 105.9],
-    [31, 102.69],
-    [37, 104.3],
-    [46, 106.4],
-    [53, 107.2],
-    [59, 108.42],
-  ];
-  const peakAt = (index: number): number =>
-    waypoints.reduce((peak, [point, value]) => (point <= index ? Math.max(peak, value) : peak), 0);
+function seededRandom(seed: number): () => number {
+  let state = seed;
+  return () => {
+    state = (state * 16807) % 2147483647;
+    return (state - 1) / 2147483646;
+  };
+}
 
-  return Array.from({ length: 60 }, (_, index) => {
-    const accountValueUsd = round2(interpolate(waypoints, index));
-    const peak = Math.max(peakAt(index), accountValueUsd);
+function spreadCents(totalCents: number, count: number): number[] {
+  const base = Math.floor(totalCents / count);
+  const remainder = totalCents - base * count;
+  return Array.from({ length: count }, (_, index) => base + (index < remainder ? 1 : 0));
+}
 
-    return {
-      timeSec: 1746086400 + index * 3600,
-      accountValueUsd,
-      buyAndHoldUsd: round2(100 + (1.29 * index) / 59),
-      drawdownUsd: round2(Math.min(0, accountValueUsd - peak)),
-    };
+function pad2(value: number): string {
+  return String(value).padStart(2, '0');
+}
+
+function formatOpenedAt(timeSec: number): string {
+  const date = new Date(timeSec * 1000);
+  const month = MONTHS[date.getUTCMonth()] ?? '';
+  return `${pad2(date.getUTCDate())} ${month}, ${pad2(date.getUTCHours())}:${pad2(date.getUTCMinutes())}`;
+}
+
+function formatHeld(seconds: number): string {
+  const minutes = Math.round(seconds / 60);
+  return `${String(Math.floor(minutes / 60))}h ${pad2(minutes % 60)}m`;
+}
+
+/** Account value in cents after each trade. Index 0 is the starting capital. */
+function equityPathCents(): number[] {
+  const random = seededRandom(4242);
+  return Array.from({ length: TOTAL_TRADES + 1 }, (_, index) => {
+    const target = Math.round(interpolate(EQUITY_WAYPOINTS, index / TOTAL_TRADES) * 100);
+    if (index === 0 || index === TOTAL_TRADES) return target;
+    return target + Math.round((random() - 0.5) * 40);
   });
+}
+
+/** Deterministic market price at a point in time, shared by the candles and the trade prices. */
+function priceAt(timeSec: number): number {
+  const position = (timeSec - PRICE_START_SEC) / (PRICE_CANDLE_SEC * PRICE_CANDLE_COUNT);
+  const wrapped = position - Math.floor(position);
+  return interpolate(PRICE_WAYPOINTS, wrapped) + Math.sin(timeSec / 2400) * 90;
+}
+
+interface TradeRows {
+  trades: BacktestTrade[];
+  equityCurve: BacktestEquityPoint[];
+}
+
+function buildTradeRows(feeCents: number[], slippageCents: number[]): TradeRows {
+  const baseFee = spreadCents(BASE_FEE_CENTS, TOTAL_TRADES);
+  const baseSlippage = spreadCents(BASE_SLIPPAGE_CENTS, TOTAL_TRADES);
+  const path = equityPathCents();
+  const trades: BacktestTrade[] = [];
+  const equityCurve: BacktestEquityPoint[] = [];
+  let accountCents = CAPITAL_CENTS;
+  let peakCents = CAPITAL_CENTS;
+
+  equityCurve.push({
+    timeSec: FIRST_TRADE_SEC - TRADE_SPACING_SEC,
+    accountValueUsd: CAPITAL_CENTS / 100,
+    buyAndHoldUsd: CAPITAL_CENTS / 100,
+    drawdownUsd: 0,
+  });
+
+  for (let offset = 0; offset < TOTAL_TRADES; offset += 1) {
+    const index = offset + 1;
+    const grossCents =
+      (path[index] ?? 0) -
+      (path[offset] ?? 0) +
+      (baseFee[offset] ?? 0) +
+      (baseSlippage[offset] ?? 0);
+    const fee = feeCents[offset] ?? 0;
+    const slippage = slippageCents[offset] ?? 0;
+    const netCents = grossCents - fee - slippage;
+    const side = index % 2 === 1 ? 'LONG' : 'SHORT';
+    const direction = side === 'LONG' ? 1 : -1;
+    const openedTimeSec = FIRST_TRADE_SEC + offset * TRADE_SPACING_SEC;
+    const heldSec = HOUR_SEC + ((index * 7) % 10) * 300;
+    const entryPrice = round2(priceAt(openedTimeSec));
+    const exitPrice = round2(entryPrice * (1 + (direction * grossCents) / CAPITAL_CENTS));
+
+    trades.push({
+      index,
+      openedAt: formatOpenedAt(openedTimeSec),
+      openedTimeSec,
+      closedTimeSec: openedTimeSec + heldSec,
+      side,
+      pnlUsd: netCents / 100,
+      pnlPercent: round2((netCents / CAPITAL_CENTS) * 100),
+      entryPrice,
+      exitPrice,
+      stopLoss: round2(entryPrice * (1 - direction * STOP_LOSS_FRACTION)),
+      takeProfit: round2(entryPrice * (1 + direction * TAKE_PROFIT_FRACTION)),
+      feeUsd: fee / 100,
+      slippageUsd: slippage / 100,
+      heldDuration: formatHeld(heldSec),
+    });
+
+    accountCents += netCents;
+    peakCents = Math.max(peakCents, accountCents);
+    const progress = index / TOTAL_TRADES;
+    equityCurve.push({
+      timeSec: openedTimeSec + heldSec,
+      accountValueUsd: accountCents / 100,
+      buyAndHoldUsd: round2(
+        100 + BUY_AND_HOLD_PERCENT * progress + Math.sin(progress * Math.PI * 4) * 0.6,
+      ),
+      drawdownUsd: (accountCents - peakCents) / 100,
+    });
+  }
+
+  return { trades, equityCurve };
 }
 
 function buildPriceSeries(): BacktestPriceCandle[] {
-  const closes = Array.from({ length: 60 }, (_, index) =>
-    round2(68600 + Math.sin(index / 6) * 250 + index * 4),
-  );
-
-  return closes.map((close, index) => {
-    const open = index === 0 ? 68100 : (closes[index - 1] ?? close);
-    const window20 = closes.slice(Math.max(0, index - 19), index + 1);
-    const window50 = closes.slice(Math.max(0, index - 49), index + 1);
-    const mean = (values: number[]): number =>
-      round2(values.reduce((sum, value) => sum + value, 0) / values.length);
-
+  const random = seededRandom(7919);
+  const closes: number[] = [];
+  const candles = Array.from({ length: PRICE_CANDLE_COUNT }, (_, index) => {
+    const openTime = PRICE_START_SEC + index * PRICE_CANDLE_SEC;
+    const open = index === 0 ? round2(priceAt(openTime)) : (closes[index - 1] ?? 0);
+    const close = round2(priceAt(openTime + PRICE_CANDLE_SEC - 1) + (random() - 0.5) * 60);
+    closes.push(close);
     return {
-      timeSec: 1746086400 + index * 3600,
+      timeSec: openTime,
       open,
-      high: round2(Math.max(open, close) + 25),
-      low: round2(Math.min(open, close) - 25),
+      high: round2(Math.max(open, close) + random() * 70),
+      low: round2(Math.min(open, close) - random() * 70),
       close,
-      volume: round2(0.2 + ((index * 37) % 50) / 100),
-      ma20: mean(window20),
-      ma50: mean(window50),
+      volume: round2(0.15 + random() * 0.5 + (random() > 0.88 ? 0.35 : 0)),
     };
   });
+  const mean = (values: number[]): number =>
+    round2(values.reduce((sum, value) => sum + value, 0) / values.length);
+
+  return candles.map((candle, index) => ({
+    ...candle,
+    ma20: index < 19 ? null : mean(closes.slice(index - 19, index + 1)),
+    ma50: index < 49 ? null : mean(closes.slice(index - 49, index + 1)),
+  }));
 }
 
-function buildTrades(totalFeeUsd: number, totalSlippageUsd: number): BacktestTrade[] {
-  const perTradeFee = round2(totalFeeUsd / 30);
-  const perTradeSlippage = round2(totalSlippageUsd / 30);
+function maxDrawdownPercent(curve: BacktestEquityPoint[]): number {
+  let peak = curve[0]?.accountValueUsd ?? CAPITAL_CENTS / 100;
+  let worst = 0;
+  for (const point of curve) {
+    peak = Math.max(peak, point.accountValueUsd);
+    worst = Math.min(worst, ((point.accountValueUsd - peak) / peak) * 100);
+  }
+  return round2(worst);
+}
 
-  return Array.from({ length: 30 }, (_, offset) => {
-    const index = offset + 1;
-    const side = index % 3 === 0 ? 'SHORT' : 'LONG';
-    const entryPrice = round2(68000 + ((index * 137) % 1200));
-    const stopLoss = round2(entryPrice - 500);
-    const takeProfit = round2(entryPrice + 1000);
-    const exitPrice = round2(
-      side === 'LONG'
-        ? entryPrice + (index % 2 === 0 ? 1000 : -500)
-        : entryPrice + (index % 2 === 0 ? 500 : -1000),
-    );
-    const pnlUsd = round2(index % 5 === 0 ? -0.67 : 0.45);
+function signedPercent(value: number): string {
+  const body = `${Math.abs(value).toFixed(2)}%`;
+  if (value > 0) return `+${body}`;
+  return value < 0 ? `−${body}` : body;
+}
 
-    return {
-      index,
-      openedAt: `01 May 2025, ${String(6 + (index % 18)).padStart(2, '0')}:15`,
-      openedTimeSec: 1746086400 + index * 8400,
-      closedTimeSec: 1746086400 + index * 8400 + 1800,
-      side,
-      pnlUsd,
-      pnlPercent: round2((pnlUsd / CAPITAL_USD) * 100),
-      entryPrice,
-      exitPrice,
-      stopLoss,
-      takeProfit,
-      feeUsd: perTradeFee,
-      slippageUsd: perTradeSlippage,
-      heldDuration: `${1 + (index % 6)}h ${10 + (index % 5) * 7}m`,
-    };
-  });
+export function formatResultLabel(result: BacktestResultSummary): string {
+  return `${signedPercent(result.netReturnPercent)} · max DD ${signedPercent(result.maxDrawdownPercent)}`;
 }
 
 export function createMockRunResult(
   feePercent: number,
   slippageBps: number,
 ): BacktestResultSummary {
-  const totalFeeUsd = round2((BASE_FEE_USD * feePercent) / BASE_FEE_PERCENT);
-  const totalSlippageUsd = round2((BASE_SLIPPAGE_USD * slippageBps) / BASE_SLIPPAGE_BPS);
-  const netPnlUsd = round2(GROSS_PNL_USD - totalFeeUsd - totalSlippageUsd);
+  const totalFeeCents = Math.round((BASE_FEE_CENTS * feePercent) / BASE_FEE_PERCENT);
+  const totalSlippageCents = Math.round((BASE_SLIPPAGE_CENTS * slippageBps) / BASE_SLIPPAGE_BPS);
+  const { trades, equityCurve } = buildTradeRows(
+    spreadCents(totalFeeCents, TOTAL_TRADES),
+    spreadCents(totalSlippageCents, TOTAL_TRADES),
+  );
+  const netCents = GROSS_PNL_CENTS - totalFeeCents - totalSlippageCents;
+  const winningTrades = trades.filter((trade) => trade.pnlUsd > 0).length;
+  const netReturnPercent = round2((netCents / CAPITAL_CENTS) * 100);
+  const maxDrawdownUsd = Math.min(...equityCurve.map((point) => point.drawdownUsd));
 
   return {
-    netReturnUsd: netPnlUsd,
-    netReturnPercent: round2((netPnlUsd / CAPITAL_USD) * 100),
-    maxDrawdownUsd: -3.21,
-    maxDrawdownPercent: -3.03,
-    winRatePercent: round2((WINNING_TRADES / TOTAL_TRADES) * 100),
-    winningTrades: WINNING_TRADES,
+    netReturnUsd: netCents / 100,
+    netReturnPercent,
+    maxDrawdownUsd,
+    maxDrawdownPercent: maxDrawdownPercent(equityCurve),
+    winRatePercent: round2((winningTrades / TOTAL_TRADES) * 100),
+    winningTrades,
     totalTrades: TOTAL_TRADES,
-    avgNetPerTradeUsd: round2(netPnlUsd / TOTAL_TRADES),
-    avgCostPerTradeUsd: round2((totalFeeUsd + totalSlippageUsd) / TOTAL_TRADES),
-    buyAndHoldPercent: 1.29,
-    vsBuyAndHoldPts: round2(netPnlUsd - 1.29),
-    grossPnlUsd: GROSS_PNL_USD,
-    totalFeeUsd,
-    totalSlippageUsd,
-    netPnlUsd,
-    costShareOfGrossPercent: round2(((totalFeeUsd + totalSlippageUsd) / GROSS_PNL_USD) * 100),
+    avgNetPerTradeUsd: Math.round((netCents / TOTAL_TRADES) * 10) / 1000,
+    avgCostPerTradeUsd:
+      Math.round(((totalFeeCents + totalSlippageCents) / TOTAL_TRADES) * 10) / 1000,
+    buyAndHoldPercent: BUY_AND_HOLD_PERCENT,
+    vsBuyAndHoldPts: round2(netReturnPercent - BUY_AND_HOLD_PERCENT),
+    grossPnlUsd: GROSS_PNL_CENTS / 100,
+    totalFeeUsd: totalFeeCents / 100,
+    totalSlippageUsd: totalSlippageCents / 100,
+    netPnlUsd: netCents / 100,
+    costShareOfGrossPercent: round2(((totalFeeCents + totalSlippageCents) / GROSS_PNL_CENTS) * 100),
     supportLevel: 67800,
     resistanceLevel: 70200,
     assumptions: [
-      `Fees ${feePercent}% and slippage ${slippageBps} bps apply to every trade.`,
-      'Signals use closed candles only.',
-      'Prices are Binance spot USDT pairs.',
+      'Both LONG and SHORT positions',
+      'Stop loss and take profit filled on real OHLC prices',
+      'Position size: full capital per trade',
+      'Same inputs always give the same result',
     ],
-    equityCurve: buildEquityCurve(),
+    equityCurve,
     priceSeries: buildPriceSeries(),
-    trades: buildTrades(totalFeeUsd, totalSlippageUsd),
+    trades,
   };
 }
 
@@ -328,7 +446,7 @@ export function seedBacktestRuns(): BacktestRun[] {
       slippageBps: 5,
       startedAt: '2025-05-20T10:42:00.000Z',
       endedAt: '2025-05-20T10:42:12.000Z',
-      resultLabel: '+8.42% · max DD −3.03%',
+      resultLabel: formatResultLabel(createMockRunResult(0.08, 5)),
       failureReason: null,
     },
     {

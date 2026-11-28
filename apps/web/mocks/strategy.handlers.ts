@@ -56,12 +56,6 @@ function bumpPatchVersion(version: string): string {
   return `${major}.${minor}.${patch + 1}`;
 }
 
-export function resetMockStrategyStore(): void {
-  library = seedStrategyLibrary();
-  deletedItems.clear();
-  nextMockId = 1;
-}
-
 export function readMockLibraryItems(): StrategyLibraryItem[] {
   return library.map((item) => ({ ...item }));
 }

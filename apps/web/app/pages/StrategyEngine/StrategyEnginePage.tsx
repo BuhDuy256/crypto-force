@@ -99,6 +99,19 @@ function rulesForSave(preview: StrategyPreviewResponse, hasShort: boolean): stri
   return preview.rules.filter((rule) => rule.trim() !== preview.shortRuleText.trim());
 }
 
+/** Returns the name, or the name with the first free number when the library already has it. */
+function freeName(base: string, items: StrategyLibraryItem[], exceptId: string | null): string {
+  const taken = new Set(
+    items.filter((item) => item.id !== exceptId).map((item) => item.name.trim().toLowerCase()),
+  );
+  if (!taken.has(base.toLowerCase())) return base;
+  for (let number = 2; number < 100; number += 1) {
+    const candidate = `${base.slice(0, 60 - String(number).length - 1)} ${String(number)}`;
+    if (!taken.has(candidate.toLowerCase())) return candidate;
+  }
+  return base;
+}
+
 function previewFromItem(item: StrategyLibraryItem): StrategyPreviewResponse {
   const shortRule = item.rules.find((rule) => rule.trim().toUpperCase().startsWith('SHORT'));
   const riskRules = item.rules.filter((rule) => /stop loss|take profit/i.test(rule));
@@ -113,8 +126,8 @@ function previewFromItem(item: StrategyLibraryItem): StrategyPreviewResponse {
       riskRules.length === 0
         ? 'Risk settings come from the saved strategy.'
         : riskRules.join(' · '),
-    assumedTimeframe: '1h (assumed)',
-    assumedPairs: 'All USDT pairs, spot (assumed)',
+    assumedTimeframe: '1h',
+    assumedPairs: 'All USDT pairs, spot',
     assumptions: [
       'These rules come from your saved strategy. Confirm them before testing.',
       'No timeframe or pairs are stored with this example preview. Confirm the intended markets.',
@@ -129,6 +142,8 @@ function previewFromItem(item: StrategyLibraryItem): StrategyPreviewResponse {
       { title: 'Logic', detail: 'Consistent', passed: true },
       { title: 'Indicators', detail: 'All supported', passed: true },
     ],
+    suggestedName: item.name,
+    suggestedTags: [...item.tags],
   };
 }
 
@@ -158,6 +173,7 @@ function StrategyEngineContent({ editId }: { editId: string | null }) {
   const [nameTouched, setNameTouched] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
   const [stopEditOpen, setStopEditOpen] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
 
   const [previewState, setPreviewState] = useState<StrategyPreviewResponse | null | undefined>(
     undefined,
@@ -194,6 +210,7 @@ function StrategyEngineContent({ editId }: { editId: string | null }) {
       : null;
 
   function patchForm(patch: Partial<EngineForm>): void {
+    setJustSaved(false);
     setFormOverride((current) => ({ ...(current ?? form), ...patch }));
   }
 
@@ -262,7 +279,19 @@ function StrategyEngineContent({ editId }: { editId: string | null }) {
       onSuccess: (data) => {
         if (previewRequestId.current !== requestId) return;
         setPreviewState(data);
-        patchForm({ hasShort: data.hasShortExample });
+        setJustSaved(false);
+        setFormOverride((current) => {
+          const base = current ?? form;
+          return {
+            ...base,
+            hasShort: data.hasShortExample,
+            saveName:
+              base.saveName.trim() === ''
+                ? freeName(data.suggestedName, items, editId)
+                : base.saveName,
+            tags: base.tags.length === 0 ? [...data.suggestedTags] : base.tags,
+          };
+        });
       },
       onError: (error) => {
         if (previewRequestId.current !== requestId) return;
@@ -335,6 +364,7 @@ function StrategyEngineContent({ editId }: { editId: string | null }) {
       setSavedBaseline(formFromItem(saved));
       setFormOverride(formFromItem(saved));
       setPreviewState(undefined);
+      setJustSaved(true);
       if (editItem === null) {
         setSearchParams({ edit: saved.id }, { replace: true });
       }
@@ -409,7 +439,7 @@ function StrategyEngineContent({ editId }: { editId: string | null }) {
         </div>
       ) : null}
 
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1.5fr)_minmax(0,1fr)]">
+      <div className="grid items-start gap-5 min-[1120px]:grid-cols-[minmax(320px,0.9fr)_minmax(0,1.1fr)] min-[1120px]:grid-rows-[auto_1fr]">
         <StrategyInputCard
           inputMode={form.inputMode}
           prompt={form.prompt}
@@ -423,6 +453,7 @@ function StrategyEngineContent({ editId }: { editId: string | null }) {
           onClear={handleClear}
         />
         <StrategyPreviewCard
+          className="min-[1120px]:col-start-2 min-[1120px]:row-span-2 min-[1120px]:row-start-1"
           preview={preview}
           isPending={previewMutation.isPending}
           errorMessage={previewError}
@@ -433,6 +464,10 @@ function StrategyEngineContent({ editId }: { editId: string | null }) {
           }}
         />
         <StrategySaveCard
+          className="min-[1120px]:col-start-1 min-[1120px]:row-start-2"
+          statusLabel={
+            justSaved ? 'Saved' : preview === null ? 'Waiting for preview' : 'Example available'
+          }
           preview={preview}
           versionLabel={
             editItem === null ? '1.0.0 auto' : `${bumpPatchVersion(editItem.version)} on save`

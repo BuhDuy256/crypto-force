@@ -3,14 +3,17 @@
 // Run with `pnpm --filter @crypto-force/web test`.
 // Faults run before this test passed: a no-op writeStrategyDraft (test 1), a draft reader without
 // the Zod guard (test 1), a dirty check without the hasShort comparison (test 2), a formatter
-// without day padding (test 3), and a formatter that accepts equal dates (test 3).
+// without day padding (test 3), a formatter that accepts equal dates (test 3), and a run title
+// range with a hyphen instead of the en dash (test 4).
 // Expected values come from the Task 2 step text and docs/design/prototype/docs/requirements/backtest.md.
-// The period test keeps the task's `->` separator; the requirement shows `→`.
+// The period separator `→` and the run title range `–` follow the prototype Backtest screen
+// (docs/design/prototype/screens/Backtest.dc.html, `periodTxt` and `withResult`).
 import { describe, expect, it } from 'vitest';
 import {
   bumpPatchVersion,
   clearStrategyDraft,
   formatBacktestPeriod,
+  formatRunPeriod,
   isDateAfterToday,
   isStrategyDraftDirty,
   readStrategyDraft,
@@ -75,11 +78,15 @@ describe('strategy draft and backtest date helpers', () => {
 
   it('formats valid backtest periods and detects future end dates', () => {
     expect(formatBacktestPeriod('2025-05-01', '2025-05-15')).toBe(
-      '01 May 2025 -> 15 May 2025 · 14 days',
+      '01 May 2025 → 15 May 2025 · 14 days',
     );
     expect(formatBacktestPeriod('2025-05-15', '2025-05-01')).toBeNull();
     expect(formatBacktestPeriod('2025-05-15', '2025-05-15')).toBeNull();
     expect(isDateAfterToday('2026-11-26', '2026-11-25')).toBe(true);
     expect(isDateAfterToday('2026-11-25', '2026-11-25')).toBe(false);
+  });
+
+  it('formats the date range of a run title with padded days and an en dash', () => {
+    expect(formatRunPeriod('2025-05-01', '2025-05-15')).toBe('01 May 2025 – 15 May 2025');
   });
 });

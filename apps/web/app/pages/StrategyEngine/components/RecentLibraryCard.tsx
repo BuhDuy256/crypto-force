@@ -86,14 +86,14 @@ export function RecentLibraryCard() {
                       <span className="inline-flex gap-2">
                         <Link
                           to={`/backtest?strategy=${encodeURIComponent(item.id)}`}
-                          className="inline-flex min-h-9 items-center rounded-md border px-3 text-xs font-semibold"
+                          className="inline-flex min-h-9 items-center rounded-md border px-3 text-xs font-semibold text-foreground no-underline hover:bg-accent"
                         >
                           Backtest
                         </Link>
                         <Link
                           to={`/library?open=${encodeURIComponent(item.id)}`}
                           aria-label={`Open ${item.name} in the library`}
-                          className="inline-flex min-h-9 items-center rounded-md border px-3 text-xs font-semibold"
+                          className="inline-flex min-h-9 items-center rounded-md border px-3 text-xs font-semibold text-foreground no-underline hover:bg-accent"
                         >
                           Open
                         </Link>

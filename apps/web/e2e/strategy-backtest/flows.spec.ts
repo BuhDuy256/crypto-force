@@ -5,8 +5,15 @@ import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 // an HTTP double. Run with `playwright.strategy-backtest.config.ts` (`msw` project, port 5186).
 // Expected values come from the Phase 1 task files in
 // docs/build/01-prototype-to-implementation/strategy-backtest/implementation/plan/.
+// The suggested name, the run title and meta, the finish toast, and the trade pages
+// (1–10 of 178, page 18) come from the prototype screens in docs/design/prototype/screens/.
+// The number in the suggested name follows the Duplicate naming rule in Library.dc.html; the
+// plan README records this as an agent decision.
 // The assertions read the preview row headers, the library list and drawer, and the Backtest form,
 // run card, results, and run detail that those handlers drive.
+// Mutants run on 2026-11-28 made these tests fail: a preview that leaves the Name field empty
+// (test 1), an App Header without the finish notice (test 3), and page buttons that show only the
+// current page (test 3).
 
 async function stubSession(context: BrowserContext): Promise<void> {
   await context.route('**/api/auth/get-session', (route) =>
@@ -146,6 +153,10 @@ test('restores a draft, previews rules, and hands a saved strategy to Backtest',
   await page.getByRole('button', { name: 'Undo' }).click();
   await expect(page.getByRole('rowheader', { name: 'Short condition (example)' })).toBeVisible();
 
+  // The preview suggests the prototype name; the library already has it, so a number is added.
+  await expect(page.getByLabel('Name', { exact: true })).toHaveValue('RSI_BB_LB_LONG_SL2_TP4 2');
+  await expect(page.getByRole('button', { name: 'Remove tag Mean Reversion' })).toBeVisible();
+  await expect(page.getByText('A mirrored SHORT rule is shown as an example.')).toHaveCount(1);
   await page.getByLabel('Name', { exact: true }).fill('E2E_RSI_Trend');
   await page.getByRole('button', { name: 'Save strategy' }).click();
   await page.getByRole('button', { name: 'Backtest it' }).click();
@@ -272,13 +283,22 @@ test('validates, handles an active-run conflict, pages trades, fails a short his
 
   await expect(page.getByText(/Backtest R-\d+ started/)).toBeVisible();
   await expect(page.getByText('Completed', { exact: true })).toBeVisible();
+  await expect(page.getByText(/Backtest R-\d+ finished: \+8\.42%/)).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'MA Crossover · BTCUSDT 5m · 01 May 2025 – 15 May 2025' }),
+  ).toBeVisible();
+  await expect(page.getByText(/Latest completed run R-\d+ · Capital 100 USD/)).toBeVisible();
 
   await expect(page.locator('.tv-lightweight-charts').first()).toBeVisible();
   await expect(page.getByRole('link', { name: /TradingView/ }).first()).toBeVisible();
-  await expect(page.getByText('Showing 1–10 of 30')).toBeVisible();
+  await expect(page.getByText('1–10 of 178')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Page 18' })).toBeVisible();
   await page.getByLabel('Rows per page').selectOption('25');
-  await expect(page.getByText('Showing 1–25 of 30')).toBeVisible();
+  await expect(page.getByText('1–25 of 178')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Previous page' })).toBeDisabled();
+  await page.getByRole('button', { name: 'Page 8' }).click();
+  await expect(page.getByText('176–178 of 178')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Next page' })).toBeDisabled();
 
   await page.getByRole('tab', { name: /^Runs/ }).click();
   const runs = page.getByRole('region', { name: 'Runs' });

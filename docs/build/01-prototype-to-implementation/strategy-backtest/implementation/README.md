@@ -29,6 +29,7 @@ Read this file to learn the goal, decisions, global constraints, phase roadmap, 
 | Phase 1 Library route | Serve Strategy Library at `/library` inside `workspace-layout.tsx`, matching `DESTINATION_LABELS.library` in `apps/web/app/utils/auth-redirect.ts`. Keep the `Strategy Engine` tab active on `/library`. |
 | Phase 1 HTTP stubbing | Stub Strategy and Backtest HTTP endpoints with stateful MSW handlers under `apps/web/mocks/` behind `VITE_API_MOCKING=true`. Keep `apps/web/app/` free of mock data and MSW imports. |
 | Phase 1 header fallback | Treat a `404` from `GET /api/backtests/active` as no active run so existing workspace routes stay quiet until Phase 5 adds the real API. |
+| Phase 1 prototype parity | The product owner approved this scope on 2026-11-28. Before Task 9, close the gaps between the Phase 1 screens and the prototype code in `docs/design/prototype/screens/`. The mock run result must calculate the summary, the equity curve, and the drawdown from 178 trade rows (`Backtest.dc.html`, `equity()` and the trading cost table). Keep the App Header search, notifications panel, and market data indicator out of Phase 1, because stored notifications need the Phase 4 API design. A toast tells the user when a backtest completes or fails (`Backtest.dc.html`, `componentDidMount`). Agent decision under product-owner delegation: when the library already has the suggested name, the suggestion gets the first free number, as the Duplicate action does (`Library.dc.html`, `uniqueName`). |
 
 ## Global Constraints
 
@@ -74,9 +75,10 @@ Execute Phase 1 tasks in order. Do not start Task N+1 until a person approves th
 | 4 | 1 | Done | [Strategy Library Screen and Workspace Navigation](plan/task-04-strategy-library-and-navigation.md) | [Task 4 report](reports/task-04-strategy-library-and-navigation.md) |
 | 5 | 1 | Done | [Backtest Setup, Active Run Lifecycle, Conflict Dialog, and Runs Views](plan/task-05-backtest-setup-and-runs.md) | [Task 5 report](reports/task-05-backtest-setup-and-runs.md) |
 | 6 | 1 | Done | [Backtest Results Visualization (Charts, Trades Table, Cost Breakdown)](plan/task-06-backtest-results-visualization.md) | [Task 6 report](reports/task-06-backtest-results-visualization.md) |
-| 7 | 1 | Pending | [Browser Verification Suite and Production Build Check](plan/task-07-browser-verification-suite.md) | [Task 7 report](reports/task-07-browser-verification-suite.md) |
-| 8 | 1 | Pending | [Draft Observable Use Cases in `docs/UCs/`](plan/task-08-draft-use-cases.md) | — |
+| 7 | 1 | Done | [Browser Verification Suite and Production Build Check](plan/task-07-browser-verification-suite.md) | [Task 7 report](reports/task-07-browser-verification-suite.md) |
+| 8 | 1 | Done | [Prototype Parity for Strategy Engine, Strategy Library, and Backtest](plan/task-08-prototype-parity.md) | [Task 8 report](reports/task-08-prototype-parity.md) |
+| 9 | 1 | Pending | [Draft Observable Use Cases in `docs/UCs/`](plan/task-09-draft-use-cases.md) | — |
 
 ## Next Phase
 
-- **Phase 2 (Requirements and Domain Rules):** After Task 8 closes Phase 1, run a baseline gap analysis. Resolve High and Medium open questions (`OQ-001` to `OQ-010`, `OQ-021` to `OQ-026`, `OQ-066`, `OQ-067`). Then generate Phase 2 task files.
+- **Phase 2 (Requirements and Domain Rules):** After Task 9 closes Phase 1, run a baseline gap analysis. Resolve High and Medium open questions (`OQ-001` to `OQ-010`, `OQ-021` to `OQ-026`, `OQ-066`, `OQ-067`). Then generate Phase 2 task files.

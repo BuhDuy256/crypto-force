@@ -4,7 +4,7 @@ import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Skeleton } from '~/components/ui/skeleton';
 import { useBacktestRuns } from '~/hooks/useBacktests';
-import { formatBacktestPeriod } from '~/utils/strategy-draft';
+import { formatRunTitle } from '~/utils/strategy-draft';
 
 const STATUS_LABEL: Record<BacktestRunStatus, string> = {
   running: 'Running',
@@ -38,11 +38,6 @@ function versionLabel(run: BacktestRun): string {
   if (run.strategyVersion === 'built-in') return 'built-in strategy';
   if (run.strategyVersion === 'unsaved') return 'unsaved strategy';
   return `strategy v${run.strategyVersion}`;
-}
-
-function runTitle(run: BacktestRun): string {
-  const period = formatBacktestPeriod(run.from, run.to) ?? `${run.from} – ${run.to}`;
-  return `${run.strategyName} · ${run.pair} ${run.timeframe} · ${period}`;
 }
 
 interface RunsListViewProps {
@@ -133,7 +128,7 @@ export function RunsListView({ onOpenRun, onSetUp }: RunsListViewProps) {
                   onOpenRun(run.id);
                 }}
               >
-                {runTitle(run)}
+                {formatRunTitle(run)}
               </button>
               <span className="text-sm text-muted-foreground">
                 Run {run.id} · started {formatStamp(run.startedAt)} · {versionLabel(run)}

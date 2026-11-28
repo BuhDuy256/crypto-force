@@ -3,16 +3,24 @@ import type {
   BacktestPriceCandle,
   BacktestResultSummary,
   BacktestRunDetail,
+  BacktestTrade,
 } from '@crypto-force/shared';
 import { Check, Maximize2, Minimize2 } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { useEquityDrawdownChart, usePriceTradesChart } from '~/hooks/useBacktestCharts';
 import { cn } from '~/utils/cn';
+import { formatRunTitle } from '~/utils/strategy-draft';
 import { BacktestTradesTable } from './BacktestTradesTable';
+import { InfoTip } from './InfoTip';
 
 const usd = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
+});
+
+const perTrade = new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 3,
+  maximumFractionDigits: 3,
 });
 
 const percent = new Intl.NumberFormat('en-US', {
@@ -26,7 +34,7 @@ const WIN_RATE_EXPLANATION = 'Share of closed trades that made money after fees 
 const PER_TRADE_EXPLANATION =
   'Average net result of one trade, next to the average fee plus slippage it paid.';
 const VS_BUY_AND_HOLD_EXPLANATION =
-  'How far the strategy ends ahead of or behind holding the pair for the whole period, in percentage points.';
+  'What simply holding the pair over the same period would have returned, from the same candles.';
 
 function signed(value: number, body: string): string {
   if (value > 0) return `+${body}`;
@@ -60,28 +68,34 @@ function latestValue(points: BacktestPriceCandle[], key: 'ma20' | 'ma50'): numbe
   return null;
 }
 
-function MetricLabel({ label, explanation }: { label: string; explanation?: string }) {
-  if (explanation === undefined) {
-    return (
-      <dt className="text-xs font-medium text-muted-foreground">
-        <span>{label}</span>
-      </dt>
-    );
-  }
+function MetricLabel({
+  label,
+  explanation,
+  tipAlign = 'start',
+}: {
+  label: string;
+  explanation?: string;
+  tipAlign?: 'start' | 'end';
+}) {
   return (
-    <dt className="text-xs font-medium text-muted-foreground">
-      <span
-        title={explanation}
-        aria-label={`${label}. ${explanation}`}
-        className="underline decoration-dotted underline-offset-2"
-      >
-        {label}
-      </span>
+    <dt className="flex items-center gap-1 text-[13px] font-semibold text-muted-foreground">
+      {label}
+      {explanation === undefined ? null : (
+        <InfoTip label={label} explanation={explanation} align={tipAlign} />
+      )}
     </dt>
   );
 }
 
-function Summary({ result }: { result: BacktestResultSummary }) {
+function Summary({
+  run,
+  result,
+  metaPrefix,
+}: {
+  run: BacktestRunDetail;
+  result: BacktestResultSummary;
+  metaPrefix: string | null;
+}) {
   const scaleMin = Math.min(-5, Math.floor(result.maxDrawdownPercent));
   const scaleMax = Math.max(10, Math.ceil(result.netReturnPercent));
   const span = scaleMax - scaleMin;
@@ -95,14 +109,26 @@ function Summary({ result }: { result: BacktestResultSummary }) {
       aria-labelledby="backtest-summary-heading"
       className="flex flex-col gap-4 rounded-xl border bg-card p-4 sm:p-5"
     >
-      <h3 id="backtest-summary-heading" className="text-base font-semibold">
-        Summary
-      </h3>
+      {metaPrefix === null ? (
+        <h3 id="backtest-summary-heading" className="text-base font-semibold">
+          Results
+        </h3>
+      ) : (
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <h2 id="backtest-summary-heading" className="text-xl font-semibold break-words">
+            {formatRunTitle(run)}
+          </h2>
+          <span className="text-sm text-muted-foreground">
+            {metaPrefix} {run.id} · Capital {run.capitalUsd} USD · fee {run.feePercent}% · slippage{' '}
+            {run.slippageBps} bps
+          </span>
+        </div>
+      )}
       <dl className="flex flex-wrap gap-x-8 gap-y-4">
         <div className="flex min-w-36 flex-col gap-0.5">
           <MetricLabel label="Net return" />
           <dd className="flex flex-wrap items-baseline gap-x-2">
-            <span className={cn('text-2xl font-semibold', pnlColor(result.netReturnUsd))}>
+            <span className={cn('text-3xl font-semibold', pnlColor(result.netReturnUsd))}>
               {formatUsd(result.netReturnUsd)}
             </span>
             <span className={cn('text-sm font-semibold', pnlColor(result.netReturnUsd))}>
@@ -114,7 +140,7 @@ function Summary({ result }: { result: BacktestResultSummary }) {
         <div className="flex min-w-36 flex-col gap-0.5">
           <MetricLabel label="Max drawdown" explanation={MAX_DRAWDOWN_EXPLANATION} />
           <dd className="flex flex-wrap items-baseline gap-x-2">
-            <span className={cn('text-2xl font-semibold', pnlColor(result.maxDrawdownUsd))}>
+            <span className={cn('text-3xl font-semibold', pnlColor(result.maxDrawdownUsd))}>
               {formatUsd(result.maxDrawdownUsd)}
             </span>
             <span className={cn('text-sm font-semibold', pnlColor(result.maxDrawdownUsd))}>
@@ -126,7 +152,7 @@ function Summary({ result }: { result: BacktestResultSummary }) {
         <div className="flex min-w-32 flex-col gap-0.5">
           <MetricLabel label="Win rate" explanation={WIN_RATE_EXPLANATION} />
           <dd>
-            <span className="text-2xl font-semibold">{percent.format(result.winRatePercent)}%</span>
+            <span className="text-3xl font-semibold">{percent.format(result.winRatePercent)}%</span>
             <span className="block text-xs text-muted-foreground">
               {result.winningTrades} of {result.totalTrades}
             </span>
@@ -142,17 +168,24 @@ function Summary({ result }: { result: BacktestResultSummary }) {
           <MetricLabel label="Per trade" explanation={PER_TRADE_EXPLANATION} />
           <dd>
             <span className={cn('text-xl font-semibold', pnlColor(result.avgNetPerTradeUsd))}>
-              {formatUsd(result.avgNetPerTradeUsd)}
+              {signed(
+                result.avgNetPerTradeUsd,
+                perTrade.format(Math.abs(result.avgNetPerTradeUsd)),
+              )}
             </span>{' '}
             <span className="text-xs text-muted-foreground">net</span>
             <span className="block text-xs text-warning">
-              cost {usd.format(result.avgCostPerTradeUsd)} / trade
+              cost {perTrade.format(result.avgCostPerTradeUsd)} / trade
             </span>
           </dd>
         </div>
 
         <div className="flex min-w-44 flex-col gap-0.5">
-          <MetricLabel label="vs. buy & hold" explanation={VS_BUY_AND_HOLD_EXPLANATION} />
+          <MetricLabel
+            label="vs. buy & hold"
+            explanation={VS_BUY_AND_HOLD_EXPLANATION}
+            tipAlign="end"
+          />
           <dd>
             <span className="text-xl font-semibold">{formatPercent(result.buyAndHoldPercent)}</span>
             <span className={cn('block text-xs', ahead ? 'text-success' : 'text-destructive')}>
@@ -202,6 +235,24 @@ function Summary({ result }: { result: BacktestResultSummary }) {
   );
 }
 
+function tradeDay(trade: BacktestTrade | undefined): string {
+  return trade === undefined ? '' : (trade.openedAt.split(',')[0] ?? '');
+}
+
+/** Labels under the account value chart: first, middle, and last trade. */
+function tradeAxisLabels(trades: BacktestTrade[]): string[] {
+  const first = trades[0];
+  const last = trades[trades.length - 1];
+  if (first === undefined || last === undefined) return [];
+  const middle = trades[Math.floor((trades.length - 1) / 2)];
+  const labels = [`Trade ${String(first.index)} · ${tradeDay(first)}`];
+  if (middle !== undefined && middle !== first && middle !== last) {
+    labels.push(`Trade ${String(middle.index)}`);
+  }
+  if (last !== first) labels.push(`Trade ${String(last.index)} · ${tradeDay(last)}`);
+  return labels;
+}
+
 function EquityCard({ result }: { result: BacktestResultSummary }) {
   const { equityContainerRef, drawdownContainerRef } = useEquityDrawdownChart(result.equityCurve);
 
@@ -242,11 +293,32 @@ function EquityCard({ result }: { result: BacktestResultSummary }) {
         aria-label="Drawdown from the previous peak in USD"
         className="w-full min-w-0"
       />
+      <div className="flex justify-between pr-16 text-xs text-muted-foreground">
+        {tradeAxisLabels(result.trades).map((label) => (
+          <span key={label}>{label}</span>
+        ))}
+      </div>
     </section>
   );
 }
 
+/** How many hours the candles cover, and how many trades open inside them. */
+function priceWindow(result: BacktestResultSummary): { hours: number; trades: number } | null {
+  const first = result.priceSeries[0];
+  const last = result.priceSeries[result.priceSeries.length - 1];
+  const before = result.priceSeries[result.priceSeries.length - 2];
+  if (first === undefined || last === undefined) return null;
+  const end = last.timeSec + (before === undefined ? 0 : last.timeSec - before.timeSec);
+  return {
+    hours: Math.round((end - first.timeSec) / 3600),
+    trades: result.trades.filter(
+      (trade) => trade.openedTimeSec >= first.timeSec && trade.openedTimeSec < end,
+    ).length,
+  };
+}
+
 function PriceCard({ run, result }: { run: BacktestRunDetail; result: BacktestResultSummary }) {
+  const shown = priceWindow(result);
   const [fullScreen, setFullScreen] = useState(false);
   const { containerRef } = usePriceTradesChart({
     priceSeries: result.priceSeries,
@@ -315,6 +387,12 @@ function PriceCard({ run, result }: { run: BacktestRunDetail; result: BacktestRe
         aria-label={`Candles for ${run.pair} ${run.timeframe} with MA(20), MA(50), support, resistance and trade markers`}
         className="w-full min-w-0"
       />
+      {shown === null || shown.trades === result.totalTrades ? null : (
+        <p className="text-xs text-muted-foreground">
+          Shows the first {shown.hours} h of the run: {shown.trades} of {result.totalTrades} trades.
+          The table below lists every trade.
+        </p>
+      )}
     </section>
   );
 }
@@ -407,6 +485,7 @@ function AssumptionsCard({ assumptions }: { assumptions: string[] }) {
 }
 
 interface BacktestResultsContentProps {
+  metaPrefix: string | null;
   run: BacktestRunDetail;
   result: BacktestResultSummary;
   isStale: boolean;
@@ -416,6 +495,7 @@ interface BacktestResultsContentProps {
 }
 
 function BacktestResultsContent({
+  metaPrefix,
   run,
   result,
   isStale,
@@ -450,7 +530,7 @@ function BacktestResultsContent({
       ) : null}
 
       <div className={cn('flex flex-col gap-4', isStale && 'opacity-60')}>
-        <Summary result={result} />
+        <Summary run={run} result={result} metaPrefix={metaPrefix} />
         <EquityCard result={result} />
         <PriceCard run={run} result={result} />
         <BacktestTradesTable trades={result.trades} />
@@ -470,12 +550,15 @@ function BacktestResultsContent({
 /** The completed-run results: summary, charts, trades, costs, and assumptions. */
 export function BacktestResultsSection({
   run,
+  metaPrefix = null,
   isStale = false,
   runDisabled = false,
   onRunAgain,
   onRevertInputs,
 }: {
   run: BacktestRunDetail;
+  /** Text before the run ID in the results header; null shows a plain "Results" heading. */
+  metaPrefix?: string | null;
   isStale?: boolean;
   runDisabled?: boolean;
   onRunAgain?: () => void;
@@ -485,6 +568,7 @@ export function BacktestResultsSection({
   if (result === null) return <></>;
   return (
     <BacktestResultsContent
+      metaPrefix={metaPrefix}
       run={run}
       result={result}
       isStale={isStale}

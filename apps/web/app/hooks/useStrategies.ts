@@ -28,7 +28,7 @@ import {
 
 type StrategyListFilters = { kind?: 'all' | 'strategy' | 'composite'; q?: string };
 
-export const strategyKeys = {
+const strategyKeys = {
   all: ['strategies'] as const,
   list: (filters?: StrategyListFilters) => [...strategyKeys.all, 'list', filters ?? {}] as const,
 };

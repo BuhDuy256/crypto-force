@@ -1,6 +1,6 @@
-﻿# Task 8: Draft Observable Use Cases in `docs/UCs/`
+﻿# Task 9: Draft Observable Use Cases in `docs/UCs/`
 
-Read this file to learn Task 8 steps, which draft Vietnamese use cases for Strategy Engine, Strategy Library, and Backtest in `docs/UCs/`.
+Read this file to learn Task 9 steps, which draft Vietnamese use cases for Strategy Engine, Strategy Library, and Backtest in `docs/UCs/`.
 
 **Read first:**
 
@@ -20,8 +20,8 @@ Read this file to learn Task 8 steps, which draft Vietnamese use cases for Strat
 - Create: `docs/UCs/backtest.md`
 - Change: `docs/UCs/README.md` (lines 28-42)
 - Change: `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md`
-- Change: `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/plan/task-08-draft-use-cases.md`
-- Create: `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/reports/task-08-draft-use-cases.md`
+- Change: `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/plan/task-09-draft-use-cases.md`
+- Create: `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/reports/task-09-draft-use-cases.md`
 
 **Interfaces:**
 
@@ -99,12 +99,12 @@ Expected: PASS. `pnpm check:docs` reports zero errors and Prettier reports all f
 - [ ] **Step 5: Write the report file and close Phase 1**
 
 1. Mark Steps 1 to 4 as `- [x]` in this file.
-2. In `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md`, change its row status to `Done` and link `reports/task-08-draft-use-cases.md` in the `Report` column.
+2. In `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md`, change its row status to `Done` and link `reports/task-09-draft-use-cases.md` in the `Report` column.
 3. Change Phase 1 status in `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md` from `Active` to `Done`.
-4. Create `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/reports/task-08-draft-use-cases.md` with:
+4. Create `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/reports/task-09-draft-use-cases.md` with:
    - One-sentence purpose line after H1 (`Read this file to ...`)
    - Files changed
    - Commands run, with exit codes and key output
    - What the commands do not prove
-5. Run `pnpm exec prettier --check docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md docs/build/01-prototype-to-implementation/strategy-backtest/implementation/plan/task-08-draft-use-cases.md docs/build/01-prototype-to-implementation/strategy-backtest/implementation/reports/task-08-draft-use-cases.md`.
+5. Run `pnpm exec prettier --check docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md docs/build/01-prototype-to-implementation/strategy-backtest/implementation/plan/task-09-draft-use-cases.md docs/build/01-prototype-to-implementation/strategy-backtest/implementation/reports/task-09-draft-use-cases.md`.
 6. Mark Step 5 as `- [x]`, stop, and send the report summary.

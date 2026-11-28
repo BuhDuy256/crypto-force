@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import { InfoTip } from './InfoTip';
 import { formatBacktestPeriod, isDateAfterToday } from '~/utils/strategy-draft';
 
 export interface BacktestFormValues {
@@ -114,15 +115,24 @@ function Field({
   htmlFor,
   children,
   className,
+  explanation,
+  tipAlign = 'start',
 }: {
   label: string;
   htmlFor: string;
   children: ReactNode;
   className?: string;
+  explanation?: string;
+  tipAlign?: 'start' | 'end';
 }) {
   return (
     <div className={`flex flex-col gap-2 ${className ?? ''}`}>
-      <Label htmlFor={htmlFor}>{label}</Label>
+      <div className="flex h-5 items-center gap-1">
+        <Label htmlFor={htmlFor}>{label}</Label>
+        {explanation === undefined ? null : (
+          <InfoTip label={label} explanation={explanation} align={tipAlign} />
+        )}
+      </div>
       {children}
     </div>
   );
@@ -229,8 +239,8 @@ export function BacktestSetupForm({
         void submit(event);
       }}
     >
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Field label="Pair" htmlFor="backtest-pair">
+      <div className="flex flex-wrap items-start gap-x-4 gap-y-3">
+        <Field label="Pair" htmlFor="backtest-pair" className="flex-[1.2_1_130px]">
           <select
             id="backtest-pair"
             className={selectClass}
@@ -246,7 +256,7 @@ export function BacktestSetupForm({
           <FieldError id="backtest-pair-error" message={errors.pair?.message} />
         </Field>
 
-        <Field label="Timeframe" htmlFor="backtest-timeframe">
+        <Field label="Timeframe" htmlFor="backtest-timeframe" className="flex-[0.7_1_90px]">
           <select
             id="backtest-timeframe"
             className={selectClass}
@@ -262,7 +272,7 @@ export function BacktestSetupForm({
           <FieldError id="backtest-timeframe-error" message={errors.timeframe?.message} />
         </Field>
 
-        <Field label="From" htmlFor="backtest-from">
+        <Field label="From" htmlFor="backtest-from" className="flex-[1_1_150px]">
           <Input
             id="backtest-from"
             type="date"
@@ -274,7 +284,7 @@ export function BacktestSetupForm({
           <FieldError id="backtest-from-error" message={errors.from?.message} />
         </Field>
 
-        <Field label="To" htmlFor="backtest-to">
+        <Field label="To" htmlFor="backtest-to" className="flex-[1_1_150px]">
           <Input
             id="backtest-to"
             type="date"
@@ -286,7 +296,7 @@ export function BacktestSetupForm({
           <FieldError id="backtest-to-error" message={errors.to?.message} />
         </Field>
 
-        <Field label="Capital (USD)" htmlFor="backtest-capital">
+        <Field label="Capital (USD)" htmlFor="backtest-capital" className="flex-[0.9_1_110px]">
           <Input
             id="backtest-capital"
             type="number"
@@ -302,7 +312,7 @@ export function BacktestSetupForm({
           <FieldError id="backtest-capital-error" message={errors.capitalUsd?.message} />
         </Field>
 
-        <Field label="Strategy" htmlFor="backtest-strategy" className="xl:col-span-2">
+        <Field label="Strategy" htmlFor="backtest-strategy" className="flex-[1.6_1_180px]">
           <Controller
             control={form.control}
             name="strategyName"
@@ -332,7 +342,12 @@ export function BacktestSetupForm({
           <FieldError id="backtest-strategy-error" message={errors.strategyName?.message} />
         </Field>
 
-        <Field label="Fee (%)" htmlFor="backtest-fee">
+        <Field
+          label="Fee (%)"
+          explanation="Exchange trading fee charged on each entry and exit, as a percent of the trade size."
+          htmlFor="backtest-fee"
+          className="flex-[0.8_1_110px]"
+        >
           <Input
             id="backtest-fee"
             type="number"
@@ -347,7 +362,13 @@ export function BacktestSetupForm({
           <FieldError id="backtest-fee-error" message={errors.feePercent?.message} />
         </Field>
 
-        <Field label="Slippage (bps)" htmlFor="backtest-slippage">
+        <Field
+          label="Slippage (bps)"
+          explanation="Expected gap between the signal price and the price you actually get. 1 bps = 0.01%."
+          htmlFor="backtest-slippage"
+          tipAlign="end"
+          className="flex-[0.8_1_120px]"
+        >
           <Input
             id="backtest-slippage"
             type="number"

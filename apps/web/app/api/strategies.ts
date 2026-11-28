@@ -26,7 +26,7 @@ const deleteStrategyResponseSchema = z.strictObject({ deletedId: z.string().min(
  * Failed Strategy request. `code` is the API error code, `INVALID_RESPONSE` when the response
  * does not match the shared contract, or `INTERNAL_ERROR` when the error body is unreadable.
  */
-export class StrategyApiError extends Error {
+class StrategyApiError extends Error {
   constructor(
     readonly code: string,
     message: string,

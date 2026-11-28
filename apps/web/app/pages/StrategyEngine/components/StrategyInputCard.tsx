@@ -1,10 +1,12 @@
 import type { StrategyInputMode } from '@crypto-force/shared';
+import { Loader2, Sparkles } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Textarea } from '~/components/ui/textarea';
 import { cn } from '~/utils/cn';
+import { WorkspaceStatus } from './WorkspaceStatus';
 
 const PROMPT_MAX_LENGTH = 1000;
 
@@ -38,7 +40,10 @@ export function StrategyInputCard({
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-lg font-semibold">Strategy input</h2>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <h2 className="text-lg font-semibold">Strategy input</h2>
+          <WorkspaceStatus label="Editable" />
+        </div>
         <CardDescription>
           Describe or import a strategy. You can return and revise it at any time.
         </CardDescription>
@@ -93,6 +98,7 @@ export function StrategyInputCard({
             <Textarea
               id="strategy-prompt"
               rows={7}
+              className="min-h-44 resize-y text-base leading-relaxed"
               maxLength={PROMPT_MAX_LENGTH}
               value={prompt}
               onChange={(event) => {
@@ -107,6 +113,11 @@ export function StrategyInputCard({
             </div>
             <div className="flex gap-3">
               <Button type="submit" className="flex-1" disabled={isPending} aria-busy={isPending}>
+                {isPending ? (
+                  <Loader2 className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <Sparkles aria-hidden="true" />
+                )}
                 {isPending ? 'Preparing preview…' : 'Preview example rules'}
               </Button>
               <Button type="button" variant="outline" onClick={onClear}>
@@ -142,6 +153,7 @@ export function StrategyInputCard({
               Paste a public strategy URL. Source compatibility depends on the importer.
             </p>
             <Button type="submit" disabled={isPending} aria-busy={isPending}>
+              {isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
               {isPending ? 'Reading page…' : 'Extract from page'}
             </Button>
           </form>

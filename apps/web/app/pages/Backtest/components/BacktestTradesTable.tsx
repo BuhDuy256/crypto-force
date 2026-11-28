@@ -53,6 +53,14 @@ function formatPrice(value: number): string {
   return usd.format(value);
 }
 
+/** Page buttons in the order the prototype shows them, for example 1 2 3 … 18. */
+function pageItems(current: number, last: number): Array<number | 'gap'> {
+  if (last <= 5) return Array.from({ length: last }, (_, index) => index + 1);
+  if (current <= 3) return [1, 2, 3, 'gap', last];
+  if (current >= last - 2) return [1, 'gap', last - 2, last - 1, last];
+  return [1, 'gap', current, 'gap', last];
+}
+
 function pnlColor(value: number): string {
   if (value > 0) return 'text-success';
   if (value < 0) return 'text-destructive';
@@ -204,8 +212,8 @@ export function BacktestTradesTable({ trades }: { trades: BacktestTrade[] }): JS
         <h3 id="backtest-trades-heading" className="text-base font-semibold">
           Trades
         </h3>
-        <span className="text-sm text-muted-foreground">
-          {total} closed {total === 1 ? 'trade' : 'trades'}, sorted and paged on this page.
+        <span className="ml-auto text-sm text-muted-foreground">
+          {total === 0 ? '0 of 0' : `${String(start)}–${String(end)} of ${String(total)}`}
         </span>
       </div>
 
@@ -291,10 +299,7 @@ export function BacktestTradesTable({ trades }: { trades: BacktestTrade[] }): JS
         aria-label="Trade pages"
         className="flex flex-wrap items-center gap-2 border-t pt-3 text-sm"
       >
-        <span className="mr-auto text-muted-foreground">
-          Showing {start}–{end} of {total}
-        </span>
-        <label className="flex items-center gap-2">
+        <label className="mr-auto flex items-center gap-2">
           Rows
           <select
             aria-label="Rows per page"
@@ -314,8 +319,8 @@ export function BacktestTradesTable({ trades }: { trades: BacktestTrade[] }): JS
         </label>
         <Button
           type="button"
-          variant="outline"
-          size="sm"
+          variant="ghost"
+          size="icon-sm"
           aria-label="Previous page"
           disabled={!table.getCanPreviousPage()}
           onClick={() => {
@@ -323,19 +328,44 @@ export function BacktestTradesTable({ trades }: { trades: BacktestTrade[] }): JS
           }}
         >
           <ChevronLeft aria-hidden="true" />
-          Previous
         </Button>
+        {pageItems(pagination.pageIndex + 1, Math.max(1, table.getPageCount())).map(
+          (item, position) =>
+            item === 'gap' ? (
+              <span
+                key={`gap-${String(position)}`}
+                aria-hidden="true"
+                className="px-1 text-muted-foreground"
+              >
+                …
+              </span>
+            ) : (
+              <Button
+                key={item}
+                type="button"
+                size="sm"
+                variant={item === pagination.pageIndex + 1 ? 'default' : 'ghost'}
+                aria-label={`Page ${String(item)}`}
+                aria-current={item === pagination.pageIndex + 1 ? 'page' : undefined}
+                className="min-w-8 px-2"
+                onClick={() => {
+                  table.setPageIndex(item - 1);
+                }}
+              >
+                {item}
+              </Button>
+            ),
+        )}
         <Button
           type="button"
-          variant="outline"
-          size="sm"
+          variant="ghost"
+          size="icon-sm"
           aria-label="Next page"
           disabled={!table.getCanNextPage()}
           onClick={() => {
             table.nextPage();
           }}
         >
-          Next
           <ChevronRight aria-hidden="true" />
         </Button>
       </nav>
