@@ -7,6 +7,7 @@ import {
   type StrategyLibraryItem,
 } from '@crypto-force/shared';
 import { useLocation, useSearchParams } from 'react-router';
+import { useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import {
   useActiveBacktest,
@@ -28,6 +29,7 @@ import {
 import { RunDetailView } from './components/RunDetailView';
 import { RunStatusCard } from './components/RunStatusCard';
 import { RunsListView } from './components/RunsListView';
+import { BacktestResultsSection } from './components/BacktestResultsSection';
 
 type BacktestTab = 'setup' | 'runs';
 
@@ -90,6 +92,29 @@ function readRunId(value: string | null): string | null {
   return value === null || value === '' ? null : value;
 }
 
+function latestCompletedRunId(runs: BacktestRun[]): string | null {
+  let latest: BacktestRun | null = null;
+  for (const run of runs) {
+    if (run.status !== 'completed') continue;
+    if (latest === null || run.startedAt > latest.startedAt) latest = run;
+  }
+  return latest?.id ?? null;
+}
+
+function inputsMatchRun(values: Partial<BacktestFormValues>, run: BacktestRunDetail): boolean {
+  return (
+    values.pair === run.pair &&
+    values.timeframe === run.timeframe &&
+    values.from === run.from &&
+    values.to === run.to &&
+    values.capitalUsd === run.capitalUsd &&
+    values.strategyName === run.strategyName &&
+    values.strategyId === run.strategyId &&
+    values.feePercent === run.feePercent &&
+    values.slippageBps === run.slippageBps
+  );
+}
+
 export function BacktestPage(): JSX.Element {
   const [searchParams] = useSearchParams();
   const strategyParam = searchParams.get('strategy');
@@ -149,6 +174,12 @@ function BacktestWorkspace({
     strategyId: handoffItem?.id ?? null,
     ...(handoffUnsaved === null ? {} : { unsavedRules: handoffUnsaved.rules }),
   });
+
+  const latestCompletedId = latestCompletedRunId(runsQuery.data?.runs ?? []);
+  const latestCompletedQuery = useBacktestRunDetail(latestCompletedId);
+  const resultsRun = latestCompletedQuery.data ?? null;
+  const formValues = useWatch({ control: form.control });
+  const inputsChanged = resultsRun !== null && !inputsMatchRun(formValues, resultsRun);
 
   const [unsavedStrategy, setUnsavedStrategy] = useState<UnsavedStrategy | null>(handoffUnsaved);
   const [note, setNote] = useState<string | null>(
@@ -352,6 +383,7 @@ function BacktestWorkspace({
             onCopySettings={(run) => {
               applyRunSettings(run, false);
             }}
+            renderResults={(detail) => <BacktestResultsSection run={detail} />}
           />
         )
       ) : (
@@ -380,6 +412,21 @@ function BacktestWorkspace({
                 openRun(watchedRun.id);
               }}
               onDismiss={dismissWatchedRun}
+            />
+          )}
+          {resultsRun === null ? null : (
+            <BacktestResultsSection
+              run={resultsRun}
+              isStale={inputsChanged}
+              runDisabled={createBacktest.isPending}
+              onRunAgain={() => {
+                void form.handleSubmit((values) => {
+                  void handleCreate(toCreateBacktestInput(values));
+                })();
+              }}
+              onRevertInputs={() => {
+                applyRunSettings(resultsRun, false);
+              }}
             />
           )}
         </>

@@ -54,7 +54,7 @@ Read this file to learn Task 6 steps, which add Lightweight Charts hooks, pagina
 - Add a lint-disable directive, `@ts-expect-error`, or warning comment.
 - Commit or push.
 
-- [ ] **Step 1: Create `useBacktestCharts.ts`**
+- [x] **Step 1: Create `useBacktestCharts.ts`**
 
 Create `apps/web/app/hooks/useBacktestCharts.ts`:
 
@@ -68,7 +68,7 @@ Create `apps/web/app/hooks/useBacktestCharts.ts`:
   - Attach entry and exit markers via `createSeriesMarkers(candles, markers)` (`arrowUp` for `LONG`, `arrowDown` for `SHORT`, `circle` for `Exit`).
   - Attach a `keydown` listener inside `useEffect` that calls `onExitFullScreen()` when `fullScreen` is true and `event.key === 'Escape'`.
 
-- [ ] **Step 2: Create `BacktestTradesTable.tsx`**
+- [x] **Step 2: Create `BacktestTradesTable.tsx`**
 
 Create `apps/web/app/pages/Backtest/components/BacktestTradesTable.tsx` using `@tanstack/react-table`:
 
@@ -80,7 +80,7 @@ Create `apps/web/app/pages/Backtest/components/BacktestTradesTable.tsx` using `@
   - Page size `<select aria-label="Rows per page">` with options `10`, `25`, `50` (changing page size resets page index to `0`).
   - `Previous page` and `Next page` buttons disabled at first and last page.
 
-- [ ] **Step 3: Create `BacktestResultsSection.tsx` and wire it into `BacktestPage.tsx`**
+- [x] **Step 3: Create `BacktestResultsSection.tsx` and wire it into `BacktestPage.tsx`**
 
 Create `apps/web/app/pages/Backtest/components/BacktestResultsSection.tsx`:
 
@@ -97,12 +97,12 @@ Update `apps/web/app/pages/Backtest/BacktestPage.tsx`:
 - On `Set up & run`, load the latest completed run via `useBacktestRunDetail(latestCompletedRunId)` and render `<BacktestResultsSection>` below `RunStatusCard` with `isStale`, `onRunAgain`, and `onRevertInputs`.
 - Inside `RunDetailView`, pass `renderResults={(detail) => <BacktestResultsSection run={detail} />}`.
 
-- [ ] **Step 4: Run typecheck, lint, tests, and prettier**
+- [x] **Step 4: Run typecheck, lint, tests, and prettier**
 
 Run: `pnpm --filter @crypto-force/web typecheck && pnpm --filter @crypto-force/web test && pnpm exec eslint apps/web/app/hooks/useBacktestCharts.ts apps/web/app/pages/Backtest/components/BacktestResultsSection.tsx apps/web/app/pages/Backtest/components/BacktestTradesTable.tsx apps/web/app/pages/Backtest/BacktestPage.tsx && pnpm exec prettier --check apps/web/app/hooks/useBacktestCharts.ts apps/web/app/pages/Backtest/components/BacktestResultsSection.tsx apps/web/app/pages/Backtest/components/BacktestTradesTable.tsx apps/web/app/pages/Backtest/BacktestPage.tsx`
 Expected: PASS. Typecheck exits with code 0, Vitest passes, ESLint exits with code 0, and Prettier reports all files formatted.
 
-- [ ] **Step 5: Write the report file and stop**
+- [x] **Step 5: Write the report file and stop**
 
 1. Mark Steps 1 to 4 as `- [x]` in this file.
 2. In `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md`, change its row status to `Done` and link `reports/task-06-backtest-results-visualization.md` in the `Report` column.
