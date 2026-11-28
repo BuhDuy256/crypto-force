@@ -64,7 +64,7 @@ Read this file to learn Task 1 steps, which add shared Zod contracts and MSW han
 - Import `apps/web/mocks/` or `msw` from `apps/web/app/`.
 - Commit or push.
 
-- [ ] **Step 1: Write failing unit tests for strategy and backtest schemas**
+- [x] **Step 1: Write failing unit tests for strategy and backtest schemas**
 
 Create `packages/shared/src/schemas/strategy.schema.test.ts` with this code:
 
@@ -195,12 +195,12 @@ describe('backtest schemas', () => {
 });
 ```
 
-- [ ] **Step 2: Run the shared schema tests and check that they fail**
+- [x] **Step 2: Run the shared schema tests and check that they fail**
 
 Run: `pnpm --filter @crypto-force/shared test`
 Expected: FAIL. The output reports missing modules `./strategy.schema` and `./backtest.schema`.
 
-- [ ] **Step 3: Implement shared strategy and backtest schemas and export them**
+- [x] **Step 3: Implement shared strategy and backtest schemas and export them**
 
 Create `packages/shared/src/schemas/strategy.schema.ts` with the exact schemas and types listed in `Interfaces`:
 
@@ -236,12 +236,12 @@ Create `packages/shared/src/schemas/backtest.schema.ts` with the exact schemas a
 
 Update `packages/shared/src/index.ts` to re-export every schema and type from `./schemas/strategy.schema` and `./schemas/backtest.schema`.
 
-- [ ] **Step 4: Run shared schema tests and typecheck**
+- [x] **Step 4: Run shared schema tests and typecheck**
 
 Run: `pnpm --filter @crypto-force/shared test && pnpm --filter @crypto-force/shared typecheck`
 Expected: PASS. Vitest reports all tests passed and `tsc --noEmit` exits with code 0.
 
-- [ ] **Step 5: Write failing fixture and MSW contract test**
+- [x] **Step 5: Write failing fixture and MSW contract test**
 
 Create `apps/web/mocks/strategy-backtest.test.ts` with this code:
 
@@ -299,12 +299,12 @@ describe('strategy and backtest development fixtures', () => {
 });
 ```
 
-- [ ] **Step 6: Run the web fixture test and check that it fails**
+- [x] **Step 6: Run the web fixture test and check that it fails**
 
 Run: `pnpm --filter @crypto-force/web test`
 Expected: FAIL. The output reports missing module `./fixtures/strategy-backtest`.
 
-- [ ] **Step 7: Implement fixtures and stateful MSW handlers**
+- [x] **Step 7: Implement fixtures and stateful MSW handlers**
 
 Create `apps/web/mocks/fixtures/strategy-backtest.ts`:
 
@@ -341,12 +341,12 @@ Create `apps/web/mocks/backtest.handlers.ts`:
 
 Update `apps/web/mocks/handlers.ts` to combine `[...marketDataHandlers, ...strategyHandlers, ...backtestHandlers]`.
 
-- [ ] **Step 8: Run tests, lint, typecheck, and prettier**
+- [x] **Step 8: Run tests, lint, typecheck, and prettier**
 
 Run: `pnpm --filter @crypto-force/shared test && pnpm --filter @crypto-force/web test && pnpm --filter @crypto-force/shared typecheck && pnpm --filter @crypto-force/web typecheck && pnpm exec eslint packages/shared/src/index.ts packages/shared/src/schemas/strategy.schema.ts packages/shared/src/schemas/strategy.schema.test.ts packages/shared/src/schemas/backtest.schema.ts packages/shared/src/schemas/backtest.schema.test.ts apps/web/mocks/handlers.ts apps/web/mocks/fixtures/strategy-backtest.ts apps/web/mocks/strategy.handlers.ts apps/web/mocks/backtest.handlers.ts apps/web/mocks/strategy-backtest.test.ts && pnpm exec prettier --check packages/shared/src/index.ts packages/shared/src/schemas/strategy.schema.ts packages/shared/src/schemas/strategy.schema.test.ts packages/shared/src/schemas/backtest.schema.ts packages/shared/src/schemas/backtest.schema.test.ts apps/web/mocks/handlers.ts apps/web/mocks/fixtures/strategy-backtest.ts apps/web/mocks/strategy.handlers.ts apps/web/mocks/backtest.handlers.ts apps/web/mocks/strategy-backtest.test.ts`
 Expected: PASS. All tests pass, ESLint exits with code 0, typecheck exits with code 0, and Prettier reports all files formatted.
 
-- [ ] **Step 9: Write the report file and stop**
+- [x] **Step 9: Write the report file and stop**
 
 1. Mark Steps 1 to 8 as `- [x]` in this file.
 2. In `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md`, change its row status to `Done` and link `reports/task-01-shared-contracts-and-msw-stubs.md` in the `Report` column.

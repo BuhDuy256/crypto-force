@@ -68,7 +68,7 @@ Execute Phase 1 tasks in order. Do not start Task N+1 until a person approves th
 
 | Task | Phase | Status | File | Report |
 | --- | --- | --- | --- | --- |
-| 1 | 1 | Pending | [Shared Strategy and Backtest Contracts and MSW Stubs](plan/task-01-shared-contracts-and-msw-stubs.md) | — |
+| 1 | 1 | Done | [Shared Strategy and Backtest Contracts and MSW Stubs](plan/task-01-shared-contracts-and-msw-stubs.md) | [Task 1 report](reports/task-01-shared-contracts-and-msw-stubs.md) |
 | 2 | 1 | Pending | [Web API Clients, Hooks, Draft Helpers, and Dialog Primitives](plan/task-02-web-api-hooks-and-primitives.md) | — |
 | 3 | 1 | Pending | [Strategy Engine Screen](plan/task-03-strategy-engine-screen.md) | — |
 | 4 | 1 | Pending | [Strategy Library Screen and Workspace Navigation](plan/task-04-strategy-library-and-navigation.md) | — |
