@@ -48,55 +48,55 @@ Read this file to learn Task 9 steps, which draft Vietnamese use cases for Strat
 - Delete, skip, or weaken a check.
 - Commit or push.
 
-- [ ] **Step 1: Create draft `docs/UCs/strategy-engine.md`**
+- [x] **Step 1: Create draft `docs/UCs/strategy-engine.md`**
 
 Create `docs/UCs/strategy-engine.md` in Vietnamese obeying `docs/conventions/docs.md` and `docs/conventions/use-cases.md`:
 
-- Line 1: `# Strategy Engine vÃ  Strategy Library`
-- Purpose line starting with `Äá»c file nÃ y Ä‘á»ƒ biáº¿t ...`
-- `## Tá»•ng quan`:
-  - Actor (`NgÆ°á»i dÃ¹ng Ä‘Ã£ Ä‘Äƒng nháº­p`), in-scope behaviors (create, preview, save, edit, draft recovery, list, filter, search, drawer, rename, duplicate, delete with Undo). List out-of-scope items (Discovery Composite builder, News sentiment, Realtime live signals).
+- Line 1: `# Strategy Engine và Strategy Library`
+- Purpose line starting with `Đọc file này để biết ...`
+- `## Tổng quan`:
+  - Actor (`Người dùng đã đăng nhập`), in-scope behaviors (create, preview, save, edit, draft recovery, list, filter, search, drawer, rename, duplicate, delete with Undo). List out-of-scope items (Discovery Composite builder, News sentiment, Realtime live signals).
   - Prefix table with `SE` (`Strategy Engine`) and `SL` (`Strategy Library`) citing `[[1]](#ref-1)`.
   - Black-box Mermaid `flowchart LR` mapping actor to use cases.
 - Use case sections:
-  - `## Táº¡o vÃ  lÆ°u strategy` (`sequenceDiagram`, numbered steps, measurable rule table `SE-01`..`SE-10`, alternative/exception table `SE-11`..`SE-15`).
-  - `## KhÃ´i phá»¥c báº£n nhÃ¡p vÃ  sá»­a strategy` (numbered steps, rule table `SE-16`..`SE-19`, alternative/exception table `SE-20`..`SE-21`).
-  - `## Quáº£n lÃ½ Strategy Library` (`sequenceDiagram`, numbered steps, rule table `SL-01`..`SL-10`, alternative/exception table `SL-11`..`SL-14`).
+  - `## Tạo và lưu strategy` (`sequenceDiagram`, numbered steps, measurable rule table `SE-01`..`SE-10`, alternative/exception table `SE-11`..`SE-15`).
+  - `## Khôi phục bản nháp và sửa strategy` (numbered steps, rule table `SE-16`..`SE-19`, alternative/exception table `SE-20`..`SE-21`).
+  - `## Quản lý Strategy Library` (`sequenceDiagram`, numbered steps, rule table `SL-01`..`SL-10`, alternative/exception table `SL-11`..`SL-14`).
 - Mark prototype rules labeled `**Confirmed**` as `Confirmed` with citation. Mark other prototype rules as `Inferred`. Mark UI loading and error stub states as `Proposed`.
 - `## Gap analysis`:
   - State that Phase 1 drafts observable UI flows and that Phase 2 completes the independent baseline comparison (for example ISO/IEC 25010 and WCAG 2.2 AA).
-  - Table `ID | Gap | Baseline | Quyáº¿t Ä‘á»‹nh | Tráº¡ng thÃ¡i` linking open gaps to `../open-questions.md#oq-021` through `../open-questions.md#oq-026` with status `Open`.
+  - Table `ID | Gap | Baseline | Quyết định | Trạng thái` linking open gaps to `../open-questions.md#oq-021` through `../open-questions.md#oq-026` with status `Open`.
 - `## References`: paper-style anchors `#ref-1` onward.
 
-- [ ] **Step 2: Create draft `docs/UCs/backtest.md`**
+- [x] **Step 2: Create draft `docs/UCs/backtest.md`**
 
 Create `docs/UCs/backtest.md` in Vietnamese obeying `docs/conventions/docs.md` and `docs/conventions/use-cases.md`:
 
 - Line 1: `# Backtest`
-- Purpose line starting with `Äá»c file nÃ y Ä‘á»ƒ biáº¿t ...`
-- `## Tá»•ng quan`:
-  - Actor (`NgÆ°á»i dÃ¹ng Ä‘Ã£ Ä‘Äƒng nháº­p`), in-scope behaviors (configure and run backtest, active-run conflict dialog, monitor and cancel, Runs list, details, drift notices, charts, trades, costs). List out-of-scope items (Discovery search backtests, automated ranking).
+- Purpose line starting with `Đọc file này để biết ...`
+- `## Tổng quan`:
+  - Actor (`Người dùng đã đăng nhập`), in-scope behaviors (configure and run backtest, active-run conflict dialog, monitor and cancel, Runs list, details, drift notices, charts, trades, costs). List out-of-scope items (Discovery search backtests, automated ranking).
   - Prefix table with `BT` (`Backtest`) citing `[[1]](#ref-1)`.
   - Black-box Mermaid `flowchart LR`.
 - Use case sections:
-  - `## Cáº¥u hÃ¬nh vÃ  cháº¡y backtest thá»§ cÃ´ng` (`sequenceDiagram`, `stateDiagram-v2` with `Running`, `Completed`, `Failed`, `Cancelled`, numbered steps, measurable rule table `BT-01`..`BT-12`, alternative/exception table `BT-13`..`BT-17`).
-  - `## Xá»­ lÃ½ xung Ä‘á»™t run Ä‘ang cháº¡y vÃ  há»§y run` (numbered steps, rule table `BT-18`..`BT-22`, alternative/exception table `BT-23`..`BT-24`).
-  - `## Xem danh sÃ¡ch Runs, chi tiáº¿t run vÃ  káº¿t quáº£` (numbered steps, rule table `BT-25`..`BT-32`, alternative/exception table `BT-33`..`BT-35`).
+  - `## Cấu hình và chạy backtest thủ công` (`sequenceDiagram`, `stateDiagram-v2` with `Running`, `Completed`, `Failed`, `Cancelled`, numbered steps, measurable rule table `BT-01`..`BT-12`, alternative/exception table `BT-13`..`BT-17`).
+  - `## Xử lý xung đột run đang chạy và hủy run` (numbered steps, rule table `BT-18`..`BT-22`, alternative/exception table `BT-23`..`BT-24`).
+  - `## Xem danh sách Runs, chi tiết run và kết quả` (numbered steps, rule table `BT-25`..`BT-32`, alternative/exception table `BT-33`..`BT-35`).
 - `## Gap analysis`:
   - State that Phase 1 drafts observable UI flows and that Phase 2 completes the independent baseline comparison.
-  - Table `ID | Gap | Baseline | Quyáº¿t Ä‘á»‹nh | Tráº¡ng thÃ¡i` linking open gaps to `../open-questions.md#oq-001` through `../open-questions.md#oq-010` with status `Open`.
+  - Table `ID | Gap | Baseline | Quyết định | Trạng thái` linking open gaps to `../open-questions.md#oq-001` through `../open-questions.md#oq-010` with status `Open`.
 - `## References`: paper-style anchors `#ref-1` onward.
 
-- [ ] **Step 3: Update `docs/UCs/README.md`**
+- [x] **Step 3: Update `docs/UCs/README.md`**
 
-Add rows for `[strategy-engine.md](strategy-engine.md)` and `[backtest.md](backtest.md)` in the `## Danh sÃ¡ch file` table of `docs/UCs/README.md`.
+Add rows for `[strategy-engine.md](strategy-engine.md)` and `[backtest.md](backtest.md)` in the `## Danh sách file` table of `docs/UCs/README.md`.
 
-- [ ] **Step 4: Run `pnpm check:docs` and Prettier check**
+- [x] **Step 4: Run `pnpm check:docs` and Prettier check**
 
 Run: `pnpm check:docs && pnpm exec prettier --check docs/UCs/strategy-engine.md docs/UCs/backtest.md docs/UCs/README.md`
 Expected: PASS. `pnpm check:docs` reports zero errors and Prettier reports all files formatted.
 
-- [ ] **Step 5: Write the report file and close Phase 1**
+- [x] **Step 5: Write the report file and close Phase 1**
 
 1. Mark Steps 1 to 4 as `- [x]` in this file.
 2. In `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md`, change its row status to `Done` and link `reports/task-09-draft-use-cases.md` in the `Report` column.

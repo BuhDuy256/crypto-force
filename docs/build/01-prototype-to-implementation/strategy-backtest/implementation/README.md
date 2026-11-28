@@ -56,7 +56,7 @@ Each phase runs in order. Generate concrete `plan/task-NN-<slug>.md` files for o
 
 | Phase | Name | Status | Scope and Exit Gate |
 | --- | --- | --- | --- |
-| 1 | Scope and Stubbed UI | Active | Lock the initial user flow across Strategy Engine, Strategy Library, and Backtest. Implement interactive views in `apps/web` with stubs for loading, empty, error, validation, draft recovery, and active-run conflict states. Draft observable user behavior in `docs/UCs/`. |
+| 1 | Scope and Stubbed UI | Done | Lock the initial user flow across Strategy Engine, Strategy Library, and Backtest. Implement interactive views in `apps/web` with stubs for loading, empty, error, validation, draft recovery, and active-run conflict states. Draft observable user behavior in `docs/UCs/`. |
 | 2 | Requirements and Domain Rules | Pending | Complete use cases in `docs/UCs/` and quality targets in `docs/UCs/quality-attributes.md`. Resolve High and Medium open questions that block the engine, database schema, and job lifecycle (`OQ-001` to `OQ-010`, `OQ-021` to `OQ-026`, `OQ-066`, `OQ-067`). Record requirement gap analysis against an independent baseline. |
 | 3 | Pure Engine Design and Core | Pending | Write architecture docs `11-strategy.md` to `14-evaluation.md` and ADRs in `30-decisions.md`. Define shared contracts in `packages/shared`. Implement zero-I/O indicators, strategy plugin registry (MA, RSI, Bollinger Bands, Support/Resistance), composite combiner, trade simulator, and evaluator in `packages/engine`. Pass golden tests and property tests for determinism, zero look-ahead bias, and P/L accounting. |
 | 4 | Persistence, API, and Async Worker Design | Pending | Update `20-state-machine.md`, `21-database.md`, `22-api-endpoints.md`, `23-security.md`, and `30-decisions.md`. Define versioned library tables, immutable run snapshots, REST endpoints, WebSocket progress events, run state transitions, cooperative cancellation, authorization limits, observability fields, and integration test scenarios. |
@@ -77,7 +77,7 @@ Execute Phase 1 tasks in order. Do not start Task N+1 until a person approves th
 | 6 | 1 | Done | [Backtest Results Visualization (Charts, Trades Table, Cost Breakdown)](plan/task-06-backtest-results-visualization.md) | [Task 6 report](reports/task-06-backtest-results-visualization.md) |
 | 7 | 1 | Done | [Browser Verification Suite and Production Build Check](plan/task-07-browser-verification-suite.md) | [Task 7 report](reports/task-07-browser-verification-suite.md) |
 | 8 | 1 | Done | [Prototype Parity for Strategy Engine, Strategy Library, and Backtest](plan/task-08-prototype-parity.md) | [Task 8 report](reports/task-08-prototype-parity.md) |
-| 9 | 1 | Pending | [Draft Observable Use Cases in `docs/UCs/`](plan/task-09-draft-use-cases.md) | — |
+| 9 | 1 | Done | [Draft Observable Use Cases in `docs/UCs/`](plan/task-09-draft-use-cases.md) | [Task 9 report](reports/task-09-draft-use-cases.md) |
 
 ## Next Phase
 

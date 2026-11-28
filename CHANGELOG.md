@@ -8,6 +8,8 @@ Các thay đổi đáng chú ý về sản phẩm, kiến trúc và quy trình p
 
 ### Changed
 
+- Strategy và Backtest Phase 1, Task 9: thêm use case Strategy Engine, Library và Backtest. Chốt các câu hỏi liên quan theo ủy quyền của product owner. Ghi rule mô phỏng giao dịch, Score, giới hạn Library và bảo vệ nháp theo tài khoản. Đánh dấu Task 9 và Phase 1 hoàn thành. Code theo các quyết định mới thuộc phase sau.
+
 - Strategy và Backtest Phase 1, Task 8: đóng khoảng cách giữa ba màn Strategy Engine, Strategy Library, Backtest và code prototype. Dữ liệu mock của run sinh đủ 178 trade. Summary, đường account value và drawdown tính từ cùng các trade đó. Các tổng khớp prototype: gross 22.66, phí 8.90, slippage 5.34, net 8.42 USD. Màn Backtest có tiêu đề run, toast báo run xong hoặc lỗi trên mọi màn workspace, chart giá đọc được (volume ở pane riêng, nhãn marker gọn), phân trang theo số và tooltip cho Fee và Slippage. Màn Strategy Engine tự điền tên và tag gợi ý, sửa dòng assumption SHORT bị lặp, dùng bố cục 2 cột và status chip. Search, chuông thông báo và chỉ báo Market data ở App Header chưa làm trong Phase 1. Kiểm chứng: 34 unit test web, 194 unit test shared, 6/6 E2E, build và `check:exports` đạt. Mỗi assertion mới có một mutant làm test fail. Task viết use case chuyển thành Task 9.
 
 - Skill của agent: thay `writing-plans` bằng `write-implementation-plan` (giữ cấu trúc plan của upstream, thêm ràng buộc để model nhỏ chạy từng task mà không tự quyết định) và thêm `asd-ste100` cho văn bản tiếng Anh kiểm soát. Đồng bộ lại `.claude/skills` và `.codex/skills` từ nguồn `.agents/skills`, xóa bản copy `writing-plans` còn sót ở hai thư mục đích để `pnpm skills:check` sạch.

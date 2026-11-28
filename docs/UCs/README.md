@@ -31,6 +31,8 @@ flowchart LR
 | --- | --- |
 | [market-data.md](market-data.md) | Xem thị trường trên Realtime: tải lịch sử, cập nhật định kỳ và cập nhật trực tiếp (multi-chart, pair, timeframe, nến, volume, MA, mất kết nối, dữ liệu cũ và phục hồi đồng bộ) |
 | [authentication.md](authentication.md) | Sign in, Continue with Google, Create account và Verify email, Reset password, phiên và Sign out, bảo mật, accessibility của Auth |
+| [strategy-engine.md](strategy-engine.md) | Strategy Engine và Strategy Library: tạo strategy từ mô tả hoặc link, xem trước rules, lưu, khôi phục nháp, sửa, lọc, tìm, đổi tên, nhân bản, xóa có Undo, chọn signal source |
+| [backtest.md](backtest.md) | Backtest thủ công: cấu hình và chạy, xung đột run đang chạy, hủy run, danh sách Runs, chi tiết run và kết quả |
 | [quality-attributes.md](quality-attributes.md) | Quality attribute scenario toàn hệ thống: modifiability, scalability, performance, realtime, reliability, observability |
 | [sources/project-brief.md](sources/project-brief.md) | Đề bài gốc: mục tiêu, module, architectural drivers, MVP |
 | [sources/system-description.md](sources/system-description.md) | Mô tả domain: Market, Strategy, Backtest, Evaluation, Leaderboard, Search, News |
