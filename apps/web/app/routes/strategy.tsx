@@ -1,4 +1,4 @@
-import { ScreenPlaceholder } from '~/layouts/workspace/ScreenPlaceholder';
+import { StrategyEnginePage } from '~/pages/StrategyEngine/StrategyEnginePage';
 import type { Route } from './+types/strategy';
 
 export function meta(): Route.MetaDescriptors {
@@ -6,5 +6,5 @@ export function meta(): Route.MetaDescriptors {
 }
 
 export default function StrategyRoute() {
-  return <ScreenPlaceholder title="Strategy Engine" />;
+  return <StrategyEnginePage />;
 }

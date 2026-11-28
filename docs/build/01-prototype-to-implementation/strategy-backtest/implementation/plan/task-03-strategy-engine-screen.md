@@ -50,7 +50,7 @@ Read this file to learn Task 3 steps, which implement the interactive Strategy E
 - Add a lint-disable directive, `@ts-expect-error`, or warning comment.
 - Commit or push.
 
-- [ ] **Step 1: Create `StrategyInputCard.tsx` and `StrategyPreviewCard.tsx`**
+- [x] **Step 1: Create `StrategyInputCard.tsx` and `StrategyPreviewCard.tsx`**
 
 Create `apps/web/app/pages/StrategyEngine/components/StrategyInputCard.tsx`:
 
@@ -76,7 +76,7 @@ Create `apps/web/app/pages/StrategyEngine/components/StrategyPreviewCard.tsx`:
   - `Review the assumptions` warning box with `Remove short example` button when `hasShort` is true. Clicking `Remove short example` hides the short row and shows an 8-second toast with `Undo`.
   - Collapsible `Strategy definition (JSON)` section with `Show` / `Hide` button (`aria-expanded`) and `Copy` button (`navigator.clipboard.writeText`, toast `Strategy JSON copied to the clipboard.`).
 
-- [ ] **Step 2: Create `StrategySaveCard.tsx` and `RecentLibraryCard.tsx`**
+- [x] **Step 2: Create `StrategySaveCard.tsx` and `RecentLibraryCard.tsx`**
 
 Create `apps/web/app/pages/StrategyEngine/components/StrategySaveCard.tsx`:
 
@@ -97,7 +97,7 @@ Create `apps/web/app/pages/StrategyEngine/components/RecentLibraryCard.tsx`:
 - Show empty message `Nothing saved yet. Preview the rules above, then save to add your first strategy.` when list is empty.
 - Show up to 3 most recently saved items with columns `Name`, `Type`, `Source`, `Updated`, `Version`, `Tags`, `Last backtest`, and row links `Backtest` (`/backtest?strategy={id}`) and `Open` (`/library?open={id}`).
 
-- [ ] **Step 3: Create `StrategyEnginePage.tsx` and wire `apps/web/app/routes/strategy.tsx`**
+- [x] **Step 3: Create `StrategyEnginePage.tsx` and wire `apps/web/app/routes/strategy.tsx`**
 
 Create `apps/web/app/pages/StrategyEngine/StrategyEnginePage.tsx`:
 
@@ -113,12 +113,12 @@ Create `apps/web/app/pages/StrategyEngine/StrategyEnginePage.tsx`:
 
 Update `apps/web/app/routes/strategy.tsx` to render `<StrategyEnginePage />` instead of `<ScreenPlaceholder title="Strategy Engine" />`.
 
-- [ ] **Step 4: Run typecheck, lint, tests, and prettier**
+- [x] **Step 4: Run typecheck, lint, tests, and prettier**
 
 Run: `pnpm --filter @crypto-force/web typecheck && pnpm --filter @crypto-force/web test && pnpm exec eslint apps/web/app/routes/strategy.tsx apps/web/app/pages/StrategyEngine/StrategyEnginePage.tsx apps/web/app/pages/StrategyEngine/components/StrategyInputCard.tsx apps/web/app/pages/StrategyEngine/components/StrategyPreviewCard.tsx apps/web/app/pages/StrategyEngine/components/StrategySaveCard.tsx apps/web/app/pages/StrategyEngine/components/RecentLibraryCard.tsx && pnpm exec prettier --check apps/web/app/routes/strategy.tsx apps/web/app/pages/StrategyEngine/StrategyEnginePage.tsx apps/web/app/pages/StrategyEngine/components/StrategyInputCard.tsx apps/web/app/pages/StrategyEngine/components/StrategyPreviewCard.tsx apps/web/app/pages/StrategyEngine/components/StrategySaveCard.tsx apps/web/app/pages/StrategyEngine/components/RecentLibraryCard.tsx`
 Expected: PASS. Typecheck exits with code 0, Vitest passes, ESLint exits with code 0, and Prettier reports all files formatted.
 
-- [ ] **Step 5: Write the report file and stop**
+- [x] **Step 5: Write the report file and stop**
 
 1. Mark Steps 1 to 4 as `- [x]` in this file.
 2. In `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md`, change its row status to `Done` and link `reports/task-03-strategy-engine-screen.md` in the `Report` column.
