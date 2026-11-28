@@ -81,7 +81,7 @@ Read this file to learn Task 2 steps, which add HTTP clients, query hooks, draft
 - Add a lint-disable directive, `@ts-expect-error`, or warning comment.
 - Commit or push.
 
-- [ ] **Step 1: Write failing unit tests for draft and period helpers**
+- [x] **Step 1: Write failing unit tests for draft and period helpers**
 
 Create `apps/web/app/utils/strategy-draft.test.ts` with this code:
 
@@ -161,12 +161,12 @@ describe('strategy draft and backtest date helpers', () => {
 });
 ```
 
-- [ ] **Step 2: Run the unit test and check that it fails**
+- [x] **Step 2: Run the unit test and check that it fails**
 
 Run: `pnpm --filter @crypto-force/web test`
 Expected: FAIL. The output reports missing module `./strategy-draft`.
 
-- [ ] **Step 3: Implement draft helpers, typed HTTP clients, and hooks**
+- [x] **Step 3: Implement draft helpers, typed HTTP clients, and hooks**
 
 Create `apps/web/app/utils/strategy-draft.ts`:
 
@@ -199,17 +199,17 @@ Create `apps/web/app/hooks/useBacktests.ts`:
 - In `useBacktestRuns()` and `useBacktestRunDetail(id)`: set `refetchInterval: 1000` only while a returned run has `status === 'running'`.
 - Invalidate backtest query keys after create and cancel mutations.
 
-- [ ] **Step 4: Create Dialog and Badge UI primitives**
+- [x] **Step 4: Create Dialog and Badge UI primitives**
 
 Create `apps/web/app/components/ui/dialog.tsx` using `import { Dialog as DialogPrimitive } from 'radix-ui'` and `cn` from `~/utils/cn`, matching the visual tokens in `apps/web/app/components/ui/sheet.tsx`.
 Create `apps/web/app/components/ui/badge.tsx` using `class-variance-authority` and `cn` from `~/utils/cn` with variants `default`, `secondary`, `outline`, `success`, `warning`, `destructive`, and `info`.
 
-- [ ] **Step 5: Run tests, typecheck, lint, and prettier**
+- [x] **Step 5: Run tests, typecheck, lint, and prettier**
 
 Run: `pnpm --filter @crypto-force/web test && pnpm --filter @crypto-force/web typecheck && pnpm exec eslint apps/web/app/api/strategies.ts apps/web/app/api/backtest.ts apps/web/app/utils/strategy-draft.ts apps/web/app/utils/strategy-draft.test.ts apps/web/app/hooks/useStrategies.ts apps/web/app/hooks/useBacktests.ts apps/web/app/components/ui/dialog.tsx apps/web/app/components/ui/badge.tsx && pnpm exec prettier --check apps/web/app/api/strategies.ts apps/web/app/api/backtest.ts apps/web/app/utils/strategy-draft.ts apps/web/app/utils/strategy-draft.test.ts apps/web/app/hooks/useStrategies.ts apps/web/app/hooks/useBacktests.ts apps/web/app/components/ui/dialog.tsx apps/web/app/components/ui/badge.tsx`
 Expected: PASS. Vitest passes all tests, typecheck exits with code 0, ESLint exits with code 0, and Prettier reports all files formatted.
 
-- [ ] **Step 6: Write the report file and stop**
+- [x] **Step 6: Write the report file and stop**
 
 1. Mark Steps 1 to 5 as `- [x]` in this file.
 2. In `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md`, change its row status to `Done` and link `reports/task-02-web-api-hooks-and-primitives.md` in the `Report` column.
