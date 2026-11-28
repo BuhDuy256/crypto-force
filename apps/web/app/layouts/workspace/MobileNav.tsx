@@ -1,6 +1,6 @@
 import { LogOutIcon, MenuIcon, XIcon } from 'lucide-react';
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { Button } from '~/components/ui/button';
 import {
   Sheet,
@@ -24,8 +24,14 @@ interface MobileNavProps {
 const drawerLink =
   'flex min-h-12 items-center rounded-lg px-3 text-base text-foreground no-underline hover:bg-accent';
 
+function isTabActive(to: string, pathname: string): boolean {
+  if (to === '/strategy') return pathname === '/strategy' || pathname === '/library';
+  return pathname === to;
+}
+
 /** Drawer that holds the tabs and account actions below the `lg` breakpoint (docs/design/prototype/docs/requirements/workspace.md, App header). */
 export function MobileNav({ name, email, signingOut, onSignOut }: MobileNavProps) {
+  const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const close = () => {
     setOpen(false);
@@ -54,16 +60,20 @@ export function MobileNav({ name, email, signingOut, onSignOut }: MobileNavProps
         </div>
         <SheetDescription className="sr-only">Workspace tabs and account</SheetDescription>
         <nav aria-label="Main" className="flex flex-col">
-          {WORKSPACE_TABS.map(({ to, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              onClick={close}
-              className={({ isActive }) => cn(drawerLink, isActive && 'bg-secondary font-semibold')}
-            >
-              {label}
-            </NavLink>
-          ))}
+          {WORKSPACE_TABS.map(({ to, label }) => {
+            const active = isTabActive(to, pathname);
+            return (
+              <Link
+                key={to}
+                to={to}
+                onClick={close}
+                aria-current={active ? 'page' : undefined}
+                className={cn(drawerLink, active && 'bg-secondary font-semibold')}
+              >
+                {label}
+              </Link>
+            );
+          })}
         </nav>
         <hr className="my-2 border-border" />
         <div className="flex items-center gap-3 px-3 py-2">

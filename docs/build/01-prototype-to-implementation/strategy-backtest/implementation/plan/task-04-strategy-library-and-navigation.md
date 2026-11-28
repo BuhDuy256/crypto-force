@@ -53,7 +53,7 @@ Read this file to learn Task 4 steps, which add `/library`, Strategy Library wit
 - Add a lint-disable directive, `@ts-expect-error`, or warning comment.
 - Commit or push.
 
-- [ ] **Step 1: Register `/library` route and update workspace header navigation**
+- [x] **Step 1: Register `/library` route and update workspace header navigation**
 
 Update `apps/web/app/routes.ts`:
 
@@ -73,7 +73,7 @@ Update `apps/web/app/layouts/workspace/AppHeader.tsx` and `apps/web/app/layouts/
   - When `onSignOut` runs and `activeRun` is null, call `signOut.mutate()` directly.
   - When `onSignOut` runs and `activeRun` exists, open a `Dialog` titled `A backtest is still running` with body `Signing out does not stop the running backtest. Results will appear in Runs when you sign in again.`, button `Stay signed in`, and button `Sign out anyway` (calls `signOut.mutate()`).
 
-- [ ] **Step 2: Create `StrategyDetailDrawer.tsx`**
+- [x] **Step 2: Create `StrategyDetailDrawer.tsx`**
 
 Create `apps/web/app/pages/StrategyLibrary/components/StrategyDetailDrawer.tsx` using `Sheet` (`side="right"`):
 
@@ -94,7 +94,7 @@ Create `apps/web/app/pages/StrategyLibrary/components/StrategyDetailDrawer.tsx` 
   - `Rename` button, `Duplicate` button (calls `useDuplicateStrategy`, switches drawer to the new copy, opens rename input), and `Delete` button.
 - Clicking `Delete` opens a `Dialog` titled `Delete "{item.name}"?` stating that past backtest runs keep their own snapshot of the configuration (plus signal-source fallback warning when active). Submitting the dialog calls `useDeleteStrategy`, closes the drawer, and shows an 8-second toast with `Undo` calling `useRestoreStrategy`.
 
-- [ ] **Step 3: Create `StrategyLibraryPage.tsx`**
+- [x] **Step 3: Create `StrategyLibraryPage.tsx`**
 
 Create `apps/web/app/pages/StrategyLibrary/StrategyLibraryPage.tsx`:
 
@@ -109,12 +109,12 @@ Create `apps/web/app/pages/StrategyLibrary/StrategyLibraryPage.tsx`:
 - For each item row, show clickable name button (opens drawer), type badge, signal-source badge, metadata (`{source} Â· v{version} Â· Updated {updatedAt}`), tags, last backtest summary (`Last run ...` or `Not backtested yet`), and actions `Backtest`, `Edit`, and `Details`.
 - Read `?open=<id>` from `useSearchParams()` to open `StrategyDetailDrawer` for that item. Closing the drawer deletes the `open` query parameter.
 
-- [ ] **Step 4: Run typecheck, lint, tests, and prettier**
+- [x] **Step 4: Run typecheck, lint, tests, and prettier**
 
 Run: `pnpm --filter @crypto-force/web typecheck && pnpm --filter @crypto-force/web test && pnpm exec eslint apps/web/app/routes.ts apps/web/app/routes/library.tsx apps/web/app/layouts/workspace/AppHeader.tsx apps/web/app/layouts/workspace/MobileNav.tsx apps/web/app/pages/StrategyLibrary/StrategyLibraryPage.tsx apps/web/app/pages/StrategyLibrary/components/StrategyDetailDrawer.tsx && pnpm exec prettier --check apps/web/app/routes.ts apps/web/app/routes/library.tsx apps/web/app/layouts/workspace/AppHeader.tsx apps/web/app/layouts/workspace/MobileNav.tsx apps/web/app/pages/StrategyLibrary/StrategyLibraryPage.tsx apps/web/app/pages/StrategyLibrary/components/StrategyDetailDrawer.tsx`
 Expected: PASS. Typecheck exits with code 0, Vitest passes, ESLint exits with code 0, and Prettier reports all files formatted.
 
-- [ ] **Step 5: Write the report file and stop**
+- [x] **Step 5: Write the report file and stop**
 
 1. Mark Steps 1 to 4 as `- [x]` in this file.
 2. In `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md`, change its row status to `Done` and link `reports/task-04-strategy-library-and-navigation.md` in the `Report` column.

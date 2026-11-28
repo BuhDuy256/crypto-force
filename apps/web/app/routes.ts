@@ -12,6 +12,7 @@ export default [
   layout('routes/workspace-layout.tsx', [
     route('realtime', 'routes/realtime.tsx'),
     route('strategy', 'routes/strategy.tsx'),
+    route('library', 'routes/library.tsx'),
     route('discovery', 'routes/discovery.tsx'),
     route('backtest', 'routes/backtest.tsx'),
     route('news', 'routes/news.tsx'),
