@@ -74,7 +74,7 @@ Execute Phase 1 tasks in order. Do not start Task N+1 until a person approves th
 | 4 | 1 | Done | [Strategy Library Screen and Workspace Navigation](plan/task-04-strategy-library-and-navigation.md) | [Task 4 report](reports/task-04-strategy-library-and-navigation.md) |
 | 5 | 1 | Done | [Backtest Setup, Active Run Lifecycle, Conflict Dialog, and Runs Views](plan/task-05-backtest-setup-and-runs.md) | [Task 5 report](reports/task-05-backtest-setup-and-runs.md) |
 | 6 | 1 | Done | [Backtest Results Visualization (Charts, Trades Table, Cost Breakdown)](plan/task-06-backtest-results-visualization.md) | [Task 6 report](reports/task-06-backtest-results-visualization.md) |
-| 7 | 1 | Pending | [Browser Verification Suite and Production Build Check](plan/task-07-browser-verification-suite.md) | — |
+| 7 | 1 | Pending | [Browser Verification Suite and Production Build Check](plan/task-07-browser-verification-suite.md) | [Task 7 report](reports/task-07-browser-verification-suite.md) |
 | 8 | 1 | Pending | [Draft Observable Use Cases in `docs/UCs/`](plan/task-08-draft-use-cases.md) | — |
 
 ## Next Phase

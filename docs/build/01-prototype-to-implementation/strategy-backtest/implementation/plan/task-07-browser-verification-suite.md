@@ -45,7 +45,7 @@ Read this file to learn Task 7 steps, which add Playwright browser checks for MS
 - Add a lint-disable directive, `@ts-expect-error`, or warning comment.
 - Commit or push.
 
-- [ ] **Step 1: Create `apps/web/playwright.strategy-backtest.config.ts`**
+- [x] **Step 1: Create `apps/web/playwright.strategy-backtest.config.ts`**
 
 Create `apps/web/playwright.strategy-backtest.config.ts` matching `apps/web/playwright.market-data.config.ts`:
 
@@ -55,7 +55,7 @@ Create `apps/web/playwright.strategy-backtest.config.ts` matching `apps/web/play
 - Project `msw` runs `flows.spec.ts` on `http://localhost:5186` with `VITE_API_MOCKING: 'true'` and `serviceWorkers: 'allow'`.
 - Separate `VITE_CACHE_DIR` per port (`node_modules/.vite-strategy-backtest-${port}`).
 
-- [ ] **Step 2: Write `apps/web/e2e/strategy-backtest/flows.spec.ts`**
+- [x] **Step 2: Write `apps/web/e2e/strategy-backtest/flows.spec.ts`**
 
 Create `apps/web/e2e/strategy-backtest/flows.spec.ts` with a shared `stubSession(context)` helper (matching `apps/web/e2e/market-data/msw-smoke.spec.ts`) and tests that check:
 
@@ -79,7 +79,7 @@ Create `apps/web/e2e/strategy-backtest/flows.spec.ts` with a shared `stubSession
    - Run a backtest with `SOLUSDT` and `From` `2019-06-01`, wait for `Failed` status, assert failure reason mentions `11 Aug 2020`.
    - Open `/library`, delete `RSI_BB_LB_LONG_SL2_TP4`, return to `/backtest?run=R-1041`, assert snapshot drift note states the strategy is no longer in your library and original rules remain visible.
 
-- [ ] **Step 3: Write `apps/web/e2e/strategy-backtest/states.spec.ts`**
+- [x] **Step 3: Write `apps/web/e2e/strategy-backtest/states.spec.ts`**
 
 Create `apps/web/e2e/strategy-backtest/states.spec.ts` using deterministic `requestGate()` promises (no `waitForTimeout`) and `page.route` without MSW to check:
 
@@ -92,12 +92,12 @@ Create `apps/web/e2e/strategy-backtest/states.spec.ts` using deterministic `requ
 3. **Strategy Engine preview error + retry state:**
    - Return `500` for `POST /api/strategies/preview`, click `Preview example rules`, and assert error alert renders. Switch route to `200`, click `Retry`, and assert preview rules render.
 
-- [ ] **Step 4: Run Playwright verification, ESLint, production build, and export check**
+- [x] **Step 4: Run Playwright verification, ESLint, production build, and export check**
 
 Run: `pnpm --filter @crypto-force/web exec playwright test --config=playwright.strategy-backtest.config.ts && pnpm exec eslint apps/web/playwright.strategy-backtest.config.ts apps/web/e2e/strategy-backtest/flows.spec.ts apps/web/e2e/strategy-backtest/states.spec.ts && pnpm --filter @crypto-force/web build && pnpm check:exports && pnpm exec prettier --check apps/web/playwright.strategy-backtest.config.ts apps/web/e2e/strategy-backtest/flows.spec.ts apps/web/e2e/strategy-backtest/states.spec.ts`
 Expected: PASS. All Playwright tests in `ui` and `msw` projects pass, ESLint exits with code 0, `react-router build` passes `reject-production-mocks`, `pnpm check:exports` reports zero unused production exports, and Prettier reports all files formatted.
 
-- [ ] **Step 5: Write the report file and stop**
+- [x] **Step 5: Write the report file and stop**
 
 1. Mark Steps 1 to 4 as `- [x]` in this file.
 2. In `docs/build/01-prototype-to-implementation/strategy-backtest/implementation/README.md`, change its row status to `Done` and link `reports/task-07-browser-verification-suite.md` in the `Report` column.
